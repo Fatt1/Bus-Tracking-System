@@ -1,0 +1,6 @@
+@TrackingBusSystem.Presentation_HostAddress = http://localhost:5070
+
+GET {{TrackingBusSystem.Presentation_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
