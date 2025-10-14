@@ -1,5 +1,6 @@
-// src/components/DashboardPage.jsx (phần này vẫn giữ nguyên)
-import React, { useState } from "react"; // THÊM useState vào đây
+// src/components/DashboardPage.jsx
+
+import React, { useState } from "react";
 import "./DashboardPage.css";
 import {
   FaHome,
@@ -13,7 +14,7 @@ import {
   FaChevronRight,
 } from "react-icons/fa";
 
-// DỮ LIỆU MẪU - (Vẫn giữ nguyên, sẽ thay bằng API sau)
+// Dữ liệu mẫu
 const sampleRoutes = [
   {
     id: 1,
@@ -72,21 +73,23 @@ const sampleRoutes = [
   },
 ];
 
-// Component nhỏ: 1 Thẻ Tuyến Xe (Giữ nguyên)
+// Component nhỏ: Thẻ Tuyến Xe (ĐÃ CẬP NHẬT CẤU TRÚC)
 const RouteCard = ({ route }) => (
   <div className="route-card">
-    <div className="route-card-icon">
-      <FaBus size={24} />
-    </div>
-    <div className="route-card-info">
+    <div className="route-card-top">
+      <div className="route-card-icon">
+        <FaBus size={24} />
+      </div>
       <h4>{route.name}</h4>
+    </div>
+    <div className="route-card-bottom">
       <p>{route.description}</p>
       <span>{route.time}</span>
     </div>
   </div>
 );
 
-// Component: Thanh điều hướng bên trái (Giữ nguyên)
+// Component: Thanh điều hướng bên trái
 const Sidebar = () => (
   <aside className="sidebar">
     <div className="sidebar-header">
@@ -129,36 +132,20 @@ const Sidebar = () => (
   </aside>
 );
 
-// Component: Phần nội dung chính bên phải (Phần CẦN CHỈNH SỬA)
+// Component: Phần nội dung chính bên phải (ĐÃ CẬP NHẬT CẤU TRÚC)
 const MainContent = () => {
-  // State để theo dõi vị trí bắt đầu của các tuyến đường được hiển thị
   const [startIndex, setStartIndex] = useState(0);
-  const routesPerPage = 5; // Hiển thị 5 tuyến đường mỗi lần
-
+  const routesPerPage = 5;
   const totalRoutes = sampleRoutes.length;
 
-  // Hàm xử lý khi bấm nút "Trước"
   const handlePrev = () => {
-    setStartIndex((prevIndex) => {
-      const newIndex = prevIndex - 1;
-      // Nếu về đầu, cuộn vòng về cuối
-      return newIndex < 0 ? totalRoutes - 1 : newIndex;
-    });
+    setStartIndex((prevIndex) => (prevIndex - 1 + totalRoutes) % totalRoutes);
   };
 
-  // Hàm xử lý khi bấm nút "Sau"
   const handleNext = () => {
-    setStartIndex((prevIndex) => {
-      const newIndex = prevIndex + 1;
-      // Nếu vượt quá cuối, cuộn vòng về đầu
-      return newIndex >= totalRoutes ? 0 : newIndex;
-    });
+    setStartIndex((prevIndex) => (prevIndex + 1) % totalRoutes);
   };
 
-  // Tạo danh sách các tuyến đường sẽ được hiển thị
-  // Logic cuộn vòng:
-  // Nếu startIndex + routesPerPage vượt quá tổng số routes,
-  // chúng ta sẽ lấy phần còn thiếu từ đầu mảng.
   let displayedRoutes = [];
   for (let i = 0; i < routesPerPage; i++) {
     displayedRoutes.push(sampleRoutes[(startIndex + i) % totalRoutes]);
@@ -166,34 +153,37 @@ const MainContent = () => {
 
   return (
     <main className="main-content">
-      <header className="main-header">
-        <div className="breadcrumbs">
-          <span>Trang</span> / <span>Trang chủ</span>
-        </div>
-        <div className="header-actions">
-          <div className="search-bar">
-            <FaSearch className="search-icon" />
-            <input type="text" placeholder="Tìm kiếm..." />
+      {/* Div mới để bọc header và routes-section */}
+      <div className="main-content-top-wrapper">
+        <header className="main-header">
+          <div className="breadcrumbs">
+            <span>Trang</span> / <span>Trang chủ</span>
           </div>
-          <button className="login-button">Đăng nhập</button>
-        </div>
-      </header>
+          <div className="header-actions">
+            <div className="search-bar">
+              <FaSearch className="search-icon" />
+              <input type="text" placeholder="Tìm kiếm..." />
+            </div>
+            <button className="login-button">Đăng nhập</button>
+          </div>
+        </header>
 
-      <section className="routes-section">
-        <div className="routes-slider-container">
-          <button className="arrow-button left" onClick={handlePrev}>
-            <FaChevronLeft />
-          </button>
-          <div className="routes-slider">
-            {displayedRoutes.map((route, index) => (
-              <RouteCard key={route.id + "-" + index} route={route} /> // Thêm index vào key để tránh lỗi khi route.id trùng lặp trong vòng lặp ảo
-            ))}
+        <section className="routes-section">
+          <div className="routes-slider-container">
+            <button className="arrow-button left" onClick={handlePrev}>
+              <FaChevronLeft />
+            </button>
+            <div className="routes-slider">
+              {displayedRoutes.map((route, index) => (
+                <RouteCard key={route.id + "-" + index} route={route} />
+              ))}
+            </div>
+            <button className="arrow-button right" onClick={handleNext}>
+              <FaChevronRight />
+            </button>
           </div>
-          <button className="arrow-button right" onClick={handleNext}>
-            <FaChevronRight />
-          </button>
-        </div>
-      </section>
+        </section>
+      </div>
 
       <section className="map-section">
         <div className="map-placeholder">Bản đồ sẽ được hiển thị ở đây</div>
@@ -202,7 +192,7 @@ const MainContent = () => {
   );
 };
 
-// Component chính: Trang Dashboard (Giữ nguyên)
+// Component chính: Trang Dashboard
 const DashboardPage = () => {
   return (
     <div className="dashboard-container">

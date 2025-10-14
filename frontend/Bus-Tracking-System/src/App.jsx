@@ -1,11 +1,17 @@
 // src/App.jsx
-
-import DashboardPage from "./components/DashboardPage";
+import { Routes, Route } from "react-router";
+import DashboardPage from "./pages/DashboardPage";
+import LoginPage from "./pages/LoginPage";
 
 function App() {
   return (
     <>
-      <DashboardPage />
+      {/*  */}
+
+      <Routes>
+        <Route path="login" element={<LoginPage />} />
+        <Route index element={<DashboardPage />} />
+      </Routes>
     </>
   );
 }

@@ -1,35 +1,35 @@
 /* src/components/DashboardPage.css */
 
-/* --- Cài đặt chung & Reset --- (Vẫn giữ nguyên) */
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
 
 :root {
   --primary-blue: #0a2e5d;
   --secondary-blue: #1a4a8d;
-  --light-blue: #f0f4f8;
+  --light-blue-bg: #f0f4f8; /* Nền xám nhạt */
+  --active-blue-highlight: #2a64b5; /* Màu nền xanh cho item active */
   --text-color: #333;
   --text-light: #ffffff;
   --border-color: #e0e0e0;
   --card-bg: #ffffff;
 }
 
-/* --- Layout chính --- (Vẫn giữ nguyên) */
+/* --- Layout chính --- */
 .dashboard-container {
   display: flex;
   height: 100vh;
   font-family: "Roboto", sans-serif;
-  background-color: var(--light-blue);
+  background-color: var(--light-blue-bg);
   color: var(--text-color);
 }
 
-/* --- Thanh điều hướng (Sidebar) --- (Vẫn giữ nguyên) */
+/* --- Thanh điều hướng (Sidebar) --- (ĐÃ CẬP NHẬT) */
 .sidebar {
-  width: 240px;
+  width: 260px; /* Tăng chiều rộng một chút */
   background-color: var(--primary-blue);
   color: var(--text-light);
   display: flex;
   flex-direction: column;
-  padding: 20px 0;
+  padding: 20px 10px; /* Thay đổi padding */
   flex-shrink: 0;
 }
 
@@ -51,20 +51,25 @@
   display: flex;
   align-items: center;
   gap: 15px;
-  padding: 15px 20px;
+  padding: 12px 20px;
+  margin: 5px 0; /* Thêm khoảng cách giữa các item */
   color: var(--text-light);
   text-decoration: none;
   font-size: 1rem;
+  border-radius: 8px; /* Bo góc cho tất cả item */
   transition: background-color 0.3s;
 }
 
-.sidebar-nav li.active a,
 .sidebar-nav li a:hover {
-  background-color: var(--secondary-blue);
-  border-right: 3px solid #3498db;
+  background-color: var(--secondary-blue); /* Hiệu ứng hover */
 }
 
-/* --- Nội dung chính --- (Vẫn giữ nguyên) */
+/* Item đang active sẽ có nền xanh nổi bật */
+.sidebar-nav li.active a {
+  background-color: var(--active-blue-highlight);
+}
+
+/* --- Nội dung chính --- (ĐÃ CẬP NHẬT) */
 .main-content {
   flex-grow: 1;
   display: flex;
@@ -72,18 +77,26 @@
   overflow-y: auto;
 }
 
-/* Header của nội dung chính (Vẫn giữ nguyên) */
+/* Div mới chứa cả Header và Routes */
+.main-content-top-wrapper {
+  background: url("../assets/N2\ 1.png") no-repeat center center;
+  background-size: cover;
+  padding-bottom: 30px; /* Thêm padding dưới */
+}
+
+/* Header của nội dung chính (ĐÃ CẬP NHẬT) */
 .main-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 20px 30px;
-  background-color: var(--card-bg);
-  border-bottom: 1px solid var(--border-color);
+  background-color: transparent; /* Nền trong suốt */
+  border-bottom: none; /* Bỏ đường viền */
 }
 
 .breadcrumbs {
-  color: #888;
+  color: var(--text-light); /* Chữ màu trắng */
+  font-weight: 500;
 }
 
 .header-actions {
@@ -92,67 +105,52 @@
   gap: 20px;
 }
 
-.search-bar {
-  position: relative;
-}
-
 .search-bar input {
-  padding: 8px 15px 8px 35px;
+  padding: 10px 15px 10px 40px;
   border: 1px solid var(--border-color);
-  border-radius: 20px;
+  border-radius: 8px; /* Bo góc vuông hơn */
   min-width: 250px;
+  background-color: rgba(255, 255, 255, 0.9);
 }
 
 .search-icon {
   position: absolute;
-  left: 12px;
+  left: 15px;
   top: 50%;
   transform: translateY(-50%);
-  color: #aaa;
+  color: #555;
 }
 
 .login-button {
-  padding: 8px 20px;
+  padding: 10px 24px;
   background-color: var(--primary-blue);
   color: var(--text-light);
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
   font-weight: 500;
 }
 
-/* Phần slider các tuyến xe (CHỈNH SỬA Ở ĐÂY) */
+/* Phần slider các tuyến xe (ĐÃ CẬP NHẬT) */
 .routes-section {
   padding: 20px 30px;
-  background: url("https://i.imgur.com/kYF9LgJ.png") no-repeat center center;
-  background-size: cover;
+  background: none; /* Bỏ background ở đây vì đã đưa lên wrapper */
 }
 
-.routes-slider-container {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center; /* Để căn giữa slider và các nút điều hướng */
-  padding: 10px 0; /* Giúp tạo khoảng trống cho shadow */
-}
 .routes-slider-container {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 10px 0;
-  gap: 15px; /* <-- THÊM DÒNG NÀY */
+  gap: 15px;
 }
 
-/* Tìm đến class này */
 .routes-slider {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 20px;
-  /* BỎ ĐI CÁC DÒNG SAU ĐÂY */
-  /* width: 100%; */
-  /* max-width: calc(5 * 220px + 4 * 20px); */
 }
+
 .arrow-button {
   background-color: rgba(255, 255, 255, 0.8);
   border: 1px solid var(--border-color);
@@ -166,71 +164,73 @@
   z-index: 10;
   flex-shrink: 0;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.2s, transform 0.2s;
 }
 
-.arrow-button:hover {
-  background-color: rgba(255, 255, 255, 1);
-  transform: scale(1.05);
-}
-
-.arrow-button.left {
-  margin-right: 10px;
-}
-.arrow-button.right {
-  margin-left: 10px;
-}
-
-/* Thẻ tuyến xe (Vẫn giữ nguyên) */
+/* Thẻ tuyến xe (ĐÃ CẬP NHẬT HOÀN TOÀN) */
 .route-card {
   background-color: var(--card-bg);
-  border-radius: 8px;
-  padding: 15px;
-  min-width: 220px; /* Đảm bảo thẻ có kích thước cố định */
-  display: flex;
-  flex-direction: column; /* Thay đổi để icon và info nằm trên dưới nếu cần */
-  align-items: center; /* Căn giữa nội dung thẻ */
-  gap: 10px; /* Giảm khoảng cách */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
   cursor: pointer;
-  text-align: center; /* Căn giữa chữ */
+  overflow: hidden; /* Quan trọng để bo góc hoạt động */
+  display: flex;
+  flex-direction: column;
+  min-width: 200px;
 }
 
 .route-card:hover {
   transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
 }
+
+/* Phần trên màu xanh của thẻ */
+.route-card-top {
+  background-color: var(--primary-blue);
+  color: var(--text-light);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
 .route-card-icon {
-  background-color: var(--light-blue);
+  background-color: var(--active-blue-highlight);
   padding: 10px;
   border-radius: 50%;
-  color: var(--primary-blue);
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 50px; /* Kích thước cố định cho icon */
-  height: 50px;
 }
-.route-card-info h4 {
-  margin-bottom: 5px;
-  font-size: 1rem;
+
+.route-card-top h4 {
+  font-size: 1.1rem;
   font-weight: 700;
 }
-.route-card-info p {
+
+/* Phần dưới màu trắng của thẻ */
+.route-card-bottom {
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  padding: 15px 20px;
+}
+
+.route-card-bottom p {
   font-size: 0.9rem;
   color: #666;
-  margin-bottom: 5px;
+  margin-bottom: 8px;
 }
-.route-card-info span {
-  font-size: 0.8rem;
-  color: #333;
+
+.route-card-bottom span {
+  font-size: 0.85rem;
   font-weight: 500;
 }
 
-/* Phần bản đồ (Vẫn giữ nguyên) */
+/* Phần bản đồ */
 .map-section {
   flex-grow: 1;
-  padding: 0 30px 30px 30px;
+  padding: 30px;
+  margin-top: -1px; /* Để che đường viền nếu có */
 }
 .map-placeholder {
   width: 100%;
