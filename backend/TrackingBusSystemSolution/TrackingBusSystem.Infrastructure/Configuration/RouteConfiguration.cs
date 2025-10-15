@@ -16,6 +16,24 @@ namespace TrackingBusSystem.Infrastructure.Configuration
                    .WithOne(p => p.Route)
                    .HasForeignKey(p => p.RouteId)
                    .OnDelete(DeleteBehavior.Cascade); // Xóa tuyến đường thì xóa luôn các điểm trên tuyến
+            builder.HasData(new List<Route>()
+            {
+                new Route()
+                {
+                    Id = 1,
+                    RouteName = "Tuyến Trường Chinh - Âu Cơ"
+                },
+                  new Route()
+                {
+                    Id = 2,
+                    RouteName = "Tuyến Quốc lộ 52"
+                },
+                    new Route()
+                {
+                    Id = 3,
+                    RouteName = "Tuyến Nguyễn Hữu Thọ - Khánh Hội"
+                },
+            });
         }
     }
 }
