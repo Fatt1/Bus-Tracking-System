@@ -21,6 +21,7 @@ namespace TrackingBusSystem.Presentation
             builder.Services.AddInfrastureService(builder.Configuration);
             builder.Services.AddApplicationService();
             builder.Services.AddSignalR();
+
             builder.Services.AddCors(options =>
             {
                 options.AddDefaultPolicy(config =>

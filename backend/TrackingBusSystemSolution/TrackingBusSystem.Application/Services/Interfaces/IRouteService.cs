@@ -1,4 +1,4 @@
-﻿using TrackingBusSystem.Application.DTOs;
+﻿using TrackingBusSystem.Application.Features.Routes.DTOs;
 
 namespace TrackingBusSystem.Application.Services.Interfaces
 {

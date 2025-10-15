@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrackingBusSystem.Applicati
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrackingBusSystem.Infrastructure", "TrackingBusSystem.Infrastructure\TrackingBusSystem.Infrastructure.csproj", "{A70523F0-DF27-472C-8961-B03128AFE134}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrackingBusSystem.Shared", "TrackingBusSystem.Shared\TrackingBusSystem.Shared.csproj", "{0A18F46C-0002-4EEC-ACE9-3032FD37F812}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{A70523F0-DF27-472C-8961-B03128AFE134}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A70523F0-DF27-472C-8961-B03128AFE134}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A70523F0-DF27-472C-8961-B03128AFE134}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A18F46C-0002-4EEC-ACE9-3032FD37F812}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A18F46C-0002-4EEC-ACE9-3032FD37F812}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A18F46C-0002-4EEC-ACE9-3032FD37F812}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A18F46C-0002-4EEC-ACE9-3032FD37F812}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

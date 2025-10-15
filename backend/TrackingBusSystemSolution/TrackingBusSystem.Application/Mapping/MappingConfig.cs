@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using TrackingBusSystem.Application.DTOs;
+using TrackingBusSystem.Application.Features.Routes.DTOs;
 using TrackingBusSystem.Domain.Entities;
 
 namespace TrackingBusSystem.Application.Mapping

@@ -7,14 +7,17 @@ namespace TrackingBusSystem.Infrastructure.Repositories
 {
     public class RouteRepository(AppDbContext context) : IRouteRepository
     {
-        public Task<Route> GetRouteAsync(int id)
+
+        public async Task<Route> GetRouteAsync(int id)
         {
-            return context.Routes.Include(route => route.Points).FirstAsync(route => route.Id == id);
+            var route = await context.Routes.Include(route => route.Points).FirstAsync(route => route.Id == id);
+            return route;
         }
 
-        public Task<List<Route>> GetRoutesAsync()
+        public async Task<List<Route>> GetRoutesAsync()
         {
-            return context.Routes.Include(route => route.Points).ToListAsync();
+            var routeModel = await context.Routes.Include(route => route.Points).ToListAsync();
+            return routeModel;
         }
     }
 }

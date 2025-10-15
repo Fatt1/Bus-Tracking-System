@@ -1,6 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using TrackingBusSystem.Application.Abstractions.Common.Interfaces;
+using TrackingBusSystem.Domain.Entities;
 using TrackingBusSystem.Domain.Interfaces;
 using TrackingBusSystem.Infrastructure.Data;
 using TrackingBusSystem.Infrastructure.Repositories;
@@ -21,8 +24,13 @@ namespace TrackingBusSystem.Infrastructure.Dependency_Injection
                 });
             });
 
-            // Add dependencies
+            // 2. THÊM ĐOẠN NÀY ĐỂ SỬ DỤNG IDENTITY
+            services.AddIdentityCore<AppUser>()
+                .AddEntityFrameworkStores<AppDbContext>()
+                .AddDefaultTokenProviders();
+            services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<AppDbContext>());
             services.AddScoped<IRouteRepository, RouteRepository>();
+            services.AddDataProtection();
             return services;
         }
     }

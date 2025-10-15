@@ -1,17 +1,22 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using TrackingBusSystem.Application.Services.Interfaces;
+﻿using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using TrackingBusSystem.Application.Features.Routes.Query.GetAllRoutes;
 
 namespace TrackingBusSystem.Presentation.Controllers
 {
     [Route("api/v1/route/")]
     [ApiController]
-    public class RouteController(IRouteService routeService) : ControllerBase
+    public class RouteController(IMediator mediator) : ControllerBase
     {
         [HttpGet("all")]
         public async Task<IActionResult> GetAllRoutes()
         {
-            var routes = await routeService.GetRoutesAsync();
-            return Ok(routes);
+            var result = await mediator.Send(new GetAllRoutesQuery());
+            if (result.IsSuccess)
+            {
+                return Ok(result.Value);
+            }
+            return BadRequest(result.Error);
         }
     }
 }
