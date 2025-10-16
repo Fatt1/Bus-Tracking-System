@@ -1,7 +1,8 @@
 // src/pages/BusListPage.jsx
 
-import React, { useState } from "react";
-import "./BusListPage.css"; // Sẽ tạo ở bước tiếp theo
+import React, { useState, useEffect } from "react"; // THAY ĐỔI 1: Thêm useEffect
+import axios from "axios"; // THAY ĐỔI 2: Import axios
+import "./BusListPage.css";
 import busImg from "../assets/bus.png";
 import {
   FaHome,
@@ -10,91 +11,43 @@ import {
   FaUserTie,
   FaUserGraduate,
   FaCommentDots,
-  FaChevronLeft,
-  FaChevronRight,
 } from "react-icons/fa";
 import { SideBar } from "../components/SideBar";
 
-// DEMO DATA: Mảng chứa 19 xe buýt. Sau này bạn sẽ thay thế bằng dữ liệu từ API.
-const allBuses = Array.from({ length: 19 }, (_, i) => ({
-  id: `00${i + 1}`.slice(-3), // Tạo ID dạng 001, 002, ... 019
-  licensePlate: `29A - ${Math.floor(10000 + Math.random() * 90000)}`,
-  driver: `Nguyễn Văn ${String.fromCharCode(65 + i)}`, // Nguyễn Văn A, B, C...
-  status: Math.random() > 0.3 ? "Đang hoạt động" : "Không hoạt động", // 70% hoạt động
-  imageUrl: busImg, // Dùng chung 1 ảnh cho demo
-}));
+// THAY ĐỔI 3: Xóa toàn bộ mảng dữ liệu mẫu `allBuses`.
 
-// Component Sidebar (Tương tự trang Dashboard để đảm bảo tính nhất quán)
-// const Sidebar = () => (
-//   <aside className="sidebar">
-//     <div className="sidebar-header">
-//       <h3>36 36 BUS BUS</h3>
-//     </div>
-//     <nav className="sidebar-nav">
-//       <ul>
-//         <li>
-//           <a href="/dashboard">
-//             <FaHome /> Trang chủ
-//           </a>
-//         </li>
-//         <li className="active">
-//           <a href="/buses">
-//             <FaBus /> Xe buýt
-//           </a>
-//         </li>
-//         <li>
-//           <a href="#">
-//             <FaRoute /> Tuyến đường
-//           </a>
-//         </li>
-//         <li>
-//           <a href="#">
-//             <FaUserTie /> Tài xế
-//           </a>
-//         </li>
-//         <li>
-//           <a href="#">
-//             <FaUserGraduate /> Học sinh
-//           </a>
-//         </li>
-//         <li>
-//           <a href="#">
-//             <FaCommentDots /> Nhắn tin
-//           </a>
-//         </li>
-//       </ul>
-//     </nav>
-//   </aside>
-// );
-
-// Component Card cho mỗi xe buýt
+// Component Card cho mỗi xe buýt (ĐÃ CẬP NHẬT để khớp với API)
 const BusCard = ({ bus }) => (
   <div className="bus-card">
-    <img src={bus.imageUrl || busImg} alt={`Xe buýt ${bus.id}`} />
+    <img src={busImg} alt={`Xe buýt ${bus.busName}`} />
     <div className="bus-card-info">
       <p>
-        <strong>Xe:</strong> {bus.id}
+        {/* API trả về busName, nhưng để "Xe: 001" thì dùng id */}
+        <strong>Xe:</strong> {`00${bus.busName}`.slice(-3)}
       </p>
       <p>
-        <strong>Biển số xe:</strong> {bus.licensePlate}
+        <strong>Biển số xe:</strong> {bus.plateNumber}
       </p>
       <p>
-        <strong>Tài xế:</strong> {bus.driver}
+        <strong>Tài xế:</strong> {bus.driverName || "Chưa có"}{" "}
+        {/* Hiển thị 'Chưa có' nếu driverName là null */}
       </p>
       <div className="bus-status">
-        <strong>Trạng thái:</strong> {bus.status}
+        <strong>Trạng thái:</strong>{" "}
+        {bus.status ? "Đang hoạt động" : "Không hoạt động"}
         <span
-          className={`status-dot ${
-            bus.status === "Đang hoạt động" ? "active" : "inactive"
-          }`}
+          className={`status-dot ${bus.status ? "active" : "inactive"}`}
         ></span>
       </div>
     </div>
   </div>
 );
 
-// Component Phân trang
+// Component Phân trang (Giữ nguyên, không thay đổi)
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
+  // Để tránh lỗi khi totalPages = 0 lúc đầu
+  if (totalPages === 0) return null;
+
   const pageNumbers = [];
   for (let i = 1; i <= totalPages; i++) {
     pageNumbers.push(i);
@@ -126,16 +79,37 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   );
 };
 
-// Component chính của trang
+// Component chính của trang (ĐÃ CẬP NHẬT HOÀN TOÀN LOGIC)
 const BusListPage = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const busesPerPage = 6; // Số xe buýt hiển thị trên mỗi trang
+  // THAY ĐỔI 4: Quản lý state cho dữ liệu từ API
+  const [buses, setBuses] = useState([]); // State để lưu danh sách xe buýt
+  const [currentPage, setCurrentPage] = useState(1); // State cho trang hiện tại
+  const [totalPages, setTotalPages] = useState(0); // State cho tổng số trang
+  const [isLoading, setIsLoading] = useState(true); // State để hiển thị trạng thái tải
+  const busesPerPage = 6; // Giữ nguyên số lượng xe mỗi trang
 
-  // Logic tính toán phân trang
-  const indexOfLastBus = currentPage * busesPerPage;
-  const indexOfFirstBus = indexOfLastBus - busesPerPage;
-  const currentBuses = allBuses.slice(indexOfFirstBus, indexOfLastBus);
-  const totalPages = Math.ceil(allBuses.length / busesPerPage);
+  // THAY ĐỔI 5: Sử dụng useEffect để gọi API mỗi khi `currentPage` thay đổi
+  useEffect(() => {
+    const fetchBuses = async () => {
+      setIsLoading(true); // Bắt đầu tải, hiển thị loading
+      try {
+        // Thêm tham số `page` và `pageSize` vào URL để API biết cần lấy dữ liệu cho trang nào
+        const response = await axios.get(
+          `https://localhost:7229/api/v1/bus/all?page=${currentPage}&pageSize=${busesPerPage}`
+        );
+        // Cập nhật state với dữ liệu từ API
+        setBuses(response.data.items);
+        setTotalPages(response.data.totalPages);
+      } catch (error) {
+        console.error("Lỗi khi lấy dữ liệu xe buýt:", error);
+        // Có thể thêm state để hiển thị lỗi ra giao diện
+      } finally {
+        setIsLoading(false); // Kết thúc tải
+      }
+    };
+
+    fetchBuses();
+  }, [currentPage]); // Hook này sẽ chạy lại mỗi khi `currentPage` thay đổi
 
   return (
     <div className="page-layout-container">
@@ -156,21 +130,27 @@ const BusListPage = () => {
           </div>
         </header>
         <div className="page-banner">
-          {/* Banner sẽ được đặt làm nền bằng CSS */}
           <h2>Danh sách xe buýt</h2>
         </div>
 
         <div className="page-content">
-          <div className="bus-grid">
-            {currentBuses.map((bus) => (
-              <BusCard key={bus.id} bus={bus} />
-            ))}
-          </div>
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-          />
+          {/* THAY ĐỔI 6: Hiển thị thông báo tải hoặc danh sách xe buýt */}
+          {isLoading ? (
+            <div className="loading-message">Đang tải dữ liệu...</div>
+          ) : (
+            <>
+              <div className="bus-grid">
+                {buses.map((bus) => (
+                  <BusCard key={bus.id} bus={bus} />
+                ))}
+              </div>
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage} // Khi đổi trang, chỉ cần cập nhật state currentPage
+              />
+            </>
+          )}
         </div>
       </main>
     </div>
