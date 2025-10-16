@@ -10,8 +10,8 @@ namespace TrackingBusSystem.Infrastructure.Data
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
         public DbSet<Route> Routes => Set<Route>();
-        public DbSet<Point> Points { get; set; }
-        public DbSet<Bus> Buses { get; set; }
+        public DbSet<Point> Points => Set<Point>();
+        public DbSet<Bus> Buses => Set<Bus>();
         public DbSet<Announcement> Announcements { get; set; }
         public DbSet<UserAnnouncement> UserAnnouncements { get; set; }
         public DbSet<Student> Students { get; set; }

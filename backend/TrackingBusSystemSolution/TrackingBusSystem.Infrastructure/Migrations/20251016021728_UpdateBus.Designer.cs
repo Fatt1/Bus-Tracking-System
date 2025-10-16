@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TrackingBusSystem.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using TrackingBusSystem.Infrastructure.Data;
 namespace TrackingBusSystem.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251016021728_UpdateBus")]
+    partial class UpdateBus
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -342,11 +345,16 @@ namespace TrackingBusSystem.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("BusId")
+                    b.Property<int?>("BusId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("DateOfBirth")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("IDCard")
                         .IsRequired()
@@ -367,7 +375,8 @@ namespace TrackingBusSystem.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("BusId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[BusId] IS NOT NULL");
 
                     b.HasIndex("UserId")
                         .IsUnique();
@@ -820,9 +829,7 @@ namespace TrackingBusSystem.Infrastructure.Migrations
                 {
                     b.HasOne("TrackingBusSystem.Domain.Entities.Bus", "Bus")
                         .WithOne("Driver")
-                        .HasForeignKey("TrackingBusSystem.Domain.Entities.Driver", "BusId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TrackingBusSystem.Domain.Entities.Driver", "BusId");
 
                     b.HasOne("TrackingBusSystem.Domain.Entities.AppUser", "User")
                         .WithOne("Driver")

@@ -6,5 +6,7 @@ namespace TrackingBusSystem.Domain.Interfaces
     {
         Task<List<Bus>> GetBusesAsync();
         Task<Bus> GetBusAsync();
+        Task<Bus> AddBusAsync(Bus bus);
+
     }
 }
