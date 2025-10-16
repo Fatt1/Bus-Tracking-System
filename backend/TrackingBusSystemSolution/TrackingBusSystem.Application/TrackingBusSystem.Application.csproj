@@ -20,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Features\Drivers\Query\" />
     <Folder Include="Features\Routes\Command\" />
   </ItemGroup>
 

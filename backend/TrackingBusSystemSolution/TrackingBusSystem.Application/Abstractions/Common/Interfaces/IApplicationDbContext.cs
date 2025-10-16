@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using TrackingBusSystem.Domain.Entities;
 using Route = TrackingBusSystem.Domain.Entities.Route;
 
 namespace TrackingBusSystem.Application.Abstractions.Common.Interfaces
@@ -6,6 +7,6 @@ namespace TrackingBusSystem.Application.Abstractions.Common.Interfaces
     public interface IApplicationDbContext
     {
         public DbSet<Route> Routes { get; }
-        Task<int> SaveChangesAsync(CancellationToken cancellationToken);
+        public DbSet<Bus> Buses { get; }
     }
 }

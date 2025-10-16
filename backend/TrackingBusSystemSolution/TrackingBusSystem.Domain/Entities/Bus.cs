@@ -1,4 +1,6 @@
-﻿namespace TrackingBusSystem.Domain.Entities
+﻿using TrackingBusSystem.Shared;
+
+namespace TrackingBusSystem.Domain.Entities
 {
 
     public class Bus
@@ -15,9 +17,16 @@
         public bool Status { get; set; }
 
         // Navigation properties
-        public virtual ICollection<Driver> Drivers { get; set; } = new List<Driver>();
+        public virtual Driver Driver { get; set; } = default!;
         public virtual BusLastLocation? BusLastLocation { get; set; }
     }
 
+    public static class BusErrors
+    {
+        public static Error BusNotFound(int Id) => new Error(
+            Code: "Bus.NotFound",
+            Message: $"The bus with id {Id} was not found."
+        );
+    }
 
 }

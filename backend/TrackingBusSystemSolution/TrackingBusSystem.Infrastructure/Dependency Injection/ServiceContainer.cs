@@ -20,16 +20,19 @@ namespace TrackingBusSystem.Infrastructure.Dependency_Injection
                 options.UseSqlServer(connectionString, sqlOptions =>
                 {
                     sqlOptions.MigrationsAssembly(typeof(ServiceContainer).Assembly.FullName);
-                    sqlOptions.EnableRetryOnFailure(); // Tự động thử lại nếu thất bại cho transient failures
+
                 });
             });
 
             // 2. THÊM ĐOẠN NÀY ĐỂ SỬ DỤNG IDENTITY
             services.AddIdentityCore<AppUser>()
+                .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<AppDbContext>()
                 .AddDefaultTokenProviders();
             services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<AppDbContext>());
             services.AddScoped<IRouteRepository, RouteRepository>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IDriverRepository, DriverRepository>();
             services.AddDataProtection();
             return services;
         }
