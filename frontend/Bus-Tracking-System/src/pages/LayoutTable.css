@@ -1,0 +1,260 @@
+/* src/pages/PageLayout.css */
+/* File này chứa tất cả các style chung cho các trang có bảng */
+
+/* --- Layout chung của trang --- */
+.main-content-area {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 30px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
+  flex-shrink: 0;
+}
+
+.page-header .breadcrumbs {
+  color: #888;
+}
+
+.page-header .header-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.page-header .search-input {
+  padding: 8px 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+}
+
+.page-header .user-button {
+  padding: 8px 20px;
+  background-color: var(--primary-blue, #0a2e5d);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.page-content {
+  padding: 30px;
+  flex-grow: 1;
+}
+
+/* --- Header của nội dung (Content Header) --- */
+.content-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.content-header h2 {
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.date-picker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.date-picker label {
+  font-weight: 500;
+  color: #555;
+}
+
+.date-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.date-input-wrapper input {
+  padding: 8px 30px 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 0.9rem;
+}
+
+.calendar-icon {
+  position: absolute;
+  right: 10px;
+  color: #888;
+}
+
+.control-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.control-btn:hover {
+  opacity: 0.9;
+}
+
+.list-btn {
+  background-color: var(--primary-blue, #0a2e5d);
+  gap: 8px;
+}
+
+.add-btn {
+  background-color: #27ae60; /* Green */
+  font-size: 1.2rem;
+  padding: 8px;
+  width: 38px;
+  height: 38px;
+}
+
+/* --- Table Styles --- */
+.table-container {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  overflow-x: auto;
+  margin-bottom: 30px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background-color: var(--primary-blue, #0a2e5d);
+  color: white;
+}
+
+th,
+td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+  white-space: nowrap; /* Ngăn chữ xuống dòng */
+}
+
+th {
+  font-weight: 500;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+/* --- Status Badge Styles --- */
+.status-badge {
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: white;
+}
+.status-active {
+  background-color: #27ae60;
+}
+.status-finished {
+  background-color: #e74c3c;
+}
+.status-pending {
+  background-color: #f39c12;
+}
+
+/* --- Action Buttons --- */
+.action-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.action-btn {
+  border: none;
+  border-radius: 5px;
+  padding: 8px;
+  cursor: pointer;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 35px;
+  height: 35px;
+}
+
+.delete-btn {
+  background-color: #e74c3c;
+}
+.edit-btn {
+  background-color: #f39c12;
+}
+
+/* --- Pagination --- */
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pagination {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  overflow: hidden;
+}
+
+.page-item button {
+  padding: 10px 15px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s, color 0.2s;
+  border-right: 1px solid #e0e0e0;
+}
+
+.page-item:last-child button {
+  border-right: none;
+}
+
+.page-item button:hover {
+  background-color: #f0f0f0;
+}
+
+.page-item.active button {
+  background-color: var(--primary-blue, #0a2e5d);
+  color: white;
+}
+
+.page-item.disabled button {
+  color: #aaa;
+  cursor: not-allowed;
+  background-color: #f9f9f9;
+}
