@@ -15,11 +15,10 @@ namespace TrackingBusSystem.Infrastructure.Data
         public DbSet<Announcement> Announcements { get; set; }
         public DbSet<UserAnnouncement> UserAnnouncements { get; set; }
         public DbSet<Student> Students { get; set; }
-        public DbSet<Driver> Drivers { get; set; }
+        public DbSet<Driver> Drivers => Set<Driver>();
         public DbSet<BusLastLocation> BusLastLocations { get; set; }
-        public DbSet<DepartureTime> DepartureTimes { get; set; }
-        public DbSet<Schedule> Schedules { get; set; }
-        public DbSet<ScheduleAssignment> ScheduleAssignments { get; set; }
+        public DbSet<Schedule> Schedules => Set<Schedule>();
+        public DbSet<ScheduleAssignment> ScheduleAssignments => Set<ScheduleAssignment>();
         public DbSet<GeneratedTrip> GeneratedTrips { get; set; }
         public DbSet<ScheduleWeekly> ScheduleWeeklies { get; set; }
         public DbSet<TripStudentChecking> TripStudentCheckings { get; set; }

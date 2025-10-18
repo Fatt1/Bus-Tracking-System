@@ -11,6 +11,7 @@ namespace TrackingBusSystem.Application.Mapping
         public MappingConfig()
         {
             CreateMap<Route, GetRoutesResponse>();
+
             CreateMap<Point, PointResponse>();
             CreateMap<BusLastLocation, BusLastLocationDTO>();
             CreateMap<Bus, GetAllBusesDTO>()

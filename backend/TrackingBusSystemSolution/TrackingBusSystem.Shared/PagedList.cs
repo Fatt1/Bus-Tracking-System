@@ -23,7 +23,8 @@
         public static PagedList<T> ToPagedList(IQueryable<T> source, int pageNumber, int pageSize)
         {
             int count = source.Count();
-            var items = source.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+            var items = source.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList
+();
             return new PagedList<T>(items, count, pageNumber, pageSize);
         }
     }

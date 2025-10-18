@@ -1,4 +1,5 @@
-﻿using TrackingBusSystem.Domain.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using TrackingBusSystem.Domain.Entities;
 using TrackingBusSystem.Domain.Interfaces;
 using TrackingBusSystem.Infrastructure.Data;
 
@@ -20,8 +21,11 @@ namespace TrackingBusSystem.Infrastructure.Repositories
                 Console.WriteLine($"Error adding driver: {ex.Message}");
                 return false;
             }
-
-
+        }
+        public Task<bool> IsDriverAssignedToBusAsync(int busId)
+        {
+            // Truy vấn trực tiếp từ Driver, đúng trách nhiệm
+            return appDbContext.Drivers.AnyAsync(d => d.BusId == busId);
         }
     }
 }

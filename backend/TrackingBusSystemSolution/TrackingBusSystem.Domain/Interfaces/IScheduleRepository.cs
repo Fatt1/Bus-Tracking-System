@@ -2,9 +2,8 @@
 
 namespace TrackingBusSystem.Domain.Interfaces
 {
-    public interface IBusRepository
+    public interface IScheduleRepository
     {
-        Task<Bus> AddBusAsync(Bus bus);
-
+        Task<bool> AddSchedule(Schedule schedule);
     }
 }

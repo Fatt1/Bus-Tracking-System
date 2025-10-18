@@ -45,6 +45,14 @@ namespace TrackingBusSystem.Application.Features.Drivers.Command.CreateDriver
         }
         public async Task<Result<GetDriverDTO>> Handle(CreateDriverCommand request, CancellationToken cancellationToken)
         {
+            // Kiểm tra xem bus đã có tài xế chưa
+            var isBusAssigned = await _driverRepository.IsDriverAssignedToBusAsync(request.BusId);
+            if (isBusAssigned)
+            {
+                return Result<GetDriverDTO>.Failure(DriverErrors.BusAlreadyHasDriver);
+            }
+
+            // Tạo user và tài xế trong một transaction
             await _unitOfWork.BeginTransactionAsync();
             try
             {
@@ -57,10 +65,14 @@ namespace TrackingBusSystem.Application.Features.Drivers.Command.CreateDriver
                     FullName = request.FullName,
                 };
                 var createUserResult = await _userManager.CreateAsync(newUser, defaultPassword);
+
+                // Kiểm tra xem việc tạo user có thành công không
                 if (!createUserResult.Succeeded)
                 {
                     return Result<GetDriverDTO>.Failure(new Error("User. Cant create user", "Không thể tạo user"));
                 }
+                // Gán vai trò "Driver" cho user mới tạo
+                await _userManager.AddToRoleAsync(newUser, Roles.Driver.ToString());
                 var newDriver = new Driver
                 {
                     UserId = newUser.Id,
@@ -73,8 +85,10 @@ namespace TrackingBusSystem.Application.Features.Drivers.Command.CreateDriver
 
                 };
                 var createdDriver = await _driverRepository.AddDriver(newDriver);
+                // Kiểm tra xem việc tạo tài xế có thành công không
                 if (!createdDriver)
                 {
+                    // Nếu không thành công thì rollback transaction và trả về lỗi
                     await _unitOfWork.RollbackTransactionAsync(cancellationToken);
                     return Result<GetDriverDTO>.Failure(new Error("CreateDriverFailed", "Tạo tài xế thất bại"));
                 }
@@ -88,7 +102,7 @@ namespace TrackingBusSystem.Application.Features.Drivers.Command.CreateDriver
                 await _unitOfWork.RollbackTransactionAsync(cancellationToken);
                 return Result<GetDriverDTO>.Failure(new Error("CreateDriverFailed", $"Tạo tài xế thất bại. Chi tiết: {ex.Message}"));
             }
-            throw new NotImplementedException();
+
         }
     }
 }
