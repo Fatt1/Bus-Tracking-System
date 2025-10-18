@@ -2,6 +2,7 @@
 using TrackingBusSystem.Application.Abstractions.Common.Interfaces;
 using TrackingBusSystem.Application.Abstractions.CQRS.Query;
 using TrackingBusSystem.Application.Features.Schedules.DTOs;
+using TrackingBusSystem.Domain.Entities;
 using TrackingBusSystem.Shared;
 
 namespace TrackingBusSystem.Application.Features.Schedules.Query.GetScheduleById
@@ -13,10 +14,13 @@ namespace TrackingBusSystem.Application.Features.Schedules.Query.GetScheduleById
     public class GetScheduleByIdQueryHandler : IQueryHandler<GetScheduleByIdQuery, GetScheduleDTO>
     {
         private readonly IApplicationDbContext _dbContext;
+
         public GetScheduleByIdQueryHandler(IApplicationDbContext dbContext)
         {
             _dbContext = dbContext;
         }
+
+
         public async Task<Result<GetScheduleDTO>> Handle(GetScheduleByIdQuery request, CancellationToken cancellationToken)
         {
             var scheduleDTO = await _dbContext.Schedules
@@ -50,7 +54,7 @@ namespace TrackingBusSystem.Application.Features.Schedules.Query.GetScheduleById
 
             if (scheduleDTO == null)
             {
-                return Result<GetScheduleDTO>.Failure(new Error("Schedule.NotFound", "Schedule not found"));
+                return Result<GetScheduleDTO>.Failure(ScheduleErrors.ScheduleNotFound);
             }
 
             return Result<GetScheduleDTO>.Success(scheduleDTO);

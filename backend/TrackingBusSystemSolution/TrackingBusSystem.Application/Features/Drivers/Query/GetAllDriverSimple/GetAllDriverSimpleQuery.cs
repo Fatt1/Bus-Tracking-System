@@ -21,7 +21,10 @@ namespace TrackingBusSystem.Application.Features.Drivers.Query.GetAllDriverSimpl
             var driverDTO = await _dbContext.Drivers.Select(d => new DriverSimpleDTO
             {
                 Id = d.Id,
-                FullName = d.User.FullName
+                FullName = d.User.FullName,
+                BusId = d.BusId,
+                BusName = d.Bus.BusName
+
             }).ToListAsync();
 
             return Result<List<DriverSimpleDTO>>.Success(driverDTO);
