@@ -28,11 +28,7 @@ namespace TrackingBusSystem.Infrastructure.Configuration
                    .HasForeignKey(sa => sa.DriverId)
                    .OnDelete(DeleteBehavior.Restrict);
 
-            // Mối quan hệ 1-N với DepartureTime
-            builder.HasMany(sa => sa.DepartureTimes)
-                   .WithOne(dt => dt.ScheduleAssignment)
-                   .HasForeignKey(dt => dt.ScheduleAssignmentId)
-                   .OnDelete(DeleteBehavior.Cascade);
+
         }
     }
 }

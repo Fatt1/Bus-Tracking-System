@@ -1,4 +1,5 @@
-﻿using TrackingBusSystem.Shared.Constants;
+﻿using TrackingBusSystem.Shared;
+using TrackingBusSystem.Shared.Constants;
 
 namespace TrackingBusSystem.Domain.Entities
 {
@@ -12,7 +13,6 @@ namespace TrackingBusSystem.Domain.Entities
         public DateTime DateOfBirth { get; set; }
 
         public string IDCard { get; set; } = string.Empty;
-
 
         public string Address { get; set; } = string.Empty;
 
@@ -31,4 +31,8 @@ namespace TrackingBusSystem.Domain.Entities
         public virtual ICollection<ScheduleAssignment> ScheduleAssignments { get; set; } = new List<ScheduleAssignment>();
     }
 
+    public static class DriverErrors
+    {
+        public static Error BusAlreadyHasDriver => new Error("Bus.BusAlreadyHasDriver", "The bus has already driver");
+    }
 }

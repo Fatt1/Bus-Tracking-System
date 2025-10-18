@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TrackingBusSystem.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using TrackingBusSystem.Infrastructure.Data;
 namespace TrackingBusSystem.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251018050440_UpdateSchedule")]
+    partial class UpdateSchedule
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -303,6 +306,33 @@ namespace TrackingBusSystem.Infrastructure.Migrations
                     b.ToTable("BusLastLocations");
                 });
 
+            modelBuilder.Entity("TrackingBusSystem.Domain.Entities.DepartureTime", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<TimeSpan>("DepartureTimeValue")
+                        .HasColumnType("time");
+
+                    b.Property<int>("Direction")
+                        .HasColumnType("int");
+
+                    b.Property<TimeSpan>("EstimatedArrivalTime")
+                        .HasColumnType("time");
+
+                    b.Property<int>("ScheduleAssignmentId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ScheduleAssignmentId");
+
+                    b.ToTable("DepartureTimes");
+                });
+
             modelBuilder.Entity("TrackingBusSystem.Domain.Entities.Driver", b =>
                 {
                     b.Property<int>("Id")
@@ -570,20 +600,8 @@ namespace TrackingBusSystem.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<TimeSpan>("AfternoonArrival")
-                        .HasColumnType("time");
-
-                    b.Property<TimeSpan>("AfternoonDeparture")
-                        .HasColumnType("time");
-
                     b.Property<int>("DriverId")
                         .HasColumnType("int");
-
-                    b.Property<TimeSpan>("MorningArrival")
-                        .HasColumnType("time");
-
-                    b.Property<TimeSpan>("MorningDeparture")
-                        .HasColumnType("time");
 
                     b.Property<int>("RouteId")
                         .HasColumnType("int");
@@ -796,6 +814,17 @@ namespace TrackingBusSystem.Infrastructure.Migrations
                     b.Navigation("Bus");
                 });
 
+            modelBuilder.Entity("TrackingBusSystem.Domain.Entities.DepartureTime", b =>
+                {
+                    b.HasOne("TrackingBusSystem.Domain.Entities.ScheduleAssignment", "ScheduleAssignment")
+                        .WithMany("DepartureTimes")
+                        .HasForeignKey("ScheduleAssignmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ScheduleAssignment");
+                });
+
             modelBuilder.Entity("TrackingBusSystem.Domain.Entities.Driver", b =>
                 {
                     b.HasOne("TrackingBusSystem.Domain.Entities.Bus", "Bus")
@@ -1005,6 +1034,11 @@ namespace TrackingBusSystem.Infrastructure.Migrations
                     b.Navigation("ScheduleAssignments");
 
                     b.Navigation("ScheduleWeeklies");
+                });
+
+            modelBuilder.Entity("TrackingBusSystem.Domain.Entities.ScheduleAssignment", b =>
+                {
+                    b.Navigation("DepartureTimes");
                 });
 
             modelBuilder.Entity("TrackingBusSystem.Domain.Entities.Student", b =>
