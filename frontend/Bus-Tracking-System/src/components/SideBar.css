@@ -1,0 +1,51 @@
+/* src/components/SideBar.css */
+
+.sidebar {
+  width: 260px;
+  background-color: var(--primary-blue);
+  color: var(--text-light);
+  display: flex;
+  flex-direction: column;
+  padding: 20px 10px;
+  flex-shrink: 0;
+  height: 100vh; /* Đảm bảo sidebar luôn cao 100% */
+}
+
+.sidebar-header {
+  padding: 0 20px;
+  margin-bottom: 30px;
+}
+
+.sidebar-header h3 {
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.sidebar-nav ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+/* Style cho các link (NavLink sẽ render ra thẻ <a>) */
+.sidebar-nav li a {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 12px 20px;
+  margin: 5px 0;
+  color: var(--text-light);
+  text-decoration: none;
+  font-size: 1rem;
+  border-radius: 8px;
+  transition: background-color 0.3s;
+}
+
+.sidebar-nav li a:hover {
+  background-color: var(--secondary-blue);
+}
+
+/* QUAN TRỌNG: NavLink sẽ tự thêm class "active" vào thẻ <a>
+   khi route của nó trùng với URL hiện tại. */
+.sidebar-nav li a.active {
+  background-color: var(--active-blue-highlight);
+}

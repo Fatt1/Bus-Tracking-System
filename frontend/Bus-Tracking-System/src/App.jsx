@@ -1,29 +1,27 @@
-// src/App.jsx
-import { Routes, Route } from "react-router";
+import { Routes, Route } from "react-router-dom"; // Import từ react-router-dom
 import DashboardPage from "./pages/DashboardPage";
 import LoginPage from "./pages/LoginPage";
-import { useEffect } from "react";
-import axios from "axios";
 import BusListPage from "./pages/BusListPage";
+import Layout from "./components/Layout"; // Import Layout mới
 
 function App() {
-  useEffect(() => {
-    const getHomeData = async () => {
-      const response = await axios.get(
-        "https://localhost:7229/api/v1/route/all"
-      );
-      console.log(response);
-    };
-    getHomeData();
-  }, []);
+  // Xóa useEffect gọi API ở đây, logic này nên nằm trong component cần nó
   return (
-    <>
-      <Routes>
+    <Routes>
+      {/* Route không có Sidebar (như Login) sẽ nằm ngoài */}
+      <Route path="/login" element={<LoginPage />} />
+
+      {/* Các Route CÓ Sidebar sẽ nằm bên trong Layout */}
+      <Route path="/" element={<Layout />}>
+        {/* 'index' có nghĩa là route mặc định "/" sẽ render DashboardPage */}
         <Route index element={<DashboardPage />} />
-        <Route path="login" element={<LoginPage />} />
         <Route path="bus" element={<BusListPage />} />
-      </Routes>
-    </>
+
+        {/* Sau này bạn có thể thêm các route khác vào đây */}
+        {/* <Route path="drivers" element={<DriverPage />} /> */}
+        {/* <Route path="routes" element={<RoutePage />} /> */}
+      </Route>
+    </Routes>
   );
 }
 
