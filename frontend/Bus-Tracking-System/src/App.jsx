@@ -1,25 +1,30 @@
-import { Routes, Route } from "react-router-dom"; // Import từ react-router-dom
+import { Routes, Route } from "react-router-dom";
 import DashboardPage from "./pages/DashboardPage";
 import LoginPage from "./pages/LoginPage";
 import BusListPage from "./pages/BusListPage";
-import Layout from "./components/Layout"; // Import Layout mới
+import BusDetailPage from "./pages/BusDetailPage";
+import Layout from "./components/Layout"; // <-- 1. IMPORT LAYOUT
 
 function App() {
-  // Xóa useEffect gọi API ở đây, logic này nên nằm trong component cần nó
+  // Xóa useEffect gọi API ở đây, nó nên nằm trong component cần dữ liệu (DashboardPage)
   return (
     <Routes>
-      {/* Route không có Sidebar (như Login) sẽ nằm ngoài */}
+      {/* Route không có Sidebar (như Login) sẽ nằm ngoài Layout */}
       <Route path="/login" element={<LoginPage />} />
 
-      {/* Các Route CÓ Sidebar sẽ nằm bên trong Layout */}
+      {/* 2. Các Route CÓ Sidebar sẽ nằm bên trong Layout */}
       <Route path="/" element={<Layout />}>
         {/* 'index' có nghĩa là route mặc định "/" sẽ render DashboardPage */}
         <Route index element={<DashboardPage />} />
+
+        {/* Route cho danh sách xe buýt */}
         <Route path="bus" element={<BusListPage />} />
+
+        {/* Route động cho trang chi tiết */}
+        <Route path="bus/:busId" element={<BusDetailPage />} />
 
         {/* Sau này bạn có thể thêm các route khác vào đây */}
         {/* <Route path="drivers" element={<DriverPage />} /> */}
-        {/* <Route path="routes" element={<RoutePage />} /> */}
       </Route>
     </Routes>
   );

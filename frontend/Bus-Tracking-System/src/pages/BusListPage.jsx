@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 import "./BusListPage.css";
 import busImg from "../assets/bus.png";
 
-// Component Card cho mỗi xe buýt
+// Component Card cho mỗi xe buýt (Giữ nguyên)
 const BusCard = ({ bus }) => (
   <div className="bus-card">
     <img src={busImg} alt={`Xe buýt ${bus.busName}`} />
@@ -15,7 +16,7 @@ const BusCard = ({ bus }) => (
         <strong>Biển số xe:</strong> {bus.plateNumber}
       </p>
       <p>
-        <strong>Tài xế:</strong> {bus.driverName || "Chưa có"}
+        <strong>Tài xế:</strong> {bus.driverName || "Chưa có"}{" "}
       </p>
       <div className="bus-status">
         <strong>Trạng thái:</strong>{" "}
@@ -28,16 +29,25 @@ const BusCard = ({ bus }) => (
   </div>
 );
 
-// Component Phân trang
+// Component Phân trang (Giữ nguyên)
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   if (totalPages <= 1) return null;
-  const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
+
+  const pageNumbers = [];
+  for (let i = 1; i <= totalPages; i++) {
+    pageNumbers.push(i);
+  }
 
   return (
     <nav className="pagination-container">
       <ul className="pagination">
         <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
-          <button onClick={() => onPageChange(currentPage - 1)}>&lt;</button>
+          <button
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            &lt;
+          </button>
         </li>
         {pageNumbers.map((number) => (
           <li
@@ -52,7 +62,12 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
             currentPage === totalPages ? "disabled" : ""
           }`}
         >
-          <button onClick={() => onPageChange(currentPage + 1)}>&gt;</button>
+          <button
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            &gt;
+          </button>
         </li>
       </ul>
     </nav>
@@ -82,9 +97,11 @@ const BusListPage = () => {
         setIsLoading(false);
       }
     };
+
     fetchBuses();
   }, [currentPage]);
 
+  // THAY ĐỔI: Bỏ thẻ div bao ngoài, trả về trực tiếp thẻ main
   return (
     <main className="main-content-area">
       <header className="page-header">
@@ -104,6 +121,7 @@ const BusListPage = () => {
       <div className="page-banner">
         <h2>Danh sách xe buýt</h2>
       </div>
+
       <div className="page-content">
         {isLoading ? (
           <div className="loading-message">Đang tải dữ liệu...</div>
@@ -111,7 +129,13 @@ const BusListPage = () => {
           <>
             <div className="bus-grid">
               {buses.map((bus) => (
-                <BusCard key={bus.id} bus={bus} />
+                <Link
+                  to={`/bus/${bus.id}`}
+                  key={bus.id}
+                  className="bus-card-link"
+                >
+                  <BusCard bus={bus} />
+                </Link>
               ))}
             </div>
             <Pagination

@@ -179,3 +179,14 @@
   cursor: not-allowed;
   background-color: #f9f9f9;
 }
+/* ... CSS cũ của bạn ... */
+
+/* Thêm vào cuối file */
+.bus-card-link {
+  text-decoration: none;
+  color: inherit;
+}
+.bus-card-link {
+  text-decoration: none;
+  color: inherit;
+}
