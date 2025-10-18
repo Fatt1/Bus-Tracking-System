@@ -39,7 +39,12 @@ export function SideBar() {
           </li>
           <li>
             <NavLink to="/routes">
-              <FaRoute /> Lịch trình xe
+              <FaRoute /> Tuyến đường
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/schedule">
+              <FaRoute /> Lịch trình xe schedule
             </NavLink>
           </li>
           <li>

@@ -1,0 +1,167 @@
+/* src/pages/ScheduleListPage.css */
+
+.content-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.content-header h2 {
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.date-picker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.date-picker label {
+  font-weight: 500;
+  color: #555;
+}
+
+.date-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.date-input-wrapper input {
+  padding: 8px 30px 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 0.9rem;
+}
+
+.calendar-icon {
+  position: absolute;
+  right: 10px;
+  color: #888;
+}
+
+.control-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.control-btn:hover {
+  opacity: 0.9;
+}
+
+.list-btn {
+  background-color: var(--primary-blue, #0a2e5d);
+  gap: 8px;
+}
+
+.add-btn {
+  background-color: #27ae60; /* Green */
+  font-size: 1.2rem;
+  padding: 8px;
+  width: 38px;
+  height: 38px;
+}
+
+/* --- Table Styles --- */
+.table-container {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  overflow-x: auto; /* For responsiveness */
+  margin-bottom: 30px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background-color: var(--primary-blue, #0a2e5d);
+  color: white;
+}
+
+th,
+td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+th {
+  font-weight: 500;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+/* Status Badge Styles */
+.status-badge {
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: white;
+}
+
+.status-active {
+  background-color: #27ae60; /* Green */
+}
+.status-finished {
+  background-color: #e74c3c; /* Red */
+}
+.status-pending {
+  background-color: #f39c12; /* Orange */
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.action-btn {
+  border: none;
+  border-radius: 5px;
+  padding: 8px;
+  cursor: pointer;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 35px;
+  height: 35px;
+}
+
+.delete-btn {
+  background-color: #e74c3c; /* Red */
+}
+
+.edit-btn {
+  background-color: #f39c12; /* Orange */
+}
+
+/* --- Pagination (reusing from BusListPage.css, assuming it's globally available) --- */
+/* If not, copy the .pagination-container styles from BusListPage.css here */

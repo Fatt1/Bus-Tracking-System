@@ -4,6 +4,7 @@ import LoginPage from "./pages/LoginPage";
 import BusListPage from "./pages/BusListPage";
 import BusDetailPage from "./pages/BusDetailPage";
 import Layout from "./components/Layout"; // <-- 1. IMPORT LAYOUT
+import ScheduleListPage from "./pages/ScheduleListPage";
 
 function App() {
   // Xóa useEffect gọi API ở đây, nó nên nằm trong component cần dữ liệu (DashboardPage)
@@ -22,6 +23,8 @@ function App() {
 
         {/* Route động cho trang chi tiết */}
         <Route path="bus/:busId" element={<BusDetailPage />} />
+
+        <Route path="schedule" element={<ScheduleListPage />} />
 
         {/* Sau này bạn có thể thêm các route khác vào đây */}
         {/* <Route path="drivers" element={<DriverPage />} /> */}
