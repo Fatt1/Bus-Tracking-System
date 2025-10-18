@@ -1,0 +1,21 @@
+/* src/pages/TripListPage.css */
+
+/* --- Import các style chung từ trang Lịch trình --- */
+@import url("./ScheduleListPage.css");
+
+/* --- Thêm hoặc tùy chỉnh các style riêng cho trang Chuyến đi --- */
+
+/* Style cho tên lịch trình "Ahjhj đồ ngốc" */
+.schedule-name.highlight {
+  color: #27ae60; /* Màu xanh lá */
+  font-weight: 500;
+}
+
+/* Tùy chỉnh nút thao tác */
+.action-btn.edit-btn {
+  background-color: #f39c12; /* Vàng */
+}
+
+.action-btn.delete-btn {
+  background-color: #c0392b; /* Đỏ đậm hơn */
+}
