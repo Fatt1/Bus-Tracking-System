@@ -159,7 +159,7 @@ const ScheduleListPage = () => {
               <span>Danh sách chuyến đi</span>
             </Link>
             {/* Link dẫn đến trang thêm mới lịch trình */}
-            <Link to="/schedules/add" className="control-btn add-btn">
+            <Link to="add-schedule" className="control-btn add-btn">
               <FaPlus />
             </Link>
           </div>

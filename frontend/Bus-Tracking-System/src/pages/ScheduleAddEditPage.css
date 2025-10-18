@@ -1,0 +1,152 @@
+/* src/pages/ScheduleAddEditPage.css */
+
+/* --- Tabs Styles --- */
+.tabs-container {
+  display: flex;
+  border-bottom: 2px solid #eee;
+  margin-bottom: 30px;
+}
+
+.tab-btn {
+  padding: 15px 25px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #888;
+  position: relative;
+  bottom: -2px; /* Dịch chuyển xuống để đè lên border */
+}
+
+.tab-btn.active {
+  color: var(--primary-blue, #0a2e5d);
+  border-bottom: 2px solid var(--primary-blue, #0a2e5d);
+}
+
+/* --- Form Styles --- */
+.form-container {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin-bottom: 25px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+}
+
+.form-group input[type="text"],
+.form-group select {
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--primary-blue, #0a2e5d);
+}
+
+.date-input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.date-input-with-icon input[type="date"] {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-family: inherit;
+}
+/* Style cho icon lịch */
+.date-input-with-icon .icon {
+  position: absolute;
+  right: 12px;
+  color: #888;
+}
+
+/* --- Checkbox Styles --- */
+.checkbox-group {
+  display: flex;
+  gap: 25px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.checkbox-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.checkbox-item label {
+  margin-bottom: 0;
+  cursor: pointer;
+}
+
+/* --- Status and Actions --- */
+.status-display {
+  color: #f39c12; /* Orange */
+  font-weight: 500;
+  margin-top: 10px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.action-btn-form {
+  padding: 12px 30px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.action-btn-form:hover {
+  opacity: 0.9;
+}
+
+.draft-btn {
+  background-color: #bdc3c7; /* Gray */
+  color: #333;
+}
+
+.save-btn {
+  background-color: #27ae60; /* Green */
+  color: white;
+}
