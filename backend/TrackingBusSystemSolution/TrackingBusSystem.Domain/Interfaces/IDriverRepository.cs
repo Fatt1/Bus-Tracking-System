@@ -6,5 +6,6 @@ namespace TrackingBusSystem.Domain.Interfaces
     {
         Task<bool> AddDriver(Driver driver);
         Task<bool> IsDriverAssignedToBusAsync(int busId);
+        Task<List<int>> GetExistingIdsAsync(List<int> ids);
     }
 }

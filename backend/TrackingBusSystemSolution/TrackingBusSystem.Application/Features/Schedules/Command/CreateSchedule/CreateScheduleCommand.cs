@@ -18,14 +18,29 @@ namespace TrackingBusSystem.Application.Features.Schedules.Command.CreateSchedul
     public class CreateScheduleHandler : ICommandHandler<CreateScheduleCommand>
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IRouteRepository _routeRepository;
+        private readonly IDriverRepository _driverRepository;
         private readonly IScheduleRepository _scheduleRepository;
-        public CreateScheduleHandler(IScheduleRepository scheduleRepository, IUnitOfWork unitOfWork)
+        public CreateScheduleHandler(IScheduleRepository scheduleRepository, IUnitOfWork unitOfWork, IRouteRepository routeRepository, IDriverRepository driverRepository)
         {
             _scheduleRepository = scheduleRepository;
             _unitOfWork = unitOfWork;
+            _routeRepository = routeRepository;
+            _driverRepository = driverRepository;
         }
         public async Task<Result> Handle(CreateScheduleCommand request, CancellationToken cancellationToken)
         {
+            var routeIds = request.ScheduleAsignments.Select(sa => sa.RouteId).Distinct().ToList();
+
+            var driverIds = request.ScheduleAsignments.Select(sa => sa.DriverId).Distinct().ToList();
+
+            var existingRouteIds = await _routeRepository.GetExistingIdsAsync(routeIds);
+            var existingDriverIds = await _driverRepository.GetExistingIdsAsync(driverIds);
+
+
+            // 3. Chuyển sang HashSet để kiểm tra nhanh (O(1))
+            var routeIdSet = existingRouteIds.ToHashSet();
+            var driverIdSet = existingDriverIds.ToHashSet();
             await _unitOfWork.BeginTransactionAsync();
             try
             {
@@ -39,6 +54,19 @@ namespace TrackingBusSystem.Application.Features.Schedules.Command.CreateSchedul
                 await _scheduleRepository.AddSchedule(schedule);
                 foreach (var assignment in request.ScheduleAsignments)
                 {
+                    // 4. Kiểm tra trong bộ nhớ (siêu nhanh)
+                    if (!routeIdSet.Contains(assignment.RouteId))
+                    {
+                        await _unitOfWork.RollbackTransactionAsync();
+                        return Result.Failure(RouteErrors.RouteNotFound(assignment.RouteId));
+                    }
+                    if (!driverIdSet.Contains(assignment.DriverId))
+                    {
+                        await _unitOfWork.RollbackTransactionAsync();
+                        return Result.Failure(DriverErrors.DriverNotFound(assignment.DriverId));
+                    }
+
+                    // 5. Nếu OK, tạo đối tượng
                     var scheduleAssignment = new ScheduleAssignment
                     {
 
@@ -50,7 +78,12 @@ namespace TrackingBusSystem.Application.Features.Schedules.Command.CreateSchedul
                         AfternoonArrival = assignment.AfternoonArrival
                     }
                     ;
-                    schedule.AddScheduleAssignment(scheduleAssignment);
+                    var assignmentReuslt = schedule.AddScheduleAssignment(scheduleAssignment);
+                    if (assignmentReuslt.IsFailure)
+                    {
+                        await _unitOfWork.RollbackTransactionAsync();
+                        return Result.Failure(assignmentReuslt.Error);
+                    }
                 }
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 await _unitOfWork.CommitTransactionAsync(cancellationToken);

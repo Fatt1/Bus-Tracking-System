@@ -34,5 +34,6 @@ namespace TrackingBusSystem.Domain.Entities
     public static class DriverErrors
     {
         public static Error BusAlreadyHasDriver => new Error("Bus.BusAlreadyHasDriver", "The bus has already driver");
+        public static Error DriverNotFound(int id) => new Error("Driver.NotFound", $"The driver wit id {id} was not found.");
     }
 }
