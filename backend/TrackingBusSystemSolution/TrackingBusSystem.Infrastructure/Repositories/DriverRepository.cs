@@ -27,5 +27,10 @@ namespace TrackingBusSystem.Infrastructure.Repositories
             // Truy vấn trực tiếp từ Driver, đúng trách nhiệm
             return appDbContext.Drivers.AnyAsync(d => d.BusId == busId);
         }
+
+        public Task<List<int>> GetExistingIdsAsync(List<int> ids)
+        {
+            return appDbContext.Drivers.Where(d => ids.Contains(d.Id)).Select(d => d.Id).ToListAsync();
+        }
     }
 }

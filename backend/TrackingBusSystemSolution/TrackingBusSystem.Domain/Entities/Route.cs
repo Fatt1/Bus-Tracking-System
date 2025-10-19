@@ -1,4 +1,6 @@
-﻿namespace TrackingBusSystem.Domain.Entities
+﻿using TrackingBusSystem.Shared;
+
+namespace TrackingBusSystem.Domain.Entities
 {
 
     public class Route
@@ -11,4 +13,8 @@
         public virtual ICollection<GeneratedTrip> GeneratedTrips { get; set; } = new List<GeneratedTrip>();
     }
 
+    public static class RouteErrors
+    {
+        public static Error RouteNotFound(int id) => new Error("Route.NotFound", $"The route with id {id} was not found.");
+    }
 }

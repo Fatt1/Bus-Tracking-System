@@ -20,8 +20,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Drivers\Query\" />
+    <Folder Include="Features\Drivers\Query\GetAllDriver\" />
     <Folder Include="Features\Routes\Command\" />
+    <Folder Include="Features\Routes\Query\GetAllRouteSimple\" />
   </ItemGroup>
 
 </Project>
