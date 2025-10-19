@@ -1,0 +1,33 @@
+/* src/pages/StudentListPage.css */
+
+/* Kế thừa các nút action chung */
+.action-btn-student {
+  border: none;
+  border-radius: 5px;
+  padding: 8px;
+  cursor: pointer;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 35px;
+  height: 35px;
+  transition: opacity 0.2s;
+}
+
+.action-btn-student:hover {
+  opacity: 0.85;
+}
+
+/* Style riêng cho từng nút */
+.action-btn-student.more-btn {
+  background-color: #3498db; /* Blue */
+}
+
+.action-btn-student.delete-btn {
+  background-color: #e74c3c; /* Red */
+}
+
+.action-btn-student.edit-btn {
+  background-color: #f39c12; /* Orange */
+}
