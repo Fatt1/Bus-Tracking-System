@@ -22,15 +22,19 @@ const RouteRow = ({ route }) => (
     <td>{route.name}</td>
     <td>{route.type}</td>
     <td>
-      <button className="assigned-bus-btn">
-        {/* Thêm số 0 đằng trước nếu nhỏ hơn 10 */}
-        {String(route.assignedBuses).padStart(2, "0")}
-      </button>
+      <div className="assign-column">
+        <button className="assigned-bus-btn">
+          {/* Thêm số 0 đằng trước nếu nhỏ hơn 10 */}
+          {String(route.assignedBuses).padStart(2, "0")}
+        </button>
+      </div>
     </td>
     <td>
-      <button className="map-btn">
-        <FaMapMarkerAlt />
-      </button>
+      <div className="assign-column">
+        <button className="map-btn">
+          <FaMapMarkerAlt />
+        </button>
+      </div>
     </td>
   </tr>
 );
@@ -121,7 +125,9 @@ const RouteListPage = () => {
                 <th>STT</th>
                 <th>Tên tuyến đường</th>
                 <th>Tuyến đường</th>
-                <th>Xe được phân công</th>
+                <th>
+                  <div className="assign-column"> Xe được phân công</div>
+                </th>
                 <th>Bản đồ</th>
               </tr>
             </thead>
