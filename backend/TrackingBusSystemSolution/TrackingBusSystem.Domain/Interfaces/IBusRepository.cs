@@ -6,6 +6,6 @@ namespace TrackingBusSystem.Domain.Interfaces
     {
         Task<bool> UpdateBusStatusById(int busId, bool status);
         Task<bool> AddBusAsync(Bus bus);
-
+        Task<bool> IsExistingBus(int busId);
     }
 }

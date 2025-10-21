@@ -45,6 +45,8 @@ namespace TrackingBusSystem.Application.Features.Drivers.Command.CreateDriver
         public async Task<Result<GetDriverDTO>> Handle(CreateDriverCommand request, CancellationToken cancellationToken)
         {
             // Kiểm tra xem bus đã có tài xế chưa
+
+
             var isBusAssigned = await _driverRepository.IsDriverAssignedToBusAsync(request.BusId);
             if (isBusAssigned)
             {

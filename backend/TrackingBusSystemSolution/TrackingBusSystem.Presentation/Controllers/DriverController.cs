@@ -22,6 +22,8 @@ namespace TrackingBusSystem.Presentation.Controllers
             var result = await _mediator.Send(request);
             return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);
         }
+
+
         [HttpGet("all")]
         public async Task<IActionResult> GetAllDrivers([FromQuery] GetAllDriverQuery request)
         {
@@ -33,6 +35,8 @@ namespace TrackingBusSystem.Presentation.Controllers
             return Ok(result.Value);
         }
         [HttpGet("all/simple")]
+
+
         public async Task<IActionResult> GetAllDriverListSimple()
         {
             var result = await _mediator.Send(new GetAllDriverSimpleQuery());

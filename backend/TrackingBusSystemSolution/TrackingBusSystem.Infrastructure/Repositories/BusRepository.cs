@@ -1,4 +1,5 @@
-﻿using TrackingBusSystem.Domain.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using TrackingBusSystem.Domain.Entities;
 using TrackingBusSystem.Domain.Interfaces;
 using TrackingBusSystem.Infrastructure.Data;
 
@@ -29,6 +30,10 @@ namespace TrackingBusSystem.Infrastructure.Repositories
             }
             bus.Status = status;
             return true;
+        }
+        public Task<bool> IsExistingBus(int busId)
+        {
+            return context.Buses.AnyAsync(b => b.Id == busId);
         }
     }
 }
