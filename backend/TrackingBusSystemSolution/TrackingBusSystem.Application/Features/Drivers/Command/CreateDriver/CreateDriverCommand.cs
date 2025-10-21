@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
-using TrackingBusSystem.Application.Abstractions.Common.Interfaces;
 using TrackingBusSystem.Application.Abstractions.CQRS.Command;
 using TrackingBusSystem.Application.Features.Drivers.DTOs;
 using TrackingBusSystem.Domain.Entities;
@@ -30,15 +29,15 @@ namespace TrackingBusSystem.Application.Features.Drivers.Command.CreateDriver
 
     public class CreateDriverCommandHandler : ICommandHandler<CreateDriverCommand, GetDriverDTO>
     {
-        private readonly IApplicationDbContext _dbContext;
+        private readonly IBusRepository _busRepository;
         private readonly IDriverRepository _driverRepository;
         private readonly UserManager<AppUser> _userManager;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        public CreateDriverCommandHandler(IApplicationDbContext dbContext, IDriverRepository driverRepository, UserManager<AppUser> userManager, IUnitOfWork unitOfWork, IMapper mapper)
+        public CreateDriverCommandHandler(IDriverRepository driverRepository, UserManager<AppUser> userManager, IUnitOfWork unitOfWork, IMapper mapper, IBusRepository busRepository)
         {
             _userManager = userManager;
-            _dbContext = dbContext;
+            _busRepository = busRepository;
             _unitOfWork = unitOfWork;
             _driverRepository = driverRepository;
             _mapper = mapper;
@@ -86,6 +85,7 @@ namespace TrackingBusSystem.Application.Features.Drivers.Command.CreateDriver
 
                 };
                 var createdDriver = await _driverRepository.AddDriver(newDriver);
+                await _busRepository.UpdateBusStatusById(request.BusId, true);
                 // Kiểm tra xem việc tạo tài xế có thành công không
                 if (!createdDriver)
                 {
