@@ -190,3 +190,130 @@
   text-decoration: none;
   color: inherit;
 }
+/*  */
+/* src/pages/BusListPage.css */
+
+/* ... CSS cũ của bạn ... */
+
+/* Thêm vào cuối file */
+
+/* --- Nút thêm mới trong header --- */
+.header-actions .add-btn {
+  background-color: #27ae60; /* Green */
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.header-actions .add-btn:hover {
+  background-color: #2ecc71;
+}
+
+/* --- Modal Styles --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  position: relative;
+  width: 90%;
+  max-width: 500px;
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #888;
+}
+
+.modal-header {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.modal-header h3 {
+  color: var(--primary-blue, #0a2e5d);
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.modal-header h4 {
+  color: #555;
+  margin: 5px 0 0;
+  font-weight: 500;
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.bus-modal-form .form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.bus-modal-form .form-group label {
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+}
+
+.bus-modal-form .form-group input,
+.bus-modal-form .form-group select {
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.bus-modal-form .form-group input:focus,
+.bus-modal-form .form-group select:focus {
+  outline: none;
+  border-color: var(--primary-blue, #0a2e5d);
+  box-shadow: 0 0 0 2px rgba(10, 46, 93, 0.2);
+}
+
+.modal-submit-btn {
+  padding: 12px 20px;
+  background-color: var(--primary-blue, #0a2e5d);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.2s;
+}
+
+.modal-submit-btn:hover {
+  background-color: var(--secondary-blue, #1a4a8d);
+}
