@@ -4,7 +4,8 @@ namespace TrackingBusSystem.Domain.Interfaces
 {
     public interface IBusRepository
     {
-        Task<Bus> AddBusAsync(Bus bus);
+        Task<bool> UpdateBusStatusById(int busId, bool status);
+        Task<bool> AddBusAsync(Bus bus);
 
     }
 }

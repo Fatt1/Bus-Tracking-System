@@ -34,6 +34,7 @@ namespace TrackingBusSystem.Infrastructure.Dependency_Injection
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IDriverRepository, DriverRepository>();
             services.AddScoped<IScheduleRepository, ScheduleRepository>();
+            services.AddScoped<IBusRepository, BusRepository>();
             services.AddDataProtection();
             return services;
         }
