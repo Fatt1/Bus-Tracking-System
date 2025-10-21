@@ -207,19 +207,24 @@ const BusListPage = () => {
               className="search-input"
             />
             <button className="user-button">Đăng nhập</button>
-            {/* NÚT THÊM MỚI */}
-            <button
-              onClick={() => setIsAddModalOpen(true)}
-              className="control-btn add-btn"
-            >
-              <FaPlus />
-            </button>
+            {/* NÚT THÊM MỚI ĐÃ BỊ XÓA KHỎI ĐÂY */}
           </div>
         </header>
-        <div className="page-banner">
-          <h2>Danh sách xe buýt</h2>
-        </div>
+        {/* <div className="page-banner">{/* Tiêu đề đã bị xóa khỏi đây */}
         <div className="page-content">
+          {/* SECTION MỚI CHO TIÊU ĐỀ VÀ NÚT BẤM */}
+          <div className="content-header">
+            <h2>Danh sách xe buýt</h2>
+            <div className="header-controls">
+              <button
+                onClick={() => setIsAddModalOpen(true)}
+                className="control-btn add-btn"
+              >
+                <FaPlus />
+              </button>
+            </div>
+          </div>
+
           {isLoading ? (
             <div className="loading-message">Đang tải dữ liệu...</div>
           ) : (
