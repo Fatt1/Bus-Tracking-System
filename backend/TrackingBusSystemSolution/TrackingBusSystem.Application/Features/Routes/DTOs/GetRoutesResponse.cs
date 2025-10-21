@@ -5,6 +5,6 @@
     {
         public int Id { get; init; }
         public string RouteName { get; init; } = string.Empty;
-        public int ScheduleAssignmentCount { get; init; }
+        public int DriverCounts { get; init; }
     }
 }

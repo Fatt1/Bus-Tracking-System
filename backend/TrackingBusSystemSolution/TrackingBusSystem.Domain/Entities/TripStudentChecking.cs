@@ -11,7 +11,7 @@ namespace TrackingBusSystem.Domain.Entities
 
         // Foreign Keys
         public long GeneratedTripId { get; set; }
-        public string StudentId { get; set; } = string.Empty;
+        public long StudentId { get; set; }
 
         // Navigation properties
 

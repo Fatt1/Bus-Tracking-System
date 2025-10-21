@@ -22,8 +22,7 @@ namespace TrackingBusSystem.Application.Features.Drivers.Query.GetAllDriverSimpl
             {
                 Id = d.Id,
                 FullName = d.User.FullName,
-                BusId = d.BusId,
-                BusName = d.Bus.BusName
+
 
             }).ToListAsync();
 

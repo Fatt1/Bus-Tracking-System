@@ -35,5 +35,6 @@ namespace TrackingBusSystem.Infrastructure.Repositories
         {
             return context.Buses.AnyAsync(b => b.Id == busId);
         }
+
     }
 }

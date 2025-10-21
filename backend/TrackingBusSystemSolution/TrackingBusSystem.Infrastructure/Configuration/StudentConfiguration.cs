@@ -13,6 +13,13 @@ namespace TrackingBusSystem.Infrastructure.Configuration
             // Đảm bảo UserId là duy nhất vì đây là mối quan hệ 1-1
             builder.HasIndex(s => s.UserId).IsUnique();
 
+            // 1-N giữa Student với Driver
+
+            builder.HasOne(s => s.Driver)
+              .WithMany(dr => dr.Students)
+              .HasForeignKey(s => s.DriverId)
+              .OnDelete(DeleteBehavior.Restrict);
+
             builder.Property(s => s.Class).HasMaxLength(50);
             builder.Property(s => s.Address).HasMaxLength(255);
             builder.Property(s => s.ParentName).HasMaxLength(100);

@@ -15,8 +15,10 @@ namespace TrackingBusSystem.Domain.Entities
         public string PlateNumber { get; set; } = string.Empty;
 
         public bool Status { get; set; }
-
+        public int RouteId { get; set; }
         // Navigation properties
+
+        public virtual Route Route { get; set; } = default!;
         public virtual Driver Driver { get; set; } = default!;
         public virtual BusLastLocation? BusLastLocation { get; set; }
     }

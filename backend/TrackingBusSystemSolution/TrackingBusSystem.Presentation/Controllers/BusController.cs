@@ -27,7 +27,7 @@ namespace TrackingBusSystem.Presentation.Controllers
         public async Task<IActionResult> GetBusById(int id)
         {
             var result = await _mediator.Send(new GetBusDetailByIdQuery(id));
-            return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);
+            return result.IsSuccess ? Ok(result.Value) : NotFound(result.Error);
         }
 
         [HttpGet("all/simple")]
@@ -40,7 +40,12 @@ namespace TrackingBusSystem.Presentation.Controllers
         public async Task<IActionResult> CreateBus([FromBody] CreateBusCommand request)
         {
             var result = await _mediator.Send(request);
-            return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);
+            if (result.IsSuccess)
+            {
+                return CreatedAtAction(nameof(GetBusById), new { id = result.Value.Id }, result.Value);
+            }
+            // Xử lý lỗi
+            return BadRequest(result.Error);
         }
     }
 }

@@ -31,17 +31,13 @@ namespace TrackingBusSystem.Application.Features.Schedules.Command.CreateSchedul
         }
         public async Task<Result> Handle(CreateScheduleCommand request, CancellationToken cancellationToken)
         {
-            var routeIds = request.ScheduleAsignments.Select(sa => sa.RouteId).Distinct().ToList();
+
 
             var driverIds = request.ScheduleAsignments.Select(sa => sa.DriverId).Distinct().ToList();
 
-            var existingRouteIds = await _routeRepository.GetExistingIdsAsync(routeIds);
-            var existingDriverIds = await _driverRepository.GetExistingIdsAsync(driverIds);
+            var existingDriversWithBuses = await _driverRepository.GetDriversWithBusByIdsAsync(driverIds);
 
 
-            // 3. Chuyển sang HashSet để kiểm tra nhanh (O(1))
-            var routeIdSet = existingRouteIds.ToHashSet();
-            var driverIdSet = existingDriverIds.ToHashSet();
             await _unitOfWork.BeginTransactionAsync();
             try
             {
@@ -55,15 +51,12 @@ namespace TrackingBusSystem.Application.Features.Schedules.Command.CreateSchedul
                 await _scheduleRepository.AddSchedule(schedule);
                 foreach (var assignment in request.ScheduleAsignments)
                 {
-                    // 4. Kiểm tra trong bộ nhớ (siêu nhanh)
-                    // Kiểm tra xem route có tồn tại trong db không
-                    if (!routeIdSet.Contains(assignment.RouteId))
-                    {
-                        await _unitOfWork.RollbackTransactionAsync();
-                        return Result.Failure(RouteErrors.RouteNotFound(assignment.RouteId));
-                    }
+
+
                     // Kiểm tra xem driver có tồn tại trong db không
-                    if (!driverIdSet.Contains(assignment.DriverId))
+                    var driverWithBus = existingDriversWithBuses.First(d => d.Id == assignment.DriverId);
+
+                    if (driverWithBus == null)
                     {
                         await _unitOfWork.RollbackTransactionAsync();
                         return Result.Failure(DriverErrors.DriverNotFound(assignment.DriverId));
@@ -72,12 +65,11 @@ namespace TrackingBusSystem.Application.Features.Schedules.Command.CreateSchedul
                     // Kiểm tra xem có bị trùng lịch, thời gian không
 
 
-
                     // 5. Nếu OK, tạo đối tượng
                     var scheduleAssignment = new ScheduleAssignment
                     {
 
-                        RouteId = assignment.RouteId,
+                        RouteId = driverWithBus.Bus.RouteId,
                         DriverId = assignment.DriverId,
                         MorningDeparture = assignment.MorningDeparture,
                         MorningArrival = assignment.MorningArrival,
@@ -107,7 +99,6 @@ namespace TrackingBusSystem.Application.Features.Schedules.Command.CreateSchedul
 
     public record ScheduleAsignmentRequest
     {
-        public int RouteId { get; set; }
         public int DriverId { get; set; }
         public TimeSpan MorningDeparture { get; set; }
         public TimeSpan MorningArrival { get; set; }

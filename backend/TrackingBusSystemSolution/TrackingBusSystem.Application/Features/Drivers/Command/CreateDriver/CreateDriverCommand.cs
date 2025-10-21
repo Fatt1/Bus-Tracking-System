@@ -9,7 +9,7 @@ using TrackingBusSystem.Shared.Constants;
 
 namespace TrackingBusSystem.Application.Features.Drivers.Command.CreateDriver
 {
-    public record CreateDriverCommand : ICommand<GetDriverDTO>
+    public record CreateDriverCommand : ICommand<CreateDriverDTO>
     {
         public string PhoneNumber { get; init; } = string.Empty;
 
@@ -27,7 +27,7 @@ namespace TrackingBusSystem.Application.Features.Drivers.Command.CreateDriver
         public int BusId { get; init; }
     }
 
-    public class CreateDriverCommandHandler : ICommandHandler<CreateDriverCommand, GetDriverDTO>
+    public class CreateDriverCommandHandler : ICommandHandler<CreateDriverCommand, CreateDriverDTO>
     {
         private readonly IBusRepository _busRepository;
         private readonly IDriverRepository _driverRepository;
@@ -42,17 +42,15 @@ namespace TrackingBusSystem.Application.Features.Drivers.Command.CreateDriver
             _driverRepository = driverRepository;
             _mapper = mapper;
         }
-        public async Task<Result<GetDriverDTO>> Handle(CreateDriverCommand request, CancellationToken cancellationToken)
+        public async Task<Result<CreateDriverDTO>> Handle(CreateDriverCommand request, CancellationToken cancellationToken)
         {
             // Kiểm tra xem xe buýt có tồn tại hay chưa
-
-
 
             var busExists = await _busRepository.IsExistingBus(request.BusId);
 
             if (!busExists)
             {
-                return Result<GetDriverDTO>.Failure(BusErrors.BusNotFound(request.BusId));
+                return Result<CreateDriverDTO>.Failure(BusErrors.BusNotFound(request.BusId));
             }
 
             // Kiểm tra xem bus đã có tài xế chưa
@@ -60,7 +58,7 @@ namespace TrackingBusSystem.Application.Features.Drivers.Command.CreateDriver
             var isBusAssigned = await _driverRepository.IsDriverAssignedToBusAsync(request.BusId);
             if (isBusAssigned)
             {
-                return Result<GetDriverDTO>.Failure(DriverErrors.BusAlreadyHasDriver);
+                return Result<CreateDriverDTO>.Failure(DriverErrors.BusAlreadyHasDriver);
             }
 
 
@@ -68,7 +66,7 @@ namespace TrackingBusSystem.Application.Features.Drivers.Command.CreateDriver
             var userResult = await _userManager.FindByNameAsync(request.PhoneNumber);
             if (userResult != null)
             {
-                return Result<GetDriverDTO>.Failure(DriverErrors.PhoneNumberAlreadyInUse(request.PhoneNumber));
+                return Result<CreateDriverDTO>.Failure(DriverErrors.PhoneNumberAlreadyInUse(request.PhoneNumber));
             }
 
             // Tạo user và tài xế trong một transaction
@@ -83,13 +81,14 @@ namespace TrackingBusSystem.Application.Features.Drivers.Command.CreateDriver
                     UserName = username,
                     Email = $"{username}@yourcompany.com",
                     FullName = request.FullName,
+                    PhoneNumber = request.PhoneNumber,
                 };
                 var createUserResult = await _userManager.CreateAsync(newUser, defaultPassword);
 
                 // Kiểm tra xem việc tạo user có thành công không
                 if (!createUserResult.Succeeded)
                 {
-                    return Result<GetDriverDTO>.Failure(new Error("User. Cant create user", "Không thể tạo user"));
+                    return Result<CreateDriverDTO>.Failure(new Error("User. Cant create user", "Không thể tạo user"));
                 }
                 // Gán vai trò "Driver" cho user mới tạo
                 await _userManager.AddToRoleAsync(newUser, Roles.Driver.ToString());
@@ -111,17 +110,17 @@ namespace TrackingBusSystem.Application.Features.Drivers.Command.CreateDriver
                 {
                     // Nếu không thành công thì rollback transaction và trả về lỗi
                     await _unitOfWork.RollbackTransactionAsync(cancellationToken);
-                    return Result<GetDriverDTO>.Failure(new Error("CreateDriverFailed", "Tạo tài xế thất bại"));
+                    return Result<CreateDriverDTO>.Failure(new Error("CreateDriverFailed", "Tạo tài xế thất bại"));
                 }
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 await _unitOfWork.CommitTransactionAsync(cancellationToken);
 
-                return Result<GetDriverDTO>.Success(_mapper.Map<GetDriverDTO>(newDriver));
+                return Result<CreateDriverDTO>.Success(_mapper.Map<CreateDriverDTO>(newDriver));
             }
             catch (Exception ex)
             {
                 await _unitOfWork.RollbackTransactionAsync(cancellationToken);
-                return Result<GetDriverDTO>.Failure(new Error("CreateDriverFailed", $"Tạo tài xế thất bại. Chi tiết: {ex.Message}"));
+                return Result<CreateDriverDTO>.Failure(new Error("CreateDriverFailed", $"Tạo tài xế thất bại. Chi tiết: {ex.Message}"));
             }
 
         }

@@ -4,6 +4,9 @@ namespace TrackingBusSystem.Application.Features.Drivers.DTOs
 {
     public record CreateDriverDTO
     {
+        public int UserId { get; set; }
+        public int Id { get; set; }
+
         public string PhoneNumber { get; init; } = string.Empty;
 
         public DateTime DateOfBirth { get; init; }
@@ -13,7 +16,6 @@ namespace TrackingBusSystem.Application.Features.Drivers.DTOs
         public string FullName { get; init; } = string.Empty;
 
         public string Address { get; init; } = string.Empty;
-
         public Gender Sex { get; init; }
 
         // Foreign Keys

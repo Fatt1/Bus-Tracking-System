@@ -12,8 +12,8 @@ using TrackingBusSystem.Infrastructure.Data;
 namespace TrackingBusSystem.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251015030243_FirstInit")]
-    partial class FirstInit
+    [Migration("20251021160745_UpdateStudent")]
+    partial class UpdateStudent
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -50,6 +50,26 @@ namespace TrackingBusSystem.Infrastructure.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "a18be9c0-aa65-4af8-bd17-00bd9344e575",
+                            Name = "Driver",
+                            NormalizedName = "DRIVER"
+                        },
+                        new
+                        {
+                            Id = "b18be9c0-aa65-4af8-bd17-00bd9344e576",
+                            Name = "Admin",
+                            NormalizedName = "ADMIN"
+                        },
+                        new
+                        {
+                            Id = "c18be9c0-aa65-4af8-bd17-00bd9344e577",
+                            Name = "Parent",
+                            NormalizedName = "PARENT"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -276,6 +296,9 @@ namespace TrackingBusSystem.Infrastructure.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<int>("RouteId")
+                        .HasColumnType("int");
+
                     b.Property<bool>("Status")
                         .HasColumnType("bit");
 
@@ -283,6 +306,8 @@ namespace TrackingBusSystem.Infrastructure.Migrations
 
                     b.HasIndex("PlateNumber")
                         .IsUnique();
+
+                    b.HasIndex("RouteId");
 
                     b.ToTable("Buses");
                 });
@@ -306,33 +331,6 @@ namespace TrackingBusSystem.Infrastructure.Migrations
                     b.ToTable("BusLastLocations");
                 });
 
-            modelBuilder.Entity("TrackingBusSystem.Domain.Entities.DepartureTime", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<TimeSpan>("DepartureTimeValue")
-                        .HasColumnType("time");
-
-                    b.Property<int>("Direction")
-                        .HasColumnType("int");
-
-                    b.Property<TimeSpan>("EstimatedArrivalTime")
-                        .HasColumnType("time");
-
-                    b.Property<int>("ScheduleAssignmentId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ScheduleAssignmentId");
-
-                    b.ToTable("DepartureTimes");
-                });
-
             modelBuilder.Entity("TrackingBusSystem.Domain.Entities.Driver", b =>
                 {
                     b.Property<int>("Id")
@@ -345,21 +343,19 @@ namespace TrackingBusSystem.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("BusId")
+                    b.Property<int>("BusId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("DateOfBirth")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
                     b.Property<string>("IDCard")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
@@ -374,7 +370,8 @@ namespace TrackingBusSystem.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BusId");
+                    b.HasIndex("BusId")
+                        .IsUnique();
 
                     b.HasIndex("UserId")
                         .IsUnique();
@@ -452,6 +449,80 @@ namespace TrackingBusSystem.Infrastructure.Migrations
                     b.HasIndex("RouteId");
 
                     b.ToTable("Points");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Latitude = 10.819554999999999,
+                            Longitude = 106.630731,
+                            PointName = "Trạm kcn Tân Bình",
+                            RouteId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Latitude = 10.782951000000001,
+                            Longitude = 106.642635,
+                            PointName = "Trạm bệnh viện Tân Phú",
+                            RouteId = 1
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Latitude = 10.759917099999999,
+                            Longitude = 106.6796834,
+                            PointName = "Đại học sài gòn",
+                            RouteId = 1
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Latitude = 10.87335,
+                            Longitude = 106.808025,
+                            PointName = "Trạm đại học quốc gia",
+                            RouteId = 2
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Latitude = 10.849184899999999,
+                            Longitude = 106.7543493,
+                            PointName = "Trạm ngã tư Thủ Đức",
+                            RouteId = 2
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Latitude = 10.759917099999999,
+                            Longitude = 106.6796834,
+                            PointName = "Đại học sài gòn",
+                            RouteId = 2
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Latitude = 10.741214100000001,
+                            Longitude = 106.69534280000001,
+                            PointName = "Trạm lotte mart q7",
+                            RouteId = 3
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Latitude = 10.758583,
+                            Longitude = 106.699443,
+                            PointName = "Trạm công viên khánh hội",
+                            RouteId = 3
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Latitude = 10.759917099999999,
+                            Longitude = 106.6796834,
+                            PointName = "Đại học sài gòn",
+                            RouteId = 3
+                        });
                 });
 
             modelBuilder.Entity("TrackingBusSystem.Domain.Entities.Route", b =>
@@ -470,6 +541,23 @@ namespace TrackingBusSystem.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Routes");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            RouteName = "Tuyến Trường Chinh - Âu Cơ"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            RouteName = "Tuyến Quốc lộ 52"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            RouteName = "Tuyến Nguyễn Hữu Thọ - Khánh Hội"
+                        });
                 });
 
             modelBuilder.Entity("TrackingBusSystem.Domain.Entities.Schedule", b =>
@@ -480,7 +568,10 @@ namespace TrackingBusSystem.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime?>("EndDate")
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ScheduleName")
@@ -493,6 +584,9 @@ namespace TrackingBusSystem.Infrastructure.Migrations
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -507,8 +601,20 @@ namespace TrackingBusSystem.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<TimeSpan>("AfternoonArrival")
+                        .HasColumnType("time");
+
+                    b.Property<TimeSpan>("AfternoonDeparture")
+                        .HasColumnType("time");
+
                     b.Property<int>("DriverId")
                         .HasColumnType("int");
+
+                    b.Property<TimeSpan>("MorningArrival")
+                        .HasColumnType("time");
+
+                    b.Property<TimeSpan>("MorningDeparture")
+                        .HasColumnType("time");
 
                     b.Property<int>("RouteId")
                         .HasColumnType("int");
@@ -552,8 +658,11 @@ namespace TrackingBusSystem.Infrastructure.Migrations
 
             modelBuilder.Entity("TrackingBusSystem.Domain.Entities.Student", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Address")
                         .IsRequired()
@@ -564,6 +673,15 @@ namespace TrackingBusSystem.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("DateOfBirth")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DriverId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("ParentName")
                         .IsRequired()
@@ -578,11 +696,16 @@ namespace TrackingBusSystem.Infrastructure.Migrations
                     b.Property<int>("PointId")
                         .HasColumnType("int");
 
+                    b.Property<int>("Sex")
+                        .HasColumnType("int");
+
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DriverId");
 
                     b.HasIndex("PointId");
 
@@ -606,9 +729,8 @@ namespace TrackingBusSystem.Infrastructure.Migrations
                     b.Property<long>("GeneratedTripId")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("StudentId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<long>("StudentId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -710,6 +832,17 @@ namespace TrackingBusSystem.Infrastructure.Migrations
                     b.Navigation("SenderUser");
                 });
 
+            modelBuilder.Entity("TrackingBusSystem.Domain.Entities.Bus", b =>
+                {
+                    b.HasOne("TrackingBusSystem.Domain.Entities.Route", "Route")
+                        .WithMany("Buses")
+                        .HasForeignKey("RouteId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Route");
+                });
+
             modelBuilder.Entity("TrackingBusSystem.Domain.Entities.BusLastLocation", b =>
                 {
                     b.HasOne("TrackingBusSystem.Domain.Entities.Bus", "Bus")
@@ -721,22 +854,13 @@ namespace TrackingBusSystem.Infrastructure.Migrations
                     b.Navigation("Bus");
                 });
 
-            modelBuilder.Entity("TrackingBusSystem.Domain.Entities.DepartureTime", b =>
-                {
-                    b.HasOne("TrackingBusSystem.Domain.Entities.ScheduleAssignment", "ScheduleAssignment")
-                        .WithMany("DepartureTimes")
-                        .HasForeignKey("ScheduleAssignmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ScheduleAssignment");
-                });
-
             modelBuilder.Entity("TrackingBusSystem.Domain.Entities.Driver", b =>
                 {
                     b.HasOne("TrackingBusSystem.Domain.Entities.Bus", "Bus")
-                        .WithMany("Drivers")
-                        .HasForeignKey("BusId");
+                        .WithOne("Driver")
+                        .HasForeignKey("TrackingBusSystem.Domain.Entities.Driver", "BusId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("TrackingBusSystem.Domain.Entities.AppUser", "User")
                         .WithOne("Driver")
@@ -827,6 +951,12 @@ namespace TrackingBusSystem.Infrastructure.Migrations
 
             modelBuilder.Entity("TrackingBusSystem.Domain.Entities.Student", b =>
                 {
+                    b.HasOne("TrackingBusSystem.Domain.Entities.Driver", "Driver")
+                        .WithMany("Students")
+                        .HasForeignKey("DriverId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("TrackingBusSystem.Domain.Entities.Point", "Point")
                         .WithMany("Students")
                         .HasForeignKey("PointId")
@@ -838,6 +968,8 @@ namespace TrackingBusSystem.Infrastructure.Migrations
                         .HasForeignKey("TrackingBusSystem.Domain.Entities.Student", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Driver");
 
                     b.Navigation("Point");
 
@@ -902,7 +1034,8 @@ namespace TrackingBusSystem.Infrastructure.Migrations
                 {
                     b.Navigation("BusLastLocation");
 
-                    b.Navigation("Drivers");
+                    b.Navigation("Driver")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("TrackingBusSystem.Domain.Entities.Driver", b =>
@@ -910,6 +1043,8 @@ namespace TrackingBusSystem.Infrastructure.Migrations
                     b.Navigation("GeneratedTrips");
 
                     b.Navigation("ScheduleAssignments");
+
+                    b.Navigation("Students");
                 });
 
             modelBuilder.Entity("TrackingBusSystem.Domain.Entities.GeneratedTrip", b =>
@@ -924,6 +1059,8 @@ namespace TrackingBusSystem.Infrastructure.Migrations
 
             modelBuilder.Entity("TrackingBusSystem.Domain.Entities.Route", b =>
                 {
+                    b.Navigation("Buses");
+
                     b.Navigation("GeneratedTrips");
 
                     b.Navigation("Points");
@@ -938,11 +1075,6 @@ namespace TrackingBusSystem.Infrastructure.Migrations
                     b.Navigation("ScheduleAssignments");
 
                     b.Navigation("ScheduleWeeklies");
-                });
-
-            modelBuilder.Entity("TrackingBusSystem.Domain.Entities.ScheduleAssignment", b =>
-                {
-                    b.Navigation("DepartureTimes");
                 });
 
             modelBuilder.Entity("TrackingBusSystem.Domain.Entities.Student", b =>

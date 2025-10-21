@@ -18,6 +18,7 @@ namespace TrackingBusSystem.Domain.Entities
 
         public Gender Sex { get; set; }
 
+        public bool IsDeleted { get; set; } = false;
         // Foreign Keys
         public int BusId { get; set; }
         public string UserId { get; set; } = string.Empty; // Changed to string
@@ -27,6 +28,8 @@ namespace TrackingBusSystem.Domain.Entities
         public virtual Bus Bus { get; set; } = null!;
         public virtual AppUser User { get; set; } = null!;
 
+
+        public virtual ICollection<Student> Students { get; set; } = new List<Student>();
         public virtual ICollection<GeneratedTrip> GeneratedTrips { get; set; } = new List<GeneratedTrip>();
         public virtual ICollection<ScheduleAssignment> ScheduleAssignments { get; set; } = new List<ScheduleAssignment>();
     }

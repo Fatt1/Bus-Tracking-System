@@ -1,7 +1,8 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
+
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
 namespace TrackingBusSystem.Infrastructure.Migrations
 {
@@ -52,21 +53,6 @@ namespace TrackingBusSystem.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Buses",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    BusName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    PlateNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    Status = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Buses", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Routes",
                 columns: table => new
                 {
@@ -88,7 +74,9 @@ namespace TrackingBusSystem.Infrastructure.Migrations
                     ScheduleName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     ScheduleType = table.Column<int>(type: "int", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -224,54 +212,25 @@ namespace TrackingBusSystem.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "BusLastLocations",
-                columns: table => new
-                {
-                    BusId = table.Column<int>(type: "int", nullable: false),
-                    Latitude = table.Column<double>(type: "float", nullable: false),
-                    Longitude = table.Column<double>(type: "float", nullable: false),
-                    LastUpdateTimestamp = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_BusLastLocations", x => x.BusId);
-                    table.ForeignKey(
-                        name: "FK_BusLastLocations_Buses_BusId",
-                        column: x => x.BusId,
-                        principalTable: "Buses",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Drivers",
+                name: "Buses",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    FullName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IDCard = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Sex = table.Column<int>(type: "int", nullable: false),
-                    BusId = table.Column<int>(type: "int", nullable: true),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    BusName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    PlateNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Status = table.Column<bool>(type: "bit", nullable: false),
+                    RouteId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Drivers", x => x.Id);
+                    table.PrimaryKey("PK_Buses", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Drivers_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
+                        name: "FK_Buses_Routes_RouteId",
+                        column: x => x.RouteId,
+                        principalTable: "Routes",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Drivers_Buses_BusId",
-                        column: x => x.BusId,
-                        principalTable: "Buses",
-                        principalColumn: "Id");
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -344,6 +303,58 @@ namespace TrackingBusSystem.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "BusLastLocations",
+                columns: table => new
+                {
+                    BusId = table.Column<int>(type: "int", nullable: false),
+                    Latitude = table.Column<double>(type: "float", nullable: false),
+                    Longitude = table.Column<double>(type: "float", nullable: false),
+                    LastUpdateTimestamp = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BusLastLocations", x => x.BusId);
+                    table.ForeignKey(
+                        name: "FK_BusLastLocations_Buses_BusId",
+                        column: x => x.BusId,
+                        principalTable: "Buses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Drivers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IDCard = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Sex = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    BusId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Drivers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Drivers_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Drivers_Buses_BusId",
+                        column: x => x.BusId,
+                        principalTable: "Buses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "GeneratedTrips",
                 columns: table => new
                 {
@@ -389,7 +400,11 @@ namespace TrackingBusSystem.Infrastructure.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ScheduleId = table.Column<int>(type: "int", nullable: false),
                     RouteId = table.Column<int>(type: "int", nullable: false),
-                    DriverId = table.Column<int>(type: "int", nullable: false)
+                    DriverId = table.Column<int>(type: "int", nullable: false),
+                    MorningDeparture = table.Column<TimeSpan>(type: "time", nullable: false),
+                    MorningArrival = table.Column<TimeSpan>(type: "time", nullable: false),
+                    AfternoonDeparture = table.Column<TimeSpan>(type: "time", nullable: false),
+                    AfternoonArrival = table.Column<TimeSpan>(type: "time", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -418,13 +433,16 @@ namespace TrackingBusSystem.Infrastructure.Migrations
                 name: "Students",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     Class = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Address = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     ParentName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     ParentPhoneNumber = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    PointId = table.Column<int>(type: "int", nullable: false)
+                    PointId = table.Column<int>(type: "int", nullable: false),
+                    DriverId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -436,31 +454,15 @@ namespace TrackingBusSystem.Infrastructure.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
+                        name: "FK_Students_Drivers_DriverId",
+                        column: x => x.DriverId,
+                        principalTable: "Drivers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
                         name: "FK_Students_Points_PointId",
                         column: x => x.PointId,
                         principalTable: "Points",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "DepartureTimes",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    DepartureTimeValue = table.Column<TimeSpan>(type: "time", nullable: false),
-                    EstimatedArrivalTime = table.Column<TimeSpan>(type: "time", nullable: false),
-                    Direction = table.Column<int>(type: "int", nullable: false),
-                    ScheduleAssignmentId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_DepartureTimes", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_DepartureTimes_ScheduleAssignments_ScheduleAssignmentId",
-                        column: x => x.ScheduleAssignmentId,
-                        principalTable: "ScheduleAssignments",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -473,7 +475,7 @@ namespace TrackingBusSystem.Infrastructure.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CheckinStatus = table.Column<int>(type: "int", nullable: false),
                     GeneratedTripId = table.Column<long>(type: "bigint", nullable: false),
-                    StudentId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    StudentId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -490,6 +492,42 @@ namespace TrackingBusSystem.Infrastructure.Migrations
                         principalTable: "Students",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.InsertData(
+                table: "AspNetRoles",
+                columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
+                values: new object[,]
+                {
+                    { "a18be9c0-aa65-4af8-bd17-00bd9344e575", null, "Driver", "DRIVER" },
+                    { "b18be9c0-aa65-4af8-bd17-00bd9344e576", null, "Admin", "ADMIN" },
+                    { "c18be9c0-aa65-4af8-bd17-00bd9344e577", null, "Parent", "PARENT" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Routes",
+                columns: new[] { "Id", "RouteName" },
+                values: new object[,]
+                {
+                    { 1, "Tuyến Trường Chinh - Âu Cơ" },
+                    { 2, "Tuyến Quốc lộ 52" },
+                    { 3, "Tuyến Nguyễn Hữu Thọ - Khánh Hội" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Points",
+                columns: new[] { "Id", "Latitude", "Longitude", "PointName", "RouteId" },
+                values: new object[,]
+                {
+                    { 1, 10.819554999999999, 106.630731, "Trạm kcn Tân Bình", 1 },
+                    { 2, 10.782951000000001, 106.642635, "Trạm bệnh viện Tân Phú", 1 },
+                    { 3, 10.759917099999999, 106.6796834, "Đại học sài gòn", 1 },
+                    { 4, 10.87335, 106.808025, "Trạm đại học quốc gia", 2 },
+                    { 5, 10.849184899999999, 106.7543493, "Trạm ngã tư Thủ Đức", 2 },
+                    { 6, 10.759917099999999, 106.6796834, "Đại học sài gòn", 2 },
+                    { 7, 10.741214100000001, 106.69534280000001, "Trạm lotte mart q7", 3 },
+                    { 8, 10.758583, 106.699443, "Trạm công viên khánh hội", 3 },
+                    { 9, 10.759917099999999, 106.6796834, "Đại học sài gòn", 3 }
                 });
 
             migrationBuilder.CreateIndex(
@@ -543,14 +581,15 @@ namespace TrackingBusSystem.Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_DepartureTimes_ScheduleAssignmentId",
-                table: "DepartureTimes",
-                column: "ScheduleAssignmentId");
+                name: "IX_Buses_RouteId",
+                table: "Buses",
+                column: "RouteId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Drivers_BusId",
                 table: "Drivers",
-                column: "BusId");
+                column: "BusId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Drivers_UserId",
@@ -599,6 +638,11 @@ namespace TrackingBusSystem.Infrastructure.Migrations
                 table: "ScheduleWeeklies",
                 columns: new[] { "ScheduleId", "DayOfWeek" },
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Students_DriverId",
+                table: "Students",
+                column: "DriverId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Students_PointId",
@@ -656,7 +700,7 @@ namespace TrackingBusSystem.Infrastructure.Migrations
                 name: "BusLastLocations");
 
             migrationBuilder.DropTable(
-                name: "DepartureTimes");
+                name: "ScheduleAssignments");
 
             migrationBuilder.DropTable(
                 name: "ScheduleWeeklies");
@@ -671,9 +715,6 @@ namespace TrackingBusSystem.Infrastructure.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "ScheduleAssignments");
-
-            migrationBuilder.DropTable(
                 name: "GeneratedTrips");
 
             migrationBuilder.DropTable(
@@ -683,10 +724,10 @@ namespace TrackingBusSystem.Infrastructure.Migrations
                 name: "Announcements");
 
             migrationBuilder.DropTable(
-                name: "Drivers");
+                name: "Schedules");
 
             migrationBuilder.DropTable(
-                name: "Schedules");
+                name: "Drivers");
 
             migrationBuilder.DropTable(
                 name: "Points");

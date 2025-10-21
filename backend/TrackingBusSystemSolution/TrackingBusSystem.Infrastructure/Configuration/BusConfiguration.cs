@@ -21,6 +21,12 @@ namespace TrackingBusSystem.Infrastructure.Configuration
             // Đảm bảo PlateNumber là duy nhất
             builder.HasIndex(b => b.PlateNumber).IsUnique();
 
+            //Mối quan hệ nhiều-1 với Route
+            builder.HasOne(b => b.Route)
+                   .WithMany(r => r.Buses)
+                   .HasForeignKey(b => b.RouteId)
+                   .OnDelete(DeleteBehavior.Restrict);
+
             // Mối quan hệ 1-1 với BusLastLocation
             builder.HasOne(b => b.BusLastLocation)
                    .WithOne(l => l.Bus)

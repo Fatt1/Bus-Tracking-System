@@ -23,7 +23,7 @@ namespace TrackingBusSystem.Application.Features.Drivers.Query.GetAllDriver
                 BusId = driver.BusId,
                 FullName = driver.User.FullName,
                 BusName = driver.Bus.BusName,
-                PhoneNumber = driver!.User!.UserName,
+                PhoneNumber = driver!.User!.PhoneNumber!,
             });
             var pageResult = PagedList<GetAllDriverDTO>.ToPagedList(allDrivers, request.PageNumber, request.PageSize);
             return Task.FromResult(Result<PagedList<GetAllDriverDTO>>.Success(pageResult));

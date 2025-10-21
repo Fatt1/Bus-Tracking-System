@@ -12,6 +12,7 @@ namespace TrackingBusSystem.Application.Features.Drivers.DTOs
 
         public string IDCard { get; init; } = string.Empty;
 
+        public string FullName { get; init; } = string.Empty;
 
         public string Address { get; init; } = string.Empty;
 
@@ -19,6 +20,8 @@ namespace TrackingBusSystem.Application.Features.Drivers.DTOs
 
         // Foreign Keys
         public int BusId { get; init; }
-        public string UserId { get; init; } = string.Empty; // Changed to string
+        public string BusName { get; init; } = string.Empty;
+        public int RouteId { get; init; }
+        public string RouteName { get; init; } = string.Empty;
     }
 }

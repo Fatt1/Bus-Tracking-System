@@ -32,5 +32,19 @@ namespace TrackingBusSystem.Infrastructure.Repositories
         {
             return appDbContext.Drivers.Where(d => ids.Contains(d.Id)).Select(d => d.Id).ToListAsync();
         }
+
+        public async Task<List<Driver>> GetDriversWithBusByIdsAsync(IEnumerable<int> driverIds)
+        {
+            var idSet = driverIds.ToHashSet();
+            return await appDbContext.Drivers
+            .Include(d => d.Bus) // Quan trọng: Eager loading Bus
+            .Where(d => idSet.Contains(d.Id)) // Lấy tất cả driver có ID trong danh sách
+            .ToListAsync();
+        }
+
+        public Task<Driver?> GetDriverById(int driverId)
+        {
+            return appDbContext.Drivers.FirstOrDefaultAsync(d => d.Id == driverId);
+        }
     }
 }

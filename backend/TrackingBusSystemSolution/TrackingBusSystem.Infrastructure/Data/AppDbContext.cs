@@ -15,7 +15,7 @@ namespace TrackingBusSystem.Infrastructure.Data
         public DbSet<Bus> Buses => Set<Bus>();
         public DbSet<Announcement> Announcements { get; set; }
         public DbSet<UserAnnouncement> UserAnnouncements { get; set; }
-        public DbSet<Student> Students { get; set; }
+        public DbSet<Student> Students => Set<Student>();
         public DbSet<Driver> Drivers => Set<Driver>();
         public DbSet<BusLastLocation> BusLastLocations { get; set; }
         public DbSet<Schedule> Schedules => Set<Schedule>();
@@ -33,11 +33,25 @@ namespace TrackingBusSystem.Infrastructure.Data
             base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
             const string DRIVER_ID = "a18be9c0-aa65-4af8-bd17-00bd9344e575";
+            const string ADMIN_ID = "b18be9c0-aa65-4af8-bd17-00bd9344e576";
+            const string PARENT_ID = "c18be9c0-aa65-4af8-bd17-00bd9344e577";
             modelBuilder.Entity<IdentityRole>().HasData(new IdentityRole
             {
                 Id = DRIVER_ID,
                 Name = "Driver",
                 NormalizedName = "DRIVER"
+            });
+            modelBuilder.Entity<IdentityRole>().HasData(new IdentityRole
+            {
+                Id = ADMIN_ID,
+                Name = "Admin",
+                NormalizedName = "ADMIN"
+            });
+            modelBuilder.Entity<IdentityRole>().HasData(new IdentityRole
+            {
+                Id = PARENT_ID,
+                Name = "Parent",
+                NormalizedName = "PARENT"
             });
         }
     }
