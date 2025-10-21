@@ -1,0 +1,53 @@
+/* src/pages/RouteListPage.css */
+
+.assigned-bus-btn,
+.map-btn {
+  border: none;
+  border-radius: 5px;
+  padding: 8px;
+  cursor: pointer;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 45px;
+  height: 38px;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.assigned-bus-btn:hover,
+.map-btn:hover {
+  opacity: 0.85;
+}
+
+.assigned-bus-btn {
+  background-color: var(--primary-blue, #0a2e5d);
+}
+
+.map-btn {
+  background-color: var(--primary-blue, #0a2e5d);
+  font-size: 1.2rem; /* Icon to hơn một chút */
+}
+
+/* v2 */
+.cell-center {
+  text-align: center;
+  justify-content: center;
+}
+.td {
+  display: flex;
+  justify-content: center;
+}
+.assign-column {
+  display: flex;
+  justify-content: center;
+}
+th,
+td {
+  padding: 15px;
+  text-align: left;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+}
