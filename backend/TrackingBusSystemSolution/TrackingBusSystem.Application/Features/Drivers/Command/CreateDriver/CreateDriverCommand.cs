@@ -44,13 +44,31 @@ namespace TrackingBusSystem.Application.Features.Drivers.Command.CreateDriver
         }
         public async Task<Result<GetDriverDTO>> Handle(CreateDriverCommand request, CancellationToken cancellationToken)
         {
-            // Kiểm tra xem bus đã có tài xế chưa
+            // Kiểm tra xem xe buýt có tồn tại hay chưa
 
+
+
+            var busExists = await _busRepository.IsExistingBus(request.BusId);
+
+            if (!busExists)
+            {
+                return Result<GetDriverDTO>.Failure(BusErrors.BusNotFound(request.BusId));
+            }
+
+            // Kiểm tra xem bus đã có tài xế chưa
 
             var isBusAssigned = await _driverRepository.IsDriverAssignedToBusAsync(request.BusId);
             if (isBusAssigned)
             {
                 return Result<GetDriverDTO>.Failure(DriverErrors.BusAlreadyHasDriver);
+            }
+
+
+            // Kiểm tra xem số điện thoại đã được sử dụng hay chưa
+            var userResult = await _userManager.FindByNameAsync(request.PhoneNumber);
+            if (userResult != null)
+            {
+                return Result<GetDriverDTO>.Failure(DriverErrors.PhoneNumberAlreadyInUse(request.PhoneNumber));
             }
 
             // Tạo user và tài xế trong một transaction
