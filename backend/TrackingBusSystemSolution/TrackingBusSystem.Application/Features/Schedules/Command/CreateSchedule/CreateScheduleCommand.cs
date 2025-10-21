@@ -55,16 +55,22 @@ namespace TrackingBusSystem.Application.Features.Schedules.Command.CreateSchedul
                 foreach (var assignment in request.ScheduleAsignments)
                 {
                     // 4. Kiểm tra trong bộ nhớ (siêu nhanh)
+                    // Kiểm tra xem route có tồn tại trong db không
                     if (!routeIdSet.Contains(assignment.RouteId))
                     {
                         await _unitOfWork.RollbackTransactionAsync();
                         return Result.Failure(RouteErrors.RouteNotFound(assignment.RouteId));
                     }
+                    // Kiểm tra xem driver có tồn tại trong db không
                     if (!driverIdSet.Contains(assignment.DriverId))
                     {
                         await _unitOfWork.RollbackTransactionAsync();
                         return Result.Failure(DriverErrors.DriverNotFound(assignment.DriverId));
                     }
+
+                    // Kiểm tra xem có bị trùng lịch, thời gian không
+
+
 
                     // 5. Nếu OK, tạo đối tượng
                     var scheduleAssignment = new ScheduleAssignment

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using TrackingBusSystem.Application.Features.Routes.Query.GetAllRoutes;
 using TrackingBusSystem.Application.Features.Routes.Query.GetAllRoutesToday;
+using TrackingBusSystem.Application.Features.Routes.Query.GetRouteAssignmentToday;
 
 namespace TrackingBusSystem.Presentation.Controllers
 {
@@ -28,5 +29,11 @@ namespace TrackingBusSystem.Presentation.Controllers
             return Ok(result.Value);
         }
 
+        [HttpGet("{routeId}/assignments/today")]
+        public async Task<IActionResult> GetRouteAssignmentsToday([FromRoute] int routeId)
+        {
+            var result = await mediator.Send(new GetRouteAssignmentTodayQuery(routeId));
+            return Ok(result.Value);
+        }
     }
 }

@@ -56,7 +56,8 @@ namespace TrackingBusSystem.Application.Features.Drivers.Command.CreateDriver
             await _unitOfWork.BeginTransactionAsync();
             try
             {
-                var username = $"{request.FullName.Replace(" ", "")}{request.DateOfBirth.Year}";
+                var username = request.PhoneNumber;
+                // Tạo user mới với vai trò "Driver"
                 var defaultPassword = "Driver@123";
                 var newUser = new AppUser
                 {
