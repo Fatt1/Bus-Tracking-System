@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using TrackingBusSystem.Application.Abstractions.Common.Interfaces;
 using TrackingBusSystem.Domain.Entities;
@@ -31,6 +32,13 @@ namespace TrackingBusSystem.Infrastructure.Data
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+            const string DRIVER_ID = "a18be9c0-aa65-4af8-bd17-00bd9344e575";
+            modelBuilder.Entity<IdentityRole>().HasData(new IdentityRole
+            {
+                Id = DRIVER_ID,
+                Name = "Driver",
+                NormalizedName = "DRIVER"
+            });
         }
     }
 }
