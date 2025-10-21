@@ -13,6 +13,7 @@ import RouteListPage from "./pages/RouteListPage";
 
 function App() {
   // Xóa useEffect gọi API ở đây, nó nên nằm trong component cần dữ liệu (DashboardPage)
+
   return (
     <Routes>
       {/* Route không có Sidebar (như Login) sẽ nằm ngoài Layout */}

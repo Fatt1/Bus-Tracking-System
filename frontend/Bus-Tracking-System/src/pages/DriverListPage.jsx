@@ -326,7 +326,7 @@ const DriverListPage = () => {
     setIsLoading(true);
     try {
       const response = await axios.get(
-        "https://localhost:7229/api/v1/driver/all"
+        "https://localhost:7229/api/v1/driver/all/simple"
       );
 
       // *** SỬA LỖI Ở ĐÂY ***
