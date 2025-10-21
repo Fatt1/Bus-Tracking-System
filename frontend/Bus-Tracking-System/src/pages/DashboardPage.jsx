@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./DashboardPage.css";
 import { FaBus, FaSearch, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import MapComponent from "../components/MapComponent";
 
 // Component nhỏ: Thẻ Tuyến Xe
 const RouteCard = ({ route }) => (
@@ -111,7 +112,12 @@ const DashboardPage = () => {
       </div>
 
       <section className="map-section">
-        <div className="map-placeholder">Bản đồ sẽ được hiển thị ở đây</div>
+        {/* Truyền dữ liệu 'routes' vào component bản đồ */}
+        {routes.length > 0 ? (
+          <MapComponent routes={routes} />
+        ) : (
+          <div className="map-placeholder">Đang tải dữ liệu bản đồ...</div>
+        )}
       </section>
     </main>
   );

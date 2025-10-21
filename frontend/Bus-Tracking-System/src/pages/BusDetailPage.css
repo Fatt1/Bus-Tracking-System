@@ -103,7 +103,7 @@
   opacity: 0.9;
 }
 
-.map-placeholder-detail {
+.map-container-detail {
   flex-grow: 1; /* Để map chiếm hết không gian còn lại */
   background-color: #eaeaea;
   display: flex;

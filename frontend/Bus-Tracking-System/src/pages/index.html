@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css"
+    />
+
+    <title>Google Maps</title>
+    <style>
+      #map {
+        height: 80vh;
+      }
+    </style>
+  </head>
+  <body>
+    <h3>Bản đồ với Marker và Đường đi</h3>
+    <div id="map"></div>
+    <button class="bus" id="1">Xe bus 1</button>
+    <button class="bus" id="2">Xe bus 2</button>
+    <script type="module" src="script.js"></script>
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <script src="https://unpkg.com/@microsoft/signalr/dist/browser/signalr.min.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+    <script type="module">
+      import { exampleData } from "./script.js";
+
+      const myIcon = L.icon({
+        iconUrl: "Bus.png",
+        iconSize: [38, 95],
+      });
+      var carMarker;
+      var routePoints;
+      var routeIndex = 0;
+      var intervalId;
+      let map = L.map("map").setView([10.77, 106.69], 13);
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution:
+          '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      }).addTo(map);
+      // var marker = L.marker([10.7599171, 106.6796834]).addTo(map);
+      // L.marker([10.7975526, 106.6357181]).addTo(map);
+      // L.marker([10.7529543, 106.6654295]).addTo(map);
+      // create a red polyline from an array of LatLng points
+
+      // var polyline = L.polyline(latlngs, { color: "red" }).addTo(map);
+      exampleData.forEach((data) => {
+        const waypoints = [];
+        data.route.points.forEach((point) => {
+          waypoints.push(L.latLng(point.latitude, point.longitude));
+        });
+
+        const routeControl = L.Routing.control({
+          waypoints: waypoints,
+          addWaypoints: false,
+        }).addTo(map);
+        routeControl.on("routesfound", function (e) {
+          const r = e.routes[0];
+          const coordinates = r.coordinates;
+
+          const carMarker = L.marker(coordinates[0], { icon: myIcon }).addTo(
+            map
+          );
+          data.routePoints = coordinates;
+          data.carMarker = carMarker;
+          data.routeIndex = 0;
+        });
+      });
+      console.log(exampleData);
+      // L.Routing.control({
+      //   waypoints: [
+      //     L.latLng(10.7530727, 106.6925398), // 418 trần phú
+      //     L.latLng(10.7529358, 106.6671515), // 418 trần phú
+      //     L.latLng(10.7975526, 106.6357181), // nhà nghĩa
+      //   ],
+      //   // Thêm dòng code này để chặn việc thêm marker mới
+      //   addWaypoints: false,
+      // })
+      //   .on("routesfound", function (e) {
+      //     console.log(e.routes[0].coordinates);
+      //     // Lấy chuỗi tọa độ của lộ trình đầu tiên
+      //     var routes = e.routes[0];
+      //     routePoints = routes.coordinates;
+
+      //     // Tạo marker cho đối tượng đang di chuyển và thêm vào bản đồ
+      //     carMarker = L.marker(routePoints[0], { icon: myIcon }).addTo(map);
+
+      //     // startAnimation();
+      //   })
+      //   .addTo(map);
+
+      // // Định nghĩa tuyến đường thứ hai
+      // L.Routing.control({
+      //   waypoints: [
+      //     L.latLng(10.771234, 106.704567), // Điểm bắt đầu tuyến đường 2
+      //     L.latLng(10.85, 106.75), // Điểm cuối tuyến đường 2
+      //   ],
+      //   // Tùy chọn cho tuyến đường thứ hai (ví dụ: màu khác)
+      //   routeWhileDragging: true,
+      //   lineOptions: {
+      //     styles: [{ color: "blue", opacity: 0.7, weight: 2 }], // Đổi màu thành xanh dương
+      //   },
+      //   // Bạn có thể giữ lại hoặc bỏ qua .on("routesfound") tùy theo bạn có muốn thêm animation cho tuyến này không.
+      //   addWaypoints: false,
+      // }).addTo(map);
+
+      function startAnimation() {
+        // Sử dụng setInterval để di chuyển marker mỗi 100ms
+        intervalId = setInterval(function () {
+          routeIndex++;
+
+          // Nếu đã đi hết lộ trình, dừng animation
+          if (routeIndex >= routePoints.length) {
+            clearInterval(intervalId);
+            return;
+          }
+
+          // Cập nhật vị trí của marker
+          carMarker.setLatLng(routePoints[routeIndex]);
+        }, 100); // 100ms là khoảng thời gian cập nhật vị trí
+      }
+      document.querySelectorAll(".bus").forEach((b) =>
+        b.addEventListener("click", () => {
+          const id = Number(b.id);
+          const result = exampleData.find((d) => d.busId === id);
+          test(result.routeIndex, id, result.routePoints);
+        })
+      );
+      const HUB_URL = "https://localhost:7229/geolocationHub";
+      const hubConnection = new signalR.HubConnectionBuilder()
+        .withUrl(HUB_URL)
+        .withAutomaticReconnect()
+        .build();
+      hubConnection.start().then(() => {
+        console.log("Kết nối SignalR thành công! Sẵn sàng gửi dữ liệu.");
+      });
+      hubConnection.on("ReceiveBusLocation", (lat, lng, busId) => {
+        changeMarker(lat, lng, busId);
+      });
+
+      function changeMarker(lat, lng, busId) {
+        const result = exampleData.find((d) => d.busId === busId);
+        result.carMarker.setLatLng({ lat, lng });
+      }
+      function test(routeIndex, busId, routePoints) {
+        intervalId = setInterval(function () {
+          routeIndex++;
+
+          // Nếu đã đi hết lộ trình, dừng animation
+          if (routeIndex >= routePoints.length) {
+            clearInterval(intervalId);
+            return;
+          }
+
+          sendIndexToBackend(
+            routePoints[routeIndex].lat,
+            routePoints[routeIndex].lng,
+            busId
+          );
+        }, 500);
+      }
+
+      function sendIndexToBackend(lat, lng, busId) {
+        hubConnection.invoke("UpdateIndex", lat, lng, busId).catch((err) => {
+          // Xử lý lỗi nếu việc gọi hàm không thành công (thường do kết nối bị ngắt)
+          console.error(`Lỗi khi invoke UpdateIndex cho xe :`, err);
+        });
+      }
+    </script>
+  </body>
+</html>

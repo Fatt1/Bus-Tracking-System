@@ -1,33 +1,50 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import axios from "axios";
-import "./BusDetailPage.css"; // Sẽ tạo ở bước 3
+import "./BusDetailPage.css";
 import busImg from "../assets/bus.png";
 import { FaBus, FaAngleLeft } from "react-icons/fa";
+import MapComponent from "../components/MapComponent"; // <-- 1. IMPORT MAP COMPONENT
 
 // Component chính của trang
 const BusDetailPage = () => {
-  // useParams() là hook của React Router để lấy tham số từ URL (ví dụ: busId)
   const { busId } = useParams();
   const [bus, setBus] = useState(null);
+  const [route, setRoute] = useState(null); // <-- 2. THÊM STATE ĐỂ LƯU THÔNG TIN TUYẾN ĐƯỜNG
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchBusDetails = async () => {
+    const fetchBusAndRouteDetails = async () => {
       try {
-        // Giả lập API endpoint để lấy chi tiết một xe.
-        // Bạn cần thay thế bằng API thật của mình, ví dụ: `.../api/v1/bus/${busId}`
-        const response = await axios.get(
+        // --- Lấy thông tin xe buýt ---
+        // Giả sử API trả về danh sách
+        const busResponse = await axios.get(
           `https://localhost:7229/api/v1/bus/all`
         );
-
-        // Vì API của bạn không có endpoint chi tiết, tôi sẽ tìm xe trong danh sách
-        const allBuses = response.data.items || [];
+        const allBuses = busResponse.data.items || [];
         const foundBus = allBuses.find((b) => b.id.toString() === busId);
 
         if (foundBus) {
           setBus(foundBus);
+
+          // --- Lấy thông tin tuyến đường ---
+          // Giả sử mỗi xe buýt có một `routeId`. Trong API của bạn chưa có,
+          // nên tôi sẽ giả lập rằng busId 1 chạy routeId 1, busId 2 chạy routeId 2...
+          // BẠN SẼ CẦN THAY THẾ LOGIC NÀY BẰNG API THẬT
+          const routeId = foundBus.id;
+          const routeResponse = await axios.get(
+            "https://localhost:7229/api/v1/route/all"
+          );
+          const allRoutes = routeResponse.data.items || [];
+          const foundRoute = allRoutes.find((r) => r.id === routeId);
+
+          if (foundRoute) {
+            setRoute(foundRoute);
+          } else {
+            // Vẫn hiển thị thông tin xe dù không có tuyến
+            console.warn(`Không tìm thấy tuyến đường cho xe buýt ID: ${busId}`);
+          }
         } else {
           setError("Không tìm thấy thông tin xe buýt.");
         }
@@ -39,28 +56,37 @@ const BusDetailPage = () => {
       }
     };
 
-    fetchBusDetails();
-  }, [busId]); // useEffect sẽ chạy lại nếu busId trên URL thay đổi
+    fetchBusAndRouteDetails();
+  }, [busId]);
 
   if (loading) {
-    return <div className="detail-loading">Đang tải chi tiết xe...</div>;
+    return (
+      <main className="main-content-area">
+        <div className="detail-loading">Đang tải chi tiết xe...</div>
+      </main>
+    );
   }
 
   if (error) {
-    return <div className="detail-error">{error}</div>;
+    return (
+      <main className="main-content-area">
+        <div className="detail-error">{error}</div>
+      </main>
+    );
   }
 
   if (!bus) {
-    return <div className="detail-error">Không có dữ liệu để hiển thị.</div>;
+    return (
+      <main className="main-content-area">
+        <div className="detail-error">Không có dữ liệu để hiển thị.</div>
+      </main>
+    );
   }
 
   return (
-    // Component này sẽ được render bởi Outlet trong Layout
-    // nên nó cũng sẽ có Sidebar
     <main className="main-content-area">
       <header className="page-header">
         <div className="breadcrumbs">
-          {/* Link để quay lại trang danh sách */}
           <Link to="/bus" className="back-link">
             <FaAngleLeft /> Danh sách xe buýt
           </Link>
@@ -99,16 +125,29 @@ const BusDetailPage = () => {
           </div>
         </div>
 
-        <div className="route-info-banner">
-          <FaBus className="route-bus-icon" />
-          <div className="route-info-text">
-            <h4>Tuyến đường: An Dương Vương - Trần Hưng Đạo</h4>
-            <p>Dừng tại: Trường Đại Học An Dư, Cin. Cộng Hoà</p>
+        {/* Hiển thị banner tuyến đường nếu có thông tin */}
+        {route && (
+          <div className="route-info-banner">
+            <FaBus className="route-bus-icon" />
+            <div className="route-info-text">
+              <h4>Tuyến đường: {route.routeName}</h4>
+              <p>
+                {route.startLocation} - {route.endLocation}
+              </p>
+            </div>
           </div>
-        </div>
+        )}
 
-        <div className="map-placeholder-detail">
-          Bản đồ chi tiết lộ trình sẽ được hiển thị ở đây
+        {/* 3. THAY THẾ PLACEHOLDER BẰNG MAP COMPONENT */}
+        <div className="map-container-detail">
+          {route ? (
+            // Truyền mảng chỉ chứa 1 tuyến đường vào MapComponent
+            <MapComponent routes={[route]} />
+          ) : (
+            <div className="map-placeholder-detail">
+              Không có dữ liệu lộ trình để hiển thị bản đồ.
+            </div>
+          )}
         </div>
       </div>
     </main>
