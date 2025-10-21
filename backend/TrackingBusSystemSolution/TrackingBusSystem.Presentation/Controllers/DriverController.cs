@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using TrackingBusSystem.Application.Features.Drivers.Command.CreateDriver;
+using TrackingBusSystem.Application.Features.Drivers.Query.GetAllDriver;
 using TrackingBusSystem.Application.Features.Drivers.Query.GetAllDriverSimple;
 
 namespace TrackingBusSystem.Presentation.Controllers
@@ -22,10 +23,14 @@ namespace TrackingBusSystem.Presentation.Controllers
             return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);
         }
         [HttpGet("all")]
-        public async Task<IActionResult> GetAllDrivers()
+        public async Task<IActionResult> GetAllDrivers([FromQuery] GetAllDriverQuery request)
         {
-
-            return Ok();
+            var result = await _mediator.Send(request);
+            if (!result.IsSuccess)
+            {
+                return BadRequest(result.Error);
+            }
+            return Ok(result.Value);
         }
         [HttpGet("all/simple")]
         public async Task<IActionResult> GetAllDriverListSimple()
