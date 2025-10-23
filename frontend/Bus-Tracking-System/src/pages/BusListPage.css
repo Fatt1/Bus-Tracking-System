@@ -1,223 +1,58 @@
 /* src/pages/BusListPage.css */
 
-/* --- Layout chung (có thể tái sử dụng cho các trang khác) --- */
-.page-layout-container {
-  display: flex;
-  height: 100vh;
-  font-family: "Roboto", sans-serif;
-  background-color: #f0f4f8;
+/* --- Loading message --- */
+.loading-message {
+  text-align: center;
+  padding: 40px;
+  color: #555;
+  font-style: italic;
 }
 
-.main-content-area {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
+/* --- Trạng thái trong bảng --- */
+/* Kế thừa .status-badge từ LayoutTable.css */
+/* Thêm style cho trạng thái bảo trì */
+.status-maintenance {
+  background-color: #f39c12; /* Orange */
 }
 
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 30px;
-  background-color: #ffffff;
-  border-bottom: 1px solid #e0e0e0;
-  flex-shrink: 0;
-}
-
-.page-header .breadcrumbs {
-  color: #888;
-}
-
-.page-header .header-actions {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.page-header .search-input {
-  padding: 8px 15px;
-  border: 1px solid #e0e0e0;
-  border-radius: 20px;
-}
-
-.page-header .user-button {
-  padding: 8px 20px;
-  background-color: #0a2e5d;
-  color: white;
+/* --- Nút thao tác trong bảng --- */
+/* Kế thừa .action-buttons từ LayoutTable.css */
+/* Style riêng cho các nút của trang Bus */
+/* (Sử dụng lại class .action-btn-student từ trang học sinh để đồng bộ) */
+.action-btn-student {
   border: none;
   border-radius: 5px;
+  padding: 8px;
   cursor: pointer;
-}
-
-.page-banner {
-  height: 150px;
-  background: url("../assets/bus-list-banner.png") no-repeat center center;
-  background-size: cover;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 0 30px;
   color: white;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-.page-banner h2 {
-  font-size: 2rem;
-  font-weight: 700;
-}
-
-.page-content {
-  padding: 30px;
-  flex-grow: 1;
-}
-
-/* --- Grid hiển thị xe buýt --- */
-.bus-grid {
-  display: grid;
-  grid-template-columns: repeat(
-    auto-fill,
-    minmax(300px, 1fr)
-  ); /* Responsive grid */
-  gap: 30px;
-  margin-bottom: 40px;
-}
-
-.bus-card {
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-  overflow: hidden;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.bus-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-}
-
-.bus-card img {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-}
-
-.bus-card-info {
-  padding: 20px;
-}
-
-.bus-card-info p {
-  margin: 0 0 10px 0;
-  font-size: 0.95rem;
-  color: #333;
-}
-
-.bus-status {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.95rem;
+  justify-content: center;
+  width: 35px;
+  height: 35px;
+  transition: opacity 0.2s;
 }
 
-.status-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
+.action-btn-student:hover {
+  opacity: 0.85;
 }
 
-.status-dot.active {
-  background-color: #27ae60; /* Green */
+.action-btn-student.more-btn {
+  background-color: #3498db; /* Blue */
 }
 
-.status-dot.inactive {
+.action-btn-student.delete-btn {
   background-color: #e74c3c; /* Red */
 }
 
+.action-btn-student.edit-btn {
+  background-color: #f39c12; /* Orange */
+}
+
 /* --- Phân trang --- */
-.pagination-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+/* (Kế thừa từ LayoutTable.css) */
 
-.pagination {
-  display: flex;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  background-color: white;
-  overflow: hidden;
-}
-
-.page-item button {
-  padding: 10px 15px;
-  border: none;
-  background-color: transparent;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.2s, color 0.2s;
-  border-right: 1px solid #e0e0e0;
-}
-
-.page-item:last-child button {
-  border-right: none;
-}
-
-.page-item button:hover {
-  background-color: #f0f0f0;
-}
-
-.page-item.active button {
-  background-color: #0a2e5d;
-  color: white;
-}
-
-.page-item.disabled button {
-  color: #aaa;
-  cursor: not-allowed;
-  background-color: #f9f9f9;
-}
-/* ... CSS cũ của bạn ... */
-
-/* Thêm vào cuối file */
-.bus-card-link {
-  text-decoration: none;
-  color: inherit;
-}
-.bus-card-link {
-  text-decoration: none;
-  color: inherit;
-}
-/*  */
-/* src/pages/BusListPage.css */
-
-/* ... CSS cũ của bạn ... */
-
-/* Thêm vào cuối file */
-
-/* --- Nút thêm mới trong header --- */
-.header-actions .add-btn {
-  background-color: #27ae60; /* Green */
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 38px;
-  height: 38px;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.header-actions .add-btn:hover {
-  background-color: #2ecc71;
-}
-
-/* --- Modal Styles --- */
+/* --- Modal Styles (Giữ nguyên từ trước) --- */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -229,6 +64,7 @@
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  padding: 20px; /* Thêm padding để tránh modal chạm viền */
 }
 
 .modal-content {
@@ -238,7 +74,7 @@
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
   position: relative;
   width: 90%;
-  max-width: 500px;
+  max-width: 500px; /* Giữ nguyên max-width */
 }
 
 .modal-close-btn {
@@ -275,6 +111,7 @@
   gap: 20px;
 }
 
+/* Style riêng cho form trong modal bus */
 .bus-modal-form .form-group {
   display: flex;
   flex-direction: column;
@@ -292,6 +129,8 @@
   border: 1px solid #ccc;
   border-radius: 5px;
   font-size: 1rem;
+  width: 100%; /* Đảm bảo input/select chiếm đủ chiều rộng */
+  box-sizing: border-box; /* Tính cả padding và border vào width */
 }
 
 .bus-modal-form .form-group input:focus,
@@ -317,3 +156,32 @@
 .modal-submit-btn:hover {
   background-color: var(--secondary-blue, #1a4a8d);
 }
+
+/* Xóa bỏ style của bus-grid, bus-card */
+.bus-grid,
+.bus-card,
+.bus-card-link,
+.page-banner {
+  /* Các style cũ ở đây đã bị xóa hoặc comment */
+  /* display: none; */ /* Hoặc xóa hẳn các class này khỏi JSX nếu không dùng nữa*/
+  /* Nếu bạn đã xóa các class này khỏi JSX thì không cần dòng display: none; */
+}
+
+/* Đảm bảo bảng không bị tràn nếu màn hình quá hẹp */
+.table-container {
+  overflow-x: auto;
+}
+
+/* Căn giữa các cột nếu cần (ngoài Thao tác đã làm trong JSX) */
+/* Ví dụ: Căn giữa cột STT và Trạng thái */
+/* Bạn có thể thêm class cell-center vào JSX hoặc dùng nth-child */
+/*
+.table-container table td:first-child,
+.table-container table td:nth-child(4) {
+    text-align: center;
+}
+.table-container table th:first-child,
+.table-container table th:nth-child(4) {
+    text-align: center;
+}
+*/
