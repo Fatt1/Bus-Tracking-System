@@ -31,3 +31,406 @@
 .action-btn-student.edit-btn {
   background-color: #f39c12; /* Orange */
 }
+
+/* ... CSS cũ của bạn ... */
+
+/* --- Modal Styles --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px; /* Thêm padding để modal không bị dính sát màn hình nhỏ */
+}
+
+.modal-content.student-modal {
+  background-color: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  position: relative;
+  width: 90%;
+  max-width: 800px; /* Tăng chiều rộng modal */
+  max-height: 90vh; /* Giới hạn chiều cao */
+  overflow-y: auto; /* Cho phép cuộn nếu nội dung dài */
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #888;
+}
+
+.modal-header {
+  text-align: center;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.modal-header h3 {
+  color: var(--primary-blue, #0a2e5d);
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.modal-header h4 {
+  color: #555;
+  margin: 5px 0 0;
+  font-weight: 500;
+}
+
+.modal-form.student-form {
+  display: flex;
+  gap: 30px; /* Khoảng cách giữa 2 cột */
+}
+
+.form-section {
+  flex: 1; /* Mỗi cột chiếm 1 nửa */
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Khoảng cách giữa các form-group */
+}
+
+.form-section h5 {
+  font-size: 1.1rem;
+  color: var(--primary-blue, #0a2e5d);
+  margin-bottom: 10px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+}
+
+.form-row {
+  display: flex;
+  gap: 15px;
+}
+
+.form-row .form-group {
+  flex: 1; /* Các group trong row chiếm không gian bằng nhau */
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.form-group input[type="text"],
+.form-group input[type="date"],
+.form-group input[type="tel"],
+.form-group select {
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 0.95rem;
+  width: 100%; /* Đảm bảo input chiếm đủ chiều rộng */
+  box-sizing: border-box; /* Quan trọng để padding không làm tăng kích thước */
+}
+/* Input mật khẩu chỉ đọc */
+.form-group input[name="parentPassword"] {
+  background-color: #f1f3f5;
+  cursor: not-allowed;
+  font-style: italic;
+  color: #555;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--primary-blue, #0a2e5d);
+  box-shadow: 0 0 0 2px rgba(10, 46, 93, 0.2);
+}
+
+.gender-options {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  padding-top: 5px; /* Căn chỉnh với input khác */
+}
+
+.gender-options label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 0; /* Ghi đè margin mặc định của label */
+  font-weight: normal;
+}
+
+.form-actions.modal-actions {
+  display: flex;
+  justify-content: flex-end; /* Đẩy nút về bên phải */
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+  grid-column: 1 / -1; /* Nút chiếm cả 2 cột nếu form là grid */
+}
+
+.action-btn-form {
+  padding: 10px 25px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.action-btn-form.cancel-btn {
+  background-color: #f8f9fa;
+  color: #555;
+  border: 1px solid #ccc;
+}
+.action-btn-form.cancel-btn:hover {
+  background-color: #e9ecef;
+}
+
+.action-btn-form.confirm-btn {
+  background-color: var(--primary-blue, #0a2e5d);
+  color: white;
+}
+.action-btn-form.confirm-btn:hover {
+  background-color: var(--secondary-blue, #1a4a8d);
+}
+
+/* Responsive cho modal */
+@media (max-width: 768px) {
+  .modal-form.student-form {
+    flex-direction: column; /* Chuyển sang 1 cột */
+    gap: 0;
+  }
+  .form-section {
+    margin-bottom: 20px;
+  }
+  .form-row {
+    flex-direction: column; /* Các input trong row cũng xuống dòng */
+    gap: 15px;
+  }
+}
+
+/* ... CSS cũ của bạn ... */
+
+/* --- Modal Styles --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px; /* Cho phép khoảng trống xung quanh modal */
+}
+
+/* Nội dung modal */
+.modal-content.student-modal {
+  background-color: white;
+  padding: 25px 30px; /* Điều chỉnh padding */
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  position: relative;
+  width: 90%;
+  max-width: 850px; /* Tăng chiều rộng để chứa 2 cột */
+  max-height: 90vh; /* Giới hạn chiều cao */
+  overflow-y: auto; /* Cho phép cuộn nếu nội dung quá dài */
+}
+
+/* Nút đóng modal */
+.modal-close-btn {
+  position: absolute;
+  top: 10px; /* Gần hơn */
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #888;
+}
+.modal-close-btn:hover {
+  color: #333;
+}
+
+/* Header modal */
+.modal-header {
+  text-align: center;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.modal-header h3 {
+  color: var(--primary-blue, #0a2e5d);
+  margin: 0;
+  font-size: 1.4rem; /* Giảm kích thước chữ */
+}
+
+.modal-header h4 {
+  color: #555;
+  margin: 5px 0 0;
+  font-weight: 500;
+  font-size: 1.1rem; /* Giảm kích thước chữ */
+}
+
+/* Form layout 2 cột */
+.modal-form.student-form {
+  display: grid; /* Sử dụng Grid layout */
+  grid-template-columns: 1fr 1fr; /* Chia thành 2 cột bằng nhau */
+  gap: 30px; /* Khoảng cách giữa 2 cột */
+}
+
+/* Mỗi cột form */
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Khoảng cách giữa các form-group */
+}
+
+.form-section h5 {
+  font-size: 1.1rem;
+  color: var(--primary-blue, #0a2e5d);
+  margin-bottom: 10px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+}
+
+/* Hàng chứa 2 input */
+.form-row {
+  display: grid; /* Dùng Grid cho các hàng 2 input */
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column; /* Label nằm trên input */
+}
+
+.form-group label {
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+/* Style chung cho input và select */
+.form-group input[type="text"],
+.form-group input[type="date"],
+.form-group input[type="tel"],
+.form-group select {
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 0.95rem;
+  width: 100%; /* Đảm bảo input chiếm đủ chiều rộng */
+  box-sizing: border-box; /* Quan trọng */
+}
+/* Input mật khẩu chỉ đọc */
+.form-group input[name="parentPassword"] {
+  background-color: #f1f3f5; /* Màu nền xám nhạt */
+  cursor: not-allowed;
+  font-style: italic;
+  color: #555;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--primary-blue, #0a2e5d);
+  box-shadow: 0 0 0 2px rgba(10, 46, 93, 0.2);
+}
+
+/* Radio buttons Giới tính */
+.gender-options {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  padding-top: 5px; /* Căn chỉnh với input khác nếu cần */
+}
+
+.gender-options label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 0;
+  font-weight: normal; /* Chữ thường */
+  cursor: pointer;
+}
+
+/* Nút Hủy và Xác Nhận */
+.form-actions.modal-actions {
+  display: flex;
+  justify-content: flex-end; /* Đẩy nút về bên phải */
+  gap: 10px;
+  margin-top: 25px; /* Tăng khoảng cách */
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+  /* Span across both columns in grid */
+  grid-column: 1 / -1; /* Quan trọng để nút nằm dưới cả 2 cột */
+}
+
+.action-btn-form {
+  padding: 10px 25px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.action-btn-form.cancel-btn {
+  background-color: #f8f9fa;
+  color: #555;
+  border: 1px solid #ccc;
+}
+.action-btn-form.cancel-btn:hover {
+  background-color: #e9ecef;
+}
+
+.action-btn-form.confirm-btn {
+  background-color: var(--primary-blue, #0a2e5d);
+  color: white;
+}
+.action-btn-form.confirm-btn:hover {
+  background-color: var(--secondary-blue, #1a4a8d);
+}
+
+/* Responsive cho modal */
+@media (max-width: 768px) {
+  .modal-form.student-form {
+    grid-template-columns: 1fr; /* Chuyển thành 1 cột */
+    gap: 0; /* Bỏ khoảng cách cột */
+  }
+  .form-section {
+    margin-bottom: 25px; /* Tăng khoảng cách giữa các section */
+  }
+  /* Các input trong row cũng xuống dòng */
+  .form-row {
+    grid-template-columns: 1fr; /* Mỗi input 1 hàng */
+    gap: 15px;
+  }
+  .form-actions.modal-actions {
+    /* Đảm bảo nút vẫn nằm dưới cùng */
+    grid-column: 1 / -1;
+  }
+}
