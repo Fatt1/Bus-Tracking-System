@@ -1,20 +1,31 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import "./ScheduleAddEditPage.css";
 import { FaCalendarAlt, FaBus, FaUser, FaMinusCircle } from "react-icons/fa";
 import { addDays, addWeeks, addMonths, format } from "date-fns";
 
-// --- DEMO DATA (sẽ thay thế bằng API) ---
+// --- DEMO DATA (ĐÃ CẬP NHẬT) ---
 const mockDrivers = [
-  { id: 1, name: "Phan Viết Huy", busId: "B001" },
-  { id: 2, name: "Nguyễn Văn An", busId: "B002" },
-  { id: 3, name: "Lê Thị Cẩm", busId: "B003" },
-];
-
-const mockRoutes = [
-  { id: 1, name: "An Dương Vương - Trần Hưng Đạo" },
-  { id: 2, name: "Bến Thành - Suối Tiên" },
-  { id: 3, name: "Ký túc xá khu B - Đại học Bách Khoa" },
+  {
+    id: 1,
+    name: "Phan Viết Huy",
+    busId: "B001",
+    routeId: 1,
+    routeName: "An Dương Vương - Trần Hưng Đạo",
+  },
+  {
+    id: 2,
+    name: "Nguyễn Văn An",
+    busId: "B002",
+    routeId: 2,
+    routeName: "Bến Thành - Suối Tiên",
+  },
+  {
+    id: 3,
+    name: "Lê Thị Cẩm",
+    busId: "B003",
+    routeId: 1,
+    routeName: "An Dương Vương - Trần Hưng Đạo",
+  },
 ];
 // --- END DEMO DATA ---
 
@@ -24,7 +35,7 @@ const ScheduleAddEditPage = () => {
   const [activeTab, setActiveTab] = useState("create");
 
   // === State cho Tab 1: Tạo lịch trình mới ===
-  const [scheduleName, setScheduleName] = useState("Ahjhj đồ ngốc");
+  const [scheduleName, setScheduleName] = useState("Lịch trình học kỳ 1");
   const [scheduleType, setScheduleType] = useState("Tuần");
   const [startDate, setStartDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [endDate, setEndDate] = useState("");
@@ -39,10 +50,10 @@ const ScheduleAddEditPage = () => {
   });
 
   // === State cho Tab 2: Chi tiết lịch trình ===
-  const [scheduleDetails, setScheduleDetails] = useState([]); // Danh sách các chuyến đã thêm
+  const [scheduleDetails, setScheduleDetails] = useState([]);
   const [selectedDriverId, setSelectedDriverId] = useState(mockDrivers[0].id);
-  const [selectedRouteId, setSelectedRouteId] = useState(mockRoutes[0].id);
   const [busId, setBusId] = useState(mockDrivers[0].busId);
+  const [routeName, setRouteName] = useState(mockDrivers[0].routeName); // <-- STATE MỚI
   const [departureTime, setDepartureTime] = useState("06:00");
   const [departureTimeReturn, setDepartureTimeReturn] = useState("16:00");
   const [arrivalTime, setArrivalTime] = useState("06:45");
@@ -70,13 +81,14 @@ const ScheduleAddEditPage = () => {
     }
   }, [startDate, scheduleType]);
 
-  // useEffect để cập nhật xe buýt khi đổi tài xế (Tab 2)
+  // useEffect để cập nhật xe buýt VÀ TUYẾN ĐƯỜNG khi đổi tài xế (Tab 2) - ĐÃ CẬP NHẬT
   useEffect(() => {
     const selectedDriver = mockDrivers.find(
       (d) => d.id === parseInt(selectedDriverId)
     );
     if (selectedDriver) {
       setBusId(selectedDriver.busId);
+      setRouteName(selectedDriver.routeName); // <-- CẬP NHẬT TUYẾN ĐƯỜNG
     }
   }, [selectedDriverId]);
 
@@ -85,19 +97,19 @@ const ScheduleAddEditPage = () => {
     setDaysOfWeek((prev) => ({ ...prev, [day]: !prev[day] }));
   };
 
-  // Hàm thêm một chi tiết chuyến đi mới (Tab 2)
+  // Hàm thêm một chi tiết chuyến đi mới (Tab 2) - ĐÃ CẬP NHẬT
   const handleAddDetail = () => {
     const driver = mockDrivers.find((d) => d.id === parseInt(selectedDriverId));
-    const route = mockRoutes.find((r) => r.id === parseInt(selectedRouteId));
+    if (!driver) return;
 
     const newDetail = {
-      id: Date.now(), // Dùng timestamp làm key tạm thời
-      routeName: route.name,
+      id: Date.now(),
+      routeName: driver.routeName, // Lấy trực tiếp từ tài xế
       departureTime,
       arrivalTime,
       departureTimeReturn,
       arrivalTimeReturn,
-      busId,
+      busId: driver.busId,
       driverName: driver.name,
     };
     setScheduleDetails((prev) => [...prev, newDetail]);
@@ -215,7 +227,7 @@ const ScheduleAddEditPage = () => {
             </div>
           )}
 
-          {/* === Tab 2: Chi tiết lịch trình === */}
+          {/* === Tab 2: Chi tiết lịch trình (ĐÃ CẬP NHẬT) === */}
           {activeTab === "details" && (
             <div className="animated-tab">
               <div className="form-container">
@@ -246,22 +258,19 @@ const ScheduleAddEditPage = () => {
                   </div>
                 </div>
                 <div className="form-row">
+                  {/* THAY ĐỔI: Input hiển thị tuyến đường, không cho chọn */}
                   <div className="form-group">
-                    <label htmlFor="route-select">Chọn tuyến đường</label>
-                    <select
-                      id="route-select"
-                      value={selectedRouteId}
-                      onChange={(e) => setSelectedRouteId(e.target.value)}
-                    >
-                      {mockRoutes.map((route) => (
-                        <option key={route.id} value={route.id}>
-                          {route.name}
-                        </option>
-                      ))}
-                    </select>
+                    <label htmlFor="route-name">Tuyến đường</label>
+                    <input
+                      type="text"
+                      id="route-name"
+                      value={routeName}
+                      readOnly
+                      disabled
+                    />
                   </div>
                   <div className="form-group time-group-wrapper">
-                    <label>Loại chuyến đi</label>
+                    <label>Thời gian</label>
                     <div className="time-group">
                       <span>Đưa đi</span>
                       <input
@@ -293,7 +302,7 @@ const ScheduleAddEditPage = () => {
                 <div className="form-actions">
                   <button
                     type="button"
-                    className="action-btn-form save-btn"
+                    className="action-btn-form save-btn-detail"
                     onClick={handleAddDetail}
                   >
                     Lưu
