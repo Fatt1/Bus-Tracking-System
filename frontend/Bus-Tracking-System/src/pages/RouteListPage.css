@@ -51,3 +51,179 @@ td {
   text-align: center;
   border-bottom: 1px solid #eee;
 }
+/* src/pages/RouteListPage.css */
+
+/* --- Các style cũ của bạn --- */
+.assigned-bus-btn,
+.map-btn {
+  border: none;
+  border-radius: 5px;
+  padding: 8px;
+  cursor: pointer;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 45px;
+  height: 38px;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.assigned-bus-btn:hover,
+.map-btn:hover {
+  opacity: 0.85;
+}
+
+.assigned-bus-btn {
+  background-color: var(--primary-blue, #0a2e5d);
+}
+
+.map-btn {
+  background-color: var(--primary-blue, #0a2e5d);
+  font-size: 1.2rem; /* Icon to hơn một chút */
+}
+
+/* v2 */
+.cell-center {
+  text-align: center;
+  justify-content: center;
+}
+.td {
+  display: flex;
+  justify-content: center;
+}
+.assign-column {
+  display: flex;
+  justify-content: center;
+}
+th,
+td {
+  padding: 15px;
+  text-align: left;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+}
+
+/* --- [MỚI] CSS CHO Ô SỐ HỌC SINH --- */
+.student-count-cell {
+  display: flex;
+  flex-direction: column; /* Xếp số ở trên, nút ở dưới */
+  align-items: center;
+  justify-content: center;
+  gap: 4px; /* Khoảng cách giữa số và nút */
+  padding: 10px;
+  font-weight: 600; /* Cho số đậm hơn */
+}
+
+.view-students-btn {
+  background: none;
+  border: none;
+  color: #007bff; /* Màu xanh da trời giống link */
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.9rem;
+  font-weight: 400;
+}
+
+.view-students-btn:hover {
+  color: #0056b3;
+}
+
+/* --- [MỚI] CSS CHO MODAL --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 800px; /* Giới hạn chiều rộng giống trong ảnh */
+  position: relative;
+  max-height: 90vh; /* Giới hạn chiều cao */
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #888;
+  cursor: pointer;
+  line-height: 1;
+}
+.modal-close-btn:hover {
+  color: #333;
+}
+
+/* Header của modal (giống ảnh 2) */
+.modal-header {
+  padding: 20px 25px;
+  border-bottom: 1px solid #eee;
+}
+.modal-header h3 {
+  margin: 0;
+  color: var(--primary-blue, #0a2e5d);
+  font-size: 1.5rem; /* "36 36 BUS BUS" */
+  font-weight: 700;
+}
+.modal-header h4 {
+  margin: 8px 0 0;
+  font-weight: 600;
+  font-size: 1.15rem; /* "Danh sách học sinh..." */
+  color: #000;
+}
+
+/* Vùng chứa bảng trong modal */
+.student-list-table-container {
+  overflow-y: auto; /* Cho phép cuộn nếu danh sách quá dài */
+  padding: 0 25px 20px; /* Thêm padding cho nội dung */
+}
+
+/* CSS cho bảng BÊN TRONG modal (giống ảnh 2) */
+.student-list-table-container table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.student-list-table-container th,
+.student-list-table-container td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #eee;
+  text-align: left; /* Căn trái nội dung trong modal */
+  vertical-align: middle;
+}
+
+.student-list-table-container th {
+  background-color: var(--primary-blue, #0a2e5d);
+  color: white;
+  font-weight: 600;
+  position: sticky; /* Giữ header bảng khi cuộn */
+  top: 0;
+}
+
+/* Căn giữa cột STT */
+.student-list-table-container th:first-child,
+.student-list-table-container td:first-child {
+  text-align: center;
+  width: 60px;
+}
