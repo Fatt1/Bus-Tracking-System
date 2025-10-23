@@ -4,12 +4,15 @@ import LoginPage from "./pages/LoginPage";
 import BusListPage from "./pages/BusListPage";
 import BusDetailPage from "./pages/BusDetailPage";
 import Layout from "./components/Layout"; // <-- 1. IMPORT LAYOUT
-import ScheduleListPage from "./pages/ScheduleListPage";
+// import ScheduleListPage from "./pages/ScheduleListPageNew";
 import TripListPage from "./pages/TripListPage";
-import ScheduleAddEditPage from "./pages/ScheduleAddEditPage";
+// import ScheduleAddEditPage from "./pages/ScheduleAddEditPage";
 import StudentListPage from "./pages/StudentListPage";
 import DriverListPage from "./pages/DriverListPage";
 import RouteListPage from "./pages/RouteListPage";
+
+import ScheduleListPageNew from "./pages/ScheduleListPageNew";
+import ScheduleAddEditPageNew from "./pages/ScheduleAddEditPageNew";
 
 function App() {
   // Xóa useEffect gọi API ở đây, nó nên nằm trong component cần dữ liệu (DashboardPage)
@@ -30,11 +33,11 @@ function App() {
         {/* Route động cho trang chi tiết */}
         <Route path="bus/:busId" element={<BusDetailPage />} />
 
-        <Route path="schedule" element={<ScheduleListPage />} />
-
         <Route path="schedule-trips" element={<TripListPage />} />
 
-        <Route path="schedule/add-schedule" element={<ScheduleAddEditPage />} />
+        <Route path="schedule" element={<ScheduleListPageNew />} />
+
+        <Route path="schedules/add-new" element={<ScheduleAddEditPageNew />} />
 
         <Route path="students" element={<StudentListPage />} />
 

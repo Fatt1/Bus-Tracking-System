@@ -1,0 +1,238 @@
+/* src/pages/ScheduleListPageNew.css */
+
+/* Kế thừa một số style cơ bản nếu cần */
+@import url("./LayoutTable.css"); /* Hoặc PageLayout.css nếu bạn đã đổi tên */
+
+.schedule-calendar-page .page-content {
+  /* Có thể cần padding ít hơn để lịch rộng hơn */
+  padding: 20px;
+}
+
+/* Header của Lịch */
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 10px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.calendar-header h2 {
+  margin: 0;
+  font-size: 1.3rem;
+  color: var(--primary-blue, #0a2e5d);
+}
+
+.nav-button {
+  background: none;
+  border: 1px solid #ccc;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #555;
+  transition: background-color 0.2s, color 0.2s;
+}
+.nav-button:hover {
+  background-color: #eee;
+  color: #000;
+}
+
+/* Bảng Lịch */
+.calendar-grid-container {
+  overflow-x: auto; /* Cho phép cuộn ngang nếu màn hình hẹp */
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.calendar-grid {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed; /* Giúp các cột đều nhau hơn */
+  min-width: 900px; /* Đảm bảo đủ rộng để hiển thị các ngày */
+}
+
+.calendar-grid th,
+.calendar-grid td {
+  border: 1px solid #eee;
+  padding: 8px; /* Giảm padding */
+  vertical-align: top;
+  height: 100px; /* Chiều cao cố định cho ô */
+  position: relative;
+}
+
+/* Header */
+.calendar-grid thead {
+  background-color: var(--primary-blue, #0a2e5d);
+  color: white;
+}
+
+.day-header-cell {
+  text-align: center;
+  font-weight: 500;
+  width: calc(
+    (100% - 200px) / 7
+  ); /* Chiều rộng cột ngày (Trừ cột tuyến đường) */
+}
+.day-header-cell div:first-child {
+  font-size: 0.9em;
+  text-transform: capitalize; /* Viết hoa chữ đầu */
+}
+.day-header-cell div:last-child {
+  font-size: 1.1em;
+  font-weight: bold;
+}
+
+.route-header-cell,
+.route-name-cell {
+  width: 200px; /* Chiều rộng cố định cột tuyến đường */
+  text-align: left;
+  font-weight: bold;
+  background-color: #f8f9fa; /* Màu nền khác */
+  vertical-align: middle;
+}
+.route-name-cell {
+  font-weight: 500;
+  color: #333;
+}
+
+/* Ô lịch */
+.calendar-cell {
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.calendar-cell.empty-cell:hover {
+  background-color: #e9f5ff; /* Màu xanh nhạt khi hover ô trống */
+}
+.calendar-cell.has-schedule:hover {
+  background-color: #f1f3f5;
+}
+
+/* Mục lịch trình trong ô */
+.schedule-item {
+  background-color: #e6f7ff;
+  border: 1px solid #91d5ff;
+  border-left: 4px solid #1890ff; /* Màu xanh dương accent */
+  border-radius: 4px;
+  padding: 5px 8px;
+  font-size: 0.8rem;
+  margin-bottom: 4px; /* Khoảng cách nếu có nhiều lịch trong 1 ô */
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+.schedule-item:hover {
+  border-color: #40a9ff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.schedule-time {
+  font-weight: bold;
+  color: #333;
+}
+.schedule-driver,
+.schedule-bus {
+  color: #555;
+  font-size: 0.75rem;
+}
+
+/* --- Modal Xem/Xóa --- */
+.modal-content.schedule-detail-modal {
+  max-width: 450px;
+  padding: 25px;
+}
+.schedule-detail-modal h4 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  text-align: center;
+  color: var(--primary-blue, #0a2e5d);
+  font-size: 1.3rem;
+}
+.schedule-detail-modal p {
+  margin: 0 0 12px;
+  line-height: 1.5;
+  color: #333;
+}
+.schedule-detail-modal p strong {
+  color: #000;
+  margin-right: 5px;
+}
+
+.modal-actions {
+  margin-top: 25px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+  text-align: right;
+}
+
+.delete-schedule-btn {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 15px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: background-color 0.2s;
+}
+.delete-schedule-btn:hover {
+  background-color: #c0392b;
+}
+
+/* --- Modal Xác nhận Xóa --- */
+.modal-content.confirm-delete-schedule {
+  max-width: 400px;
+  padding: 25px;
+  text-align: center;
+}
+.confirm-delete-schedule .modal-header {
+  border-bottom: none;
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column; /* Icon trên chữ */
+  align-items: center;
+  gap: 10px;
+}
+.confirm-delete-schedule h4 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+.confirm-delete-schedule p {
+  margin-bottom: 25px;
+  line-height: 1.6;
+  color: #333;
+}
+.confirm-actions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+.confirm-btn {
+  padding: 10px 25px;
+  border-radius: 5px;
+  border: 1px solid transparent;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+.cancel-btn {
+  background-color: #f1f3f5;
+  border-color: #dee2e6;
+  color: #495057;
+}
+.delete-confirm-btn {
+  background-color: #e74c3c;
+  color: white;
+}

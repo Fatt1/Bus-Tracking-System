@@ -1,0 +1,95 @@
+/* src/pages/ScheduleAddEditPageNew.css */
+
+/* Kế thừa style chung nếu cần */
+@import url("./LayoutTable.css"); /* Hoặc PageLayout.css */
+
+.add-schedule-form-page h2 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: var(--primary-blue, #0a2e5d);
+}
+
+.add-schedule-form {
+  max-width: 600px;
+  margin: 0 auto;
+  background-color: #fff;
+  padding: 30px 40px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.add-schedule-form .form-group {
+  margin-bottom: 20px;
+}
+
+.add-schedule-form label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+}
+
+.add-schedule-form input[type="text"],
+.add-schedule-form input[type="time"],
+.add-schedule-form select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+.add-schedule-form input:focus,
+.add-schedule-form select:focus {
+  outline: none;
+  border-color: var(--primary-blue, #0a2e5d);
+}
+
+.add-schedule-form .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* Style cho các ô chỉ đọc */
+.readonly-group input {
+  background-color: #f1f3f5;
+  cursor: not-allowed;
+  font-weight: 500;
+}
+
+.add-form-actions {
+  display: flex;
+  justify-content: flex-end; /* Căn phải */
+  gap: 15px;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.action-btn-form {
+  padding: 10px 25px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.action-btn-form.cancel-btn {
+  background-color: #f8f9fa;
+  color: #555;
+  border: 1px solid #ccc;
+}
+.action-btn-form.cancel-btn:hover {
+  background-color: #e9ecef;
+}
+
+.action-btn-form.confirm-btn {
+  background-color: var(--primary-blue, #0a2e5d);
+  color: white;
+}
+.action-btn-form.confirm-btn:hover {
+  background-color: var(--secondary-blue, #1a4a8d);
+}
