@@ -10,19 +10,26 @@ namespace TrackingBusSystem.Infrastructure.Data
     public class AppDbContext : IdentityDbContext<AppUser>, IApplicationDbContext
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
-        public DbSet<Route> Routes => Set<Route>();
-        public DbSet<Point> Points => Set<Point>();
-        public DbSet<Bus> Buses => Set<Bus>();
-        public DbSet<Announcement> Announcements { get; set; }
-        public DbSet<UserAnnouncement> UserAnnouncements { get; set; }
-        public DbSet<Student> Students => Set<Student>();
-        public DbSet<Driver> Drivers => Set<Driver>();
-        public DbSet<BusLastLocation> BusLastLocations { get; set; }
-        public DbSet<Schedule> Schedules => Set<Schedule>();
-        public DbSet<ScheduleAssignment> ScheduleAssignments => Set<ScheduleAssignment>();
-        public DbSet<GeneratedTrip> GeneratedTrips { get; set; }
-        public DbSet<ScheduleWeekly> ScheduleWeeklies { get; set; }
-        public DbSet<TripStudentChecking> TripStudentCheckings { get; set; }
+        public virtual DbSet<Announcement> Announcements => Set<Announcement>();
+
+        public virtual DbSet<Bus> Buses => Set<Bus>();
+
+        public virtual DbSet<BusLastLocation> BusLastLocations => Set<BusLastLocation>();
+
+        public virtual DbSet<Driver> Drivers => Set<Driver>();
+
+        public virtual DbSet<Route> Routes => Set<Route>();
+
+        public virtual DbSet<Schedule> Schedules => Set<Schedule>();
+
+        public virtual DbSet<StopPoint> StopPoints => Set<StopPoint>();
+
+        public virtual DbSet<Student> Students => Set<Student>();
+
+        public virtual DbSet<StudentCheckingHistory> StudentCheckingHistories => Set<StudentCheckingHistory>();
+
+        public virtual DbSet<UserAnnouncement> UserAnnouncements => Set<UserAnnouncement>();
+
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

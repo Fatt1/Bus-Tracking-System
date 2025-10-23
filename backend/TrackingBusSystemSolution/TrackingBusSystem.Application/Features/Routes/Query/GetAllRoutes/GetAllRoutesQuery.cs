@@ -24,7 +24,17 @@ namespace TrackingBusSystem.Application.Features.Routes.Query.GetAllRoutes
                 {
                     Id = r.Id,
                     RouteName = r.RouteName,
-                    DriverCounts = r.Buses.Count(b => b.Driver != null)
+                    StopPoints = r.StopPoints
+                        .OrderBy(sp => sp.SequenceOrder)
+                        .Select(sp => new PointResponse
+                        {
+                            Id = sp.Id,
+                            PointName = sp.PointName,
+                            Latitude = sp.Latitude,
+                            Longitude = sp.Longitude,
+                            SequenceOrder = sp.SequenceOrder
+                        }).ToList(),
+                    StudentCounts = r.StopPoints.SelectMany(sp => sp.Students).Count()
                 });
             var pagedRoutes = PagedList<GetRoutesResponse>.ToPagedList(allRoutes, request.PageNumber, request.PageSize);
             return Task.FromResult(Result<PagedList<GetRoutesResponse>>.Success(pagedRoutes));

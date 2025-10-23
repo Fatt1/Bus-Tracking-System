@@ -1,9 +1,9 @@
 ﻿namespace TrackingBusSystem.Application.Features.Buses.DTOs
 {
-    public record GetAllBusSimpleDTO
+    public class GetAllBusDropdownDTO
     {
         public int Id { get; set; }
         public string BusName { get; set; } = string.Empty;
-        public bool Status { get; set; }
+        public bool CanClickable { get; set; }
     }
 }

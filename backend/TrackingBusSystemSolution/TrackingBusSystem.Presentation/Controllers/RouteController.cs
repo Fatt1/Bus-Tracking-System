@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using TrackingBusSystem.Application.Features.Routes.Query.GetAllRoutes;
-using TrackingBusSystem.Application.Features.Routes.Query.GetAssigmentRoute;
+using TrackingBusSystem.Application.Features.Routes.Query.GetRouteByIdQuery;
 
 namespace TrackingBusSystem.Presentation.Controllers
 {
@@ -19,12 +19,16 @@ namespace TrackingBusSystem.Presentation.Controllers
             }
             return BadRequest(result.Error);
         }
-
-        [HttpGet("${routeId:int}/assigments")]
-        public async Task<IActionResult> GetRouteAssignment([FromRoute] int routeId)
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetRouteById(int id)
         {
-            var result = await mediator.Send(new GetAssigmentRouteQuery(routeId));
-            return result.IsSuccess ? Ok(result.Value) : NotFound(result.Error);
+            var result = await mediator.Send(new GetRouteByIdQuery(id));
+            if (result.IsSuccess)
+            {
+                return Ok(result.Value);
+            }
+            return NotFound(result.Error);
         }
+
     }
 }

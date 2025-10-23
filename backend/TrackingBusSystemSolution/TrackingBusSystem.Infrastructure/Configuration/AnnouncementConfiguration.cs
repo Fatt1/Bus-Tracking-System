@@ -8,16 +8,18 @@ namespace TrackingBusSystem.Infrastructure.Configuration
     {
         public void Configure(EntityTypeBuilder<Announcement> builder)
         {
-            builder.HasKey(a => a.Id);
+            // Primary Key
+            builder.HasKey(e => e.Id).HasName("PK__Announce__3214EC07358607F7");
 
-            builder.Property(a => a.Title).IsRequired().HasMaxLength(200);
-            builder.Property(a => a.Message).IsRequired();
+            // Unique Index (Lưu ý: EF Core thường tự động tạo Index cho Primary Key)
+            // Nếu bạn muốn giữ nguyên tên Index được Scaffolding tạo ra, bạn phải dùng Fluent API. 
+            // Trong Code First thuần túy, ta thường bỏ qua tên cụ thể này trừ khi cần thiết.
+            // Tuy nhiên, để tuân thủ mã Scaffolding:
+            builder.HasIndex(e => e.Id, "UQ__Announce__3214EC063F58880F").IsUnique();
 
-            // Mối quan hệ N-N (qua bảng UserAnnouncement)
-            builder.HasMany(a => a.UserAnnouncements)
-                   .WithOne(ua => ua.Announcement)
-                   .HasForeignKey(ua => ua.AnnouncementId)
-                   .OnDelete(DeleteBehavior.Restrict); // Xóa thông báo thì xóa luôn các bản ghi trung gian
+
+            // Column Type
+            builder.Property(e => e.SendAt).HasColumnType("datetime");
         }
     }
 }

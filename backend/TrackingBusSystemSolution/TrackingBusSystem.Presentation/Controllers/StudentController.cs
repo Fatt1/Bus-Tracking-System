@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using TrackingBusSystem.Application.Features.Students.Command.CreateStudent;
 using TrackingBusSystem.Application.Features.Students.Query.GetAllStudent;
+using TrackingBusSystem.Application.Features.Students.Query.GetAllStudentByRouteId;
+using TrackingBusSystem.Application.Features.Students.Query.GetStudentById;
 
 namespace TrackingBusSystem.Presentation.Controllers
 {
@@ -15,9 +17,20 @@ namespace TrackingBusSystem.Presentation.Controllers
             var result = await mediator.Send(request);
             if (result.IsSuccess)
             {
-                return CreatedAtAction(nameof(GetStudentById), new { Id = result.Value.Id }, result.Value);
+                return CreatedAtAction(nameof(GetStudentById), new { id = result.Value.Id }, result.Value);
             }
             return BadRequest(result.Error);
+        }
+
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetStudentById(int id)
+        {
+            var result = await mediator.Send(new GetStudentByIdQuery(id));
+            if (result.IsSuccess)
+            {
+                return Ok(result.Value);
+            }
+            return NotFound(result.Error);
         }
 
         [HttpGet("all")]
@@ -31,10 +44,17 @@ namespace TrackingBusSystem.Presentation.Controllers
             return Ok(result.Value);
         }
 
-        [HttpGet("{id:long}")]
-        public async Task<IActionResult> GetStudentById(long id)
+
+
+        [HttpGet("by-route/${routeId:int}")]
+        public async Task<IActionResult> GetAllStudentByRouteId([FromRoute] int routeId)
         {
-            return Ok();
+            var result = await mediator.Send(new GetAllStudentByRouteIdQuery(routeId));
+            if (result.IsSuccess)
+            {
+                return Ok(result.Value);
+            }
+            return BadRequest(result.Error);
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using TrackingBusSystem.Application.Abstractions.CQRS.Command;
 using TrackingBusSystem.Application.Features.Drivers.DTOs;
 using TrackingBusSystem.Domain.Entities;
@@ -11,118 +10,81 @@ namespace TrackingBusSystem.Application.Features.Drivers.Command.CreateDriver
 {
     public record CreateDriverCommand : ICommand<CreateDriverDTO>
     {
-        public string PhoneNumber { get; init; } = string.Empty;
 
-        public DateTime DateOfBirth { get; init; }
-
+        public string FirstName { get; init; } = string.Empty;
+        public string LastName { get; init; } = string.Empty;
         public string IDCard { get; init; } = string.Empty;
-
-        public string FullName { get; init; } = string.Empty;
-
+        public string PhoneNumber { get; init; } = string.Empty;
         public string Address { get; init; } = string.Empty;
-
+        public DateOnly DateOfBirth { get; init; }
         public Gender Sex { get; init; }
 
-        // Foreign Keys
-        public int BusId { get; init; }
+        //Tài khoản 
+
+        public string UserName { get; init; } = string.Empty;
+        public string Password { get; init; } = string.Empty;
     }
 
     public class CreateDriverCommandHandler : ICommandHandler<CreateDriverCommand, CreateDriverDTO>
     {
-        private readonly IBusRepository _busRepository;
         private readonly IDriverRepository _driverRepository;
         private readonly UserManager<AppUser> _userManager;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
-        public CreateDriverCommandHandler(IDriverRepository driverRepository, UserManager<AppUser> userManager, IUnitOfWork unitOfWork, IMapper mapper, IBusRepository busRepository)
+        public CreateDriverCommandHandler(IDriverRepository driverRepository, UserManager<AppUser> userManager, IUnitOfWork unitOfWork)
         {
             _userManager = userManager;
-            _busRepository = busRepository;
+
             _unitOfWork = unitOfWork;
             _driverRepository = driverRepository;
-            _mapper = mapper;
+
         }
         public async Task<Result<CreateDriverDTO>> Handle(CreateDriverCommand request, CancellationToken cancellationToken)
         {
-            // Kiểm tra xem xe buýt có tồn tại hay chưa
-
-            var busExists = await _busRepository.IsExistingBus(request.BusId);
-
-            if (!busExists)
+            var existingUser = await _userManager.FindByNameAsync(request.UserName);
+            if (existingUser != null)
             {
-                return Result<CreateDriverDTO>.Failure(BusErrors.BusNotFound(request.BusId));
+                return Result<CreateDriverDTO>.Failure(new Error("User.ExistUser", "UserName has already exist"));
             }
 
-            // Kiểm tra xem bus đã có tài xế chưa
-
-            var isBusAssigned = await _driverRepository.IsDriverAssignedToBusAsync(request.BusId);
-            if (isBusAssigned)
-            {
-                return Result<CreateDriverDTO>.Failure(DriverErrors.BusAlreadyHasDriver);
-            }
-
-
-            // Kiểm tra xem số điện thoại đã được sử dụng hay chưa
-            var userResult = await _userManager.FindByNameAsync(request.PhoneNumber);
-            if (userResult != null)
-            {
-                return Result<CreateDriverDTO>.Failure(DriverErrors.PhoneNumberAlreadyInUse(request.PhoneNumber));
-            }
-
-            // Tạo user và tài xế trong một transaction
             await _unitOfWork.BeginTransactionAsync();
             try
             {
-                var username = request.PhoneNumber;
-                // Tạo user mới với vai trò "Driver"
-                var defaultPassword = "Driver@123";
-                var newUser = new AppUser
+                var appUser = new AppUser
                 {
-                    UserName = username,
-                    Email = $"{username}@yourcompany.com",
-                    FullName = request.FullName,
-                    PhoneNumber = request.PhoneNumber,
+                    UserName = request.UserName,
+                    FirstName = request.FirstName,
+                    LastName = request.LastName,
+                    DateOfBirth = request.DateOfBirth,
+                    PhoneNumber = request.PhoneNumber
                 };
-                var createUserResult = await _userManager.CreateAsync(newUser, defaultPassword);
-
-                // Kiểm tra xem việc tạo user có thành công không
+                var createUserResult = await _userManager.CreateAsync(appUser, request.Password);
                 if (!createUserResult.Succeeded)
                 {
-                    return Result<CreateDriverDTO>.Failure(new Error("User. Cant create user", "Không thể tạo user"));
-                }
-                // Gán vai trò "Driver" cho user mới tạo
-                await _userManager.AddToRoleAsync(newUser, Roles.Driver.ToString());
-                var newDriver = new Driver
-                {
-                    UserId = newUser.Id,
-                    PhoneNumber = request.PhoneNumber,
-                    DateOfBirth = request.DateOfBirth,
-                    IDCard = request.IDCard,
-                    Address = request.Address,
-                    Sex = request.Sex,
-                    BusId = request.BusId
+                    await _unitOfWork.RollbackTransactionAsync();
 
-                };
-                var createdDriver = await _driverRepository.AddDriver(newDriver);
-                await _busRepository.UpdateBusStatusById(request.BusId, true);
-                // Kiểm tra xem việc tạo tài xế có thành công không
-                if (!createdDriver)
-                {
-                    // Nếu không thành công thì rollback transaction và trả về lỗi
-                    await _unitOfWork.RollbackTransactionAsync(cancellationToken);
-                    return Result<CreateDriverDTO>.Failure(new Error("CreateDriverFailed", "Tạo tài xế thất bại"));
+                    return Result<CreateDriverDTO>.Failure(new Error("User.CreateFailed", $"Creating user failed"));
                 }
+                await _userManager.AddToRoleAsync(appUser, Roles.Driver.ToString());
+                var driver = new Driver
+                {
+                    Address = request.Address,
+                    UserId = appUser.Id,
+                    Idcard = request.IDCard,
+                    Status = DriverStatus.Available
+                };
+                await _driverRepository.AddDriver(driver);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 await _unitOfWork.CommitTransactionAsync(cancellationToken);
-
-                return Result<CreateDriverDTO>.Success(_mapper.Map<CreateDriverDTO>(newDriver));
+                return Result<CreateDriverDTO>.Success(new CreateDriverDTO
+                {
+                    Id = driver.Id,
+                });
             }
             catch (Exception ex)
             {
-                await _unitOfWork.RollbackTransactionAsync(cancellationToken);
-                return Result<CreateDriverDTO>.Failure(new Error("CreateDriverFailed", $"Tạo tài xế thất bại. Chi tiết: {ex.Message}"));
+                await _unitOfWork.RollbackTransactionAsync();
+                return Result<CreateDriverDTO>.Failure(new Error("Driver.CreateFailed", $"Creating driver failed: {ex.Message}"));
             }
-
         }
     }
 }

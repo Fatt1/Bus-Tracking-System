@@ -5,6 +5,7 @@
     {
         public int Id { get; init; }
         public string RouteName { get; init; } = string.Empty;
-        public int DriverCounts { get; init; }
+        public List<PointResponse> StopPoints { get; init; } = new();
+        public int StudentCounts { get; init; }
     }
 }

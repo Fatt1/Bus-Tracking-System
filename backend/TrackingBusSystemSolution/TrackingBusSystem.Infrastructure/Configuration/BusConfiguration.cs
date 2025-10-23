@@ -8,29 +8,10 @@ namespace TrackingBusSystem.Infrastructure.Configuration
     {
         public void Configure(EntityTypeBuilder<Bus> builder)
         {
-            builder.HasKey(b => b.Id);
+            builder.HasKey(e => e.Id).HasName("PK__Buses__3214EC0734B94B78");
 
-            builder.Property(b => b.BusName)
-                   .IsRequired()
-                   .HasMaxLength(100);
-
-            builder.Property(b => b.PlateNumber)
-                   .IsRequired()
-                   .HasMaxLength(20);
-
-            // Đảm bảo PlateNumber là duy nhất
-            builder.HasIndex(b => b.PlateNumber).IsUnique();
-
-            //Mối quan hệ nhiều-1 với Route
-            builder.HasOne(b => b.Route)
-                   .WithMany(r => r.Buses)
-                   .HasForeignKey(b => b.RouteId)
-                   .OnDelete(DeleteBehavior.Restrict);
-
-            // Mối quan hệ 1-1 với BusLastLocation
-            builder.HasOne(b => b.BusLastLocation)
-                   .WithOne(l => l.Bus)
-                   .HasForeignKey<BusLastLocation>(l => l.BusId);
+            // Tương tự Announcement, giữ lại tên Index cụ thể
+            builder.HasIndex(e => e.Id, "UQ__Buses__3214EC06E73C215D").IsUnique();
         }
     }
 }

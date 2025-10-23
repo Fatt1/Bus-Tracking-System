@@ -10,14 +10,19 @@ namespace TrackingBusSystem.Infrastructure.Repositories
 
         public async Task<Route?> GetRouteByIdAsync(int id)
         {
-            var route = await context.Routes.Include(route => route.Points).FirstOrDefaultAsync(route => route.Id == id);
+            var route = await context.Routes.Include(route => route.StopPoints).FirstOrDefaultAsync(route => route.Id == id);
             return route;
         }
 
         public async Task<List<Route>> GetRoutesAsync()
         {
-            var routeModel = await context.Routes.Include(route => route.Points).ToListAsync();
+            var routeModel = await context.Routes.Include(route => route.StopPoints).ToListAsync();
             return routeModel;
+        }
+
+        public Task<bool> IsExist(int routeId)
+        {
+            return context.Routes.AnyAsync(r => r.Id == routeId);
         }
     }
 }

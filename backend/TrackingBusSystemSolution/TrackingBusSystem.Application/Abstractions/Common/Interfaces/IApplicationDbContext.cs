@@ -8,7 +8,7 @@ namespace TrackingBusSystem.Application.Abstractions.Common.Interfaces
     {
         public DbSet<Route> Routes { get; }
         public DbSet<Bus> Buses { get; }
-        public DbSet<ScheduleAssignment> ScheduleAssignments { get; }
+
         public DbSet<Schedule> Schedules { get; }
         public DbSet<Driver> Drivers { get; }
         public DbSet<Student> Students { get; }

@@ -1,42 +1,34 @@
-﻿using TrackingBusSystem.Shared.Constants;
+﻿using TrackingBusSystem.Shared;
 
 namespace TrackingBusSystem.Domain.Entities
 {
     public class Student
     {
 
-        public long Id { get; set; }
+        public int Id { get; set; }
 
+        public string Class { get; set; } = null!;
 
-        public string Class { get; set; } = string.Empty;
+        public string Address { get; set; } = null!;
 
+        public string ParentName { get; set; } = null!;
 
-        public string Address { get; set; } = string.Empty;
+        public string UserId { get; set; } = null!;
 
-        public Gender Sex { get; set; }
-
-        public string ParentName { get; set; } = string.Empty;
-
-        public DateTime DateOfBirth { get; set; }
-
-        public string ParentPhoneNumber { get; set; } = string.Empty;
+        public int PointId { get; set; }
 
         public bool IsDeleted { get; set; } = false;
 
 
-        // Foreign Keys
-        public string UserId { get; set; } = string.Empty; // Changed to string
-        public int PointId { get; set; }
-        public int DriverId { get; set; }
-        // Navigation properties
-
         public virtual AppUser User { get; set; } = null!;
+        public virtual StopPoint Point { get; set; } = null!;
 
+        public virtual ICollection<StudentCheckingHistory> StudentCheckingHistories { get; set; } = new List<StudentCheckingHistory>();
+    }
 
-        public virtual Driver Driver { get; set; } = null!;
-        public virtual Point Point { get; set; } = null!;
-
-        public virtual ICollection<TripStudentChecking> TripCheckings { get; set; } = new List<TripStudentChecking>();
+    public static class StudentErrors
+    {
+        public static Error StudentNotFound(int id) => new Error("Student.NotFound", $"The student with id {id} was not found.");
     }
 
 }

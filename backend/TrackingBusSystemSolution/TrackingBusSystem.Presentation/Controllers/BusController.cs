@@ -1,8 +1,9 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using TrackingBusSystem.Application.Features.Buses.Command;
+using TrackingBusSystem.Application.Features.Buses.Query.GetAllBusDropdown;
 using TrackingBusSystem.Application.Features.Buses.Query.GetAllBuses;
-using TrackingBusSystem.Application.Features.Buses.Query.GetAllBusSimple;
+
 using TrackingBusSystem.Application.Features.Buses.Query.GetDetailBusById;
 
 namespace TrackingBusSystem.Presentation.Controllers
@@ -30,10 +31,10 @@ namespace TrackingBusSystem.Presentation.Controllers
             return result.IsSuccess ? Ok(result.Value) : NotFound(result.Error);
         }
 
-        [HttpGet("all/simple")]
-        public async Task<IActionResult> GetAllBusSimple()
+        [HttpGet("dropdown")]
+        public async Task<IActionResult> GetAllBusSimple([FromQuery] GetAllBusDropdownQuery request)
         {
-            var result = await _mediator.Send(new GetAllBusSimpleQuery());
+            var result = await _mediator.Send(request);
             return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);
         }
         [HttpPost("create")]
@@ -46,6 +47,17 @@ namespace TrackingBusSystem.Presentation.Controllers
             }
             // Xử lý lỗi
             return BadRequest(result.Error);
+        }
+
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> UpdateBus(int id, [FromBody] BusUpdateCommand request)
+        {
+            if (id != request.Id)
+            {
+                return BadRequest("ID in URL does not match ID in body.");
+            }
+            var result = await _mediator.Send(request);
+            return result.IsSuccess ? NoContent() : BadRequest(result.Error);
         }
     }
 }

@@ -7,58 +7,39 @@ using TrackingBusSystem.Shared;
 
 namespace TrackingBusSystem.Application.Features.Schedules.Query.GetScheduleById
 {
-    public record GetScheduleByIdQuery : IQuery<GetScheduleDTO>
+    public record GetScheduleByIdQuery(int Id) : IQuery<GetScheduleDTO>
     {
-        public int Id { get; init; }
     }
+
+
     public class GetScheduleByIdQueryHandler : IQueryHandler<GetScheduleByIdQuery, GetScheduleDTO>
     {
-        private readonly IApplicationDbContext _dbContext;
-
-        public GetScheduleByIdQueryHandler(IApplicationDbContext dbContext)
+        private readonly IApplicationDbContext _applicationDbContext;
+        public GetScheduleByIdQueryHandler(IApplicationDbContext applicationDbContext)
         {
-            _dbContext = dbContext;
+            _applicationDbContext = applicationDbContext;
         }
-
 
         public async Task<Result<GetScheduleDTO>> Handle(GetScheduleByIdQuery request, CancellationToken cancellationToken)
         {
-            var scheduleDTO = await _dbContext.Schedules
-         .Where(s => s.Id == request.Id)
-         .Select(s => new GetScheduleDTO // Chiếu thẳng vào DTO
-         {
-             Id = s.Id,
-             ScheduleName = s.ScheduleName,
-             ScheduleType = s.ScheduleType.ToString(),
-             StartDate = s.StartDate,
-             EndDate = s.EndDate,
-             Status = s.Status.ToString(),
-             DayOfWeeks = s.ScheduleWeeklies.Select(sw => sw.DayOfWeek).ToList(),
-             ScheduleAssignments = s.ScheduleAssignments.Select(sa => new ScheduleAssignmentDTO
-             {
-                 Id = sa.Id,
-                 RouteId = sa.RouteId,
-                 DriverId = sa.DriverId,
-
-                 // EF Core sẽ tự động dịch sa.Driver.User.FullName thành SQL JOIN
-                 DriverName = sa.Driver.User.FullName,
-                 RouteName = sa.Route.RouteName,
-
-                 MorningDeparture = sa.MorningDeparture,
-                 MorningArrival = sa.MorningArrival,
-                 AfternoonDeparture = sa.AfternoonDeparture,
-                 AfternoonArrival = sa.AfternoonArrival
-             }).ToList()
-         })
-         .FirstOrDefaultAsync(cancellationToken); // Chỉ 1 query duy nhất
-
-            if (scheduleDTO == null)
+            var sheduleDTO = await _applicationDbContext.Schedules
+                .AsNoTracking()
+                .Where(s => s.Id == request.Id)
+                .Select(s => new GetScheduleDTO
+                {
+                    Id = s.Id,
+                    BusName = s.Bus.BusName,
+                    DriverName = s.Driver.User.LastName + " " + s.Driver.User.FirstName,
+                    DropOffTime = s.DropOffTime,
+                    PickupTime = s.PickupTime,
+                    Status = s.Status
+                })
+                .FirstOrDefaultAsync(cancellationToken);
+            if (sheduleDTO == null)
             {
                 return Result<GetScheduleDTO>.Failure(ScheduleErrors.ScheduleNotFound);
             }
-
-            return Result<GetScheduleDTO>.Success(scheduleDTO);
+            return Result<GetScheduleDTO>.Success(sheduleDTO);
         }
     }
 }
-

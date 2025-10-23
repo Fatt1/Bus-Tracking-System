@@ -10,42 +10,32 @@ namespace TrackingBusSystem.Application.Features.Buses.Command
     {
         public string BusName { get; init; } = string.Empty;
         public string PlateNumber { get; init; } = string.Empty;
-        public int RouteId { get; init; }
+
     }
     public class CreateBusCommandHandler : ICommandHandler<CreateBusCommand, CreateBusDTO>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IBusRepository _busRepository;
-        private readonly IRouteRepository _routeRepository;
-        public CreateBusCommandHandler(IBusRepository busRepository, IUnitOfWork unitOfWork, IRouteRepository routeRepository)
+        public CreateBusCommandHandler(IBusRepository busRepository, IUnitOfWork unitOfWork)
         {
             _busRepository = busRepository;
             _unitOfWork = unitOfWork;
-            _routeRepository = routeRepository;
+
         }
         public async Task<Result<CreateBusDTO>> Handle(CreateBusCommand request, CancellationToken cancellationToken)
         {
-            // Kiểm tra route có tồn tại chưa
-            var route = await _routeRepository.GetRouteByIdAsync(request.RouteId);
-            if (route == null)
+            var bus = new Bus
             {
-                return Result<CreateBusDTO>.Failure(RouteErrors.RouteNotFound(request.RouteId));
-            }
-            var bus = new Bus { BusName = request.BusName, PlateNumber = request.PlateNumber, RouteId = request.RouteId, Status = false };
-            await _busRepository.AddBusAsync(bus);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-            var busDetailDto = new CreateBusDTO
-            {
-                Id = bus.Id,
-                BusName = bus.BusName,
-                PlateNumber = bus.PlateNumber,
-                RouteId = bus.RouteId,
-                Status = bus.Status
-
+                BusName = request.BusName,
+                PlateNumber = request.PlateNumber,
+                Status = Shared.Constants.BusStatus.Active
             };
-
-            return Result<CreateBusDTO>.Success(busDetailDto);
-
+            await _busRepository.AddBusAsync(bus);
+            await _unitOfWork.SaveChangesAsync();
+            return Result<CreateBusDTO>.Success(new CreateBusDTO
+            {
+                Id = bus.Id
+            });
         }
     }
 }

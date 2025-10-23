@@ -8,14 +8,26 @@ namespace TrackingBusSystem.Infrastructure.Configuration
     {
         public void Configure(EntityTypeBuilder<Schedule> builder)
         {
-            builder.HasKey(s => s.Id);
-            builder.Property(s => s.ScheduleName).IsRequired().HasMaxLength(100);
+            builder.HasKey(e => e.Id).HasName("PK__Schedule__3214EC07444BB67C");
 
-            // Mối quan hệ 1-N với ScheduleWeekly
-            builder.HasMany(s => s.ScheduleWeeklies)
-                   .WithOne(sw => sw.Schedule)
-                   .HasForeignKey(sw => sw.ScheduleId)
-                   .OnDelete(DeleteBehavior.Cascade); // Xóa lịch trình thì xóa luôn các ngày trong tuần
+            // Cấu hình quan hệ Khóa ngoại
+            builder.HasOne(d => d.Bus)
+                .WithMany(p => p.Schedules)
+                .HasForeignKey(d => d.BusId)
+                .OnDelete(DeleteBehavior.ClientSetNull) // ON DELETE NO ACTION
+                .HasConstraintName("Schedules_fk3");
+
+            builder.HasOne(d => d.Driver)
+                .WithMany(p => p.Schedules)
+                .HasForeignKey(d => d.DriverId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("Schedules_fk2");
+
+            builder.HasOne(d => d.Route)
+                .WithMany(p => p.Schedules)
+                .HasForeignKey(d => d.RouteId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("Schedules_fk4");
         }
     }
 }

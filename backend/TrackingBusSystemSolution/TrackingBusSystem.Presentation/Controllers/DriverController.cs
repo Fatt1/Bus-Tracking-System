@@ -1,8 +1,9 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using TrackingBusSystem.Application.Features.Drivers.Command.CreateDriver;
+using TrackingBusSystem.Application.Features.Drivers.Command.UpdateDriver;
 using TrackingBusSystem.Application.Features.Drivers.Query.GetAllDriver;
-using TrackingBusSystem.Application.Features.Drivers.Query.GetAllDriverSimple;
+using TrackingBusSystem.Application.Features.Drivers.Query.GetAllDriverDropdown;
 using TrackingBusSystem.Application.Features.Drivers.Query.GetDriverById;
 
 namespace TrackingBusSystem.Presentation.Controllers
@@ -40,10 +41,10 @@ namespace TrackingBusSystem.Presentation.Controllers
             return Ok(result.Value);
         }
 
-        [HttpGet("all/simple")]
-        public async Task<IActionResult> GetAllDriverListSimple()
+        [HttpGet("dropdown")]
+        public async Task<IActionResult> GetAllDriverListSimple([FromQuery] GetAllDriverDropdownQuery request)
         {
-            var result = await _mediator.Send(new GetAllDriverSimpleQuery());
+            var result = await _mediator.Send(request);
             if (!result.IsSuccess)
             {
                 return BadRequest(result.Error);
@@ -61,6 +62,22 @@ namespace TrackingBusSystem.Presentation.Controllers
             }
             return Ok(result.Value);
 
+        }
+
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> UpdateDriver(int id, [FromBody] UpdateDriverByIdCommand request)
+        {
+            if (id != request.Id)
+            {
+                return BadRequest("ID in URL does not match ID in body.");
+            }
+            request.Id = id;
+            var result = await _mediator.Send(request);
+            if (!result.IsSuccess)
+            {
+                return BadRequest(result.Error);
+            }
+            return NoContent();
         }
     }
 }

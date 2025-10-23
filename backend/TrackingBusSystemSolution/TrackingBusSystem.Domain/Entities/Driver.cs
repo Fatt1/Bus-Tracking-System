@@ -8,30 +8,18 @@ namespace TrackingBusSystem.Domain.Entities
 
         public int Id { get; set; }
 
-        public string PhoneNumber { get; set; } = string.Empty;
+        public string Idcard { get; set; } = null!;
 
-        public DateTime DateOfBirth { get; set; }
+        public string Address { get; set; } = null!;
 
-        public string IDCard { get; set; } = string.Empty;
+        public string UserId { get; set; } = null!;
 
-        public string Address { get; set; } = string.Empty;
-
-        public Gender Sex { get; set; }
+        public DriverStatus Status { get; set; }
 
         public bool IsDeleted { get; set; } = false;
-        // Foreign Keys
-        public int BusId { get; set; }
-        public string UserId { get; set; } = string.Empty; // Changed to string
 
-        // Navigation properties
-
-        public virtual Bus Bus { get; set; } = null!;
         public virtual AppUser User { get; set; } = null!;
-
-
-        public virtual ICollection<Student> Students { get; set; } = new List<Student>();
-        public virtual ICollection<GeneratedTrip> GeneratedTrips { get; set; } = new List<GeneratedTrip>();
-        public virtual ICollection<ScheduleAssignment> ScheduleAssignments { get; set; } = new List<ScheduleAssignment>();
+        public virtual ICollection<Schedule> Schedules { get; set; } = new List<Schedule>();
     }
 
     public static class DriverErrors

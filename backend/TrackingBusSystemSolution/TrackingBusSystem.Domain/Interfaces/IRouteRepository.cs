@@ -6,6 +6,6 @@ namespace TrackingBusSystem.Domain.Interfaces
     {
         Task<List<Route>> GetRoutesAsync();
         Task<Route?> GetRouteByIdAsync(int id);
-
+        Task<bool> IsExist(int routeId);
     }
 }

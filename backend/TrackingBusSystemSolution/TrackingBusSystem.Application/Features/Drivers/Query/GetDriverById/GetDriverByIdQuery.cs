@@ -18,18 +18,16 @@ namespace TrackingBusSystem.Application.Features.Drivers.Query.GetDriverById
         {
             var driver = await dbContext.Drivers.Select(dr => new GetDriverDTO
             {
-                BusId = dr.BusId,
-                DateOfBirth = dr.DateOfBirth,
-                FullName = dr.User.FullName,
-                IDCard = dr.IDCard,
+                FirstName = dr.User.FirstName,
+                DateOfBirth = dr.User.DateOfBirth,
+                LastName = dr.User.LastName,
                 Address = dr.Address,
-                BusName = dr.Bus.BusName,
                 Id = dr.Id,
-                PhoneNumber = dr.PhoneNumber,
-                RouteId = dr.Bus.RouteId,
-                RouteName = dr.Bus.Route.RouteName,
-                Sex = dr.Sex
-
+                IDCard = dr.Idcard,
+                Password = "",
+                PhoneNumber = dr.User.PhoneNumber!,
+                Sex = dr.User.Sex,
+                UserName = dr.User.UserName!
             }).FirstOrDefaultAsync(dr => dr.Id == request.Id);
             if (driver == null)
             {

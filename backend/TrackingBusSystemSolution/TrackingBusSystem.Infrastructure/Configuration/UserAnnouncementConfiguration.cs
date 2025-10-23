@@ -8,10 +8,14 @@ namespace TrackingBusSystem.Infrastructure.Configuration
     {
         public void Configure(EntityTypeBuilder<UserAnnouncement> builder)
         {
-            builder.HasKey(ua => ua.Id);
+            builder.HasKey(e => e.Id).HasName("PK__UserAnno__3214EC07B0364131");
+            builder.HasIndex(e => e.Id, "UQ__UserAnno__3214EC063CE44EAC").IsUnique();
 
-            // Tạo composite key để đảm bảo một user chỉ nhận một thông báo một lần
-            builder.HasIndex(ua => new { ua.AnnouncementId, ua.RecipientUserId }).IsUnique();
+            builder.HasOne(d => d.Announcement)
+                .WithMany(p => p.UserAnnouncements)
+                .HasForeignKey(d => d.AnnouncementId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("UserAnnouncements_fk1");
         }
     }
 }
