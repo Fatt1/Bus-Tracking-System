@@ -33,6 +33,7 @@ namespace TrackingBusSystem.Application.Features.Students.Command.CreateStudent
         private readonly IUnitOfWork _unitOfWork;
         private readonly IStudentRepository _studentRepository;
         private readonly UserManager<AppUser> _userManager;
+        private readonly IRouteRepository _routeRepository;
         private readonly IMapper _mapper;
         public CreateStudentCommandHandler(IUnitOfWork unitOfWork, IStudentRepository studentRepository, UserManager<AppUser> userManager, IMapper mapper)
         {
@@ -51,6 +52,12 @@ namespace TrackingBusSystem.Application.Features.Students.Command.CreateStudent
                 return Result<CreateStudentDTO>.Failure(new Error("User.ExistUser", "UserName has already exist"));
             }
             // Tách tên thành các phần, loại bỏ các khoảng trắng thừa
+
+            var point = await _routeRepository.IsExistPoint(request.PointId);
+            if (!point)
+            {
+                return Result<CreateStudentDTO>.Failure(new Error("StopPoint.NotFound", "Stop point not found"));
+            }
 
             await _unitOfWork.BeginTransactionAsync();
             try
