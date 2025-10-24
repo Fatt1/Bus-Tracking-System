@@ -1,33 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios"; // Import axios
 import "./RouteListPage.css"; // CSS riêng cho trang này
-import "../pages/LayoutTable.css"; // Tái sử dụng CSS layout bảng (Bạn cần đảm bảo file này tồn tại)
-import { FaMapMarkerAlt, FaPlus, FaTimes } from "react-icons/fa";
+import "../pages/LayoutTable.css"; // Tái sử dụng CSS layout bảng
+import { FaMapMarkerAlt, FaPlus, FaTimes, FaSpinner } from "react-icons/fa"; // Thêm FaSpinner
 
-// --- DEMO DATA ---
-// Thêm dữ liệu học sinh mẫu cho mỗi tuyến
-const allRoutes = Array.from({ length: 32 }, (_, i) => ({
-  id: i + 1,
-  name:
-    i % 3 === 0
-      ? "Lê Duẩn - Nguyễn Thị Minh Khai - Điện Biên Phủ"
-      : "An Dương Vương - Trần Hưng Đạo",
-  stops: "Trạm kcn Tân - Bình Trạm bệnh viện Tân Phú - Đại học sài gòn", // Thêm thông tin trạm dừng
-  studentCount: Math.floor(Math.random() * 50) + 5, // Random từ 5 đến 54 học sinh
-  students: Array.from(
-    { length: Math.floor(Math.random() * 50) + 5 },
-    (v, k) => ({
-      // Tạo danh sách học sinh mẫu
-      id: `HS${i + 1}-${k + 1}`,
-      name: k === 0 ? "Phan Viết Huy" : `Học sinh mẫu ${k + 1}`, // Đa dạng hóa tên
-      pickupPoint: k % 2 === 0 ? "Trạm kcn Tân" : "Trạm bệnh viện Tân Phú", // Đa dạng hóa điểm đón
-    })
-  ),
-  mapUrl: "#", // Placeholder cho link bản đồ
-}));
-// --- END DEMO DATA ---
-
-// --- COMPONENT MODAL HIỂN THỊ DANH SÁCH HỌC SINH ---
-const StudentListModal = ({ isOpen, onClose, routeName, students }) => {
+// --- COMPONENT MODAL HIỂN THỊ DANH SÁCH HỌC SINH (Đã cập nhật) ---
+const StudentListModal = ({
+  isOpen,
+  onClose,
+  routeName,
+  students,
+  isLoading,
+}) => {
   if (!isOpen) return null;
 
   return (
@@ -39,137 +23,186 @@ const StudentListModal = ({ isOpen, onClose, routeName, students }) => {
         <button className="modal-close-btn" onClick={onClose}>
           <FaTimes />
         </button>
-        {/* Header của Modal giống trong ảnh */}
         <div className="modal-header">
-          <h3>36 36 BUS BUS</h3>
+          {/* <h3>36 36 BUS BUS</h3> */} {/* Bỏ bớt nếu muốn giống hình */}
           <h4>Danh sách học sinh tuyến: {routeName}</h4>
         </div>
-        {/* Bảng danh sách học sinh */}
         <div className="student-list-table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>STT</th>
-                <th>Tên học sinh</th>
-                <th>Điểm đón</th>
-              </tr>
-            </thead>
-            <tbody>
-              {students.length > 0 ? (
-                students.map((student, index) => (
-                  <tr key={student.id}>
-                    <td>{index + 1}</td>
-                    <td>{student.name}</td>
-                    <td>{student.pickupPoint}</td>
-                  </tr>
-                ))
-              ) : (
+          {isLoading ? (
+            <div className="modal-loading">
+              <FaSpinner className="spinner" /> Đang tải danh sách...
+            </div>
+          ) : (
+            <table>
+              <thead>
                 <tr>
-                  <td colSpan="3" style={{ textAlign: "center" }}>
-                    Không có học sinh nào trên tuyến này.
-                  </td>
+                  <th>STT</th>
+                  <th>Tên học sinh</th>
+                  <th>Điểm đón</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {students && students.length > 0 ? (
+                  students.map((student, index) => (
+                    // API trả về fullName và stopPointName
+                    <tr key={index}>
+                      {" "}
+                      {/* Dùng index làm key nếu không có ID duy nhất */}
+                      <td>{index + 1}</td>
+                      <td>{student.fullName}</td>
+                      <td>{student.stopPointName}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="3" style={{ textAlign: "center" }}>
+                      Không có học sinh nào trên tuyến này.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          )}
+        </div>
+        {/* Có thể thêm nút Đóng ở đây nếu cần */}
+        <div
+          className="form-actions modal-actions"
+          style={{ justifyContent: "center" }}
+        >
+          <button
+            type="button"
+            className="action-btn-form cancel-btn"
+            onClick={onClose}
+          >
+            Đóng
+          </button>
         </div>
       </div>
     </div>
   );
 };
 
-// Component 1 dòng trong bảng (Đã cập nhật theo yêu cầu)
-const RouteRow = ({ route, onViewStudents }) => (
-  <tr>
-    <td>{route.id}</td>
-    <td>{route.name}</td>
-    <td>{route.stops}</td>
-    {/* Cột Số học sinh (Đã sửa) */}
-    <td className="student-count-cell">
-      <div>{route.studentCount}</div>
-      {/* Nút/Link Xem danh sách */}
-      {route.studentCount > 0 && (
-        <button
-          className="view-students-btn"
-          onClick={() => onViewStudents(route)}
-        >
-          Xem danh sách
-        </button>
-      )}
-    </td>
-    {/* Cột Bản đồ */}
-    <td className="cell-center">
-      <button className="map-btn">
-        <FaMapMarkerAlt />
-      </button>
-    </td>
-  </tr>
-);
-
-// Component Phân trang (Giữ nguyên)
-const Pagination = ({ currentPage, totalPages, onPageChange }) => {
-  if (totalPages <= 1) return null;
-  const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
+// Component 1 dòng trong bảng (Đã cập nhật theo yêu cầu API)
+const RouteRow = ({ route, onViewStudents }) => {
+  // Hàm xử lý mảng stopPoints thành chuỗi
+  const formatStopPoints = (stopPoints) => {
+    if (!Array.isArray(stopPoints) || stopPoints.length === 0) {
+      return "Chưa có trạm dừng";
+    }
+    // Sắp xếp theo sequenceOrder trước khi join (đề phòng API trả về không theo thứ tự)
+    return stopPoints
+      .sort((a, b) => a.sequenceOrder - b.sequenceOrder)
+      .map((point) => point.pointName)
+      .join(" - "); // Ngăn cách bằng dấu gạch ngang
+  };
 
   return (
-    <nav className="pagination-container">
-      <ul className="pagination">
-        <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+    <tr>
+      {/* API trả về id */}
+      <td style={{ textAlign: "center" }}>{route.id}</td>
+      {/* API trả về routeName */}
+      <td>{route.routeName}</td>
+      {/* Xử lý stopPoints */}
+      <td>{formatStopPoints(route.stopPoints)}</td>
+      {/* Cột Số học sinh (Đã sửa) */}
+      <td className="student-count-cell">
+        {/* API trả về studentCounts */}
+        <div>{route.studentCounts ?? 0}</div>
+        {/* Chỉ hiển thị nút khi có học sinh */}
+        {(route.studentCounts ?? 0) > 0 && (
           <button
-            onClick={() => onPageChange(currentPage - 1)}
-            disabled={currentPage === 1}
+            className="view-students-btn"
+            onClick={() => onViewStudents(route)} // Truyền cả object route
           >
-            &lt;
+            Xem danh sách
           </button>
-        </li>
-        {pageNumbers.map((number) => (
-          <li
-            key={number}
-            className={`page-item ${currentPage === number ? "active" : ""}`}
-          >
-            <button onClick={() => onPageChange(number)}>{number}</button>
-          </li>
-        ))}
-        <li
-          className={`page-item ${
-            currentPage === totalPages ? "disabled" : ""
-          }`}
-        >
-          <button
-            onClick={() => onPageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-          >
-            &gt;
-          </button>
-        </li>
-      </ul>
-    </nav>
+        )}
+      </td>
+      {/* Cột Bản đồ */}
+      <td className="cell-center">
+        <button className="map-btn" title="Xem bản đồ (chưa hoạt động)">
+          <FaMapMarkerAlt />
+        </button>
+      </td>
+    </tr>
   );
 };
 
-// Component chính của trang (Đã cập nhật state cho modal)
+// Component chính của trang (Đã cập nhật state và logic)
 const RouteListPage = () => {
-  const [currentPage, setCurrentPage] = useState(1);
+  const [routes, setRoutes] = useState([]); // State lưu danh sách tuyến đường
+  const [isLoading, setIsLoading] = useState(true);
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
-  const [selectedRoute, setSelectedRoute] = useState(null); // Lưu thông tin tuyến đang xem
-  const itemsPerPage = 6;
+  const [selectedRoute, setSelectedRoute] = useState(null); // Lưu route đang xem HS
+  const [modalStudents, setModalStudents] = useState([]); // Lưu DS học sinh cho modal
+  const [isModalLoading, setIsModalLoading] = useState(false); // Loading cho modal
 
-  // Logic phân trang
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentRoutes = allRoutes.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(allRoutes.length / itemsPerPage);
+  // --- HÀM GỌI API LẤY DANH SÁCH TUYẾN ĐƯỜNG ---
+  const fetchRoutes = async () => {
+    console.log("Fetching route list...");
+    setIsLoading(true);
+    try {
+      // Gọi API cố định trang 1, size 10
+      const apiUrl = `https://localhost:7229/api/v1/route/all?PageNumber=1&PageSize=10`;
+      console.log(`Calling API URL: ${apiUrl}`);
+      const response = await axios.get(apiUrl);
+      console.log(`API response (routes):`, response.data);
+      setRoutes(response.data.items || []); // Chỉ lấy mảng items
+    } catch (error) {
+      console.error("Lỗi khi tải danh sách tuyến đường:", error);
+      setRoutes([]);
+      alert(
+        `Không thể tải danh sách tuyến đường. Vui lòng kiểm tra backend và thử lại.\nLỗi: ${error.message}`
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  // Hàm mở modal
-  const handleViewStudents = (route) => {
-    setSelectedRoute(route);
+  // useEffect để gọi API khi component mount lần đầu
+  useEffect(() => {
+    fetchRoutes();
+  }, []); // Dependency rỗng
+
+  // --- HÀM MỞ MODAL VÀ GỌI API LẤY DANH SÁCH HỌC SINH ---
+  const handleViewStudents = async (route) => {
+    console.log(
+      `Viewing students for route ID: ${route.id}, Name: ${route.routeName}`
+    );
+    setSelectedRoute(route); // Lưu thông tin route để hiển thị tên
     setIsStudentModalOpen(true);
+    setIsModalLoading(true); // Bắt đầu loading cho modal
+    setModalStudents([]); // Xóa danh sách cũ
+
+    try {
+      const apiUrl = `https://localhost:7229/api/v1/route/${route.id}/students`;
+      console.log(`Calling student list API URL: ${apiUrl}`);
+      const response = await axios.get(apiUrl);
+      console.log(
+        `API response (students for route ${route.id}):`,
+        response.data
+      );
+      // API trả về trực tiếp mảng học sinh
+      setModalStudents(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      console.error(
+        `Lỗi khi tải danh sách học sinh cho tuyến ${route.id}:`,
+        error
+      );
+      setModalStudents([]);
+      alert(
+        `Không thể tải danh sách học sinh. Vui lòng thử lại.\nLỗi: ${error.message}`
+      );
+    } finally {
+      setIsModalLoading(false); // Kết thúc loading cho modal
+    }
   };
 
   // Hàm đóng modal
   const handleCloseStudentModal = () => {
     setIsStudentModalOpen(false);
-    setSelectedRoute(null); // Reset khi đóng
+    setSelectedRoute(null);
+    setModalStudents([]); // Reset danh sách học sinh
   };
 
   return (
@@ -178,8 +211,9 @@ const RouteListPage = () => {
       <StudentListModal
         isOpen={isStudentModalOpen}
         onClose={handleCloseStudentModal}
-        routeName={selectedRoute?.name}
-        students={selectedRoute?.students || []}
+        routeName={selectedRoute?.routeName}
+        students={modalStudents}
+        isLoading={isModalLoading} // Truyền state loading vào modal
       />
 
       <main className="main-content-area">
@@ -202,39 +236,53 @@ const RouteListPage = () => {
           <div className="content-header">
             <h2>Danh sách tuyến đường</h2>
             <div className="header-controls">
-              <button className="control-btn add-btn">
+              {/* Nút thêm tuyến đường (tạm thời chưa có chức năng) */}
+              <button
+                className="control-btn add-btn"
+                title="Thêm tuyến đường (chưa hoạt động)"
+              >
                 <FaPlus />
               </button>
             </div>
           </div>
 
-          <div className="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>STT</th>
-                  <th>Tên tuyến đường</th>
-                  <th>Các trạm</th>
-                  <th>Số học sinh</th>
-                  <th>Bản đồ</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentRoutes.map((route) => (
-                  <RouteRow
-                    key={route.id}
-                    route={route}
-                    onViewStudents={handleViewStudents}
-                  />
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-          />
+          {isLoading ? (
+            <div className="loading-message">
+              Đang tải danh sách tuyến đường...
+            </div>
+          ) : (
+            <div className="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>STT</th>
+                    <th>Tên tuyến đường</th>
+                    <th>Các trạm</th>
+                    <th>Số học sinh</th>
+                    <th>Bản đồ</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {routes.length > 0 ? (
+                    routes.map((route) => (
+                      <RouteRow
+                        key={route.id}
+                        route={route}
+                        onViewStudents={handleViewStudents}
+                      />
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="5" style={{ textAlign: "center" }}>
+                        Không có dữ liệu tuyến đường.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+          {/* Không cần Pagination nữa */}
         </div>
       </main>
     </>
