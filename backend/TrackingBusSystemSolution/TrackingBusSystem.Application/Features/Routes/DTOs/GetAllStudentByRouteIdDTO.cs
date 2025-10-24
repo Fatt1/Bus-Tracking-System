@@ -1,4 +1,4 @@
-﻿namespace TrackingBusSystem.Application.Features.Students.DTOs
+﻿namespace TrackingBusSystem.Application.Features.Routes.DTOs
 {
     public record GetAllStudentByRouteIdDTO
     {

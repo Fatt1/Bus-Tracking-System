@@ -41,6 +41,7 @@ namespace TrackingBusSystem.Infrastructure.Data
             // Soft delete, chỉ lấy những Driver chưa bị xóa
             modelBuilder.Entity<Driver>().HasQueryFilter(d => !d.IsDeleted);
             modelBuilder.Entity<Bus>().HasQueryFilter(b => !b.IsDeleted);
+            modelBuilder.Entity<Student>().HasQueryFilter(s => !s.IsDeleted);
 
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
             const string DRIVER_ID = "a18be9c0-aa65-4af8-bd17-00bd9344e575";

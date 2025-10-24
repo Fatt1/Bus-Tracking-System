@@ -1,4 +1,5 @@
-﻿using TrackingBusSystem.Domain.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using TrackingBusSystem.Domain.Entities;
 using TrackingBusSystem.Domain.Interfaces;
 using TrackingBusSystem.Infrastructure.Data;
 
@@ -17,6 +18,17 @@ namespace TrackingBusSystem.Infrastructure.Repositories
             {
                 return false;
             }
+        }
+
+        public bool DeleteStudent(Student student)
+        {
+            student.IsDeleted = true;
+            return true;
+        }
+
+        public Task<Student?> GetById(int id)
+        {
+            return dbContext.Students.Include(s => s.User).Include(s => s.Point).FirstOrDefaultAsync(s => s.Id == id);
         }
 
         public Task<bool> IsExistingStudent(int studentId)

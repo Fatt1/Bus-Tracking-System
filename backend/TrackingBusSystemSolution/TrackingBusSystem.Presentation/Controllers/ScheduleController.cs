@@ -5,6 +5,7 @@ using TrackingBusSystem.Application.Features.Schedules.Command.DeleteScheduleByI
 using TrackingBusSystem.Application.Features.Schedules.Command.UpdateSchedule;
 using TrackingBusSystem.Application.Features.Schedules.Query.GetAllSchedule;
 using TrackingBusSystem.Application.Features.Schedules.Query.GetScheduleById;
+using TrackingBusSystem.Application.Features.Schedules.Query.GetScheduleWithHistory;
 
 
 namespace TrackingBusSystem.Presentation.Controllers
@@ -60,6 +61,7 @@ namespace TrackingBusSystem.Presentation.Controllers
             }
             return BadRequest(result.Error);
         }
+
         [HttpPut("{id:int}")]
         public async Task<IActionResult> UpdateSchedule(int id, [FromBody] UpdateScheduleByIdCommand request)
         {
@@ -74,6 +76,13 @@ namespace TrackingBusSystem.Presentation.Controllers
                 return NoContent();
             }
             return BadRequest(result.Error);
+        }
+
+        [HttpGet("{id:int}/cheking-history")]
+        public async Task<IActionResult> GetScheduleByIdWithCheckingHistory(int id)
+        {
+            var result = await _mediator.Send(new GetScheduleByIdWithHistoryQuery(id));
+            return result.IsSuccess ? Ok(result.Value) : NotFound(result.Error);
         }
     }
 }
