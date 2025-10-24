@@ -6,11 +6,11 @@ import {
   FaPlus,
   FaPen,
   FaMinusCircle,
-  FaEllipsisH, // Giữ lại icon này nếu muốn dùng thay thế nút Xem
+  FaEllipsisH, // Icon xem chi tiết (tạm dùng cho Sửa)
   FaTimes,
   FaExclamationTriangle,
 } from "react-icons/fa";
-import { format, parseISO } from "date-fns"; // Import thêm parseISO
+import { format } from "date-fns"; // Import hàm format
 
 // --- Dữ liệu tĩnh cho dropdown Lớp (Vì API không cung cấp) ---
 const availableClasses = [
@@ -38,10 +38,9 @@ const StudentModal = ({ mode, studentData, isOpen, onClose, onSave }) => {
 
   // Hàm tạo mật khẩu từ ngày sinh (DDMMYYYY)
   const generatePassword = (birthDate) => {
-    if (!birthDate || birthDate.length < 10) return "*********";
+    if (!birthDate || birthDate.length < 10) return "*********"; // Kiểm tra format YYYY-MM-DD...
     try {
-      // Lấy YYYY-MM-DD từ chuỗi ISO hoặc YYYY-MM-DD
-      const datePart = birthDate.split("T")[0];
+      const datePart = birthDate.split("T")[0]; // Lấy phần YYYY-MM-DD
       const [year, month, day] = datePart.split("-");
       if (
         !day ||
@@ -62,35 +61,44 @@ const StudentModal = ({ mode, studentData, isOpen, onClose, onSave }) => {
   // useEffect để fetch danh sách tuyến đường khi modal mở lần đầu (chế độ add/edit)
   useEffect(() => {
     const fetchRoutes = async () => {
+      // Chỉ fetch khi modal mở, ở mode add/edit và chưa có dữ liệu routes
       if (
         isOpen &&
         (mode === "add" || mode === "edit") &&
         allRoutes.length === 0
       ) {
+        console.log("Modal: Fetching routes for dropdown...");
         setIsLoadingRoutes(true);
         try {
-          // Gọi API lấy tất cả tuyến đường (hoặc đủ để hiển thị)
+          // Gọi API lấy tất cả tuyến đường (luôn trang 1, size lớn)
           const response = await axios.get(
             `https://localhost:7229/api/v1/route/all?PageNumber=1&PageSize=100`
           );
+          console.log("Modal: Routes API response:", response.data);
           setAllRoutes(response.data.items || []);
         } catch (error) {
           console.error("Lỗi khi tải danh sách tuyến đường:", error);
           alert("Không thể tải danh sách tuyến đường.");
+          setAllRoutes([]); // Đặt mảng rỗng nếu lỗi
         } finally {
           setIsLoadingRoutes(false);
         }
       }
     };
     fetchRoutes();
-  }, [isOpen, mode, allRoutes.length]); // Chỉ chạy khi modal mở và chưa có dữ liệu routes
+  }, [isOpen, mode, allRoutes.length]); // Dependencies
 
-  // useEffect để cập nhật form data ban đầu
+  // useEffect để cập nhật form data ban đầu và điểm đón khi sửa
   useEffect(() => {
     if (isOpen) {
+      console.log(
+        `Modal: Initializing form for mode '${mode}'. Student data:`,
+        studentData
+      );
       const initialData =
         mode === "add"
           ? {
+              // Dữ liệu mặc định khi thêm mới
               firstName: "",
               lastName: "",
               class: availableClasses[0] || "",
@@ -100,60 +108,82 @@ const StudentModal = ({ mode, studentData, isOpen, onClose, onSave }) => {
               parentName: "",
               dateOfBirth: "",
               parentPhoneNumber: "",
-              routeId: "", // Thêm routeId
+              routeId: "",
             }
           : {
-              // Map dữ liệu từ studentData (lấy từ GET /all hoặc GET by ID sau này)
-              firstName: studentData?.firstName || "",
-              lastName: studentData?.lastName || "",
+              // Map dữ liệu từ studentData (lấy từ GET /all)
+              // API GET /all có: id, fullName, class, address, parentName, parentPhoneNumber
+              // Tách fullName thành firstName, lastName (ước lượng)
+              firstName:
+                studentData?.fullName?.split(" ").slice(0, -1).join(" ") || "",
+              lastName: studentData?.fullName?.split(" ").slice(-1)[0] || "",
               class: studentData?.class || availableClasses[0] || "",
-              sex: studentData?.sex ?? 0,
+              // API GET /all không có sex, dateOfBirth, pointId, routeId -> Cần gọi API GET by ID nếu muốn sửa chính xác
+              // Tạm thời để trống hoặc lấy từ studentData nếu có (dù GET /all không trả về)
+              sex: studentData?.sex ?? 0, // Mặc định Nam nếu GET /all không có
               address: studentData?.address || "",
-              // Cần tìm routeId và pointId dựa trên thông tin studentData (nếu có)
-              routeId: studentData?.routeId || "", // Giả sử GET /all trả về routeId
-              pointId: studentData?.pointId || "", // Giả sử GET /all trả về pointId
+              pointId: studentData?.pointId || "", // Cần API GET by ID
+              routeId: studentData?.routeId || "", // Cần API GET by ID
               parentName: studentData?.parentName || "",
               dateOfBirth: studentData?.dateOfBirth
                 ? studentData.dateOfBirth.split("T")[0]
-                : "",
+                : "", // Cần API GET by ID
               parentPhoneNumber: studentData?.parentPhoneNumber || "",
             };
       setFormData(initialData);
+
       // Cập nhật tài khoản/mật khẩu
       setAccountUsername(initialData.parentPhoneNumber || "");
       setParentPassword(generatePassword(initialData.dateOfBirth));
 
-      // Nếu là edit, cập nhật luôn điểm đón ban đầu
+      // Cập nhật điểm đón ban đầu khi sửa (nếu có routeId và routes đã load)
       if (mode === "edit" && initialData.routeId && allRoutes.length > 0) {
         const selectedRoute = allRoutes.find(
           (r) => r.id === initialData.routeId
         );
         setAvailablePickupPoints(selectedRoute?.stopPoints || []);
+        // Giữ lại pointId đã có
+        setFormData((prev) => ({
+          ...prev,
+          pointId: initialData.pointId || "",
+        }));
       } else {
-        setAvailablePickupPoints([]); // Reset điểm đón khi thêm mới
+        setAvailablePickupPoints([]); // Reset điểm đón khi thêm mới hoặc chưa có routeId
+        setFormData((prev) => ({ ...prev, pointId: "" }));
       }
     }
-  }, [studentData, mode, isOpen, allRoutes]); // Thêm allRoutes dependency
+  }, [studentData, mode, isOpen, allRoutes]); // Thêm allRoutes
 
   // useEffect để cập nhật Điểm đón khi Tuyến đường thay đổi
   useEffect(() => {
     if (formData.routeId && allRoutes.length > 0) {
+      console.log(
+        `Modal: Route changed to ${formData.routeId}. Updating pickup points...`
+      );
       const selectedRoute = allRoutes.find(
         (r) => r.id === parseInt(formData.routeId)
       );
       const points = selectedRoute?.stopPoints || [];
       setAvailablePickupPoints(points);
-      // Tự động chọn điểm đón đầu tiên nếu có, trừ khi đang edit và đã có pointId
+      console.log("Modal: Available pickup points:", points);
+
+      // Tự động chọn điểm đón đầu tiên khi thêm mới hoặc khi đổi route mà điểm cũ không còn hợp lệ
       if (
         mode === "add" ||
-        (mode === "edit" && !formData.pointId) ||
-        (mode === "edit" && !points.some((p) => p.id === formData.pointId))
+        !points.some((p) => p.id === parseInt(formData.pointId))
       ) {
-        setFormData((prev) => ({ ...prev, pointId: points[0]?.id || "" }));
+        const firstPointId = points[0]?.id || "";
+        console.log(
+          `Modal: Auto-selecting first pickup point: ${firstPointId}`
+        );
+        setFormData((prev) => ({ ...prev, pointId: firstPointId }));
       }
-    } else {
+      // Nếu là edit và pointId cũ vẫn hợp lệ thì không làm gì cả
+    } else if (!formData.routeId) {
+      // Nếu bỏ chọn route
+      console.log("Modal: Route deselected. Clearing pickup points.");
       setAvailablePickupPoints([]);
-      setFormData((prev) => ({ ...prev, pointId: "" })); // Reset pointId nếu không có route
+      setFormData((prev) => ({ ...prev, pointId: "" })); // Reset pointId
     }
   }, [formData.routeId, allRoutes, mode]); // Thêm mode
 
@@ -167,7 +197,7 @@ const StudentModal = ({ mode, studentData, isOpen, onClose, onSave }) => {
 
   if (!isOpen) return null;
 
-  const isReadOnly = mode === "view"; // Chỉ đọc khi xem
+  const isReadOnly = mode === "view"; // Chỉ đọc khi xem (Hiện tại không có mode view)
   const title =
     mode === "add" ? "Thêm học sinh" : "Chỉnh sửa thông tin học sinh";
 
@@ -184,7 +214,7 @@ const StudentModal = ({ mode, studentData, isOpen, onClose, onSave }) => {
       firstName: formData.firstName,
       lastName: formData.lastName,
       class: formData.class,
-      sex: formData.sex,
+      sex: formData.sex, // 0 hoặc 1
       address: formData.address,
       pointId: parseInt(formData.pointId), // Đảm bảo là số
       parentName: formData.parentName,
@@ -194,13 +224,13 @@ const StudentModal = ({ mode, studentData, isOpen, onClose, onSave }) => {
 
     // Chỉ thêm userName và password khi tạo mới (mode === 'add')
     if (mode === "add") {
-      studentPayload.userName = accountUsername;
+      studentPayload.userName = accountUsername; // Lấy từ SĐT
       studentPayload.password = parentPassword; // Mật khẩu DDMMYYYY
     }
 
     // Thêm ID nếu là mode edit (cho hàm onSave biết)
     if (mode === "edit") {
-      studentPayload.id = studentData.id;
+      studentPayload.id = studentData.id; // Lấy ID từ studentData gốc
     }
 
     console.log("Data to save:", studentPayload);
@@ -219,227 +249,235 @@ const StudentModal = ({ mode, studentData, isOpen, onClose, onSave }) => {
         <div className="modal-header">
           <h4>{title}</h4>
         </div>
-        <form onSubmit={handleSubmit} className="modal-form student-form">
-          {/* Cột 1: Thông tin học sinh */}
-          <div className="form-section">
-            <h5>Thông Tin Chi Tiết học sinh</h5>
-            <div className="form-row">
+        {/* Hiển thị loading khi đang tải routes */}
+        {isLoadingRoutes && mode !== "view" ? (
+          <div className="modal-loading">Đang tải dữ liệu tuyến đường...</div>
+        ) : (
+          <form onSubmit={handleSubmit} className="modal-form student-form">
+            {/* Cột 1: Thông tin học sinh */}
+            <div className="form-section">
+              <h5>Thông Tin Chi Tiết học sinh</h5>
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="firstName">Họ & Tên lót</label>
+                  <input
+                    type="text"
+                    id="firstName"
+                    name="firstName"
+                    value={formData.firstName || ""}
+                    onChange={handleChange}
+                    readOnly={isReadOnly}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="lastName">Tên</label>
+                  <input
+                    type="text"
+                    id="lastName"
+                    name="lastName"
+                    value={formData.lastName || ""}
+                    onChange={handleChange}
+                    readOnly={isReadOnly}
+                    required
+                  />
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="class">Lớp</label>
+                  <select
+                    id="class"
+                    name="class"
+                    value={formData.class || ""}
+                    onChange={handleChange}
+                    disabled={isReadOnly}
+                    required
+                  >
+                    {availableClasses.map((cls) => (
+                      <option key={cls} value={cls}>
+                        {cls}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Giới tính</label>
+                  <div className="gender-options">
+                    <label>
+                      <input
+                        type="radio"
+                        name="sex"
+                        value={0}
+                        checked={formData.sex === 0}
+                        onChange={handleChange}
+                        disabled={isReadOnly}
+                      />{" "}
+                      Nam
+                    </label>
+                    <label>
+                      <input
+                        type="radio"
+                        name="sex"
+                        value={1}
+                        checked={formData.sex === 1}
+                        onChange={handleChange}
+                        disabled={isReadOnly}
+                      />{" "}
+                      Nữ
+                    </label>
+                  </div>
+                </div>
+              </div>
               <div className="form-group">
-                <label htmlFor="firstName">Họ & Tên lót</label>
+                <label htmlFor="dateOfBirth">Ngày sinh</label>
                 <input
-                  type="text"
-                  id="firstName"
-                  name="firstName"
-                  value={formData.firstName || ""}
+                  type="date"
+                  id="dateOfBirth"
+                  name="dateOfBirth"
+                  value={formData.dateOfBirth || ""}
                   onChange={handleChange}
                   readOnly={isReadOnly}
                   required
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="lastName">Tên</label>
+                <label htmlFor="address">Địa chỉ thường trú</label>
                 <input
                   type="text"
-                  id="lastName"
-                  name="lastName"
-                  value={formData.lastName || ""}
+                  id="address"
+                  name="address"
+                  value={formData.address || ""}
                   onChange={handleChange}
                   readOnly={isReadOnly}
                   required
                 />
               </div>
-            </div>
-            <div className="form-row">
               <div className="form-group">
-                <label htmlFor="class">Lớp</label>
+                <label htmlFor="routeId">Tuyến đường</label>
                 <select
-                  id="class"
-                  name="class"
-                  value={formData.class || ""}
+                  id="routeId"
+                  name="routeId"
+                  value={formData.routeId || ""} // Controlled component
                   onChange={handleChange}
-                  disabled={isReadOnly}
+                  disabled={isReadOnly || isLoadingRoutes}
                   required
                 >
-                  {availableClasses.map((cls) => (
-                    <option key={cls} value={cls}>
-                      {cls}
+                  <option value="" disabled>
+                    -- {isLoadingRoutes ? "Đang tải..." : "Chọn tuyến đường"} --
+                  </option>
+                  {allRoutes.map((route) => (
+                    <option key={route.id} value={route.id}>
+                      {route.routeName}
                     </option>
                   ))}
                 </select>
               </div>
               <div className="form-group">
-                <label>Giới tính</label>
-                <div className="gender-options">
-                  <label>
-                    <input
-                      type="radio"
-                      name="sex"
-                      value={0}
-                      checked={formData.sex === 0}
-                      onChange={handleChange}
-                      disabled={isReadOnly}
-                    />{" "}
-                    Nam
-                  </label>
-                  <label>
-                    <input
-                      type="radio"
-                      name="sex"
-                      value={1}
-                      checked={formData.sex === 1}
-                      onChange={handleChange}
-                      disabled={isReadOnly}
-                    />{" "}
-                    Nữ
-                  </label>
-                </div>
+                <label htmlFor="pointId">Điểm đón</label>
+                <select
+                  id="pointId"
+                  name="pointId"
+                  value={formData.pointId || ""} // Controlled component
+                  onChange={handleChange}
+                  disabled={
+                    isReadOnly ||
+                    !formData.routeId ||
+                    availablePickupPoints.length === 0
+                  }
+                  required
+                >
+                  <option value="" disabled>
+                    --{" "}
+                    {formData.routeId
+                      ? availablePickupPoints.length > 0
+                        ? "Chọn điểm đón"
+                        : "Tuyến chưa có điểm đón"
+                      : "Vui lòng chọn tuyến"}{" "}
+                    --
+                  </option>
+                  {/* Map qua availablePickupPoints */}
+                  {availablePickupPoints.map((point) => (
+                    <option key={point.id} value={point.id}>
+                      {point.pointName}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
-            <div className="form-group">
-              <label htmlFor="birthDate">Ngày sinh</label>
-              <input
-                type="date"
-                id="birthDate"
-                name="birthDate"
-                value={formData.dateOfBirth || ""}
-                onChange={handleChange}
-                readOnly={isReadOnly}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="address">Địa chỉ thường trú</label>
-              <input
-                type="text"
-                id="address"
-                name="address"
-                value={formData.address || ""}
-                onChange={handleChange}
-                readOnly={isReadOnly}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="routeId">Tuyến đường</label>
-              <select
-                id="routeId"
-                name="routeId"
-                value={formData.routeId || ""}
-                onChange={handleChange}
-                disabled={isReadOnly || isLoadingRoutes}
-                required
-              >
-                <option value="" disabled>
-                  -- {isLoadingRoutes ? "Đang tải..." : "Chọn tuyến đường"} --
-                </option>
-                {allRoutes.map((route) => (
-                  <option key={route.id} value={route.id}>
-                    {route.routeName}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="form-group">
-              <label htmlFor="pointId">Điểm đón</label>
-              <select
-                id="pointId"
-                name="pointId"
-                value={formData.pointId || ""}
-                onChange={handleChange}
-                disabled={
-                  isReadOnly ||
-                  !formData.routeId ||
-                  availablePickupPoints.length === 0
-                }
-                required
-              >
-                <option value="" disabled>
-                  --{" "}
-                  {formData.routeId
-                    ? availablePickupPoints.length > 0
-                      ? "Chọn điểm đón"
-                      : "Tuyến chưa có điểm đón"
-                    : "Vui lòng chọn tuyến"}{" "}
-                  --
-                </option>
-                {availablePickupPoints.map((point) => (
-                  <option key={point.id} value={point.id}>
-                    {point.pointName}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
 
-          {/* Cột 2: Thông tin phụ huynh */}
-          <div className="form-section">
-            <h5>Tài khoản phụ huynh</h5>
-            <div className="form-group">
-              <label htmlFor="parentName">Họ tên phụ huynh</label>
-              <input
-                type="text"
-                id="parentName"
-                name="parentName"
-                value={formData.parentName || ""}
-                onChange={handleChange}
-                readOnly={isReadOnly}
-                required
-              />
+            {/* Cột 2: Thông tin phụ huynh */}
+            <div className="form-section">
+              <h5>Tài khoản phụ huynh</h5>
+              <div className="form-group">
+                <label htmlFor="parentName">Họ tên phụ huynh</label>
+                <input
+                  type="text"
+                  id="parentName"
+                  name="parentName"
+                  value={formData.parentName || ""}
+                  onChange={handleChange}
+                  readOnly={isReadOnly}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="parentPhoneNumber">
+                  Số điện thoại phụ huynh
+                </label>
+                <input
+                  type="tel"
+                  id="parentPhoneNumber"
+                  name="parentPhoneNumber"
+                  value={formData.parentPhoneNumber || ""}
+                  onChange={handleChange}
+                  readOnly={isReadOnly}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="accountUsername">Tài khoản</label>
+                <input
+                  type="text"
+                  id="accountUsername"
+                  name="accountUsername"
+                  value={accountUsername} // Hiển thị state tài khoản
+                  readOnly // Luôn chỉ đọc
+                  disabled // Không cho sửa
+                  placeholder="Tự động tạo từ SĐT"
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="parentPassword">Mật khẩu</label>
+                <input
+                  type={mode === "view" ? "password" : "text"}
+                  id="parentPassword"
+                  name="parentPassword"
+                  value={parentPassword} // Hiển thị state mật khẩu
+                  readOnly // Luôn chỉ đọc
+                  disabled // Không cho sửa
+                  placeholder="Ngày sinh học sinh. Ví dụ 09122005"
+                />
+              </div>
             </div>
-            <div className="form-group">
-              <label htmlFor="parentPhoneNumber">Số điện thoại phụ huynh</label>
-              <input
-                type="tel"
-                id="parentPhoneNumber"
-                name="parentPhoneNumber"
-                value={formData.parentPhoneNumber || ""}
-                onChange={handleChange}
-                readOnly={isReadOnly}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="accountUsername">Tài khoản</label>
-              <input
-                type="text"
-                id="accountUsername"
-                name="accountUsername"
-                value={accountUsername} // Hiển thị state tài khoản
-                readOnly // Luôn chỉ đọc
-                disabled // Không cho sửa
-                placeholder="Tự động tạo từ SĐT"
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="parentPassword">Mật khẩu</label>
-              <input
-                type={mode === "view" ? "password" : "text"}
-                id="parentPassword"
-                name="parentPassword"
-                value={parentPassword} // Hiển thị state mật khẩu
-                readOnly // Luôn chỉ đọc
-                disabled // Không cho sửa
-                placeholder="Ngày sinh học sinh. Ví dụ 09122005"
-              />
-            </div>
-          </div>
 
-          {/* Nút bấm */}
-          <div className="form-actions modal-actions">
-            <button
-              type="button"
-              className="action-btn-form cancel-btn"
-              onClick={onClose}
-            >
-              {mode === "view" ? "Đóng" : "Hủy"}
-            </button>
-            {!isReadOnly && (
-              <button type="submit" className="action-btn-form confirm-btn">
-                Xác Nhận
+            {/* Nút bấm */}
+            <div className="form-actions modal-actions">
+              <button
+                type="button"
+                className="action-btn-form cancel-btn"
+                onClick={onClose}
+              >
+                {mode === "view" ? "Đóng" : "Hủy"}
               </button>
-            )}
-          </div>
-        </form>
+              {!isReadOnly && (
+                <button type="submit" className="action-btn-form confirm-btn">
+                  Xác Nhận
+                </button>
+              )}
+            </div>
+          </form>
+        )}
       </div>
     </div>
   );
@@ -496,7 +534,7 @@ const StudentRow = (
     <td>{student.parentPhoneNumber || "N/A"}</td>
     <td className="cell-center">
       <div className="action-buttons">
-        {/* Nút Xem chi tiết (Tạm thời dùng nút Sửa) */}
+        {/* Nút Xem chi tiết (Tạm thời dùng nút Sửa để mở modal edit) */}
         {/* <button className="action-btn-student more-btn" onClick={() => onView(student)}>
           <FaEllipsisH />
         </button> */}
@@ -610,8 +648,9 @@ const StudentListPage = () => {
   // --- CÁC HÀM XỬ LÝ MODAL ---
   const handleOpenAddModal = () =>
     setModalState({ isOpen: true, mode: "add", student: null });
-  const handleOpenEditModal = (student) =>
-    setModalState({ isOpen: true, mode: "edit", student: student }); // Truyền object student
+  const handleOpenEditModal = (
+    student // Nhận object student từ GET /all
+  ) => setModalState({ isOpen: true, mode: "edit", student: student });
   const handleCloseModal = () => {
     setModalState({ isOpen: false, mode: "add", student: null });
     setStudentToDelete(null);
@@ -640,16 +679,18 @@ const StudentListPage = () => {
         }
       } catch (error) {
         console.error("Lỗi khi thêm học sinh:", error);
-        alert(
-          `Lỗi khi thêm học sinh: ${
-            error.response?.data?.title || error.response?.data || error.message
-          }`
-        );
+        // Hiển thị lỗi cụ thể từ backend nếu có
+        const errorMsg =
+          error.response?.data?.errors?.Password?.[0] || // Lỗi validation cụ thể
+          error.response?.data?.title || // Lỗi chung từ ProblemDetails
+          error.response?.data || // Các lỗi khác từ data
+          error.message; // Lỗi mạng hoặc lỗi khác
+        alert(`Lỗi khi thêm học sinh: ${errorMsg}`);
       }
     } else if (mode === "edit") {
       try {
         console.log(`Calling PUT API for ID ${id}:`, payload);
-        // API PUT yêu cầu ID trong payload
+        // API PUT yêu cầu ID trong payload (theo hình ảnh)
         const putPayload = { ...payload, id: id };
         const response = await axios.put(
           `https://localhost:7229/api/v1/student/${id}`,
@@ -663,18 +704,22 @@ const StudentListPage = () => {
         }
       } catch (error) {
         console.error(`Lỗi khi cập nhật học sinh ID ${id}:`, error);
-        alert(
-          `Lỗi khi cập nhật: ${
-            error.response?.data?.title || error.response?.data || error.message
-          }`
-        );
+        // Hiển thị lỗi cụ thể từ backend nếu có
+        const errorMsg =
+          error.response?.data?.errors?.Password?.[0] ||
+          error.response?.data?.title ||
+          error.response?.data ||
+          error.message;
+        alert(`Lỗi khi cập nhật: ${errorMsg}`);
       }
     }
+    // Chỉ đóng modal nếu API thành công (tùy chọn)
+    // Nếu muốn luôn đóng:
     handleCloseModal();
   };
 
   // Mở modal xác nhận xóa
-  const handleOpenDeleteConfirm = (student) => setStudentToDelete(student);
+  const handleOpenDeleteConfirm = (student) => setStudentToDelete(student); // Truyền cả object student
 
   // --- HÀM XỬ LÝ XÓA - Gọi API DELETE ---
   const handleConfirmDelete = async () => {
@@ -693,18 +738,22 @@ const StudentListPage = () => {
         if (students.length === 1 && currentPage > 1) {
           setCurrentPage(currentPage - 1); // Lùi về trang trước
         } else {
-          fetchStudentsFromApi(currentPage); // Fetch lại trang hiện tại
+          // Fetch lại trang hiện tại (hoặc trang 1 nếu chỉ còn 1 trang)
+          fetchStudentsFromApi(
+            currentPage === 1
+              ? 1
+              : Math.min(currentPage, totalPages - 1 > 0 ? totalPages - 1 : 1)
+          );
         }
       } else {
         alert(`Xóa thất bại. Status: ${response.status}`);
       }
     } catch (error) {
       console.error(`Lỗi khi xóa học sinh ID ${id}:`, error);
-      alert(
-        `Lỗi khi xóa: ${
-          error.response?.data?.title || error.response?.data || error.message
-        }`
-      );
+      // Hiển thị lỗi cụ thể từ backend nếu có
+      const errorMsg =
+        error.response?.data?.title || error.response?.data || error.message;
+      alert(`Lỗi khi xóa: ${errorMsg}`);
     } finally {
       handleCloseModal(); // Luôn đóng modal sau khi xử lý
     }
