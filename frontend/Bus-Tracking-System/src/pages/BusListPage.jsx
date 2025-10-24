@@ -182,8 +182,9 @@ const BusListPage = () => {
     console.log(`Fetching data from API for page ${page}...`);
     setIsLoading(true);
     try {
-      // Sử dụng lại API /all với tham số phân trang
-      const apiUrl = `https://localhost:7229/api/v1/bus/all?pageNumber=${page}&pageSize=${itemsPerPage}`;
+      // *** SỬA LỖI Ở ĐÂY: Đổi 'page' thành 'PageNumber' ***
+      // Sử dụng lại API /all với tham số phân trang ĐÚNG TÊN
+      const apiUrl = `https://localhost:7229/api/v1/bus/all?PageNumber=${page}&PageSize=${itemsPerPage}`;
       console.log(`Calling API URL: ${apiUrl}`);
       const response = await axios.get(apiUrl);
       console.log(`API response for page ${page}:`, response.data);
