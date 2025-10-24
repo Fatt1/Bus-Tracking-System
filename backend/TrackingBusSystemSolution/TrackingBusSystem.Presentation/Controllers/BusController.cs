@@ -59,5 +59,12 @@ namespace TrackingBusSystem.Presentation.Controllers
             var result = await _mediator.Send(request);
             return result.IsSuccess ? NoContent() : BadRequest(result.Error);
         }
+
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> DeleteBus(int id)
+        {
+            var result = await _mediator.Send(new DeleteBusByIdCommand(id));
+            return result.IsSuccess ? NoContent() : BadRequest(result.Error);
+        }
     }
 }

@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <Folder Include="Features\Routes\Command\" />
+    <Folder Include="Features\Schedules\Query\GetSceduleByIdWithHistory\" />
   </ItemGroup>
 
 </Project>

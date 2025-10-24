@@ -24,6 +24,7 @@ namespace TrackingBusSystem.Application.Features.Schedules.Query.GetScheduleById
         {
             var sheduleDTO = await _applicationDbContext.Schedules
                 .AsNoTracking()
+                .IgnoreQueryFilters()
                 .Where(s => s.Id == request.Id)
                 .Select(s => new GetScheduleDTO
                 {

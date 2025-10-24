@@ -29,7 +29,24 @@ namespace TrackingBusSystem.Infrastructure.Repositories
 
         public Task<Bus?> GetBusByIdAsync(int busId)
         {
-            return context.Buses.FirstOrDefaultAsync(b => b.Id == busId);
+            return context.Buses.Include(b => b.Schedules).FirstOrDefaultAsync(b => b.Id == busId);
+        }
+
+        public async Task<bool> IsBusFreeOnDate(int busId, DateOnly date, int? scheduleIdToIgnore)
+        {
+            var query = context.Schedules
+               .Where(s => s.BusId == busId && s.ScheduleDate == date);
+            if (scheduleIdToIgnore.HasValue)
+            {
+                query = query.Where(s => s.Id != scheduleIdToIgnore.Value);
+            }
+            return !(await query.AnyAsync());
+        }
+
+        public bool SoftDelete(Bus bus)
+        {
+            bus.IsDeleted = true;
+            return true;
         }
     }
 }

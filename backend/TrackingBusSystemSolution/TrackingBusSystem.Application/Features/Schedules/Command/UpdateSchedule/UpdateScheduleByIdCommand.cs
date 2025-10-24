@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using TrackingBusSystem.Application.Abstractions.CQRS.Command;
+using TrackingBusSystem.Application.Services.Interfaces;
 using TrackingBusSystem.Domain.Entities;
 using TrackingBusSystem.Domain.Interfaces;
 using TrackingBusSystem.Shared;
@@ -29,16 +30,27 @@ namespace TrackingBusSystem.Application.Features.Schedules.Command.UpdateSchedul
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IScheduleRepository _scheduleRepository;
+        private readonly IScheduleValidationService _scheduleValidationService;
         private readonly IMapper _mapper;
 
-        public UpdateScheduleByIdCommandHandler(IUnitOfWork unitOfWork, IScheduleRepository scheduleRepository, IMapper mapper)
+        public UpdateScheduleByIdCommandHandler(IUnitOfWork unitOfWork, IScheduleRepository scheduleRepository, IMapper mapper, IScheduleValidationService scheduleValidationService)
         {
             _unitOfWork = unitOfWork;
             _scheduleRepository = scheduleRepository;
             _mapper = mapper;
+            _scheduleValidationService = scheduleValidationService;
+
         }
         public async Task<Result> Handle(UpdateScheduleByIdCommand request, CancellationToken cancellationToken)
         {
+
+            var validationResult = await _scheduleValidationService.ValidateScheduleAsync(request.RouteId, request.BusId, request.DriverId, request.ScheduleDate, request.DropOffTime, request.PickupTime, request.Id, cancellationToken);
+
+            if (!validationResult.IsSuccess)
+            {
+                return Result.Failure(validationResult.Error);
+            }
+
             var schedule = await _scheduleRepository.GetByIdAsync(request.Id, cancellationToken);
             if (schedule == null)
             {
@@ -46,7 +58,7 @@ namespace TrackingBusSystem.Application.Features.Schedules.Command.UpdateSchedul
             }
             if (schedule.Status != ScheduleStatus.InActive)
             {
-                return Result.Failure(ScheduleErrors.ScheduleCannotBeDeleted);
+                return Result.Failure(ScheduleErrors.ScheduleCannotBeUpdated);
             }
             _mapper.Map(request, schedule);
             await _unitOfWork.SaveChangesAsync(cancellationToken);

@@ -7,5 +7,7 @@ namespace TrackingBusSystem.Domain.Interfaces
         Task<Bus?> GetBusByIdAsync(int busId);
         Task<bool> AddBusAsync(Bus bus);
         Task<bool> IsExist(int busId);
+        Task<bool> IsBusFreeOnDate(int busId, DateOnly date, int? scheduleIdToIgnore);
+        bool SoftDelete(Bus bus);
     }
 }

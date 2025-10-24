@@ -40,7 +40,7 @@ namespace TrackingBusSystem.Application.Features.Schedules.Query.GetAllSchedule
             // Bước 3: Tính toán StartDate và EndDate
             DateOnly startDate = DateOnly.FromDateTime(targetDateTime.AddDays(-diff));
             DateOnly endDate = startDate.AddDays(6);
-            var schedules = await _dbContext.Schedules.Where(s => s.ScheduleDate >= startDate && s.ScheduleDate <= endDate)
+            var schedules = await _dbContext.Schedules.IgnoreQueryFilters().Where(s => s.ScheduleDate >= startDate && s.ScheduleDate <= endDate)
                .OrderBy(s => s.ScheduleDate)
               .Select(s => new GetAllScheduleDTO
               {

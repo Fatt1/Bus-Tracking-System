@@ -17,5 +17,10 @@ namespace TrackingBusSystem.Domain.Entities
     public static class RouteErrors
     {
         public static Error RouteNotFound(int id) => new Error("Route.NotFound", $"The route with id {id} was not found.");
+
+        public static Error RouteNotAvaliable(int routeId, DateOnly date) => new Error(
+            Code: "Route.NotAvaliable",
+            Message: $"The route with id {routeId} is not avaliable on {date}."
+        );
     }
 }
