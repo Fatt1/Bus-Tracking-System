@@ -6,19 +6,17 @@ namespace TrackingBusSystem.Application.Features.Drivers.DTOs
     {
         public int Id { get; init; }
 
-        public string PhoneNumber { get; init; } = string.Empty;
-
-        public DateTime DateOfBirth { get; init; }
-
+        public string FirstName { get; init; } = string.Empty;
+        public string LastName { get; init; } = string.Empty;
         public string IDCard { get; init; } = string.Empty;
-
-
+        public string PhoneNumber { get; init; } = string.Empty;
         public string Address { get; init; } = string.Empty;
-
+        public DateOnly DateOfBirth { get; init; }
         public Gender Sex { get; init; }
 
-        // Foreign Keys
-        public int BusId { get; init; }
-        public string UserId { get; init; } = string.Empty; // Changed to string
+        //Tài khoản 
+
+        public string UserName { get; init; } = string.Empty;
+        public string Password { get; init; } = string.Empty;
     }
 }

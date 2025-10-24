@@ -1,4 +1,5 @@
 ﻿using TrackingBusSystem.Shared;
+using TrackingBusSystem.Shared.Constants;
 
 namespace TrackingBusSystem.Domain.Entities
 {
@@ -8,17 +9,15 @@ namespace TrackingBusSystem.Domain.Entities
 
         public int Id { get; set; }
 
+        public string BusName { get; set; } = null!;
 
-        public string BusName { get; set; } = string.Empty;
+        public string PlateNumber { get; set; } = null!;
 
+        public BusStatus Status { get; set; }
 
-        public string PlateNumber { get; set; } = string.Empty;
-
-        public bool Status { get; set; }
-
-        // Navigation properties
-        public virtual Driver Driver { get; set; } = default!;
         public virtual BusLastLocation? BusLastLocation { get; set; }
+
+        public virtual ICollection<Schedule> Schedules { get; set; } = new List<Schedule>();
     }
 
     public static class BusErrors

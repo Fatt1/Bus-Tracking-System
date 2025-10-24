@@ -25,7 +25,14 @@ namespace TrackingBusSystem.Infrastructure.Dependency_Injection
             });
 
             // 2. THÊM ĐOẠN NÀY ĐỂ SỬ DỤNG IDENTITY
-            services.AddIdentityCore<AppUser>()
+            services.AddIdentityCore<AppUser>(options =>
+            {
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireDigit = false;
+
+            })
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<AppDbContext>()
                 .AddDefaultTokenProviders();
@@ -35,6 +42,7 @@ namespace TrackingBusSystem.Infrastructure.Dependency_Injection
             services.AddScoped<IDriverRepository, DriverRepository>();
             services.AddScoped<IScheduleRepository, ScheduleRepository>();
             services.AddScoped<IBusRepository, BusRepository>();
+            services.AddScoped<IStudentRepository, StudentRepository>();
             services.AddDataProtection();
             return services;
         }

@@ -8,17 +8,17 @@ namespace TrackingBusSystem.Infrastructure.Configuration
     {
         public void Configure(EntityTypeBuilder<AppUser> builder)
         {
-            // Cấu hình mối quan hệ 1-1 với Driver
-            builder.HasOne(u => u.Driver)
-                   .WithOne(d => d.User)
-                   .HasForeignKey<Driver>(d => d.UserId)
-                   .IsRequired(); // Quan trọng: Mỗi Driver phải gắn với một User
 
-            // Cấu hình mối quan hệ 1-1 với Student
-            builder.HasOne(u => u.Student)
-                   .WithOne(s => s.User)
-                   .HasForeignKey<Student>(s => s.UserId)
-                   .IsRequired(); // Mỗi Student phải gắn với một User
+            // Cấu hình quan hệ 1-1 giữa AppUser và Driver
+            builder
+                 .HasOne(appUser => appUser.Driver) // AppUser có một Driver
+                .WithOne(driver => driver.User)   // Driver có một User
+                .HasForeignKey<Driver>(driver => driver.UserId); // Khóa ngoại là 'UserId' trên Driver
+
+            builder
+                 .HasOne(appUser => appUser.Student) // AppUser có một Student
+                .WithOne(student => student.User)   // Student có một User
+                .HasForeignKey<Student>(student => student.UserId); // Khóa ngoại là 'UserId' trên Student
 
             // Cấu hình mối quan hệ 1-N với Announcement (User là người gửi)
             builder.HasMany(u => u.SentAnnouncements)

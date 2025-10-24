@@ -21,19 +21,15 @@ namespace TrackingBusSystem.Infrastructure.Repositories
             }
         }
 
-        public async Task<bool> UpdateBusStatusById(int busId, bool status)
-        {
-            var bus = await context.Buses.FindAsync(busId);
-            if (bus == null)
-            {
-                return false;
-            }
-            bus.Status = status;
-            return true;
-        }
-        public Task<bool> IsExistingBus(int busId)
+
+        public Task<bool> IsExist(int busId)
         {
             return context.Buses.AnyAsync(b => b.Id == busId);
+        }
+
+        public Task<Bus?> GetBusByIdAsync(int busId)
+        {
+            return context.Buses.FirstOrDefaultAsync(b => b.Id == busId);
         }
     }
 }

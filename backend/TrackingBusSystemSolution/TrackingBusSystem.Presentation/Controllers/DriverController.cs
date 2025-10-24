@@ -1,8 +1,10 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using TrackingBusSystem.Application.Features.Drivers.Command.CreateDriver;
+using TrackingBusSystem.Application.Features.Drivers.Command.UpdateDriver;
 using TrackingBusSystem.Application.Features.Drivers.Query.GetAllDriver;
-using TrackingBusSystem.Application.Features.Drivers.Query.GetAllDriverSimple;
+using TrackingBusSystem.Application.Features.Drivers.Query.GetAllDriverDropdown;
+using TrackingBusSystem.Application.Features.Drivers.Query.GetDriverById;
 
 namespace TrackingBusSystem.Presentation.Controllers
 {
@@ -20,7 +22,11 @@ namespace TrackingBusSystem.Presentation.Controllers
         public async Task<IActionResult> CreateDriver([FromBody] CreateDriverCommand request)
         {
             var result = await _mediator.Send(request);
-            return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);
+            if (result.IsSuccess)
+            {
+                return CreatedAtAction(nameof(GetAllDrivers), new { id = result.Value.Id }, result.Value);
+            }
+            return BadRequest(result.Error);
         }
 
 
@@ -34,12 +40,11 @@ namespace TrackingBusSystem.Presentation.Controllers
             }
             return Ok(result.Value);
         }
-        [HttpGet("all/simple")]
 
-
-        public async Task<IActionResult> GetAllDriverListSimple()
+        [HttpGet("dropdown")]
+        public async Task<IActionResult> GetAllDriverListSimple([FromQuery] GetAllDriverDropdownQuery request)
         {
-            var result = await _mediator.Send(new GetAllDriverSimpleQuery());
+            var result = await _mediator.Send(request);
             if (!result.IsSuccess)
             {
                 return BadRequest(result.Error);
@@ -47,5 +52,32 @@ namespace TrackingBusSystem.Presentation.Controllers
             return Ok(result.Value);
         }
 
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetDriverById(int id)
+        {
+            var result = await _mediator.Send(new GetDriverByIdQuery(id));
+            if (!result.IsSuccess)
+            {
+                return NotFound(result.Error);
+            }
+            return Ok(result.Value);
+
+        }
+
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> UpdateDriver(int id, [FromBody] UpdateDriverByIdCommand request)
+        {
+            if (id != request.Id)
+            {
+                return BadRequest("ID in URL does not match ID in body.");
+            }
+            request.Id = id;
+            var result = await _mediator.Send(request);
+            if (!result.IsSuccess)
+            {
+                return BadRequest(result.Error);
+            }
+            return NoContent();
+        }
     }
 }

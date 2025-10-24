@@ -8,14 +8,11 @@ namespace TrackingBusSystem.Infrastructure.Configuration
     {
         public void Configure(EntityTypeBuilder<Route> builder)
         {
-            builder.HasKey(r => r.Id);
+            builder.HasKey(e => e.Id).HasName("PK__Routes__3214EC070A209B9A");
+            builder.HasIndex(e => e.Id, "UQ__Routes__3214EC067798D6EB").IsUnique();
             builder.Property(r => r.RouteName).IsRequired().HasMaxLength(150);
 
-            // Mối quan hệ 1-N với Point
-            builder.HasMany(r => r.Points)
-                   .WithOne(p => p.Route)
-                   .HasForeignKey(p => p.RouteId)
-                   .OnDelete(DeleteBehavior.Cascade); // Xóa tuyến đường thì xóa luôn các điểm trên tuyến
+
             builder.HasData(new List<Route>()
             {
                 new Route()

@@ -21,7 +21,6 @@
 
   <ItemGroup>
     <Folder Include="Features\Routes\Command\" />
-    <Folder Include="Features\Routes\Query\GetAllRouteSimple\" />
   </ItemGroup>
 
 </Project>

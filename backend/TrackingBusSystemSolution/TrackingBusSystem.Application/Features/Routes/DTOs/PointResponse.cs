@@ -6,5 +6,6 @@
         public string PointName { get; init; } = string.Empty;
         public double Latitude { get; init; }
         public double Longitude { get; init; }
+        public int SequenceOrder { get; init; }
     }
 }

@@ -2,9 +2,8 @@
 {
     public enum ScheduleStatus
     {
-        Draft = 0,
+        InActive = 0,
         Active = 1,
         Completed = 2,
-        Cancelled = 3
     }
 }

@@ -22,15 +22,27 @@ namespace TrackingBusSystem.Infrastructure.Repositories
                 return false;
             }
         }
-        public Task<bool> IsDriverAssignedToBusAsync(int busId)
-        {
-            // Truy vấn trực tiếp từ Driver, đúng trách nhiệm
-            return appDbContext.Drivers.AnyAsync(d => d.BusId == busId);
-        }
+
 
         public Task<List<int>> GetExistingIdsAsync(List<int> ids)
         {
             return appDbContext.Drivers.Where(d => ids.Contains(d.Id)).Select(d => d.Id).ToListAsync();
+        }
+
+
+        public Task<Driver?> GetDriverById(int driverId)
+        {
+            return appDbContext.Drivers.Include(d => d.User).FirstOrDefaultAsync(d => d.Id == driverId);
+        }
+
+        public Task<bool> IsExist(int id)
+        {
+            return appDbContext.Drivers.AnyAsync(d => d.Id == id);
+        }
+
+        public Task<bool> SoftDelete(Driver driver)
+        {
+            throw new NotImplementedException();
         }
     }
 }
