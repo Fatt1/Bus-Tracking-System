@@ -16,6 +16,7 @@ namespace TrackingBusSystem.Application.Features.Drivers.Query.GetDriverById
 
         public async Task<Result<GetDriverDTO>> Handle(GetDriverByIdQuery request, CancellationToken cancellationToken)
         {
+            DateOnly today = DateOnly.FromDateTime(DateTime.Now);
             var driver = await dbContext.Drivers.Select(dr => new GetDriverDTO
             {
                 FirstName = dr.User.FirstName,
@@ -27,7 +28,8 @@ namespace TrackingBusSystem.Application.Features.Drivers.Query.GetDriverById
                 Password = "",
                 PhoneNumber = dr.User.PhoneNumber!,
                 Sex = dr.User.Sex,
-                UserName = dr.User.UserName!
+                UserName = dr.User.UserName!,
+                AssignedBus = dr.Schedules.Where(s => s.ScheduleDate == today).Select(s => s.Bus.BusName).FirstOrDefault() ?? null,
             }).FirstOrDefaultAsync(dr => dr.Id == request.Id);
             if (driver == null)
             {

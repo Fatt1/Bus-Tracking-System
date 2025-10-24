@@ -11,6 +11,7 @@ namespace TrackingBusSystem.Application.Features.Drivers.DTOs
         public string IDCard { get; init; } = string.Empty;
         public string PhoneNumber { get; init; } = string.Empty;
         public string Address { get; init; } = string.Empty;
+        public string? AssignedBus { get; init; }
         public DateOnly DateOfBirth { get; init; }
         public Gender Sex { get; init; }
 
