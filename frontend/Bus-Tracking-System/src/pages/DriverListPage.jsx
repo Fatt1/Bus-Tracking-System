@@ -13,21 +13,29 @@ import {
 import { format } from "date-fns"; // Import hàm format
 
 // --- DEMO DATA ---
-// Cập nhật cấu trúc dữ liệu mẫu để phù hợp hơn với modal
+// Cập nhật cấu trúc dữ liệu mẫu để phù hợp hơn với modal và API
 const initialDriversData = Array.from({ length: 28 }, (_, i) => ({
   id: i + 1,
   firstName: "Phan Viết", // Tách họ tên lót
   lastName: `Huy ${i + 1}`, // Tên
-  busId: `BUS-${String((i % 5) + 1).padStart(3, "0")}`, // Format BUS-001
+  // Thêm assignedBus, có thể null
+  assignedBus:
+    i % 4 === 0 ? null : `BUS-${String((i % 5) + 1).padStart(3, "0")}`,
   phone: `098765432${i % 10}`,
   birthDate: `2004-05-${String((i % 9) + 1).padStart(2, "0")}`, // Format YYYY-MM-DD
-  citizenId: `1234567890${String(i).padStart(2, "0")}`, // CCCD
+  citizenId: `1234567890${String(i).padStart(2, "0")}`, // CCCD (idCard)
   address: `196 Hoàng Diệu Phường ${(i % 10) + 1} Quận 4 TPHCM`, // Địa chỉ
-  gender: i % 2 === 0 ? "Nam" : "Nữ", // Giới tính
+  gender: i % 2 === 0 ? "Nam" : "Nữ", // Giới tính (sex: 0=Nam, 1=Nữ theo API sau này)
   // Thêm trạng thái giả lập theo thiết kế mới
   status:
     i % 3 === 0 ? "Nghỉ phép" : i % 3 === 1 ? "Tạm ngưng" : "Đang làm việc",
-  assignment: i % 2 === 0 ? `Tuyến ${i + 1}` : "Chưa phân công", // Phân công giả lập
+  assignment: i % 2 === 0 ? `Tuyến ${i + 1}` : "Chưa phân công", // Phân công giả lập (Hôm nay)
+  // Thêm userName, password (giả lập theo API)
+  userName: `098765432${i % 10}`, // Giả lập username là SĐT
+  password: format(
+    new Date(`2004-05-${String((i % 9) + 1).padStart(2, "0")}T00:00:00`),
+    "ddMMyyyy"
+  ), // Giả lập pass là ngày sinh
 }));
 // --- END DEMO DATA ---
 
@@ -39,14 +47,22 @@ const DriverModal = ({ mode, driver, isOpen, onClose, onSave }) => {
 
   // Hàm tạo mật khẩu từ ngày sinh (DDMMYYYY)
   const generatePassword = (birthDate) => {
-    if (!birthDate || birthDate.length !== 10) return ""; // Kiểm tra format YYYY-MM-DD
+    if (!birthDate || birthDate.length !== 10) return "*********"; // Kiểm tra format YYYY-MM-DD, trả về * nếu ko hợp lệ
     try {
       const [year, month, day] = birthDate.split("-");
-      if (!day || !month || !year) return ""; // Kiểm tra ngày hợp lệ
+      if (
+        !day ||
+        !month ||
+        !year ||
+        isNaN(parseInt(day)) ||
+        isNaN(parseInt(month)) ||
+        isNaN(parseInt(year))
+      )
+        return "*********"; // Kiểm tra ngày hợp lệ
       return `${day}${month}${year}`;
     } catch (e) {
       console.error("Lỗi định dạng ngày sinh:", e);
-      return "";
+      return "*********";
     }
   };
 
@@ -58,7 +74,7 @@ const DriverModal = ({ mode, driver, isOpen, onClose, onSave }) => {
             // Dữ liệu mặc định khi thêm mới
             firstName: "",
             lastName: "",
-            busId: "",
+            assignedBus: null,
             phone: "",
             birthDate: "",
             citizenId: "",
@@ -68,10 +84,10 @@ const DriverModal = ({ mode, driver, isOpen, onClose, onSave }) => {
         : {
             // Map dữ liệu từ driver hiện tại khi sửa/xem
             ...driver,
-            // Đảm bảo các trường có giá trị, nếu không thì là chuỗi rỗng
+            // Đảm bảo các trường có giá trị, nếu không thì là chuỗi rỗng/null
             firstName: driver?.firstName || "",
             lastName: driver?.lastName || "",
-            busId: driver?.busId || "",
+            assignedBus: driver?.assignedBus || null, // Giữ null nếu là null
             phone: driver?.phone || "",
             birthDate: driver?.birthDate || "",
             citizenId: driver?.citizenId || "",
@@ -80,17 +96,21 @@ const DriverModal = ({ mode, driver, isOpen, onClose, onSave }) => {
           };
     setFormData(initialData);
     // Cập nhật Tài khoản và Mật khẩu khi mở modal
-    setAccountUsername(initialData.phone || "");
-    setAccountPassword(generatePassword(initialData.birthDate));
+    setAccountUsername(initialData.phone || ""); // Tài khoản là SĐT
+    // Mật khẩu: hiển thị '*' khi xem, hiển thị DDMMYYYY khi thêm/sửa
+    setAccountPassword(
+      mode === "view" ? "********" : generatePassword(initialData.birthDate)
+    );
   }, [driver, mode, isOpen]); // Chạy khi props thay đổi hoặc modal mở
 
-  // useEffect để cập nhật Tài khoản/Mật khẩu khi SĐT/Ngày sinh trong form thay đổi
+  // useEffect để cập nhật Tài khoản/Mật khẩu khi SĐT/Ngày sinh trong form thay đổi (CHỈ KHI THÊM/SỬA)
   useEffect(() => {
     // Chỉ cập nhật nếu đang ở mode add hoặc edit
     if (mode === "add" || mode === "edit") {
-      setAccountUsername(formData.phone || "");
-      setAccountPassword(generatePassword(formData.birthDate));
+      setAccountUsername(formData.phone || ""); // Tài khoản tự cập nhật theo SĐT
+      setAccountPassword(generatePassword(formData.birthDate)); // Mật khẩu tự cập nhật theo ngày sinh
     }
+    // Khi view thì không cần làm gì cả vì đã set ở useEffect trên
   }, [formData.phone, formData.birthDate, mode]);
 
   if (!isOpen) return null;
@@ -110,18 +130,28 @@ const DriverModal = ({ mode, driver, isOpen, onClose, onSave }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Tạo object driver hoàn chỉnh để lưu (bao gồm cả ID nếu là edit)
+    // Tạo object driver hoàn chỉnh để lưu
     const driverDataToSave = {
-      ...formData, // Lấy tất cả dữ liệu từ form
-      id: mode === "edit" ? driver.id : undefined, // Giữ id cũ khi sửa, không cần id khi thêm (sẽ được tạo sau)
-      // Không cần gửi accountUsername và accountPassword vì chúng được tạo tự động
+      ...formData,
+      id: mode === "edit" ? driver.id : undefined,
+      // Nếu API cần gửi tài khoản/mật khẩu khi thêm/sửa thì lấy từ state
+      // userName: accountUsername,
+      // password: accountPassword, // Cần đảm bảo đây là mật khẩu DDMMYYYY chứ không phải '*'
+
+      // Đảm bảo assignedBus là null khi thêm mới
+      assignedBus: mode === "add" ? null : formData.assignedBus,
     };
-    onSave(driverDataToSave); // Gọi hàm onSave từ component cha
+    // Bỏ trường assignedBus khi thêm mới nếu API không cần
+    // if (mode === 'add') {
+    //     delete driverDataToSave.assignedBus;
+    // }
+
+    onSave(driverDataToSave);
   };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      {/* Thêm class driver-modal để có style riêng nếu cần */}
+      {/* Thêm class driver-modal */}
       <div
         className="modal-content driver-modal"
         onClick={(e) => e.stopPropagation()}
@@ -130,7 +160,6 @@ const DriverModal = ({ mode, driver, isOpen, onClose, onSave }) => {
           <FaTimes />
         </button>
         <div className="modal-header">
-          {/* Bỏ thẻ h3 mặc định */}
           <h4>{title}</h4>
         </div>
         {/* Thêm class driver-form */}
@@ -165,18 +194,27 @@ const DriverModal = ({ mode, driver, isOpen, onClose, onSave }) => {
               </div>
             </div>
             <div className="form-row">
-              {/* <div className="form-group">
-                <label htmlFor="busId">Xe buýt phụ trách</label>
-                <input
-                  type="text"
-                  id="busId"
-                  name="busId"
-                  value={formData.busId || ""}
-                  onChange={handleChange}
-                  readOnly={isReadOnly}
-                  required
-                />
-              </div> */}
+              {/* Chỉ hiển thị Xe buýt phụ trách khi Xem hoặc Sửa */}
+              {(mode === "view" || mode === "edit") && (
+                <div className="form-group">
+                  <label htmlFor="assignedBus">Xe buýt phụ trách</label>
+                  <input
+                    type="text"
+                    id="assignedBus"
+                    name="assignedBus"
+                    // Hiển thị 'Chưa được phân công' nếu assignedBus là null
+                    value={formData.assignedBus || "Chưa được phân công"}
+                    // Luôn chỉ đọc trường này trong modal (theo yêu cầu)
+                    readOnly
+                    disabled
+                  />
+                </div>
+              )}
+              {/* Ẩn xe buýt khi thêm mới và thay bằng placeholder div để giữ layout */}
+              {mode === "add" && (
+                <div className="form-group"> {/* Placeholder */} </div>
+              )}
+
               <div className="form-group">
                 <label>Giới tính</label>
                 <div className="gender-options">
@@ -273,7 +311,8 @@ const DriverModal = ({ mode, driver, isOpen, onClose, onSave }) => {
             <div className="form-group">
               <label htmlFor="accountPassword">Mật khẩu</label>
               <input
-                type="text"
+                // Hiển thị '*' khi xem, text khi thêm/sửa
+                type={mode === "view" ? "password" : "text"}
                 id="accountPassword"
                 name="accountPassword"
                 value={accountPassword} // Hiển thị state mật khẩu
@@ -282,7 +321,6 @@ const DriverModal = ({ mode, driver, isOpen, onClose, onSave }) => {
                 placeholder="Ngày sinh dạng DDMMYYYY"
               />
             </div>
-            {/* Có thể thêm các trường khác liên quan đến tài khoản nếu cần */}
           </div>
 
           {/* Nút bấm */}
@@ -311,10 +349,8 @@ const DriverModal = ({ mode, driver, isOpen, onClose, onSave }) => {
 // --- COMPONENT MODAL XÁC NHẬN XÓA ---
 const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, driverName }) => {
   if (!isOpen) return null;
-
   return (
     <div className="modal-overlay" onClick={onClose}>
-      {/* Thêm class confirm-delete để có style riêng nếu cần */}
       <div
         className="modal-content confirm-delete"
         onClick={(e) => e.stopPropagation()}
@@ -452,7 +488,10 @@ const DriverListPage = () => {
     setTimeout(() => {
       const totalItems = allDrivers.length; // Sử dụng độ dài của dữ liệu gốc trong state
       const calculatedTotalPages = Math.ceil(totalItems / itemsPerPage);
-      const startIndex = (page - 1) * itemsPerPage;
+      // Đảm bảo page không vượt quá giới hạn
+      const validPage = Math.max(1, Math.min(page, calculatedTotalPages || 1));
+
+      const startIndex = (validPage - 1) * itemsPerPage;
       const endIndex = startIndex + itemsPerPage;
       // Slice từ state allDrivers
       const paginatedData = allDrivers.slice(startIndex, endIndex);
@@ -461,6 +500,15 @@ const DriverListPage = () => {
       setTotalPages(calculatedTotalPages);
       setIsLoading(false);
       console.log("Mock data loaded for current page:", paginatedData);
+      // Nếu trang yêu cầu khác trang hợp lệ (ví dụ sau khi xóa hết trang cuối)
+      // Cập nhật lại state currentPage nếu nó không hợp lệ
+      if (page !== validPage && validPage > 0) {
+        setCurrentPage(validPage);
+      } else if (allDrivers.length === 0) {
+        // Trường hợp xóa hết tài xế
+        setCurrentPage(1);
+        setTotalPages(0);
+      }
     }, 300); // Giảm delay
   };
 
@@ -476,7 +524,7 @@ const DriverListPage = () => {
       loadMockDrivers(currentPage); // Gọi mock data theo trang
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, useApiData, allDrivers]); // Thêm allDrivers vào dependency để cập nhật khi xóa/thêm
+  }, [currentPage, useApiData, allDrivers.length]); // Thêm allDrivers.length thay vì allDrivers để tránh re-render không cần thiết khi chỉ sửa data
 
   // --- CÁC HÀM XỬ LÝ MODAL ---
   const handleOpenAddModal = () =>
@@ -506,17 +554,17 @@ const DriverListPage = () => {
     if (modalState.mode === "add") {
       // Thêm mới vào state allDrivers
       const newId = Math.max(...allDrivers.map((d) => d.id), 0) + 1;
-      // Tạo object mới hoàn chỉnh hơn
       const newDriver = {
         ...driverData,
         id: newId,
         // Thêm các trường còn thiếu từ form nếu cần, hoặc đặt giá trị mặc định
         status: "Đang làm việc", // Mặc định trạng thái
         assignment: "Chưa phân công", // Mặc định phân công
+        assignedBus: null, // Thêm mới thì assignedBus là null
       };
       setAllDrivers((prev) => [newDriver, ...prev]); // Thêm vào đầu mảng gốc trong state
       alert("Đã thêm tài xế mới (mock data)!");
-      // Chuyển về trang 1 sau khi thêm
+      // Chuyển về trang 1 sau khi thêm để thấy ngay
       if (currentPage !== 1) {
         setCurrentPage(1);
       }
@@ -527,7 +575,7 @@ const DriverListPage = () => {
       );
       alert("Đã cập nhật thông tin tài xế (mock data)!");
     }
-    // useEffect sẽ tự động chạy lại và cập nhật currentDriversPage
+    // Không cần gọi loadMockDrivers ở đây vì useEffect sẽ tự chạy khi allDrivers.length thay đổi
     handleCloseModal();
   };
 
@@ -544,21 +592,18 @@ const DriverListPage = () => {
     // --- Xử lý Mock Data ---
     // Xóa khỏi state allDrivers
     const updatedDrivers = allDrivers.filter((d) => d.id !== driverToDelete.id);
-    setAllDrivers(updatedDrivers);
+    setAllDrivers(updatedDrivers); // Cập nhật state với mảng mới
     alert("Đã xóa tài xế (mock data)!");
 
-    // Tính lại totalPages và kiểm tra trang hiện tại
+    // Tính toán lại trang hiện tại sau khi xóa
     const newTotalPages = Math.ceil(updatedDrivers.length / itemsPerPage);
-    // Nếu trang hiện tại lớn hơn tổng số trang mới (và không phải trang 1) thì lùi về 1 trang
-    if (currentPage > newTotalPages && newTotalPages > 0) {
-      setCurrentPage(newTotalPages);
-    } else if (updatedDrivers.length === 0) {
-      // Nếu xóa hết
-      setCurrentPage(1); // Về trang 1
-      setTotalPages(0);
+    // Nếu đang ở trang cuối và trang đó giờ trống rỗng (và không phải trang 1), lùi về trang trước đó
+    if (currentPage > newTotalPages && currentPage > 1) {
+      setCurrentPage(currentPage - 1);
     }
-    // useEffect sẽ tự động chạy lại và cập nhật currentDriversPage
+    // Đóng modal sau khi cập nhật state
     handleCloseModal();
+    // useEffect sẽ tự động chạy lại và cập nhật currentDriversPage nếu currentPage thay đổi HOẶC allDrivers.length thay đổi
   };
 
   return (
