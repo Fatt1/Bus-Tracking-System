@@ -32,7 +32,7 @@ namespace TrackingBusSystem.Infrastructure.Repositories
 
         public Task<Driver?> GetDriverById(int driverId)
         {
-            return appDbContext.Drivers.Include(d => d.User).FirstOrDefaultAsync(d => d.Id == driverId);
+            return appDbContext.Drivers.Include(d => d.User).Include(dr => dr.Schedules).FirstOrDefaultAsync(d => d.Id == driverId);
         }
 
         public Task<bool> IsExist(int id)
@@ -40,9 +40,21 @@ namespace TrackingBusSystem.Infrastructure.Repositories
             return appDbContext.Drivers.AnyAsync(d => d.Id == id);
         }
 
-        public Task<bool> SoftDelete(Driver driver)
+        public bool SoftDelete(Driver driver)
         {
-            throw new NotImplementedException();
+            driver.IsDeleted = true;
+            return true;
+        }
+
+        public async Task<bool> IsDriverFreeOnDate(int driverId, DateOnly date, int? scheduleIdToIgnore)
+        {
+            var query = appDbContext.Schedules
+                .Where(s => s.DriverId == driverId && s.ScheduleDate == date);
+            if (scheduleIdToIgnore.HasValue)
+            {
+                query = query.Where(s => s.Id != scheduleIdToIgnore.Value);
+            }
+            return !(await query.AnyAsync());
         }
     }
 }

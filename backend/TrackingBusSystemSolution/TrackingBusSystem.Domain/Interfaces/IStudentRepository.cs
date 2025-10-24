@@ -6,6 +6,7 @@ namespace TrackingBusSystem.Domain.Interfaces
     {
         Task<bool> IsExistingStudent(int studentId);
         Task<bool> AddStudentAsync(Student student);
-
+        Task<Student?> GetById(int id);
+        bool DeleteStudent(Student student);
     }
 }

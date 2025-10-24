@@ -8,5 +8,6 @@ namespace TrackingBusSystem.Domain.Interfaces
         Task<Route?> GetRouteByIdAsync(int id);
         Task<bool> IsExist(int routeId);
         Task<bool> IsExistPoint(int stopPointId);
+        Task<bool> IsRouteFreeOnDate(int routeId, DateOnly date, int? scheduleIdToIgnore);
     }
 }

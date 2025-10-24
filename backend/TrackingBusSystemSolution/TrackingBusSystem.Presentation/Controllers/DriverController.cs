@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using TrackingBusSystem.Application.Features.Drivers.Command.CreateDriver;
+using TrackingBusSystem.Application.Features.Drivers.Command.DeleteDriver;
 using TrackingBusSystem.Application.Features.Drivers.Command.UpdateDriver;
 using TrackingBusSystem.Application.Features.Drivers.Query.GetAllDriver;
 using TrackingBusSystem.Application.Features.Drivers.Query.GetAllDriverDropdown;
@@ -73,6 +74,16 @@ namespace TrackingBusSystem.Presentation.Controllers
             }
             request.Id = id;
             var result = await _mediator.Send(request);
+            if (!result.IsSuccess)
+            {
+                return BadRequest(result.Error);
+            }
+            return NoContent();
+        }
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> DeleteDriver(int id)
+        {
+            var result = await _mediator.Send(new DeleteDriverByIdCommand(id));
             if (!result.IsSuccess)
             {
                 return BadRequest(result.Error);

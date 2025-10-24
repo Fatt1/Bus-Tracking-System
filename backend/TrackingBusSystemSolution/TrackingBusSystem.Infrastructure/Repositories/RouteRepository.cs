@@ -28,5 +28,16 @@ namespace TrackingBusSystem.Infrastructure.Repositories
         {
             return context.StopPoints.AnyAsync(sp => sp.Id == stopPointId);
         }
+
+        public async Task<bool> IsRouteFreeOnDate(int routeId, DateOnly date, int? scheduleIdToIgnore)
+        {
+            var query = context.Schedules
+            .Where(s => s.RouteId == routeId && s.ScheduleDate == date);
+            if (scheduleIdToIgnore.HasValue)
+            {
+                query = query.Where(s => s.Id != scheduleIdToIgnore.Value);
+            }
+            return !(await query.AnyAsync());
+        }
     }
 }

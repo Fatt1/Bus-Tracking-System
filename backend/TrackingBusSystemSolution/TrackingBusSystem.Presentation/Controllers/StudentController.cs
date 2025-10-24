@@ -1,8 +1,9 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using TrackingBusSystem.Application.Features.Students.Command.CreateStudent;
+using TrackingBusSystem.Application.Features.Students.Command.DeleteStudent;
+using TrackingBusSystem.Application.Features.Students.Command.UpdateStudent;
 using TrackingBusSystem.Application.Features.Students.Query.GetAllStudent;
-using TrackingBusSystem.Application.Features.Students.Query.GetAllStudentByRouteId;
 using TrackingBusSystem.Application.Features.Students.Query.GetStudentById;
 
 namespace TrackingBusSystem.Presentation.Controllers
@@ -46,15 +47,29 @@ namespace TrackingBusSystem.Presentation.Controllers
 
 
 
-        [HttpGet("by-route/${routeId:int}")]
-        public async Task<IActionResult> GetAllStudentByRouteId([FromRoute] int routeId)
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> UpdateStudent(int id, [FromBody] UpdateStudentByIdCommand request)
         {
-            var result = await mediator.Send(new GetAllStudentByRouteIdQuery(routeId));
+            if (id != request.Id)
+            {
+                return BadRequest("ID in URL does not match ID in body");
+            }
+            var result = await mediator.Send(request);
             if (result.IsSuccess)
             {
-                return Ok(result.Value);
+                return NoContent();
             }
             return BadRequest(result.Error);
+        }
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> DeleteStudent(int id)
+        {
+            var result = await mediator.Send(new DeleteStudentByIdCommand(id));
+            if (!result.IsSuccess)
+            {
+                return BadRequest(result.Error);
+            }
+            return NoContent();
         }
     }
 }

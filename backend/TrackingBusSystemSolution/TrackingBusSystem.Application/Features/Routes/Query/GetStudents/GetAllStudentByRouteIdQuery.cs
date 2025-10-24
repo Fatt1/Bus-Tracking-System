@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TrackingBusSystem.Application.Abstractions.Common.Interfaces;
 using TrackingBusSystem.Application.Abstractions.CQRS.Query;
-using TrackingBusSystem.Application.Features.Students.DTOs;
+using TrackingBusSystem.Application.Features.Routes.DTOs;
 using TrackingBusSystem.Shared;
 
-namespace TrackingBusSystem.Application.Features.Students.Query.GetAllStudentByRouteId
+namespace TrackingBusSystem.Application.Features.Routes.Query.GetStudents
 {
     public record GetAllStudentByRouteIdQuery(int RouteId) : IQuery<List<GetAllStudentByRouteIdDTO>>
     {
@@ -29,4 +29,5 @@ namespace TrackingBusSystem.Application.Features.Students.Query.GetAllStudentByR
             return Result<List<GetAllStudentByRouteIdDTO>>.Success(allStudent);
         }
     }
+
 }

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using TrackingBusSystem.Application.Features.Routes.Query.GetAllRoutes;
 using TrackingBusSystem.Application.Features.Routes.Query.GetRouteByIdQuery;
+using TrackingBusSystem.Application.Features.Routes.Query.GetStudents;
 
 namespace TrackingBusSystem.Presentation.Controllers
 {
@@ -30,5 +31,15 @@ namespace TrackingBusSystem.Presentation.Controllers
             return NotFound(result.Error);
         }
 
+        [HttpGet("{id:int}/students")]
+        public async Task<IActionResult> GetRouteStudents(int id)
+        {
+            var result = await mediator.Send(new GetAllStudentByRouteIdQuery(id));
+            if (result.IsSuccess)
+            {
+                return Ok(result.Value);
+            }
+            return NotFound(result.Error);
+        }
     }
 }

@@ -8,6 +8,7 @@ namespace TrackingBusSystem.Domain.Interfaces
         Task<bool> IsExist(int id);
         Task<Driver?> GetDriverById(int driverId);
         Task<List<int>> GetExistingIdsAsync(List<int> ids);
-        Task<bool> SoftDelete(Driver driver);
+        bool SoftDelete(Driver driver);
+        Task<bool> IsDriverFreeOnDate(int driverId, DateOnly date, int? scheduleIdToIgnore);
     }
 }

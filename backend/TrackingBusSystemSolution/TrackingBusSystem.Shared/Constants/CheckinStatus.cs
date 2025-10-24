@@ -3,9 +3,9 @@
     // Trạng thái điểm danh của học sinh
     public enum CheckinStatus
     {
-        Pending,        // Chưa điểm danh
-        CheckedIn,      // Đã lên xe
-        CheckedOut,     // Đã xuống xe
-        Absent          // Vắng mặt
+        Pending = 0,        // Chưa điểm danh
+        CheckedIn = 1,      // Đã lên xe
+        CheckedOut = 2,     // Đã xuống xe
+        Absent = 3         // Vắng mặt
     }
 }

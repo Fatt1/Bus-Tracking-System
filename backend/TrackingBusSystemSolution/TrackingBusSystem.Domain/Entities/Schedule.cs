@@ -38,7 +38,9 @@ namespace TrackingBusSystem.Domain.Entities
         public static Error DuplicateAssignment => new Error("Schedule.DuplicateAssignment", "This route and driver assignment already exists in the schedule.");
         public static Error DriverAlreadyAssigned => new Error("Schedule.DriverAlreadyAssigned", "This driver is already assigned to another route in the schedule.");
         public static Error ScheduleNotFound => new Error("Schedule.NotFound", "Schedule not found");
+
         public static Error ScheduleCannotBeDeleted => new Error("Schedule.CannotBeDeleted", "Only inactive schedules can be deleted.");
 
+        public static Error ScheduleCannotBeUpdated => new Error("Schedule.CannotBeUpdated", "Only inactive schedules can be updated.");
     }
 }

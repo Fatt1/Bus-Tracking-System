@@ -27,5 +27,10 @@ namespace TrackingBusSystem.Domain.Entities
         public static Error BusAlreadyHasDriver => new Error("Bus.BusAlreadyHasDriver", "The bus has already driver");
         public static Error DriverNotFound(int id) => new Error("Driver.NotFound", $"The driver wit id {id} was not found.");
         public static Error PhoneNumberAlreadyInUse(string phoneNumber) => new Error("Driver.PhoneNumberAlreadyInUse", $"The phone number {phoneNumber} is already in use.");
+
+        public static Error DriverNotAvaliable(int id, DateOnly date) => new Error(
+            Code: "Driver.NotAvaliable",
+            Message: $"The driver with id {id} is not avaliable ${date}."
+        );
     }
 }

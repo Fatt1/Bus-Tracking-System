@@ -1,5 +1,6 @@
 ﻿using TrackingBusSystem.Application.Abstractions.CQRS.Command;
 using TrackingBusSystem.Application.Features.Schedules.DTOs;
+using TrackingBusSystem.Application.Services.Interfaces;
 using TrackingBusSystem.Domain.Entities;
 using TrackingBusSystem.Domain.Interfaces;
 using TrackingBusSystem.Shared;
@@ -26,36 +27,23 @@ namespace TrackingBusSystem.Application.Features.Schedules.Command.CreateSchedul
     public class CreateScheduleHandler : ICommandHandler<CreateScheduleCommand, CreateScheduleDTO>
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IRouteRepository _routeRepository;
-        private readonly IDriverRepository _driverRepository;
+        private readonly IScheduleValidationService _scheduleValidationService;
         private readonly IScheduleRepository _scheduleRepository;
-        private readonly IBusRepository _busRepository;
 
-        public CreateScheduleHandler(IScheduleRepository scheduleRepository, IUnitOfWork unitOfWork, IRouteRepository routeRepository, IDriverRepository driverRepository, IBusRepository busRepository)
+
+        public CreateScheduleHandler(IScheduleRepository scheduleRepository, IUnitOfWork unitOfWork, IScheduleValidationService scheduleValidationService)
         {
             _scheduleRepository = scheduleRepository;
             _unitOfWork = unitOfWork;
-            _routeRepository = routeRepository;
-            _driverRepository = driverRepository;
-            _busRepository = busRepository;
+            _scheduleValidationService = scheduleValidationService;
         }
         public async Task<Result<CreateScheduleDTO>> Handle(CreateScheduleCommand request, CancellationToken cancellationToken)
         {
-            var existingRoute = await _routeRepository.IsExist(request.RouteId);
-            if (!existingRoute)
-            {
-                return Result<CreateScheduleDTO>.Failure(RouteErrors.RouteNotFound(request.RouteId));
-            }
-            var existingBus = await _busRepository.IsExist(request.BusId);
-            if (!existingBus)
-            {
-                return Result<CreateScheduleDTO>.Failure(BusErrors.BusNotFound(request.BusId));
-            }
+            var validationResult = await _scheduleValidationService.ValidateScheduleAsync(request.RouteId, request.BusId, request.DriverId, request.ScheduleDate, request.DropOffTime, request.PickupTime, null, cancellationToken);
 
-            var existingDriver = await _driverRepository.IsExist(request.DriverId);
-            if (!existingDriver)
+            if (!validationResult.IsSuccess)
             {
-                return Result<CreateScheduleDTO>.Failure(DriverErrors.DriverNotFound(request.DriverId));
+                return Result<CreateScheduleDTO>.Failure(validationResult.Error);
             }
 
             var schedule = new Schedule
