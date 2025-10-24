@@ -20,7 +20,7 @@ const BusDetailPage = () => {
         // --- Lấy thông tin xe buýt ---
         // Giả sử API trả về danh sách
         const busResponse = await axios.get(
-          `https://localhost:7229/api/v1/bus/all`
+          `https://localhost:7229/api/v1/driver/all`
         );
         const allBuses = busResponse.data.items || [];
         const foundBus = allBuses.find((b) => b.id.toString() === busId);

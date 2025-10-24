@@ -13,10 +13,20 @@ import RouteListPage from "./pages/RouteListPage";
 
 import ScheduleListPageNew from "./pages/ScheduleListPageNew";
 import ScheduleAddEditPageNew from "./pages/ScheduleAddEditPageNew";
+import { useEffect } from "react";
+import axios from "axios";
 
 function App() {
   // Xóa useEffect gọi API ở đây, nó nên nằm trong component cần dữ liệu (DashboardPage)
-
+  const loadCart = async () => {
+    const response = await axios.get(
+      "https://localhost:7229/api/v1/bus/dropdown"
+    );
+    console.log(response);
+  };
+  useEffect(() => {
+    loadCart();
+  }, []);
   return (
     <Routes>
       {/* Route không có Sidebar (như Login) sẽ nằm ngoài Layout */}
