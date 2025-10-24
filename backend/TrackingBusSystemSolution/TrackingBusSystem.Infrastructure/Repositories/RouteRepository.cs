@@ -24,5 +24,9 @@ namespace TrackingBusSystem.Infrastructure.Repositories
         {
             return context.Routes.AnyAsync(r => r.Id == routeId);
         }
+        public Task<bool> IsExistPoint(int stopPointId)
+        {
+            return context.StopPoints.AnyAsync(sp => sp.Id == stopPointId);
+        }
     }
 }
