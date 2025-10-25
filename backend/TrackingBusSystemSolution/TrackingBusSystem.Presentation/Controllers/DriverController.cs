@@ -1,11 +1,14 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using TrackingBusSystem.Application.Features.Drivers.Command.CompleteTrip;
 using TrackingBusSystem.Application.Features.Drivers.Command.CreateDriver;
 using TrackingBusSystem.Application.Features.Drivers.Command.DeleteDriver;
 using TrackingBusSystem.Application.Features.Drivers.Command.UpdateDriver;
 using TrackingBusSystem.Application.Features.Drivers.Query.GetAllDriver;
 using TrackingBusSystem.Application.Features.Drivers.Query.GetAllDriverDropdown;
+using TrackingBusSystem.Application.Features.Drivers.Query.GetAllDriverWithoutPagination;
 using TrackingBusSystem.Application.Features.Drivers.Query.GetDriverById;
+using TrackingBusSystem.Application.Features.Drivers.Query.GetPickupList;
 
 namespace TrackingBusSystem.Presentation.Controllers
 {
@@ -89,6 +92,37 @@ namespace TrackingBusSystem.Presentation.Controllers
                 return BadRequest(result.Error);
             }
             return NoContent();
+        }
+
+        [HttpGet("{id:int}/pickup-schedule")]
+        public async Task<IActionResult> GetPickupScheduleByDriverId(int id, [FromQuery] ScheduleQueryParams query)
+        {
+            var request = new GetPickupScheduleDriverByIdQuery(id, query.Date, query.PageNumber, query.PageSize);
+            var result = await _mediator.Send(request);
+            if (!result.IsSuccess)
+            {
+                return BadRequest(result.Error);
+            }
+            return Ok(result.Value);
+        }
+
+        [HttpGet("no-pagination")]
+        public async Task<IActionResult> GetAllDriversWithoutPagination()
+        {
+            var result = await _mediator.Send(new GetAllDriverWithoutPaginationQuery());
+            if (result.IsSuccess) return Ok(result.Value);
+            return BadRequest(result.Error);
+        }
+
+        [HttpPost("complete-drip")]
+        public async Task<IActionResult> CompleteDrip([FromBody] CompleteTripCommand request)
+        {
+            var result = await _mediator.Send(request);
+            if (!result.IsSuccess)
+            {
+                return BadRequest(result.Error);
+            }
+            return Ok();
         }
     }
 }

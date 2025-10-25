@@ -46,6 +46,12 @@ namespace TrackingBusSystem.Application.Features.Schedules.Command.CreateSchedul
                 return Result<CreateScheduleDTO>.Failure(validationResult.Error);
             }
 
+            var today = DateOnly.FromDateTime(DateTime.UtcNow);
+            if (request.ScheduleDate < today)
+            {
+                return Result<CreateScheduleDTO>.Failure(new Error("Schedule.DateInPast", "Schedule date cannot be in the past."));
+            }
+
             var schedule = new Schedule
             {
                 ScheduleDate = request.ScheduleDate,

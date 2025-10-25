@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
 using TrackingBusSystem.Application.Abstractions.Common.Interfaces;
 using TrackingBusSystem.Application.Abstractions.CQRS.Query;
 using TrackingBusSystem.Application.Features.Schedules.DTOs;
@@ -7,7 +6,7 @@ using TrackingBusSystem.Shared;
 
 namespace TrackingBusSystem.Application.Features.Schedules.Query.GetAllSchedule
 {
-    public record GetAllScheduleQuery([Required] DateOnly DateInWeek) : IQuery<List<GetAllScheduleDTO>>
+    public record GetAllScheduleQuery(DateOnly? DateInWeek) : IQuery<List<GetAllScheduleDTO>>
     {
     }
     public class GetAllScheduleQueryHandler : IQueryHandler<GetAllScheduleQuery, List<GetAllScheduleDTO>>
@@ -19,7 +18,7 @@ namespace TrackingBusSystem.Application.Features.Schedules.Query.GetAllSchedule
         }
         public async Task<Result<List<GetAllScheduleDTO>>> Handle(GetAllScheduleQuery request, CancellationToken cancellationToken)
         {
-            DateOnly targetDate = request.DateInWeek; // Ngày nhận từ request
+            DateOnly targetDate = request.DateInWeek ?? DateOnly.FromDateTime(DateTime.UtcNow); // Ngày nhận từ request
             DayOfWeek firstDayOfWeek = DayOfWeek.Monday; // Quy ước ngày đầu tuần là Thứ Hai
 
             // Bước 1: Chuyển DateOnly thành DateTime để dễ dàng tính toán DayOfWeek
@@ -44,12 +43,16 @@ namespace TrackingBusSystem.Application.Features.Schedules.Query.GetAllSchedule
                .OrderBy(s => s.ScheduleDate)
               .Select(s => new GetAllScheduleDTO
               {
+                  RouteId = s.RouteId,
                   BusName = s.Bus.BusName,
+                  RouteName = s.Route.RouteName,
                   DriverName = s.Driver.User.FirstName + " " + s.Driver.User.LastName,
                   DropOffTime = s.DropOffTime,
                   Id = s.Id,
                   PickupTime = s.PickupTime,
                   Status = s.Status,
+                  ScheduleDate = s.ScheduleDate
+
 
               }).ToListAsync();
 

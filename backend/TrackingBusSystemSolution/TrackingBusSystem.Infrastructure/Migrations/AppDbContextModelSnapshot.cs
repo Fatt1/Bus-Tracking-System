@@ -238,6 +238,9 @@ namespace TrackingBusSystem.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -682,8 +685,8 @@ namespace TrackingBusSystem.Infrastructure.Migrations
                     b.Property<int>("AnnouncementId")
                         .HasColumnType("int");
 
-                    b.Property<int>("IsRead")
-                        .HasColumnType("int");
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
 
                     b.Property<string>("RecipientUserId")
                         .IsRequired()

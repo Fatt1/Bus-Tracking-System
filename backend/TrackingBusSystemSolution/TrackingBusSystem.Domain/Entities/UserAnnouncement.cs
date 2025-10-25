@@ -7,7 +7,7 @@
 
         public int AnnouncementId { get; set; }
 
-        public int IsRead { get; set; }
+        public bool IsRead { get; set; }
 
         public string RecipientUserId { get; set; } = null!;
 

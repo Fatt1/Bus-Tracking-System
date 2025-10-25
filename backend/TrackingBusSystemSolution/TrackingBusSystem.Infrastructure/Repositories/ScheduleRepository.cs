@@ -7,6 +7,21 @@ namespace TrackingBusSystem.Infrastructure.Repositories
 {
     public class ScheduleRepository(AppDbContext dbContext) : IScheduleRepository
     {
+        public async Task<bool> AddRangeAsyncStudentCheckingHistory(IEnumerable<StudentCheckingHistory> checkingStudentHistories)
+        {
+            try
+            {
+                await
+                     dbContext.StudentCheckingHistories.AddRangeAsync(checkingStudentHistories);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+
+            }
+        }
+
 
         public async Task<bool> AddSchedule(Schedule schedule)
         {

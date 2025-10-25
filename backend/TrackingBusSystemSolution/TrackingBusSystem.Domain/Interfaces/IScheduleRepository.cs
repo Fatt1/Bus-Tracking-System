@@ -8,5 +8,6 @@ namespace TrackingBusSystem.Domain.Interfaces
         Task<bool> AddSchedule(Schedule schedule);
         bool DeleteSchedule(Schedule schedule);
         bool UpdateSchedule(Schedule schedule);
+        Task<bool> AddRangeAsyncStudentCheckingHistory(IEnumerable<StudentCheckingHistory> checkingStudentHistories);
     }
 }

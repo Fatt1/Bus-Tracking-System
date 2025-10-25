@@ -14,8 +14,7 @@ namespace TrackingBusSystem.Application.Dependency_Injection
                 configAction.AddProfile<MappingConfig>();
             });
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(ServiceContainer).Assembly));
-            services.AddScoped<IRouteService, RouteService>();
-            services.AddScoped<IGpsService, GpsService>();
+            services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IScheduleValidationService, ScheduleValidationService>();
             return services;
         }

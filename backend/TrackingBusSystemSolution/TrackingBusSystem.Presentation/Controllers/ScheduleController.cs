@@ -6,6 +6,7 @@ using TrackingBusSystem.Application.Features.Schedules.Command.UpdateSchedule;
 using TrackingBusSystem.Application.Features.Schedules.Query.GetAllSchedule;
 using TrackingBusSystem.Application.Features.Schedules.Query.GetScheduleById;
 using TrackingBusSystem.Application.Features.Schedules.Query.GetScheduleWithHistory;
+using TrackingBusSystem.Shared.Constants;
 
 
 namespace TrackingBusSystem.Presentation.Controllers
@@ -79,9 +80,9 @@ namespace TrackingBusSystem.Presentation.Controllers
         }
 
         [HttpGet("{id:int}/cheking-history")]
-        public async Task<IActionResult> GetScheduleByIdWithCheckingHistory(int id)
+        public async Task<IActionResult> GetScheduleByIdWithCheckingHistory(int id, [FromQuery] TripDirection direction)
         {
-            var result = await _mediator.Send(new GetScheduleByIdWithHistoryQuery(id));
+            var result = await _mediator.Send(new GetScheduleByIdWithHistoryQuery(id, direction));
             return result.IsSuccess ? Ok(result.Value) : NotFound(result.Error);
         }
     }

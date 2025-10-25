@@ -12,12 +12,4 @@ namespace TrackingBusSystem.Application.Features.Buses.DTOs
         public BusStatus Status { get; init; }
         public BusLastLocationDTO? BusLastLocation { get; init; }
     }
-
-    public record BusLastLocationDTO
-    {
-        public double Latitude { get; init; }
-        public double Longitude { get; init; }
-
-
-    }
 }
