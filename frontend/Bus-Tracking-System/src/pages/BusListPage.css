@@ -185,3 +185,68 @@
     text-align: center;
 }
 */
+/* ... CSS cũ của bạn ... */
+
+/* --- Modal xác nhận xóa --- */
+.modal-content.confirm-delete {
+  max-width: 450px; /* Thu nhỏ modal xác nhận */
+  padding: 25px;
+  animation: fade-in 0.2s ease-out; /* Animation khác */
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal-content.confirm-delete .modal-header {
+  display: flex;
+  flex-direction: column; /* Icon trên chữ */
+  align-items: center;
+  gap: 10px;
+  border-bottom: none; /* Bỏ gạch chân */
+  margin-bottom: 15px;
+}
+.modal-content.confirm-delete .modal-header h4 {
+  font-size: 1.2rem;
+  color: #333;
+}
+.confirm-text {
+  text-align: center;
+  color: #555;
+  margin-bottom: 25px;
+  line-height: 1.5;
+}
+.confirm-actions {
+  display: flex;
+  justify-content: center; /* Căn giữa nút */
+  gap: 15px;
+}
+.confirm-btn {
+  padding: 10px 25px;
+  border-radius: 5px;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.confirm-btn.cancel-btn {
+  background-color: #f1f3f5;
+  color: #555;
+  border: 1px solid #ccc;
+}
+.confirm-btn.cancel-btn:hover {
+  background-color: #e9ecef;
+}
+.confirm-btn.delete-confirm-btn {
+  background-color: #e74c3c;
+  color: white;
+}
+.confirm-btn.delete-confirm-btn:hover {
+  background-color: #c0392b;
+}

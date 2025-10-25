@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-// Bỏ import axios vì chưa dùng
+import axios from "axios"; // Import axios
 import "./DriverListPage.css"; // CSS riêng cho trang này
 import "../pages/LayoutTable.css"; // Tái sử dụng CSS layout bảng
 import {
@@ -12,86 +12,109 @@ import {
 } from "react-icons/fa";
 import { format } from "date-fns"; // Import hàm format
 
-// --- DEMO DATA ---
-// Cập nhật cấu trúc dữ liệu mẫu để phù hợp hơn với modal
-const initialDriversData = Array.from({ length: 28 }, (_, i) => ({
-  id: i + 1,
-  firstName: "Phan Viết", // Tách họ tên lót
-  lastName: `Huy ${i + 1}`, // Tên
-  busId: `BUS-${String((i % 5) + 1).padStart(3, "0")}`, // Format BUS-001
-  phone: `098765432${i % 10}`,
-  birthDate: `2004-05-${String((i % 9) + 1).padStart(2, "0")}`, // Format YYYY-MM-DD
-  citizenId: `1234567890${String(i).padStart(2, "0")}`, // CCCD
-  address: `196 Hoàng Diệu Phường ${(i % 10) + 1} Quận 4 TPHCM`, // Địa chỉ
-  gender: i % 2 === 0 ? "Nam" : "Nữ", // Giới tính
-  // Thêm trạng thái giả lập theo thiết kế mới
-  status:
-    i % 3 === 0 ? "Nghỉ phép" : i % 3 === 1 ? "Tạm ngưng" : "Đang làm việc",
-  assignment: i % 2 === 0 ? `Tuyến ${i + 1}` : "Chưa phân công", // Phân công giả lập
-}));
-// --- END DEMO DATA ---
+// Bỏ dữ liệu mẫu initialDriversData
 
 // --- COMPONENT MODAL THÊM/XEM/SỬA TÀI XẾ (Layout 2 cột) ---
-const DriverModal = ({ mode, driver, isOpen, onClose, onSave }) => {
+const DriverModal = ({ mode, driverId, isOpen, onClose, onSave }) => {
+  // Nhận driverId thay vì driver object
   const [formData, setFormData] = useState({});
-  const [accountUsername, setAccountUsername] = useState(""); // State cho Tài khoản
-  const [accountPassword, setAccountPassword] = useState(""); // State cho Mật khẩu
+  const [accountUsername, setAccountUsername] = useState("");
+  const [accountPassword, setAccountPassword] = useState("");
+  const [isLoadingModal, setIsLoadingModal] = useState(false); // State loading cho modal
 
   // Hàm tạo mật khẩu từ ngày sinh (DDMMYYYY)
   const generatePassword = (birthDate) => {
-    if (!birthDate || birthDate.length !== 10) return ""; // Kiểm tra format YYYY-MM-DD
+    if (!birthDate || birthDate.length < 10) return "*********"; // Kiểm tra format YYYY-MM-DD...
     try {
-      const [year, month, day] = birthDate.split("-");
-      if (!day || !month || !year) return ""; // Kiểm tra ngày hợp lệ
+      // Lấy YYYY-MM-DD từ chuỗi ISO hoặc YYYY-MM-DD
+      const datePart = birthDate.split("T")[0];
+      const [year, month, day] = datePart.split("-");
+      if (
+        !day ||
+        !month ||
+        !year ||
+        isNaN(parseInt(day)) ||
+        isNaN(parseInt(month)) ||
+        isNaN(parseInt(year))
+      )
+        return "*********";
       return `${day}${month}${year}`;
     } catch (e) {
       console.error("Lỗi định dạng ngày sinh:", e);
-      return "";
+      return "*********";
     }
   };
 
-  // useEffect để cập nhật form data khi props thay đổi hoặc modal mở
+  // useEffect để fetch dữ liệu chi tiết khi mở modal Xem/Sửa
   useEffect(() => {
-    const initialData =
-      mode === "add"
-        ? {
-            // Dữ liệu mặc định khi thêm mới
-            firstName: "",
-            lastName: "",
-            busId: "",
-            phone: "",
-            birthDate: "",
-            citizenId: "",
-            address: "",
-            gender: "Nam", // Mặc định giới tính Nam
-          }
-        : {
-            // Map dữ liệu từ driver hiện tại khi sửa/xem
-            ...driver,
-            // Đảm bảo các trường có giá trị, nếu không thì là chuỗi rỗng
-            firstName: driver?.firstName || "",
-            lastName: driver?.lastName || "",
-            busId: driver?.busId || "",
-            phone: driver?.phone || "",
-            birthDate: driver?.birthDate || "",
-            citizenId: driver?.citizenId || "",
-            address: driver?.address || "",
-            gender: driver?.gender || "Nam",
-          };
-    setFormData(initialData);
-    // Cập nhật Tài khoản và Mật khẩu khi mở modal
-    setAccountUsername(initialData.phone || "");
-    setAccountPassword(generatePassword(initialData.birthDate));
-  }, [driver, mode, isOpen]); // Chạy khi props thay đổi hoặc modal mở
+    const fetchDriverDetails = async (id) => {
+      setIsLoadingModal(true);
+      try {
+        const response = await axios.get(
+          `https://localhost:7229/api/v1/driver/${id}`
+        );
+        const driverData = response.data;
+        // Map dữ liệu API chi tiết vào state form
+        setFormData({
+          firstName: driverData.firstName || "",
+          lastName: driverData.lastName || "",
+          idCard: driverData.idCard || "", // API chi tiết dùng idCard
+          phoneNumber: driverData.phoneNumber || "", // API chi tiết dùng phoneNumber
+          address: driverData.address || "",
+          assignedBus: driverData.assignedBus || null,
+          dateOfBirth: driverData.dateOfBirth
+            ? driverData.dateOfBirth.split("T")[0]
+            : "", // Lấy YYYY-MM-DD
+          sex: driverData.sex ?? 0, // Dùng ?? để xử lý null/undefined, mặc định là 0 (Nam)
+        });
+        // Cập nhật tài khoản/mật khẩu dựa trên dữ liệu chi tiết
+        setAccountUsername(driverData.phoneNumber || "");
+        // Mật khẩu chỉ hiển thị '*' khi xem
+        setAccountPassword(
+          mode === "view"
+            ? "********"
+            : generatePassword(driverData.dateOfBirth)
+        );
+      } catch (error) {
+        console.error(`Lỗi khi tải chi tiết tài xế ID ${id}:`, error);
+        alert("Không thể tải chi tiết thông tin tài xế.");
+        onClose(); // Đóng modal nếu lỗi
+      } finally {
+        setIsLoadingModal(false);
+      }
+    };
 
-  // useEffect để cập nhật Tài khoản/Mật khẩu khi SĐT/Ngày sinh trong form thay đổi
-  useEffect(() => {
-    // Chỉ cập nhật nếu đang ở mode add hoặc edit
-    if (mode === "add" || mode === "edit") {
-      setAccountUsername(formData.phone || "");
-      setAccountPassword(generatePassword(formData.birthDate));
+    if (isOpen) {
+      if (mode === "add") {
+        // Reset form khi thêm mới
+        setFormData({
+          firstName: "",
+          lastName: "",
+          idCard: "",
+          phoneNumber: "",
+          address: "",
+          assignedBus: null,
+          dateOfBirth: "",
+          sex: 0, // Mặc định giới tính Nam (0)
+        });
+        setAccountUsername("");
+        setAccountPassword("");
+        setIsLoadingModal(false);
+      } else if (driverId && (mode === "view" || mode === "edit")) {
+        // Gọi API lấy chi tiết khi xem hoặc sửa
+        fetchDriverDetails(driverId);
+      }
     }
-  }, [formData.phone, formData.birthDate, mode]);
+  }, [driverId, mode, isOpen, onClose]); // Thêm onClose vào dependencies
+
+  // useEffect để cập nhật Tài khoản/Mật khẩu khi SĐT/Ngày sinh trong form thay đổi (CHỈ KHI THÊM/SỬA)
+  useEffect(() => {
+    // Chỉ cập nhật nếu đang ở mode add hoặc edit VÀ không đang loading modal
+    if (!isLoadingModal && (mode === "add" || mode === "edit")) {
+      setAccountUsername(formData.phoneNumber || ""); // Tài khoản tự cập nhật theo SĐT
+      setAccountPassword(generatePassword(formData.dateOfBirth)); // Mật khẩu tự cập nhật theo ngày sinh
+    }
+  }, [formData.phoneNumber, formData.dateOfBirth, mode, isLoadingModal]);
 
   if (!isOpen) return null;
 
@@ -104,24 +127,41 @@ const DriverModal = ({ mode, driver, isOpen, onClose, onSave }) => {
       : "Xem thông tin tài xế";
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type } = e.target;
+    // Xử lý giá trị cho radio button
+    const processedValue = type === "radio" ? parseInt(value, 10) : value;
+    setFormData((prev) => ({ ...prev, [name]: processedValue }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Tạo object driver hoàn chỉnh để lưu (bao gồm cả ID nếu là edit)
+    // Chuẩn bị dữ liệu để gửi đi (khớp với API POST /create)
     const driverDataToSave = {
-      ...formData, // Lấy tất cả dữ liệu từ form
-      id: mode === "edit" ? driver.id : undefined, // Giữ id cũ khi sửa, không cần id khi thêm (sẽ được tạo sau)
-      // Không cần gửi accountUsername và accountPassword vì chúng được tạo tự động
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      idCard: formData.citizenId || formData.idCard, // Ưu tiên citizenId nếu có, fallback về idCard
+      phoneNumber: formData.phoneNumber,
+      address: formData.address,
+      // Format lại ngày sinh nếu cần (API có vẻ chấp nhận YYYY-MM-DD)
+      dateOfBirth: formData.dateOfBirth,
+      sex: formData.sex, // Gửi 0 hoặc 1
+      // Tạo userName và password
+      userName: accountUsername,
+      password: accountPassword, // Mật khẩu dạng DDMMYYYY
     };
-    onSave(driverDataToSave); // Gọi hàm onSave từ component cha
+
+    // Thêm ID nếu là mode edit (cho hàm onSave biết)
+    if (mode === "edit") {
+      driverDataToSave.id = driverId;
+    }
+
+    console.log("Data to save:", driverDataToSave);
+    onSave(driverDataToSave);
   };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      {/* Thêm class driver-modal để có style riêng nếu cần */}
+      {/* Thêm class driver-modal */}
       <div
         className="modal-content driver-modal"
         onClick={(e) => e.stopPropagation()}
@@ -130,179 +170,187 @@ const DriverModal = ({ mode, driver, isOpen, onClose, onSave }) => {
           <FaTimes />
         </button>
         <div className="modal-header">
-          {/* Bỏ thẻ h3 mặc định */}
           <h4>{title}</h4>
         </div>
-        {/* Thêm class driver-form */}
-        <form onSubmit={handleSubmit} className="modal-form driver-form">
-          {/* Cột 1: Thông tin chi tiết */}
-          <div className="form-section">
-            <h5>Thông Tin Chi Tiết Tài Xế</h5>
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="firstName">Họ</label>
-                <input
-                  type="text"
-                  id="firstName"
-                  name="firstName"
-                  value={formData.firstName || ""}
-                  onChange={handleChange}
-                  readOnly={isReadOnly}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="lastName">Tên</label>
-                <input
-                  type="text"
-                  id="lastName"
-                  name="lastName"
-                  value={formData.lastName || ""}
-                  onChange={handleChange}
-                  readOnly={isReadOnly}
-                  required
-                />
-              </div>
-            </div>
-            <div className="form-row">
-              {/* <div className="form-group">
-                <label htmlFor="busId">Xe buýt phụ trách</label>
-                <input
-                  type="text"
-                  id="busId"
-                  name="busId"
-                  value={formData.busId || ""}
-                  onChange={handleChange}
-                  readOnly={isReadOnly}
-                  required
-                />
-              </div> */}
-              <div className="form-group">
-                <label>Giới tính</label>
-                <div className="gender-options">
-                  <label>
-                    <input
-                      type="radio"
-                      name="gender"
-                      value="Nam"
-                      checked={formData.gender === "Nam"}
-                      onChange={handleChange}
-                      disabled={isReadOnly}
-                    />{" "}
-                    Nam
-                  </label>
-                  <label>
-                    <input
-                      type="radio"
-                      name="gender"
-                      value="Nữ"
-                      checked={formData.gender === "Nữ"}
-                      onChange={handleChange}
-                      disabled={isReadOnly}
-                    />{" "}
-                    Nữ
-                  </label>
+        {isLoadingModal ? (
+          <div className="modal-loading">Đang tải thông tin...</div>
+        ) : (
+          <form onSubmit={handleSubmit} className="modal-form driver-form">
+            {/* Cột 1: Thông tin chi tiết */}
+            <div className="form-section">
+              <h5>Thông Tin Chi Tiết Tài Xế</h5>
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="firstName">Họ</label>
+                  <input
+                    type="text"
+                    id="firstName"
+                    name="firstName"
+                    value={formData.firstName || ""}
+                    onChange={handleChange}
+                    readOnly={isReadOnly}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="lastName">Tên</label>
+                  <input
+                    type="text"
+                    id="lastName"
+                    name="lastName"
+                    value={formData.lastName || ""}
+                    onChange={handleChange}
+                    readOnly={isReadOnly}
+                    required
+                  />
                 </div>
               </div>
-            </div>
-            <div className="form-group">
-              <label htmlFor="phone">Số điện thoại</label>
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                value={formData.phone || ""}
-                onChange={handleChange}
-                readOnly={isReadOnly}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="birthDate">Ngày sinh</label>
-              <input
-                type="date"
-                id="birthDate"
-                name="birthDate"
-                value={formData.birthDate || ""}
-                onChange={handleChange}
-                readOnly={isReadOnly}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="citizenId">Căn cước công dân</label>
-              <input
-                type="text"
-                id="citizenId"
-                name="citizenId"
-                value={formData.citizenId || ""}
-                onChange={handleChange}
-                readOnly={isReadOnly}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="address">Địa chỉ thường trú</label>
-              <input
-                type="text"
-                id="address"
-                name="address"
-                value={formData.address || ""}
-                onChange={handleChange}
-                readOnly={isReadOnly}
-                required
-              />
-            </div>
-          </div>
+              <div className="form-row">
+                {/* Chỉ hiển thị Xe buýt phụ trách khi Xem hoặc Sửa */}
+                {(mode === "view" || mode === "edit") && (
+                  <div className="form-group">
+                    <label htmlFor="assignedBus">Xe buýt phụ trách</label>
+                    <input
+                      type="text"
+                      id="assignedBus"
+                      name="assignedBus"
+                      value={formData.assignedBus || "Chưa được phân công"}
+                      readOnly // Luôn chỉ đọc
+                      disabled
+                    />
+                  </div>
+                )}
+                {/* Ẩn xe buýt khi thêm mới */}
+                {mode === "add" && (
+                  <div className="form-group"> {/* Placeholder */} </div>
+                )}
 
-          {/* Cột 2: Tài khoản */}
-          <div className="form-section">
-            <h5>Tài khoản tài xế</h5>
-            <div className="form-group">
-              <label htmlFor="accountUsername">Tài khoản</label>
-              <input
-                type="text"
-                id="accountUsername"
-                name="accountUsername"
-                value={accountUsername} // Hiển thị state tài khoản
-                readOnly // Luôn chỉ đọc
-                disabled // Không cho sửa
-                placeholder="Tự động tạo từ SĐT"
-              />
+                <div className="form-group">
+                  <label>Giới tính</label>
+                  <div className="gender-options">
+                    <label>
+                      {/* Value là 0 cho Nam */}
+                      <input
+                        type="radio"
+                        name="sex"
+                        value={0}
+                        checked={formData.sex === 0}
+                        onChange={handleChange}
+                        disabled={isReadOnly}
+                      />{" "}
+                      Nam
+                    </label>
+                    <label>
+                      {/* Value là 1 cho Nữ */}
+                      <input
+                        type="radio"
+                        name="sex"
+                        value={1}
+                        checked={formData.sex === 1}
+                        onChange={handleChange}
+                        disabled={isReadOnly}
+                      />{" "}
+                      Nữ
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div className="form-group">
+                <label htmlFor="phoneNumber">Số điện thoại</label>
+                <input
+                  type="tel"
+                  id="phoneNumber"
+                  name="phoneNumber"
+                  value={formData.phoneNumber || ""}
+                  onChange={handleChange}
+                  readOnly={isReadOnly}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="dateOfBirth">Ngày sinh</label>
+                <input
+                  type="date"
+                  id="dateOfBirth"
+                  name="dateOfBirth"
+                  value={formData.dateOfBirth || ""}
+                  onChange={handleChange}
+                  readOnly={isReadOnly}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="idCard">Căn cước công dân</label>
+                <input
+                  type="text"
+                  id="idCard"
+                  name="idCard"
+                  value={formData.idCard || ""}
+                  onChange={handleChange}
+                  readOnly={isReadOnly}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="address">Địa chỉ thường trú</label>
+                <input
+                  type="text"
+                  id="address"
+                  name="address"
+                  value={formData.address || ""}
+                  onChange={handleChange}
+                  readOnly={isReadOnly}
+                  required
+                />
+              </div>
             </div>
-            <div className="form-group">
-              <label htmlFor="accountPassword">Mật khẩu</label>
-              <input
-                type="text"
-                id="accountPassword"
-                name="accountPassword"
-                value={accountPassword} // Hiển thị state mật khẩu
-                readOnly // Luôn chỉ đọc
-                disabled // Không cho sửa
-                placeholder="Ngày sinh dạng DDMMYYYY"
-              />
-            </div>
-            {/* Có thể thêm các trường khác liên quan đến tài khoản nếu cần */}
-          </div>
 
-          {/* Nút bấm */}
-          <div className="form-actions modal-actions">
-            <button
-              type="button"
-              className="action-btn-form cancel-btn"
-              onClick={onClose}
-            >
-              {/* Đổi chữ nút Hủy thành Đóng khi xem */}
-              {mode === "view" ? "Đóng" : "Hủy"}
-            </button>
-            {/* Chỉ hiển thị nút Xác nhận khi Thêm hoặc Sửa */}
-            {!isReadOnly && (
-              <button type="submit" className="action-btn-form confirm-btn">
-                Xác Nhận
+            {/* Cột 2: Tài khoản */}
+            <div className="form-section">
+              <h5>Tài khoản tài xế</h5>
+              <div className="form-group">
+                <label htmlFor="accountUsername">Tài khoản</label>
+                <input
+                  type="text"
+                  id="accountUsername"
+                  name="accountUsername"
+                  value={accountUsername} // Hiển thị state tài khoản
+                  readOnly // Luôn chỉ đọc
+                  disabled // Không cho sửa
+                  placeholder="Tự động tạo từ SĐT"
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="accountPassword">Mật khẩu</label>
+                <input
+                  type={mode === "view" ? "password" : "text"}
+                  id="accountPassword"
+                  name="accountPassword"
+                  value={accountPassword} // Hiển thị state mật khẩu
+                  readOnly // Luôn chỉ đọc
+                  disabled // Không cho sửa
+                  placeholder="Ngày sinh dạng DDMMYYYY"
+                />
+              </div>
+            </div>
+
+            {/* Nút bấm */}
+            <div className="form-actions modal-actions">
+              <button
+                type="button"
+                className="action-btn-form cancel-btn"
+                onClick={onClose}
+              >
+                {mode === "view" ? "Đóng" : "Hủy"}
               </button>
-            )}
-          </div>
-        </form>
+              {!isReadOnly && (
+                <button type="submit" className="action-btn-form confirm-btn">
+                  Xác Nhận
+                </button>
+              )}
+            </div>
+          </form>
+        )}
       </div>
     </div>
   );
@@ -311,10 +359,8 @@ const DriverModal = ({ mode, driver, isOpen, onClose, onSave }) => {
 // --- COMPONENT MODAL XÁC NHẬN XÓA ---
 const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, driverName }) => {
   if (!isOpen) return null;
-
   return (
     <div className="modal-overlay" onClick={onClose}>
-      {/* Thêm class confirm-delete để có style riêng nếu cần */}
       <div
         className="modal-content confirm-delete"
         onClick={(e) => e.stopPropagation()}
@@ -343,51 +389,65 @@ const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, driverName }) => {
   );
 };
 
-// --- COMPONENT 1 DÒNG TRONG BẢNG ---
-const DriverRow = ({ driver, onView, onEdit, onDelete }) => (
-  <tr>
-    <td style={{ textAlign: "center" }}>{driver.id}</td>
-    <td>{`${driver.firstName} ${driver.lastName}`}</td> {/* Ghép họ tên */}
-    <td>{driver.phone}</td>
-    <td>{driver.status}</td> {/* Hiển thị trạng thái */}
-    <td>{driver.assignment}</td> {/* Hiển thị phân công */}
-    {/* Căn giữa ô thao tác */}
-    <td className="cell-center">
-      <div className="action-buttons">
-        {/* Nút Xem (Xanh dương) */}
-        <button
-          className="action-btn-driver view-btn"
-          title="Xem thông tin"
-          onClick={() => onView(driver)}
-        >
-          <FaFileAlt />
-        </button>
-        {/* Nút Xóa (Đỏ) */}
-        <button
-          className="action-btn-driver delete-btn"
-          title="Xóa"
-          onClick={() => onDelete(driver)}
-        >
-          <FaMinusCircle />
-        </button>
-        {/* Nút Sửa (Vàng) */}
-        <button
-          className="action-btn-driver edit-btn"
-          title="Sửa"
-          onClick={() => onEdit(driver)}
-        >
-          <FaPen />
-        </button>
-      </div>
-    </td>
-  </tr>
-);
+// --- COMPONENT 1 DÒNG TRONG BẢNG (Map dữ liệu từ API GET /all) ---
+const DriverRow = ({ driver, onView, onEdit, onDelete }) => {
+  // API GET all trả về status: true/false/null? và assignmentRouteName
+  const getStatusText = (status) => {
+    if (status === true) return "Đang làm việc";
+    if (status === false) return "Tạm ngưng"; // Hoặc "Nghỉ phép" tùy logic backend
+    return "Chưa rõ"; // Hoặc trạng thái khác nếu status là null
+  };
+
+  return (
+    <tr>
+      {/* API GET all có id */}
+      <td style={{ textAlign: "center" }}>{driver.id}</td>
+      {/* API GET all có fullName */}
+      <td>{driver.fullName || "N/A"}</td>
+      {/* API GET all có phoneNumber */}
+      <td>{driver.phoneNumber || "N/A"}</td>
+      {/* API GET all có status */}
+      <td>{getStatusText(driver.status)}</td>
+      {/* API GET all có assignmentRouteName */}
+      <td>{driver.assignmentRouteName || "Chưa phân công"}</td>
+      {/* Căn giữa ô thao tác */}
+      <td className="cell-center">
+        <div className="action-buttons">
+          {/* Nút Xem (Xanh dương) - Truyền ID */}
+          <button
+            className="action-btn-driver view-btn"
+            title="Xem thông tin"
+            onClick={() => onView(driver.id)}
+          >
+            <FaFileAlt />
+          </button>
+          {/* Nút Xóa (Đỏ) - Truyền ID và tên để hiển thị confirm */}
+          <button
+            className="action-btn-driver delete-btn"
+            title="Xóa"
+            onClick={() => onDelete({ id: driver.id, name: driver.fullName })}
+          >
+            <FaMinusCircle />
+          </button>
+          {/* Nút Sửa (Vàng) - Truyền ID */}
+          <button
+            className="action-btn-driver edit-btn"
+            title="Sửa"
+            onClick={() => onEdit(driver.id)}
+          >
+            <FaPen />
+          </button>
+        </div>
+      </td>
+    </tr>
+  );
+};
 
 // --- COMPONENT PHÂN TRANG (GIỮ NGUYÊN) ---
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
+  // ... Giữ nguyên ...
   if (totalPages <= 1) return null;
   const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
-
   return (
     <nav className="pagination-container">
       <ul className="pagination">
@@ -396,7 +456,8 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
             onClick={() => onPageChange(currentPage - 1)}
             disabled={currentPage === 1}
           >
-            &lt;
+            {" "}
+            &lt;{" "}
           </button>
         </li>
         {pageNumbers.map((number) => (
@@ -416,7 +477,8 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
             onClick={() => onPageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
           >
-            &gt;
+            {" "}
+            &gt;{" "}
           </button>
         </li>
       </ul>
@@ -426,139 +488,155 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
 
 // --- COMPONENT CHÍNH CỦA TRANG ---
 const DriverListPage = () => {
-  // State chứa TOÀN BỘ danh sách tài xế (từ dữ liệu mẫu)
-  const [allDrivers, setAllDrivers] = useState(initialDriversData);
-  // State chứa danh sách tài xế CHỈ cho trang hiện tại
-  const [currentDriversPage, setCurrentDriversPage] = useState([]);
+  // State chứa danh sách tài xế CHO TRANG HIỆN TẠI (từ API)
+  const [drivers, setDrivers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  const [isLoading, setIsLoading] = useState(false); // Bắt đầu không loading
+  const [isLoading, setIsLoading] = useState(true);
   const [modalState, setModalState] = useState({
     isOpen: false,
     mode: "add",
-    driver: null,
+    driverId: null, // Lưu ID thay vì object
   });
-  const [driverToDelete, setDriverToDelete] = useState(null);
+  const [driverToDelete, setDriverToDelete] = useState(null); // Lưu {id, name}
   const itemsPerPage = 6;
 
-  // Cờ để kiểm soát việc gọi API (tạm thời đặt là false)
-  const useApiData = false; // Đặt là false để dùng mock data
-
-  // --- HÀM LẤY DỮ LIỆU MẪU VÀ PHÂN TRANG ---
-  const loadMockDrivers = (page) => {
-    console.log(`Loading mock data for page ${page}...`);
+  // --- HÀM GỌI API GET ALL (Phân trang) ---
+  const fetchDriversFromApi = async (page) => {
+    console.log(`Fetching drivers for page ${page}...`);
     setIsLoading(true);
-    // Giả lập độ trễ mạng
-    setTimeout(() => {
-      const totalItems = allDrivers.length; // Sử dụng độ dài của dữ liệu gốc trong state
-      const calculatedTotalPages = Math.ceil(totalItems / itemsPerPage);
-      const startIndex = (page - 1) * itemsPerPage;
-      const endIndex = startIndex + itemsPerPage;
-      // Slice từ state allDrivers
-      const paginatedData = allDrivers.slice(startIndex, endIndex);
+    try {
+      const apiUrl = `https://localhost:7229/api/v1/driver/all?PageNumber=${page}&PageSize=${itemsPerPage}`;
+      console.log(`Calling API URL: ${apiUrl}`);
+      const response = await axios.get(apiUrl);
+      console.log(`API response for page ${page}:`, response.data);
 
-      setCurrentDriversPage(paginatedData); // Cập nhật state chứa dữ liệu trang hiện tại
-      setTotalPages(calculatedTotalPages);
+      setDrivers(response.data.items || []);
+      setTotalPages(response.data.totalPages || 0);
+    } catch (error) {
+      console.error("Lỗi khi tải danh sách tài xế:", error);
+      setDrivers([]);
+      setTotalPages(0);
+      alert(
+        `Không thể tải danh sách tài xế. Vui lòng kiểm tra backend và thử lại.\nLỗi: ${error.message}`
+      );
+    } finally {
       setIsLoading(false);
-      console.log("Mock data loaded for current page:", paginatedData);
-    }, 300); // Giảm delay
+    }
   };
 
-  // useEffect để tải dữ liệu (ưu tiên mock data)
+  // useEffect để tải dữ liệu khi trang thay đổi
   useEffect(() => {
-    // Luôn log ra trang hiện tại khi nó thay đổi
-    console.log(`Current page changed to: ${currentPage}`);
-    if (useApiData) {
-      // fetchDriversFromApi(currentPage); // Tạm thời comment
-      alert("Chức năng gọi API đang tắt, sử dụng dữ liệu mẫu.");
-      loadMockDrivers(currentPage); // Gọi mock data theo trang
-    } else {
-      loadMockDrivers(currentPage); // Gọi mock data theo trang
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, useApiData, allDrivers]); // Thêm allDrivers vào dependency để cập nhật khi xóa/thêm
+    console.log(`Current page changed to: ${currentPage}. Fetching data...`);
+    fetchDriversFromApi(currentPage);
+  }, [currentPage]); // Dependency là currentPage
 
   // --- CÁC HÀM XỬ LÝ MODAL ---
   const handleOpenAddModal = () =>
-    setModalState({ isOpen: true, mode: "add", driver: null });
-  const handleOpenViewModal = (driver) =>
-    setModalState({ isOpen: true, mode: "view", driver });
-  const handleOpenEditModal = (driver) =>
-    setModalState({ isOpen: true, mode: "edit", driver });
+    setModalState({ isOpen: true, mode: "add", driverId: null });
+  // Truyền ID vào state
+  const handleOpenViewModal = (id) =>
+    setModalState({ isOpen: true, mode: "view", driverId: id });
+  const handleOpenEditModal = (id) =>
+    setModalState({ isOpen: true, mode: "edit", driverId: id });
   const handleCloseModal = () => {
-    setModalState({ isOpen: false, mode: "add", driver: null });
+    setModalState({ isOpen: false, mode: "add", driverId: null });
     setDriverToDelete(null);
   };
 
-  // --- HÀM XỬ LÝ LƯU (Thêm/Sửa) - Chỉ xử lý mock data ---
-  const handleSaveDriver = (driverData) => {
-    if (useApiData) {
-      alert(
-        `Đang tắt gọi API. Dữ liệu ${
-          modalState.mode === "add" ? "thêm" : "sửa"
-        }: ${JSON.stringify(driverData)}`
-      );
-      handleCloseModal();
-      return;
-    }
+  // --- HÀM XỬ LÝ LƯU (Thêm/Sửa) - Gọi API POST/PUT ---
+  const handleSaveDriver = async (driverData) => {
+    const { id, ...payload } = driverData; // Tách ID ra nếu có (cho mode edit)
+    const mode = modalState.mode;
+    console.log(`Saving driver in mode: ${mode}. Data:`, payload);
 
-    // --- Xử lý Mock Data ---
-    if (modalState.mode === "add") {
-      // Thêm mới vào state allDrivers
-      const newId = Math.max(...allDrivers.map((d) => d.id), 0) + 1;
-      // Tạo object mới hoàn chỉnh hơn
-      const newDriver = {
-        ...driverData,
-        id: newId,
-        // Thêm các trường còn thiếu từ form nếu cần, hoặc đặt giá trị mặc định
-        status: "Đang làm việc", // Mặc định trạng thái
-        assignment: "Chưa phân công", // Mặc định phân công
-      };
-      setAllDrivers((prev) => [newDriver, ...prev]); // Thêm vào đầu mảng gốc trong state
-      alert("Đã thêm tài xế mới (mock data)!");
-      // Chuyển về trang 1 sau khi thêm
-      if (currentPage !== 1) {
-        setCurrentPage(1);
+    if (mode === "add") {
+      try {
+        console.log("Calling POST API:", payload);
+        const response = await axios.post(
+          "https://localhost:7229/api/v1/driver/create",
+          payload
+        );
+        if (response.status === 200 || response.status === 201) {
+          alert("Thêm tài xế thành công!");
+          // Fetch lại trang đầu tiên
+          if (currentPage !== 1) setCurrentPage(1);
+          else fetchDriversFromApi(1);
+        } else {
+          alert(`Thêm tài xế thất bại. Status: ${response.status}`);
+        }
+      } catch (error) {
+        console.error("Lỗi khi thêm tài xế:", error);
+        alert(`Lỗi khi thêm tài xế: ${error.response?.data || error.message}`);
       }
-    } else {
-      // Sửa trong state allDrivers
-      setAllDrivers((prev) =>
-        prev.map((d) => (d.id === driverData.id ? { ...d, ...driverData } : d))
+    } else if (mode === "edit") {
+      // --- CHỨC NĂNG SỬA (API PUT - Chưa có) ---
+      // try {
+      //     console.log(`Calling PUT API for ID ${id}:`, payload);
+      //     const response = await axios.put(`https://localhost:7229/api/v1/driver/${id}`, payload);
+      //     if (response.status === 200 || response.status === 204) {
+      //         alert("Cập nhật thông tin tài xế thành công!");
+      //         fetchDriversFromApi(currentPage); // Fetch lại trang hiện tại
+      //     } else {
+      //         alert(`Cập nhật thất bại. Status: ${response.status}`);
+      //     }
+      // } catch (error) {
+      //      console.error(`Lỗi khi cập nhật tài xế ID ${id}:`, error);
+      //      alert(`Lỗi khi cập nhật: ${error.response?.data || error.message}`);
+      // }
+      alert(
+        `Chức năng sửa (API PUT) chưa được làm. Dữ liệu gửi đi (giả lập): ${JSON.stringify(
+          payload
+        )}`
       );
-      alert("Đã cập nhật thông tin tài xế (mock data)!");
+      // Tạm cập nhật client-side để thấy thay đổi
+      setDrivers((prev) =>
+        prev.map((d) =>
+          d.id === id
+            ? {
+                ...d,
+                ...payload,
+                fullName: `${payload.firstName} ${payload.lastName}`,
+                phoneNumber: payload.phone,
+              }
+            : d
+        )
+      );
     }
-    // useEffect sẽ tự động chạy lại và cập nhật currentDriversPage
     handleCloseModal();
   };
 
-  const handleOpenDeleteConfirm = (driver) => setDriverToDelete(driver);
+  // Truyền {id, name} vào state
+  const handleOpenDeleteConfirm = (driverInfo) => setDriverToDelete(driverInfo);
 
-  // --- HÀM XỬ LÝ XÓA - Chỉ xử lý mock data ---
-  const handleDeleteConfirm = () => {
-    if (useApiData) {
-      alert(`Đang tắt gọi API. Yêu cầu xóa tài xế ID: ${driverToDelete?.id}`);
-      handleCloseModal();
-      return;
+  // --- HÀM XỬ LÝ XÓA - Gọi API DELETE ---
+  const handleConfirmDelete = async () => {
+    if (!driverToDelete) return;
+    const { id, name } = driverToDelete;
+    console.log(`Confirming delete for driver ID: ${id}, Name: ${name}`);
+
+    try {
+      const apiUrl = `https://localhost:7229/api/v1/driver/${id}`;
+      console.log(`Calling DELETE API: ${apiUrl}`);
+      const response = await axios.delete(apiUrl);
+      if (response.status === 200 || response.status === 204) {
+        alert(`Đã xóa tài xế "${name}" thành công!`);
+        // Fetch lại dữ liệu sau khi xóa
+        // Kiểm tra xem trang hiện tại còn item không
+        if (drivers.length === 1 && currentPage > 1) {
+          setCurrentPage(currentPage - 1); // Lùi về trang trước
+        } else {
+          fetchDriversFromApi(currentPage); // Fetch lại trang hiện tại
+        }
+      } else {
+        alert(`Xóa thất bại. Status: ${response.status}`);
+      }
+    } catch (error) {
+      console.error(`Lỗi khi xóa tài xế ID ${id}:`, error);
+      alert(`Lỗi khi xóa: ${error.response?.data || error.message}`);
+    } finally {
+      handleCloseModal(); // Luôn đóng modal sau khi xử lý
     }
-
-    // --- Xử lý Mock Data ---
-    // Xóa khỏi state allDrivers
-    const updatedDrivers = allDrivers.filter((d) => d.id !== driverToDelete.id);
-    setAllDrivers(updatedDrivers);
-    alert("Đã xóa tài xế (mock data)!");
-
-    // Tính lại totalPages và kiểm tra trang hiện tại
-    const newTotalPages = Math.ceil(updatedDrivers.length / itemsPerPage);
-    // Nếu trang hiện tại lớn hơn tổng số trang mới (và không phải trang 1) thì lùi về 1 trang
-    if (currentPage > newTotalPages && newTotalPages > 0) {
-      setCurrentPage(newTotalPages);
-    } else if (updatedDrivers.length === 0) {
-      // Nếu xóa hết
-      setCurrentPage(1); // Về trang 1
-      setTotalPages(0);
-    }
-    // useEffect sẽ tự động chạy lại và cập nhật currentDriversPage
-    handleCloseModal();
   };
 
   return (
@@ -566,20 +644,16 @@ const DriverListPage = () => {
       <DriverModal
         isOpen={modalState.isOpen}
         mode={modalState.mode}
-        driver={modalState.driver}
+        driverId={modalState.driverId} // Truyền ID
         onClose={handleCloseModal}
         onSave={handleSaveDriver}
       />
       <ConfirmDeleteModal
         isOpen={!!driverToDelete}
         onClose={handleCloseModal}
-        onConfirm={handleDeleteConfirm}
-        // Ghép họ tên đầy đủ cho modal xác nhận
-        driverName={
-          driverToDelete
-            ? `${driverToDelete.firstName} ${driverToDelete.lastName}`
-            : ""
-        }
+        onConfirm={handleConfirmDelete}
+        // Truyền tên tài xế để hiển thị
+        driverName={driverToDelete?.name || ""}
       />
       <main className="main-content-area">
         <header className="page-header">
@@ -627,9 +701,9 @@ const DriverListPage = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {/* Luôn render từ currentDriversPage */}
-                    {currentDriversPage.length > 0 ? (
-                      currentDriversPage.map((driver) => (
+                    {/* Render từ state drivers (đã được fetch theo trang) */}
+                    {drivers.length > 0 ? (
+                      drivers.map((driver) => (
                         <DriverRow
                           key={driver.id}
                           driver={driver}

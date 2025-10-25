@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+// Bỏ Link vì không còn dùng card nữa
 import "./BusListPage.css"; // CSS riêng cho trang này
 import "../pages/LayoutTable.css"; // Tái sử dụng CSS layout bảng chung
 import {
@@ -8,6 +9,7 @@ import {
   FaPen,
   FaMinusCircle,
   FaEllipsisH,
+  FaExclamationTriangle, // Thêm icon cho modal xóa
 } from "react-icons/fa";
 
 // --- COMPONENT MODAL THÊM XE BUÝT (Đã cập nhật: Bỏ Tuyến đường) ---
@@ -72,7 +74,41 @@ const AddBusModal = ({ isOpen, onClose, onSave }) => {
   );
 };
 
-// --- COMPONENT 1 DÒNG TRONG BẢNG XE BUÝT (ĐÃ CẬP NHẬT ĐỂ KHỚP API /all) ---
+// --- COMPONENT MODAL XÁC NHẬN XÓA ---
+const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, busName }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div
+        className="modal-content confirm-delete" // Dùng chung class với DriverListPage nếu muốn đồng bộ style
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="modal-header">
+          <FaExclamationTriangle size={40} color="#e74c3c" />
+          <h4>Xác nhận xóa</h4>
+        </div>
+        <p className="confirm-text">
+          Bạn có chắc chắn muốn xóa xe buýt <strong>{busName}</strong> không?
+          Hành động này không thể hoàn tác.
+        </p>
+        <div className="confirm-actions">
+          <button className="confirm-btn cancel-btn" onClick={onClose}>
+            Hủy
+          </button>
+          <button
+            className="confirm-btn delete-confirm-btn"
+            onClick={onConfirm} // Gọi hàm xác nhận xóa từ props
+          >
+            Xóa
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// --- COMPONENT 1 DÒNG TRONG BẢNG XE BUÝT ---
 const BusRow = ({ bus, onEdit, onDelete, onViewDetails }) => {
   const getStatusClass = (status) => {
     // API /all trả về status: true/false
@@ -104,6 +140,7 @@ const BusRow = ({ bus, onEdit, onDelete, onViewDetails }) => {
           >
             <FaEllipsisH />
           </button>
+          {/* Gọi hàm onDelete khi nhấn nút xóa */}
           <button
             className="action-btn-student delete-btn"
             title="Xóa"
@@ -169,27 +206,24 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
 
 // --- COMPONENT CHÍNH CỦA TRANG ---
 const BusListPage = () => {
-  // Bỏ state allBusesData, chỉ cần buses cho trang hiện tại
   const [buses, setBuses] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const itemsPerPage = 6; // Giữ nguyên itemsPerPage
+  const [busToDelete, setBusToDelete] = useState(null); // State cho modal xác nhận xóa
+  const itemsPerPage = 6;
 
   // --- HÀM GỌI API GET ALL (CÓ PHÂN TRANG) ---
   const fetchBusesFromApi = async (page) => {
     console.log(`Fetching data from API for page ${page}...`);
     setIsLoading(true);
     try {
-      // *** SỬA LỖI Ở ĐÂY: Đổi 'page' thành 'PageNumber' ***
-      // Sử dụng lại API /all với tham số phân trang ĐÚNG TÊN
       const apiUrl = `https://localhost:7229/api/v1/bus/all?PageNumber=${page}&PageSize=${itemsPerPage}`;
       console.log(`Calling API URL: ${apiUrl}`);
       const response = await axios.get(apiUrl);
       console.log(`API response for page ${page}:`, response.data);
 
-      // API /all trả về cấu trúc { items: [], totalPages: ... }
       setBuses(response.data.items || []);
       setTotalPages(response.data.totalPages || 0);
     } catch (error) {
@@ -210,7 +244,6 @@ const BusListPage = () => {
       `Component did mount or currentPage changed to ${currentPage}. Fetching data...`
     );
     fetchBusesFromApi(currentPage);
-    // Dependency là currentPage
   }, [currentPage]);
 
   // --- HÀM XỬ LÝ LƯU XE BUÝT MỚI (API POST) ---
@@ -224,14 +257,13 @@ const BusListPage = () => {
       console.log("handleSaveBus: API POST response:", response);
       if (response.status === 201 || response.status === 200) {
         alert("Thêm xe buýt thành công!");
-        // Sau khi POST thành công, gọi lại API GET trang đầu tiên
         console.log(
           "handleSaveBus: Fetching data again after successful POST..."
         );
         if (currentPage !== 1) {
-          setCurrentPage(1); // Chuyển về trang 1 sẽ trigger useEffect
+          setCurrentPage(1);
         } else {
-          fetchBusesFromApi(1); // Nếu đang ở trang 1 thì gọi lại
+          fetchBusesFromApi(1);
         }
       } else {
         alert(`Thêm xe buýt thất bại. Status code: ${response.status}`);
@@ -254,23 +286,69 @@ const BusListPage = () => {
     }
   };
 
+  // --- HÀM MỞ MODAL XÁC NHẬN XÓA ---
+  const handleOpenDeleteConfirm = (bus) => {
+    setBusToDelete(bus); // Lưu thông tin xe cần xóa vào state
+  };
+
+  // --- HÀM XÁC NHẬN XÓA (GỌI API DELETE) ---
+  const handleConfirmDelete = async () => {
+    if (!busToDelete) return;
+
+    console.log(`handleConfirmDelete: Deleting bus with ID: ${busToDelete.id}`);
+    try {
+      const apiUrl = `https://localhost:7229/api/v1/bus/${busToDelete.id}`;
+      console.log(`Calling API URL: ${apiUrl}`);
+      const response = await axios.delete(apiUrl);
+      console.log("API DELETE response:", response);
+
+      // API DELETE thường trả về 200 OK hoặc 204 No Content khi thành công
+      if (response.status === 200 || response.status === 204) {
+        alert(
+          `Đã xóa xe buýt ${busToDelete.busName || busToDelete.id} thành công!`
+        );
+        // Sau khi xóa thành công, fetch lại dữ liệu cho trang hiện tại
+        // Hoặc xử lý logic chuyển trang nếu trang hiện tại rỗng
+        console.log(
+          "handleConfirmDelete: Fetching data again after successful DELETE..."
+        );
+
+        // Kiểm tra xem trang hiện tại còn item nào không sau khi xóa
+        // Nếu chỉ còn 1 item trên trang hiện tại VÀ trang hiện tại không phải trang 1
+        if (buses.length === 1 && currentPage > 1) {
+          // Lùi về trang trước đó
+          setCurrentPage(currentPage - 1);
+        } else {
+          // Fetch lại dữ liệu cho trang hiện tại
+          fetchBusesFromApi(currentPage);
+        }
+      } else {
+        alert(`Xóa xe buýt thất bại. Status code: ${response.status}`);
+      }
+    } catch (error) {
+      console.error(
+        `handleConfirmDelete: Lỗi khi xóa xe buýt ID ${busToDelete.id}:`,
+        error
+      );
+      let errorMessage = "Đã xảy ra lỗi khi xóa xe buýt.";
+      if (error.response) {
+        errorMessage += `\nServer response: ${
+          error.response.status
+        } - ${JSON.stringify(error.response.data)}`;
+      } else if (error.request) {
+        errorMessage += "\nKhông nhận được phản hồi từ server.";
+      } else {
+        errorMessage += `\nLỗi: ${error.message}`;
+      }
+      alert(errorMessage);
+    } finally {
+      setBusToDelete(null); // Đóng modal xác nhận
+    }
+  };
+
   // --- CÁC HÀM XỬ LÝ KHÁC (Tạm thời) ---
   const handleEditBus = (bus) =>
     alert(`Chức năng sửa xe ${bus.id} đang phát triển.`);
-  const handleDeleteBus = (bus) => {
-    // Logic xóa client-side (Cần gọi API DELETE và fetch lại sau này)
-    if (
-      window.confirm(
-        `Bạn có chắc muốn xóa xe ${bus.busName || bus.id}? (Chưa gọi API)`
-      )
-    ) {
-      // Tạm thời xóa khỏi state hiện tại
-      setBuses((prev) => prev.filter((b) => b.id !== bus.id));
-      // Lưu ý: Việc này không cập nhật totalPages chính xác nếu API có phân trang
-      // Nên gọi lại API fetch trang hiện tại sau khi xóa thành công
-      alert(`Đã xóa xe ${bus.id} (tạm thời)!`);
-    }
-  };
   const handleViewBusDetails = (bus) =>
     alert(`Chức năng xem chi tiết xe ${bus.id} đang phát triển.`);
 
@@ -281,6 +359,14 @@ const BusListPage = () => {
         onClose={() => setIsAddModalOpen(false)}
         onSave={handleSaveBus}
       />
+      {/* Render Modal Xác nhận Xóa */}
+      <ConfirmDeleteModal
+        isOpen={!!busToDelete}
+        onClose={() => setBusToDelete(null)}
+        onConfirm={handleConfirmDelete}
+        busName={busToDelete?.busName || busToDelete?.id} // Hiển thị tên hoặc ID xe
+      />
+
       <main className="main-content-area">
         <header className="page-header">
           <div className="breadcrumbs">
@@ -329,14 +415,14 @@ const BusListPage = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {/* Render dữ liệu từ state 'buses' */}
                     {buses && buses.length > 0 ? (
                       buses.map((bus) => (
                         <BusRow
                           key={bus.id} // Đảm bảo key là duy nhất
                           bus={bus}
                           onEdit={handleEditBus}
-                          onDelete={handleDeleteBus}
+                          // Thay đổi hàm gọi khi nhấn nút xóa
+                          onDelete={handleOpenDeleteConfirm}
                           onViewDetails={handleViewBusDetails}
                         />
                       ))
