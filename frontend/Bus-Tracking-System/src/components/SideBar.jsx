@@ -53,7 +53,7 @@ export function SideBar() {
             </NavLink>
           </li>
           <li>
-            <NavLink to="/messages">
+            <NavLink to="/notification">
               <FaCommentDots /> Nhắn tin
             </NavLink>
           </li>

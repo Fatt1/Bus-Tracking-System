@@ -15,6 +15,7 @@ import ScheduleListPageNew from "./pages/ScheduleListPageNew";
 import ScheduleAddEditPageNew from "./pages/ScheduleAddEditPageNew";
 import { useEffect } from "react";
 import axios from "axios";
+import NotificationPage from "./pages/NotificationPage";
 
 function App() {
   // Xóa useEffect gọi API ở đây, nó nên nằm trong component cần dữ liệu (DashboardPage)
@@ -54,6 +55,8 @@ function App() {
         <Route path="drivers" element={<DriverListPage />} />
 
         <Route path="routes" element={<RouteListPage />} />
+
+        <Route path="notification" element={<NotificationPage />} />
 
         {/* <Route path="drivers" element={<DriverPage />} /> */}
       </Route>
