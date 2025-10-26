@@ -65,6 +65,8 @@ namespace TrackingBusSystem.Infrastructure.Data
                 Name = "Parent",
                 NormalizedName = "PARENT"
             });
+
+
         }
     }
 }

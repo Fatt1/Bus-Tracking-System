@@ -6,6 +6,7 @@ using TrackingBusSystem.Application.Features.Students.Command.CreateStudent;
 using TrackingBusSystem.Application.Features.Students.Command.DeleteStudent;
 using TrackingBusSystem.Application.Features.Students.Command.UpdateStudent;
 using TrackingBusSystem.Application.Features.Students.Query.GetAllStudent;
+using TrackingBusSystem.Application.Features.Students.Query.GetAllStudentsWithoutPagination;
 using TrackingBusSystem.Application.Features.Students.Query.GetBusLocation;
 using TrackingBusSystem.Application.Features.Students.Query.GetStudentById;
 
@@ -35,6 +36,17 @@ namespace TrackingBusSystem.Presentation.Controllers
                 return Ok(result.Value);
             }
             return NotFound(result.Error);
+        }
+
+        [HttpGet("all-without-pagination")]
+        public async Task<IActionResult> GetAllStudentsWithoutPagination()
+        {
+            var result = await mediator.Send(new GetAllStudentWithoutPaginationQuery());
+            if (!result.IsSuccess)
+            {
+                return BadRequest(result.Error);
+            }
+            return Ok(result.Value);
         }
 
         [HttpGet("all")]

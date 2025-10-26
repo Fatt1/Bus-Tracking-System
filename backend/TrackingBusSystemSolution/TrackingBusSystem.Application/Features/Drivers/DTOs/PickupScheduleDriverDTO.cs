@@ -6,7 +6,7 @@
         public int Id { get; init; }
         public string StudentName { get; init; } = string.Empty;
         public string Class { get; init; } = string.Empty;
-
+        public string UserId { get; init; } = string.Empty;
         public int StopPointId { get; init; }
         public string StopPointName { get; init; } = string.Empty;
 
