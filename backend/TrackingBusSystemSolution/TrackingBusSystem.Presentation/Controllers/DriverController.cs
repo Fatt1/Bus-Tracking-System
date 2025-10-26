@@ -1,5 +1,7 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using TrackingBusSystem.Application.Features.Drivers.Command.CompleteTrip;
 using TrackingBusSystem.Application.Features.Drivers.Command.CreateDriver;
 using TrackingBusSystem.Application.Features.Drivers.Command.DeleteDriver;
@@ -9,6 +11,7 @@ using TrackingBusSystem.Application.Features.Drivers.Query.GetAllDriverDropdown;
 using TrackingBusSystem.Application.Features.Drivers.Query.GetAllDriverWithoutPagination;
 using TrackingBusSystem.Application.Features.Drivers.Query.GetDriverById;
 using TrackingBusSystem.Application.Features.Drivers.Query.GetPickupList;
+using TrackingBusSystem.Application.Features.Drivers.Query.GetScheduleToday;
 
 namespace TrackingBusSystem.Presentation.Controllers
 {
@@ -66,6 +69,19 @@ namespace TrackingBusSystem.Presentation.Controllers
             }
             return Ok(result.Value);
 
+        }
+
+        [Authorize]
+        [HttpGet("schedule-today")]
+        public async Task<IActionResult> GetScheduleToday()
+        {
+            var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
+            var result = await _mediator.Send(new GetScheduleTodayQuery(userId));
+            if (result.Value == null)
+            {
+                return Ok("You have no schedule for today.");
+            }
+            return Ok(result.Value);
         }
 
         [HttpPut("{id:int}")]

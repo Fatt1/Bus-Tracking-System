@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <Folder Include="Features\Routes\Command\" />
+    <Folder Include="Features\Students\Query\GetScheduleStudent\" />
   </ItemGroup>
 
 </Project>

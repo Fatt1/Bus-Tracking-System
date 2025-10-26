@@ -1,9 +1,12 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using TrackingBusSystem.Application.Features.Students.Command.CreateStudent;
 using TrackingBusSystem.Application.Features.Students.Command.DeleteStudent;
 using TrackingBusSystem.Application.Features.Students.Command.UpdateStudent;
 using TrackingBusSystem.Application.Features.Students.Query.GetAllStudent;
+using TrackingBusSystem.Application.Features.Students.Query.GetBusLocation;
 using TrackingBusSystem.Application.Features.Students.Query.GetStudentById;
 
 namespace TrackingBusSystem.Presentation.Controllers
@@ -45,7 +48,31 @@ namespace TrackingBusSystem.Presentation.Controllers
             return Ok(result.Value);
         }
 
+        [Authorize(Roles = "Parent")]
+        [HttpGet("schedule-today")]
+        public async Task<IActionResult> GetStudentScheduleToday()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
+            var result = await mediator.Send(new Application.Features.Students.Query.GetStudentScheduleQuery(userId));
+            if (result.Value == null)
+            {
+                return Ok("No schedule found for today.");
+            }
+            return Ok(result.Value);
+        }
 
+        [HttpGet("bus-location-today")]
+        [Authorize(Roles = "Parent")]
+        public async Task<IActionResult> GetBusLocationToday()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
+            var result = await mediator.Send(new GetBusLocationQuery(userId));
+            if (result.Value == null)
+            {
+                return Ok("No bus location found for today.");
+            }
+            return Ok(result.Value);
+        }
 
         [HttpPut("{id:int}")]
         public async Task<IActionResult> UpdateStudent(int id, [FromBody] UpdateStudentByIdCommand request)
