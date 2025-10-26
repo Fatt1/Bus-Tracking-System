@@ -48,5 +48,26 @@ namespace TrackingBusSystem.Infrastructure.Repositories
             bus.IsDeleted = true;
             return true;
         }
+
+        public async Task<bool> UpdateLastLocation(int busId, double latitude, double longitude)
+        {
+            var location = await context.BusLastLocations.FirstOrDefaultAsync(b => b.BusId == busId);
+            // Kiểm tra nếu chưa có, có nghĩa là xe lần đầu tiên chạy
+            if (location == null)
+            {
+                context.BusLastLocations.Add(new BusLastLocation
+                {
+                    BusId = busId,
+                    Latitude = latitude,
+                    Longitude = longitude
+                });
+                return true;
+            }
+            // xe chạy nhiều lần rồi
+            location.Latitude = latitude;
+            location.Longitude = longitude;
+
+            return true;
+        }
     }
 }

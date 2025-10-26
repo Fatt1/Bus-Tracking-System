@@ -1,7 +1,6 @@
 
 using TrackingBusSystem.Application.Dependency_Injection;
 using TrackingBusSystem.Infrastructure.Dependency_Injection;
-using TrackingBusSystem.Presentation.Hubs;
 
 namespace TrackingBusSystem.Presentation
 {
@@ -46,11 +45,12 @@ namespace TrackingBusSystem.Presentation
 
             app.UseHttpsRedirection();
             app.UseCors();
+            app.UseAuthentication();
             app.UseAuthorization();
 
 
             app.MapControllers();
-            app.MapHub<GeolocationHub>("/geolocationHub");
+            app.UseInfrastructureService();
             app.Run();
         }
     }

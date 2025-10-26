@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using TrackingBusSystem.Application.Features.Buses.Command;
+using TrackingBusSystem.Application.Features.Buses.DTOs;
 using TrackingBusSystem.Application.Features.Buses.Query.GetAllBusDropdown;
 using TrackingBusSystem.Application.Features.Buses.Query.GetAllBuses;
 
@@ -65,6 +66,14 @@ namespace TrackingBusSystem.Presentation.Controllers
         {
             var result = await _mediator.Send(new DeleteBusByIdCommand(id));
             return result.IsSuccess ? NoContent() : BadRequest(result.Error);
+        }
+
+        [HttpPost("{id:int}/start")]
+        public async Task<IActionResult> StartBus(int id, [FromBody] BusLocationUpdateRequest request)
+        {
+            var result = await _mediator.Send(new BusLocationUpdateCommand { BusId = id, Latitude = request.Lat, Longitude = request.Lng });
+            return result.IsSuccess ? NoContent() : BadRequest(result.Error);
+
         }
     }
 }

@@ -29,6 +29,8 @@ namespace TrackingBusSystem.Application.Features.Schedules.Query.GetScheduleById
                 .Select(s => new GetScheduleDTO
                 {
                     Id = s.Id,
+
+                    RouteName = s.Route.RouteName,
                     BusName = s.Bus.BusName,
                     DriverName = s.Driver.User.LastName + " " + s.Driver.User.FirstName,
                     DropOffTime = s.DropOffTime,

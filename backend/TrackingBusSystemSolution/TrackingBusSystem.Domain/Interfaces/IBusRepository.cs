@@ -4,6 +4,7 @@ namespace TrackingBusSystem.Domain.Interfaces
 {
     public interface IBusRepository
     {
+        Task<bool> UpdateLastLocation(int busId, double latitude, double longitude);
         Task<Bus?> GetBusByIdAsync(int busId);
         Task<bool> AddBusAsync(Bus bus);
         Task<bool> IsExist(int busId);

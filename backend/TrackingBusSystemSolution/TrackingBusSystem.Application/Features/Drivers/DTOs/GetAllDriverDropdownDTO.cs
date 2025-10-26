@@ -5,5 +5,6 @@
         public int Id { get; init; }
         public string DriverName { get; init; } = string.Empty;
         public bool CanClickable { get; init; }
+
     }
 }

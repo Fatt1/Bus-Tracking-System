@@ -25,6 +25,7 @@ namespace TrackingBusSystem.Application.Mapping
             CreateMap<Student, CreateStudentDTO>();
 
             CreateMap<UpdateScheduleByIdCommand, Schedule>();
+            CreateMap<CompleTripStudentsDTO, StudentCheckingHistory>();
 
 
         }

@@ -12,5 +12,7 @@ namespace TrackingBusSystem.Application.Abstractions.Common.Interfaces
         public DbSet<Schedule> Schedules { get; }
         public DbSet<Driver> Drivers { get; }
         public DbSet<Student> Students { get; }
+        public DbSet<UserAnnouncement> UserAnnouncements { get; }
+        public DbSet<Announcement> Announcements { get; }
     }
 }

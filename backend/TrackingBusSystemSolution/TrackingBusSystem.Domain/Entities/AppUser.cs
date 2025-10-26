@@ -10,7 +10,7 @@ namespace TrackingBusSystem.Domain.Entities
         public string LastName { get; set; } = null!;
         public Gender Sex { get; set; }
         public DateOnly DateOfBirth { get; set; }
-
+        public bool IsActive { get; set; } = false;
         public virtual Driver? Driver { get; set; }
         public virtual Student? Student { get; set; }
 
