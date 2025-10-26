@@ -382,3 +382,16 @@
 .confirm-btn.delete-confirm-btn:hover {
   background-color: #c0392b;
 }
+/* Thêm vào cuối file */
+
+/* --- MultiSelect Dropdown Styles --- */
+.multi-select-container {
+  margin-top: 10px; /* Khoảng cách với radio buttons */
+}
+
+/* Kế thừa từ MultiSelectDropdown.css */
+/* Bạn có thể tùy chỉnh thêm ở đây nếu cần */
+.multi-select-dropdown .dropdown-header {
+  /* Ví dụ: Chỉnh sửa border */
+  /* border: 1px solid var(--primary-blue, #0a2e5d); */
+}

@@ -1,0 +1,107 @@
+/* src/components/MultiSelectDropdown.css */
+
+.multi-select-dropdown {
+  position: relative;
+  width: 100%;
+  font-family: inherit; /* Kế thừa font */
+}
+
+.dropdown-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #fff;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.dropdown-header:hover {
+  border-color: #aaa;
+}
+.dropdown-header.open {
+  border-color: var(--primary-blue, #0a2e5d);
+  box-shadow: 0 0 0 2px rgba(10, 46, 93, 0.15);
+}
+
+.dropdown-header span {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  padding-right: 10px; /* Tránh chữ đè lên icon */
+  color: #333; /* Màu chữ mặc định */
+}
+/* Style cho placeholder */
+.dropdown-header span:only-child {
+  /* Chỉ áp dụng khi không có lựa chọn */
+  color: #888;
+}
+
+.dropdown-arrow {
+  transition: transform 0.2s ease-in-out;
+  color: #888;
+}
+
+.dropdown-header.open .dropdown-arrow {
+  transform: rotate(180deg);
+}
+
+.dropdown-list-container {
+  position: absolute;
+  top: calc(100% + 5px); /* Ngay dưới header */
+  left: 0;
+  right: 0;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1010; /* Cao hơn overlay của modal */
+  max-height: 250px; /* Giới hạn chiều cao */
+  overflow-y: auto; /* Thêm thanh cuộn */
+}
+
+.dropdown-list {
+  list-style: none;
+  padding: 5px 0;
+  margin: 0;
+}
+
+.dropdown-list-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: background-color 0.1s;
+}
+.dropdown-list-item:hover {
+  background-color: #f0f0f0;
+}
+
+.dropdown-list-item input[type="checkbox"] {
+  margin-right: 10px;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.dropdown-list-item label {
+  flex-grow: 1;
+  cursor: pointer;
+  margin: 0; /* Ghi đè margin mặc định */
+}
+
+.dropdown-list-item.select-all {
+  border-bottom: 1px solid #eee;
+  font-weight: 500;
+}
+.dropdown-list-item.select-all label {
+  color: var(--primary-blue, #0a2e5d);
+}
+
+.no-options {
+  padding: 10px 15px;
+  color: #888;
+  font-style: italic;
+  cursor: default;
+}

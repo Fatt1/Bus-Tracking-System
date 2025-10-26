@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 // import axios from 'axios'; // Bỏ comment khi dùng API
 import "./NotificationPage.css"; // CSS riêng
 import "../pages/LayoutTable.css"; // Tái sử dụng CSS chung nếu cần (cho modal confirm)
+import MultiSelectDropdown from ".//MultiSelectDropdown"; // <-- 1. IMPORT COMPONENT MỚI
 import {
   FaPaperPlane,
   FaInbox,
@@ -44,7 +45,7 @@ const mockInboxNotifications = Array.from({ length: 8 }, (_, i) => ({
   ).padStart(2, "0")} PM`,
 }));
 
-// Dữ liệu mẫu cho dropdown tài xế trong modal
+// Dữ liệu mẫu cho dropdowns trong modal
 const mockDrivers = [
   { id: 1, name: "Phan Viết Huy" },
   { id: 2, name: "Nguyễn Văn An" },
@@ -52,30 +53,41 @@ const mockDrivers = [
   { id: 4, name: "Trần Bảo Ngọc" },
   { id: 5, name: "Võ Thị Sáu" },
 ];
+// 2. THÊM MOCK DATA PHỤ HUYNH
+const mockParents = [
+  { id: 101, name: "Phụ huynh em Nguyễn A" },
+  { id: 102, name: "Phụ huynh em Trần B" },
+  { id: 103, name: "Phụ huynh em Lê C" },
+  { id: 104, name: "Phụ huynh em Phạm D" },
+];
 // --- END DEMO DATA ---
 
-// --- COMPONENT MODAL TẠO THÔNG BÁO ---
-const CreateNotificationModal = ({ isOpen, onClose, onSend, drivers }) => {
+// --- COMPONENT MODAL TẠO THÔNG BÁO (ĐÃ CẬP NHẬT) ---
+const CreateNotificationModal = ({
+  isOpen,
+  onClose,
+  onSend,
+  drivers,
+  parents,
+}) => {
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
-  const [recipientType, setRecipientType] = useState("all"); // 'all', 'driver', 'parent'
-  const [selectedDriverId, setSelectedDriverId] = useState("");
+  const [recipientType, setRecipientType] = useState("all");
+  // 3. Đổi state thành Set để lưu nhiều ID
+  const [selectedDriverIds, setSelectedDriverIds] = useState(new Set());
+  const [selectedParentIds, setSelectedParentIds] = useState(new Set()); // Thêm state cho phụ huynh
   const [sendToSelf, setSendToSelf] = useState(false);
-  const [isLoadingDrivers, setIsLoadingDrivers] = useState(false); // Sẽ dùng khi gọi API
+  const [isLoadingOptions, setIsLoadingOptions] = useState(false); // Chung cho cả 2
 
   useEffect(() => {
-    // Reset form khi mở
     if (isOpen) {
       setTitle("");
       setMessage("");
       setRecipientType("all");
-      setSelectedDriverId("");
+      setSelectedDriverIds(new Set()); // Reset thành Set rỗng
+      setSelectedParentIds(new Set()); // Reset thành Set rỗng
       setSendToSelf(false);
-      // Có thể thêm logic gọi API get drivers ở đây nếu cần
-      // setIsLoadingDrivers(true);
-      // axios.get('/api/v1/driver/dropdown').then(res => {
-      //     setDrivers(res.data); setIsLoadingDrivers(false);
-      // }).catch(err => { console.error(err); setIsLoadingDrivers(false); });
+      // Có thể gọi API lấy drivers/parents ở đây
     }
   }, [isOpen]);
 
@@ -87,30 +99,33 @@ const CreateNotificationModal = ({ isOpen, onClose, onSend, drivers }) => {
     let recipientDisplay = "";
 
     if (recipientType === "all") {
-      recipientsInfo.ids = ["all_drivers", "all_parents"]; // Ví dụ ID đại diện
+      recipientsInfo.ids = ["all"]; // API có thể chỉ cần 'all'
       recipientDisplay = "Tất cả";
     } else if (recipientType === "driver") {
-      if (!selectedDriverId) {
-        alert("Vui lòng chọn tài xế.");
+      if (selectedDriverIds.size === 0) {
+        alert("Vui lòng chọn ít nhất một tài xế.");
         return;
       }
-      recipientsInfo.ids = [parseInt(selectedDriverId)];
-      const driver = drivers.find((d) => d.id === parseInt(selectedDriverId));
-      recipientDisplay = driver ? driver.name : `Driver ID ${selectedDriverId}`;
-    } else {
-      alert("Chức năng gửi cho Phụ huynh chưa được hỗ trợ.");
-      return; // Chưa xử lý phụ huynh
+      recipientsInfo.ids = Array.from(selectedDriverIds); // Chuyển Set thành Array ID
+      recipientDisplay = `Đã chọn ${selectedDriverIds.size} tài xế`; // Hiển thị số lượng
+    } else if (recipientType === "parent") {
+      if (selectedParentIds.size === 0) {
+        alert("Vui lòng chọn ít nhất một phụ huynh.");
+        return;
+      }
+      recipientsInfo.ids = Array.from(selectedParentIds);
+      recipientDisplay = `Đã chọn ${selectedParentIds.size} phụ huynh`;
     }
 
     const notificationData = {
       title,
       message,
-      recipientsInfo, // Thông tin người nhận để gửi API
-      recipientDisplay, // Tên hiển thị tạm thời
+      recipientsInfo,
+      recipientDisplay,
       sendToSelf,
     };
     console.log("Sending notification (raw data):", notificationData);
-    onSend(notificationData); // Gọi hàm onSend từ component cha
+    onSend(notificationData);
   };
 
   return (
@@ -161,7 +176,8 @@ const CreateNotificationModal = ({ isOpen, onClose, onSend, drivers }) => {
                   checked={recipientType === "all"}
                   onChange={() => {
                     setRecipientType("all");
-                    setSelectedDriverId("");
+                    setSelectedDriverIds(new Set());
+                    setSelectedParentIds(new Set());
                   }}
                 />{" "}
                 <FaUsers /> Tất cả
@@ -172,49 +188,64 @@ const CreateNotificationModal = ({ isOpen, onClose, onSend, drivers }) => {
                   name="recipientType"
                   value="driver"
                   checked={recipientType === "driver"}
-                  onChange={() => setRecipientType("driver")}
+                  onChange={() => {
+                    setRecipientType("driver");
+                    setSelectedParentIds(new Set());
+                  }}
                 />{" "}
                 <FaUserTie /> Tài xế
               </label>
               <label
-                className={`disabled ${
-                  recipientType === "parent" ? "selected" : ""
-                }`}
+                className={`${recipientType === "parent" ? "selected" : ""}`}
               >
                 {" "}
-                {/* Tạm thời vô hiệu hóa phụ huynh */}
+                {/* Bỏ disabled */}
                 <input
                   type="radio"
                   name="recipientType"
                   value="parent"
                   checked={recipientType === "parent"}
-                  disabled
+                  onChange={() => {
+                    setRecipientType("parent");
+                    setSelectedDriverIds(new Set());
+                  }}
                 />{" "}
                 <FaUserFriends /> Phụ huynh
               </label>
             </div>
-            {/* Dropdown tài xế chỉ hiện khi chọn 'Tài xế' */}
+            {/* 4. Sử dụng MultiSelectDropdown cho Tài xế */}
             {recipientType === "driver" && (
-              <div className="driver-select-container">
-                {isLoadingDrivers ? (
+              <div className="multi-select-container">
+                {isLoadingOptions ? (
                   <div className="loading-drivers">
                     <FaSpinner className="spinner" /> Đang tải...
                   </div>
                 ) : (
-                  <select
-                    value={selectedDriverId}
-                    onChange={(e) => setSelectedDriverId(e.target.value)}
-                    required
-                  >
-                    <option value="" disabled>
-                      -- Chọn tài xế --
-                    </option>
-                    {drivers.map((driver) => (
-                      <option key={driver.id} value={driver.id}>
-                        {driver.name}
-                      </option>
-                    ))}
-                  </select>
+                  <MultiSelectDropdown
+                    options={drivers}
+                    selectedIds={selectedDriverIds}
+                    onChange={setSelectedDriverIds} // Truyền hàm cập nhật Set ID
+                    placeholder="-- Chọn tài xế --"
+                    itemTypeLabel="tài xế"
+                  />
+                )}
+              </div>
+            )}
+            {/* 5. Sử dụng MultiSelectDropdown cho Phụ huynh */}
+            {recipientType === "parent" && (
+              <div className="multi-select-container">
+                {isLoadingOptions ? (
+                  <div className="loading-drivers">
+                    <FaSpinner className="spinner" /> Đang tải...
+                  </div>
+                ) : (
+                  <MultiSelectDropdown
+                    options={parents}
+                    selectedIds={selectedParentIds}
+                    onChange={setSelectedParentIds}
+                    placeholder="-- Chọn phụ huynh --"
+                    itemTypeLabel="phụ huynh"
+                  />
                 )}
               </div>
             )}
@@ -227,7 +258,7 @@ const CreateNotificationModal = ({ isOpen, onClose, onSend, drivers }) => {
                 checked={sendToSelf}
                 onChange={(e) => setSendToSelf(e.target.checked)}
               />{" "}
-              Gửi tới thông báo của tôi {/* Sửa text */}
+              Gửi tới thông báo của tôi
             </label>
           </div>
 
@@ -249,8 +280,9 @@ const CreateNotificationModal = ({ isOpen, onClose, onSend, drivers }) => {
   );
 };
 
-// --- COMPONENT MODAL XÁC NHẬN XÓA (Tái sử dụng) ---
+// --- COMPONENT MODAL XÁC NHẬN XÓA (Giữ nguyên) ---
 const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, count }) => {
+  // ... (Giữ nguyên)
   if (!isOpen) return null;
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -283,45 +315,37 @@ const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, count }) => {
   );
 };
 
-// --- COMPONENT CHÍNH CỦA TRANG ---
+// --- COMPONENT CHÍNH CỦA TRANG (Giữ nguyên phần lớn logic) ---
 const NotificationPage = () => {
-  const [activeTab, setActiveTab] = useState("sent"); // 'sent' hoặc 'inbox'
+  const [activeTab, setActiveTab] = useState("sent");
   const [sentNotifications, setSentNotifications] = useState(
     mockSentNotifications
   );
   const [inboxNotifications, setInboxNotifications] = useState(
     mockInboxNotifications
   );
-  const [selectedIds, setSelectedIds] = useState(new Set()); // Lưu ID các item được chọn
+  const [selectedIds, setSelectedIds] = useState(new Set());
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState(null); // Lưu {id, count} cho modal xóa
+  const [itemToDelete, setItemToDelete] = useState(null);
 
-  // Chọn danh sách thông báo dựa trên tab hiện tại
   const notificationsToShow =
     activeTab === "sent" ? sentNotifications : inboxNotifications;
-  // Lấy ID của tất cả thông báo trong tab hiện tại
   const allIdsInCurrentTab = notificationsToShow.map((n) => n.id);
-  // Kiểm tra xem tất cả có đang được chọn không
   const isAllSelected =
     selectedIds.size > 0 &&
     selectedIds.size === allIdsInCurrentTab.length &&
     allIdsInCurrentTab.every((id) => selectedIds.has(id));
 
-  // Hàm xử lý chọn/bỏ chọn một item
   const handleSelectItem = (id) => {
     setSelectedIds((prev) => {
       const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
-      }
-      console.log("Selected IDs:", newSet); // Log để kiểm tra
+      if (newSet.has(id)) newSet.delete(id);
+      else newSet.add(id);
+      console.log("Selected IDs:", newSet);
       return newSet;
     });
   };
 
-  // Hàm xử lý chọn/bỏ chọn tất cả
   const handleSelectAll = (event) => {
     const isChecked = event.target.checked;
     if (isChecked) {
@@ -333,35 +357,22 @@ const NotificationPage = () => {
     }
   };
 
-  // Hàm mở modal xác nhận xóa (đơn lẻ hoặc hàng loạt)
   const handleDeleteRequest = (id = null) => {
     if (id) {
-      // Xóa đơn lẻ
       console.log(`Requesting delete for single ID: ${id}`);
       setItemToDelete({ id, count: 1 });
     } else if (selectedIds.size > 0) {
-      // Xóa hàng loạt
       console.log(`Requesting delete for ${selectedIds.size} selected items.`);
       setItemToDelete({ id: null, count: selectedIds.size });
     }
   };
 
-  // Hàm xác nhận xóa
   const handleConfirmDelete = () => {
     if (!itemToDelete) return;
-
-    let idsToDelete;
-    if (itemToDelete.id) {
-      // Xóa đơn lẻ
-      idsToDelete = [itemToDelete.id];
-    } else {
-      // Xóa hàng loạt
-      idsToDelete = Array.from(selectedIds);
-    }
-
+    let idsToDelete = itemToDelete.id
+      ? [itemToDelete.id]
+      : Array.from(selectedIds);
     console.log(`Confirming delete notifications with IDs:`, idsToDelete);
-
-    // Cập nhật state (tạm thời, sau này gọi API DELETE)
     if (activeTab === "sent") {
       setSentNotifications((prev) =>
         prev.filter((n) => !idsToDelete.includes(n.id))
@@ -371,39 +382,34 @@ const NotificationPage = () => {
         prev.filter((n) => !idsToDelete.includes(n.id))
       );
     }
-
-    setSelectedIds(new Set()); // Bỏ chọn tất cả sau khi xóa
-    setItemToDelete(null); // Đóng modal
+    setSelectedIds(new Set());
+    setItemToDelete(null);
     alert(`Đã xóa ${itemToDelete.count} thông báo (mock data)!`);
   };
 
-  // Hàm xử lý gửi thông báo mới (từ modal)
   const handleSendNotification = (notificationData) => {
     console.log("Adding new sent notification (mock):", notificationData);
     const newNotification = {
       id: `sent_${Date.now()}`,
       type: "sent",
-      recipient: notificationData.recipientDisplay, // Hiển thị tên/Tất cả
+      recipient: notificationData.recipientDisplay,
       subject: notificationData.title,
       message: notificationData.message,
-      timestamp: format(new Date(), "dd/MM/yyyy - hh:mm a"), // Format thời gian gần giống thiết kế
+      timestamp: format(new Date(), "dd/MM/yyyy - hh:mm a"),
     };
-    // Thêm vào đầu danh sách Đã gửi
     setSentNotifications((prev) => [newNotification, ...prev]);
-    setIsCreateModalOpen(false); // Đóng modal
-    // Tự động chuyển sang tab Đã gửi nếu chưa ở đó
+    setIsCreateModalOpen(false);
     if (activeTab !== "sent") {
       setActiveTab("sent");
-      setSelectedIds(new Set()); // Reset selection khi đổi tab
+      setSelectedIds(new Set());
     }
     alert("Đã gửi thông báo mới (mock data)!");
   };
 
-  // Hàm đổi tab và reset selection
   const changeTab = (tabName) => {
     if (activeTab !== tabName) {
       setActiveTab(tabName);
-      setSelectedIds(new Set()); // Reset lựa chọn khi đổi tab
+      setSelectedIds(new Set());
     }
   };
 
@@ -413,7 +419,8 @@ const NotificationPage = () => {
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onSend={handleSendNotification}
-        drivers={mockDrivers} // Truyền dữ liệu tài xế mẫu
+        drivers={mockDrivers} // Truyền mock drivers
+        parents={mockParents} // 6. Truyền mock parents
       />
       <ConfirmDeleteModal
         isOpen={!!itemToDelete}
@@ -435,12 +442,10 @@ const NotificationPage = () => {
             <button className="user-button">Đăng nhập</button>
           </div>
         </header>
-
         <div className="page-content notification-page">
           <div className="content-header notification-header">
             <h2>Danh sách thông báo</h2>
             <div className="header-controls notification-controls">
-              {/* Nút Xóa hàng loạt (chỉ hiện khi có item được chọn) */}
               {selectedIds.size > 0 && (
                 <button
                   onClick={() => handleDeleteRequest(null)}
@@ -454,13 +459,10 @@ const NotificationPage = () => {
                 onClick={() => setIsCreateModalOpen(true)}
                 className="control-btn create-notification-btn"
               >
-                {/* <FaPlus /> */} Tạo thông báo{" "}
-                {/* Bỏ icon + nếu muốn giống hình */}
+                Tạo thông báo
               </button>
             </div>
           </div>
-
-          {/* Tabs */}
           <div className="notification-tabs">
             <button
               className={`notification-tab-btn ${
@@ -479,22 +481,18 @@ const NotificationPage = () => {
               <FaInbox /> Thư đến
             </button>
           </div>
-
-          {/* Notification List Area */}
           <div className="notification-list-container">
             <div className="list-controls">
               <div className="select-all-container">
                 <input
                   type="checkbox"
                   id="select-all"
-                  // Xác định checked state dựa trên isAllSelected và số lượng item > 0
                   checked={notificationsToShow.length > 0 && isAllSelected}
                   onChange={handleSelectAll}
                   disabled={notificationsToShow.length === 0}
                 />
                 <label htmlFor="select-all">Chọn tất cả</label>
               </div>
-              {/* Dropdown lọc (tạm thời) */}
               <select
                 className="filter-dropdown"
                 defaultValue={activeTab === "sent" ? "Đến" : "Từ"}
@@ -502,10 +500,8 @@ const NotificationPage = () => {
                 <option value={activeTab === "sent" ? "Đến" : "Từ"}>
                   {activeTab === "sent" ? "Đến" : "Từ"}
                 </option>
-                {/* Thêm các option lọc khác nếu cần */}
               </select>
             </div>
-
             <ul className="notification-list">
               {notificationsToShow.length > 0 ? (
                 notificationsToShow.map((noti) => (
@@ -519,9 +515,8 @@ const NotificationPage = () => {
                       type="checkbox"
                       checked={selectedIds.has(noti.id)}
                       onChange={() => handleSelectItem(noti.id)}
-                      onClick={(e) => e.stopPropagation()} // Ngăn click vào checkbox trigger click vào item
+                      onClick={(e) => e.stopPropagation()}
                     />
-                    {/* Bọc nội dung bằng div để click */}
                     <div
                       className="notification-clickable-area"
                       onClick={() => handleSelectItem(noti.id)}
@@ -536,8 +531,7 @@ const NotificationPage = () => {
                         <span className="message-preview">
                           {" "}
                           - {noti.message.substring(0, 80)}...
-                        </span>{" "}
-                        {/* Tăng preview */}
+                        </span>
                       </div>
                       <span className="timestamp">{noti.timestamp}</span>
                     </div>
@@ -560,8 +554,6 @@ const NotificationPage = () => {
                 </li>
               )}
             </ul>
-            {/* Thêm thanh cuộn nếu danh sách dài */}
-            {/* CSS sẽ xử lý overflow */}
           </div>
         </div>
       </main>
