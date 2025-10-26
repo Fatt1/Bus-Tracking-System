@@ -79,6 +79,8 @@ namespace TrackingBusSystem.Presentation.Controllers
             return BadRequest(result.Error);
         }
 
+
+
         [HttpGet("{id:int}/cheking-history")]
         public async Task<IActionResult> GetScheduleByIdWithCheckingHistory(int id, [FromQuery] TripDirection direction)
         {

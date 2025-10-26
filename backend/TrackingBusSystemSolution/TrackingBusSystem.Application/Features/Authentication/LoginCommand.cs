@@ -69,7 +69,7 @@ namespace TrackingBusSystem.Application.Features.Authentication
 
             }
             var tokenString = await _tokenService.GenerateJwtTokenAsync(user, customClaims);
-            var loginDto = new LoginResponseDto { BusIdForToday = busIdForToday, Token = tokenString, UserName = user.UserName! };
+            var loginDto = new LoginResponseDto { BusIdForToday = busIdForToday, Token = tokenString, UserName = user.UserName!, FullName = user.LastName + " " + user.FirstName };
             return Result<LoginResponseDto>.Success(loginDto);
         }
 
