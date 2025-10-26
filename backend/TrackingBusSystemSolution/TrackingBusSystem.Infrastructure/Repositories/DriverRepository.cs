@@ -42,6 +42,7 @@ namespace TrackingBusSystem.Infrastructure.Repositories
 
         public bool SoftDelete(Driver driver)
         {
+            driver.User.IsActive = false;
             driver.IsDeleted = true;
             return true;
         }

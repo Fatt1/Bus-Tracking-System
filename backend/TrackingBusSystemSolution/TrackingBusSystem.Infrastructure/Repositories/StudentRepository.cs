@@ -22,6 +22,7 @@ namespace TrackingBusSystem.Infrastructure.Repositories
 
         public bool DeleteStudent(Student student)
         {
+            student.User.IsActive = false;
             student.IsDeleted = true;
             return true;
         }

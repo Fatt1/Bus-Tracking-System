@@ -19,6 +19,7 @@ namespace TrackingBusSystem.Application.Features.Users.Query
         }
         public async Task<Result<List<GetAllUSersDTO>>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken)
         {
+            // Đang bị N +1 query problem
             var users = await _userManager.Users.ToListAsync();
             var usersDto = new List<GetAllUSersDTO>();
             foreach (var user in users)

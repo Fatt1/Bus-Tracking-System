@@ -34,9 +34,14 @@ namespace TrackingBusSystem.Application.Features.Authentication
         public async Task<Result<LoginResponseDto>> Handle(LoginCommand request, CancellationToken cancellationToken)
         {
             var user = await _userManager.FindByNameAsync(request.UserName);
+
             if (user == null || await _userManager.CheckPasswordAsync(user, request.Password) == false)
             {
                 return Result<LoginResponseDto>.Failure(new Error("Login.ErrorLogin", "Invalid user or password"));
+            }
+            if (user.IsActive == false)
+            {
+                return Result<LoginResponseDto>.Failure(new Error("Login.ErrorLogin", "User is deactivated"));
             }
             var userRoles = await _userManager.GetRolesAsync(user);
             var customClaims = new List<Claim>();
