@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from "react"; // Thêm useEffect
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "./ScheduleListPageNew.css";
+import axios from "axios"; // Import axios
+import "./ScheduleListPageNew.css"; // Sẽ tạo ở bước 3
 import {
   FaChevronLeft,
   FaChevronRight,
   FaTrashAlt,
   FaTimes,
   FaExclamationTriangle,
+  FaSpinner,
 } from "react-icons/fa";
 import {
   startOfWeek,
@@ -17,103 +19,33 @@ import {
   format,
   isEqual,
   isSameDay,
+  parseISO,
 } from "date-fns";
-import { vi } from "date-fns/locale";
+import { vi } from "date-fns/locale"; // Import Vietnamese locale
 
-// --- DEMO DATA ---
-const mockRoutes = [
-  { id: 1, name: "An Dương Vương - Trần Hưng Đạo" },
-  { id: 2, name: "Bến Thành - Suối Tiên" },
-  { id: 3, name: "Ký túc xá khu B - Đại học Bách Khoa" },
-  { id: 4, name: "Lê Duẩn - Điện Biên Phủ" },
-];
-
-const mockDrivers = [
-  { id: 1, name: "Phan Viết Huy", busId: "B001" },
-  { id: 2, name: "Nguyễn Văn An", busId: "B002" },
-  { id: 3, name: "Lê Thị Cẩm", busId: "B003" },
-  { id: 4, name: "Trần Bảo Ngọc", busId: "B004" },
-];
-
-// Dữ liệu ban đầu nếu localStorage trống
-const initialSchedulesData = [
-  {
-    id: 1,
-    routeId: 1,
-    date: "2025-10-20",
-    startTime: "06:00",
-    endTime: "06:45",
-    driverId: 1,
-    busId: "B001",
-  },
-  {
-    id: 2,
-    routeId: 2,
-    date: "2025-10-21",
-    startTime: "07:00",
-    endTime: "07:50",
-    driverId: 2,
-    busId: "B002",
-  },
-  {
-    id: 3,
-    routeId: 1,
-    date: "2025-10-22",
-    startTime: "16:00",
-    endTime: "16:45",
-    driverId: 3,
-    busId: "B003",
-  },
-  {
-    id: 4,
-    routeId: 3,
-    date: "2025-10-23",
-    startTime: "06:30",
-    endTime: "07:15",
-    driverId: 1,
-    busId: "B001",
-  },
-  {
-    id: 5,
-    routeId: 4,
-    date: "2025-10-24",
-    startTime: "17:00",
-    endTime: "17:45",
-    driverId: 4,
-    busId: "B004",
-  },
-  {
-    id: 6,
-    routeId: 1,
-    date: "2025-10-27",
-    startTime: "08:00",
-    endTime: "08:45",
-    driverId: 1,
-    busId: "B001",
-  }, // Tuần sau
-  {
-    id: 7,
-    routeId: 2,
-    date: "2025-10-20",
-    startTime: "10:00",
-    endTime: "10:45",
-    driverId: 2,
-    busId: "B002",
-  }, // Cùng ngày, tuyến khác
-];
-// --- END DEMO DATA ---
-
-// --- Component Modal Xem/Xóa Lịch trình ---
+// --- COMPONENT MODAL XEM/XÓA LỊCH TRÌNH ---
 const ScheduleDetailModal = ({
   schedule,
   routeName,
-  driverName,
   isOpen,
   onClose,
   onDelete,
 }) => {
-  // ... (Giữ nguyên không đổi) ...
   if (!isOpen || !schedule) return null;
+
+  // Hàm chuyển đổi status number sang text
+  const getStatusText = (status) => {
+    switch (status) {
+      case 0:
+        return "Không hoạt động";
+      case 1:
+        return "Đang hoạt động";
+      case 2:
+        return "Chưa hoạt động";
+      default:
+        return "Không rõ";
+    }
+  };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -130,16 +62,24 @@ const ScheduleDetailModal = ({
         </p>
         <p>
           <strong>Ngày:</strong>{" "}
-          {format(new Date(schedule.date + "T00:00:00"), "dd/MM/yyyy")}
+          {schedule.scheduleDate
+            ? format(parseISO(schedule.scheduleDate), "dd/MM/yyyy")
+            : "N/A"}
         </p>
         <p>
-          <strong>Giờ chạy:</strong> {schedule.startTime} - {schedule.endTime}
+          <strong>Giờ đi:</strong> {schedule.pickupTime || "N/A"}
         </p>
         <p>
-          <strong>Tài xế:</strong> {driverName}
+          <strong>Giờ về:</strong> {schedule.dropOffTime || "N/A"}
         </p>
         <p>
-          <strong>Xe buýt:</strong> {schedule.busId}
+          <strong>Tài xế:</strong> {schedule.driverName || "N/A"}
+        </p>
+        <p>
+          <strong>Xe buýt:</strong> {schedule.busName || "N/A"}
+        </p>
+        <p>
+          <strong>Trạng thái:</strong> {getStatusText(schedule.status)}
         </p>
         <div className="modal-actions">
           <button
@@ -154,9 +94,8 @@ const ScheduleDetailModal = ({
   );
 };
 
-// --- Component Modal Xác nhận Xóa ---
+// --- COMPONENT MODAL XÁC NHẬN XÓA ---
 const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, scheduleInfo }) => {
-  // ... (Giữ nguyên không đổi) ...
   if (!isOpen) return null;
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -173,7 +112,7 @@ const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, scheduleInfo }) => {
           <strong>{scheduleInfo?.routeName}</strong> vào ngày{" "}
           <strong>
             {scheduleInfo?.date
-              ? format(new Date(scheduleInfo.date + "T00:00:00"), "dd/MM/yyyy")
+              ? format(parseISO(scheduleInfo.date), "dd/MM/yyyy")
               : ""}
           </strong>
           ?
@@ -194,25 +133,67 @@ const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, scheduleInfo }) => {
   );
 };
 
-// --- Component Chính: Lịch trình theo tuần ---
+// --- COMPONENT CHÍNH: LỊCH TRÌNH THEO TUẦN ---
 const ScheduleListPageNew = () => {
-  const [currentDate, setCurrentDate] = useState(new Date(2025, 9, 23));
-  // THAY ĐỔI: Khởi tạo state từ localStorage hoặc dữ liệu ban đầu
-  const [schedules, setSchedules] = useState(() => {
-    const savedSchedules = localStorage.getItem("schedulesData");
-    return savedSchedules ? JSON.parse(savedSchedules) : initialSchedulesData;
-  });
+  const [currentDate, setCurrentDate] = useState(new Date()); // Bắt đầu từ ngày hiện tại
+  const [schedules, setSchedules] = useState([]); // State lưu lịch trình từ API
+  const [routes, setRoutes] = useState([]); // State lưu tuyến đường từ API
+  const [isLoadingRoutes, setIsLoadingRoutes] = useState(true);
+  const [isLoadingSchedules, setIsLoadingSchedules] = useState(true);
   const [viewingSchedule, setViewingSchedule] = useState(null);
   const [deletingScheduleId, setDeletingScheduleId] = useState(null);
+  const [error, setError] = useState(null); // State báo lỗi
 
   const navigate = useNavigate();
 
-  // THAY ĐỔI: Lưu vào localStorage mỗi khi schedules thay đổi
-  useEffect(() => {
-    localStorage.setItem("schedulesData", JSON.stringify(schedules));
-  }, [schedules]);
+  // --- HÀM GỌI API ---
+  const fetchRoutes = async () => {
+    console.log("Fetching routes...");
+    setIsLoadingRoutes(true);
+    try {
+      const response = await axios.get(
+        `https://localhost:7229/api/v1/route/all?PageNumber=1&PageSize=100`
+      ); // Lấy nhiều routes
+      console.log("Routes API response:", response.data);
+      setRoutes(response.data.items || []);
+      setError(null); // Xóa lỗi cũ nếu thành công
+    } catch (err) {
+      console.error("Lỗi khi tải danh sách tuyến đường:", err);
+      setError("Không thể tải danh sách tuyến đường.");
+      setRoutes([]);
+    } finally {
+      setIsLoadingRoutes(false);
+    }
+  };
 
-  const weekStartsOn = 1;
+  const fetchSchedules = async () => {
+    console.log("Fetching schedules...");
+    setIsLoadingSchedules(true);
+    try {
+      const response = await axios.get(
+        `https://localhost:7229/api/v1/schedule/all`
+      );
+      console.log("Schedules API response:", response.data);
+      // API trả về trực tiếp mảng schedules
+      setSchedules(Array.isArray(response.data) ? response.data : []);
+      setError(null); // Xóa lỗi cũ nếu thành công
+    } catch (err) {
+      console.error("Lỗi khi tải danh sách lịch trình:", err);
+      setError("Không thể tải danh sách lịch trình.");
+      setSchedules([]);
+    } finally {
+      setIsLoadingSchedules(false);
+    }
+  };
+
+  // useEffect để fetch dữ liệu khi component mount lần đầu
+  useEffect(() => {
+    fetchRoutes();
+    fetchSchedules();
+  }, []); // Chỉ chạy 1 lần
+
+  // --- LOGIC XỬ LÝ LỊCH ---
+  const weekStartsOn = 1; // Bắt đầu tuần từ Thứ Hai (Monday)
   const currentWeekStart = startOfWeek(currentDate, { weekStartsOn });
   const currentWeekEnd = endOfWeek(currentDate, { weekStartsOn });
   const daysInWeek = eachDayOfInterval({
@@ -222,15 +203,20 @@ const ScheduleListPageNew = () => {
 
   const goToNextWeek = () => setCurrentDate(addWeeks(currentDate, 1));
   const goToPrevWeek = () => setCurrentDate(subWeeks(currentDate, 1));
+  const goToCurrentWeek = () => setCurrentDate(new Date()); // Nút về tuần hiện tại (tùy chọn)
 
+  // Tìm lịch trình cho ô cụ thể
   const findSchedule = (routeId, date) => {
+    // API trả về scheduleDate dạng "YYYY-MM-DD"
+    const dateString = format(date, "yyyy-MM-dd");
     return schedules.find(
-      (s) =>
-        s.routeId === routeId && isSameDay(new Date(s.date + "T00:00:00"), date)
+      (s) => s.routeId === routeId && s.scheduleDate === dateString
     );
   };
 
+  // --- HÀM XỬ LÝ MODAL ---
   const handleViewSchedule = (schedule) => {
+    console.log("Viewing schedule:", schedule);
     setViewingSchedule(schedule);
   };
 
@@ -240,45 +226,80 @@ const ScheduleListPageNew = () => {
   };
 
   const handleDeleteRequest = (scheduleId) => {
+    console.log(`Requesting delete for schedule ID: ${scheduleId}`);
     setDeletingScheduleId(scheduleId);
-    setViewingSchedule(null);
+    setViewingSchedule(null); // Đóng modal xem nếu đang mở
   };
 
-  // THAY ĐỔI: Chỉ cập nhật state, useEffect sẽ lo việc lưu vào localStorage
-  const handleConfirmDelete = () => {
-    setSchedules((prev) => prev.filter((s) => s.id !== deletingScheduleId));
-    handleCloseModals();
+  // --- HÀM XÁC NHẬN XÓA (Tạm thời client-side) ---
+  const handleConfirmDelete = async () => {
+    if (!deletingScheduleId) return;
+    console.log(`Confirming delete for schedule ID: ${deletingScheduleId}`);
+
+    // ---- TẠM THỜI XÓA CLIENT-SIDE ----
+    // Sau này thay bằng gọi API DELETE
+    try {
+      // await axios.delete(`https://localhost:7229/api/v1/schedule/${deletingScheduleId}`);
+      setSchedules((prev) => prev.filter((s) => s.id !== deletingScheduleId));
+      alert("Đã xóa lịch trình (mock data)!");
+    } catch (err) {
+      console.error("Lỗi khi xóa lịch trình:", err);
+      alert("Xóa lịch trình thất bại!");
+    } finally {
+      handleCloseModals();
+    }
+    // ---- KẾT THÚC XÓA CLIENT-SIDE ----
   };
 
+  // --- HÀM CHUYỂN TRANG THÊM MỚI ---
   const handleAddSchedule = (routeId, routeName, date) => {
+    const dateString = format(date, "yyyy-MM-dd");
+    console.log(
+      `Navigating to add schedule for route ${routeId} (${routeName}) on date ${dateString}`
+    );
     navigate("/schedules/add-new", {
-      state: {
-        routeId,
-        routeName,
-        date: format(date, "yyyy-MM-dd"),
-      },
+      state: { routeId, routeName, date: dateString }, // Truyền dữ liệu qua state
     });
   };
 
-  const getDriverName = (driverId) => {
-    return mockDrivers.find((d) => d.id === driverId)?.name || "N/A";
-  };
-  const getRouteName = (routeId) => {
-    return mockRoutes.find((r) => r.id === routeId)?.name || "N/A";
-  };
+  // --- LẤY TÊN TUYẾN ĐƯỜNG (Tối ưu: tạo map để tra cứu) ---
+  const routeNameMap = routes.reduce((map, route) => {
+    map[route.id] = route.routeName;
+    return map;
+  }, {});
+  const getRouteName = (routeId) => routeNameMap[routeId] || "Không rõ";
+
+  // --- KIỂM TRA TRẠNG THÁI LOADING VÀ LỖI ---
+  if (error) {
+    return (
+      <div className="loading-error">
+        {error}{" "}
+        <button
+          onClick={() => {
+            fetchRoutes();
+            fetchSchedules();
+          }}
+        >
+          Thử lại
+        </button>
+      </div>
+    );
+  }
+  // Chỉ hiển thị loading chính khi đang tải routes hoặc schedules lần đầu
+  const showMainLoading =
+    isLoadingRoutes || (isLoadingSchedules && schedules.length === 0);
 
   return (
     <>
+      {/* Modal Xem chi tiết */}
       <ScheduleDetailModal
         isOpen={!!viewingSchedule}
         schedule={viewingSchedule}
         routeName={viewingSchedule ? getRouteName(viewingSchedule.routeId) : ""}
-        driverName={
-          viewingSchedule ? getDriverName(viewingSchedule.driverId) : ""
-        }
         onClose={handleCloseModals}
         onDelete={handleDeleteRequest}
       />
+      {/* Modal Xác nhận xóa */}
       <ConfirmDeleteModal
         isOpen={!!deletingScheduleId}
         onClose={handleCloseModals}
@@ -289,7 +310,8 @@ const ScheduleListPageNew = () => {
                 routeName: getRouteName(
                   schedules.find((s) => s.id === deletingScheduleId).routeId
                 ),
-                date: schedules.find((s) => s.id === deletingScheduleId).date,
+                date: schedules.find((s) => s.id === deletingScheduleId)
+                  .scheduleDate,
               }
             : null
         }
@@ -301,82 +323,120 @@ const ScheduleListPageNew = () => {
             <span>Trang</span> / <span>Quản lý lịch trình</span> /{" "}
             <span>Lịch trình theo tuần</span>
           </div>
-          <div className="header-actions">
-            <input
-              type="text"
-              placeholder="Tìm kiếm..."
-              className="search-input"
-            />
-            <button className="user-button">Đăng nhập</button>
-          </div>
+          {/* Bỏ actions header nếu không cần */}
         </header>
 
         <div className="page-content">
           <div className="calendar-header">
-            <button onClick={goToPrevWeek} className="nav-button">
+            <button
+              onClick={goToPrevWeek}
+              className="nav-button"
+              title="Tuần trước"
+            >
               <FaChevronLeft />
             </button>
             <h2>
               Tuần {format(currentWeekStart, "dd/MM")} -{" "}
               {format(currentWeekEnd, "dd/MM/yyyy")}
             </h2>
-            <button onClick={goToNextWeek} className="nav-button">
+            <button
+              onClick={goToCurrentWeek}
+              className="nav-button today-button"
+              title="Về tuần hiện tại"
+            >
+              Hiện tại
+            </button>
+            <button
+              onClick={goToNextWeek}
+              className="nav-button"
+              title="Tuần sau"
+            >
               <FaChevronRight />
             </button>
           </div>
 
-          <div className="calendar-grid-container">
-            <table className="calendar-grid">
-              <thead>
-                <tr>
-                  <th className="route-header-cell">Tuyến đường</th>
-                  {daysInWeek.map((day) => (
-                    <th key={day.toString()} className="day-header-cell">
-                      <div>{format(day, "EEEE", { locale: vi })}</div>
-                      <div>{format(day, "dd/MM")}</div>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {mockRoutes.map((route) => (
-                  <tr key={route.id}>
-                    <td className="route-name-cell">{route.name}</td>
-                    {daysInWeek.map((day) => {
-                      const schedule = findSchedule(route.id, day);
-                      return (
-                        <td
-                          key={day.toString()}
-                          className={`calendar-cell ${
-                            schedule ? "has-schedule" : "empty-cell"
-                          }`}
-                          onClick={() =>
-                            schedule
-                              ? handleViewSchedule(schedule)
-                              : handleAddSchedule(route.id, route.name, day)
-                          }
-                        >
-                          {schedule && (
-                            <div className="schedule-item">
-                              <div className="schedule-time">
-                                {schedule.startTime} - {schedule.endTime}
-                              </div>
-                              <div className="schedule-driver">
-                                {getDriverName(schedule.driverId)}
-                              </div>
-                              <div className="schedule-bus">
-                                {schedule.busId}
-                              </div>
-                            </div>
-                          )}
-                        </td>
-                      );
-                    })}
+          {showMainLoading ? (
+            <div className="loading-message">
+              <FaSpinner className="spinner" /> Đang tải dữ liệu...
+            </div>
+          ) : (
+            <div className="calendar-grid-container">
+              <table className="calendar-grid">
+                <thead>
+                  <tr>
+                    <th className="route-header-cell">Tuyến đường</th>
+                    {daysInWeek.map((day) => (
+                      <th key={day.toString()} className="day-header-cell">
+                        <div>{format(day, "EEEE", { locale: vi })}</div>
+                        <div>{format(day, "dd/MM")}</div>
+                      </th>
+                    ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {routes.map((route) => (
+                    <tr key={route.id}>
+                      <td className="route-name-cell">{route.routeName}</td>
+                      {daysInWeek.map((day) => {
+                        const schedule = findSchedule(route.id, day);
+                        return (
+                          <td
+                            key={`${route.id}-${day.toString()}`}
+                            className={`calendar-cell ${
+                              schedule ? "has-schedule" : "empty-cell"
+                            }`}
+                            onClick={() =>
+                              schedule
+                                ? handleViewSchedule(schedule)
+                                : handleAddSchedule(
+                                    route.id,
+                                    route.routeName,
+                                    day
+                                  )
+                            }
+                            title={
+                              schedule
+                                ? `Xem/Xóa lịch trình`
+                                : `Thêm lịch trình cho ${
+                                    route.routeName
+                                  } ngày ${format(day, "dd/MM")}`
+                            }
+                          >
+                            {schedule && (
+                              <div className="schedule-item">
+                                <div className="schedule-time">
+                                  {schedule.pickupTime?.substring(0, 5)} -{" "}
+                                  {schedule.dropOffTime?.substring(0, 5)}
+                                </div>
+                                <div className="schedule-driver">
+                                  {schedule.driverName || "N/A"}
+                                </div>
+                                <div className="schedule-bus">
+                                  {schedule.busName || "N/A"}
+                                </div>
+                              </div>
+                            )}
+                            {/* Icon loading nhỏ khi đang tải schedules */}
+                            {isLoadingSchedules && (
+                              <FaSpinner className="cell-spinner" />
+                            )}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                  {/* Hiển thị nếu không có routes */}
+                  {routes.length === 0 && !isLoadingRoutes && (
+                    <tr>
+                      <td colSpan={8} className="no-routes-message">
+                        Không có dữ liệu tuyến đường.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </main>
     </>
