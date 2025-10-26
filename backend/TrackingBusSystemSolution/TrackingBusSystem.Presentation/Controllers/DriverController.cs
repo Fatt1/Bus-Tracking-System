@@ -110,16 +110,14 @@ namespace TrackingBusSystem.Presentation.Controllers
             return NoContent();
         }
 
-        [HttpGet("{id:int}/pickup-schedule")]
-        public async Task<IActionResult> GetPickupScheduleByDriverId(int id, [FromQuery] ScheduleQueryParams query)
+        [Authorize(Roles = "Driver")]
+        [HttpGet("/pickup-student-today")]
+        public async Task<IActionResult> GetPickupScheduleByDriverId()
         {
-            var request = new GetPickupScheduleDriverByIdQuery(id, query.Date, query.PageNumber, query.PageSize);
-            var result = await _mediator.Send(request);
-            if (!result.IsSuccess)
-            {
-                return BadRequest(result.Error);
-            }
-            return Ok(result.Value);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
+            var result = await _mediator.Send(new GetPickupScheduleDriver(userId));
+            if (result.IsSuccess) return Ok(result.Value);
+            return BadRequest(result.Error);
         }
 
         [HttpGet("no-pagination")]

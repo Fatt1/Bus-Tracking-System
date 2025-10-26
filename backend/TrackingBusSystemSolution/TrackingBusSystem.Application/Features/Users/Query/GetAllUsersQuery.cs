@@ -30,7 +30,8 @@ namespace TrackingBusSystem.Application.Features.Users.Query
                     UserId = user.Id,
                     FullName = user.LastName + " " + user.FirstName,
                     DateOfBirth = user.DateOfBirth,
-                    Roles = roles.ToList()
+                    Roles = roles.ToList(),
+                    PhoneNumber = user.PhoneNumber!
                 });
             }
             return Result<List<GetAllUSersDTO>>.Success(usersDto);

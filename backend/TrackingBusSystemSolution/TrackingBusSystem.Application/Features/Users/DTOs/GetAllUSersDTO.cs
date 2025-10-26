@@ -6,5 +6,6 @@
         public List<string> Roles { get; init; } = null!;
         public string FullName { get; init; } = null!;
         public DateOnly DateOfBirth { get; init; }
+        public string PhoneNumber { get; init; } = null!;
     }
 }

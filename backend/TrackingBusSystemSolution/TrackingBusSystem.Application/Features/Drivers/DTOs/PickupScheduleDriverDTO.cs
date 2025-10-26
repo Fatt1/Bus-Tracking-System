@@ -3,7 +3,7 @@
     public record PickupScheduleDriverDTO
     {
         public int ScheduleId { get; init; }
-        public int Id { get; init; }
+        public int StudentId { get; init; }
         public string StudentName { get; init; } = string.Empty;
         public string Class { get; init; } = string.Empty;
         public string UserId { get; init; } = string.Empty;
