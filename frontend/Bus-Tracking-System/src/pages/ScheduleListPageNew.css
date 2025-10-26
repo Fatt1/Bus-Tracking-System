@@ -236,3 +236,294 @@
   background-color: #e74c3c;
   color: white;
 }
+/*  */
+/* src/pages/ScheduleListPageNew.css */
+
+/* Kế thừa một số style cơ bản nếu cần */
+@import url("./LayoutTable.css"); /* Hoặc PageLayout.css nếu bạn đã đổi tên */
+
+.schedule-calendar-page .page-content {
+  padding: 20px;
+  background-color: #f9f9f9; /* Nền xám nhạt hơn cho toàn trang */
+}
+
+/* Header của Lịch */
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 15px 20px; /* Tăng padding */
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.calendar-header h2 {
+  margin: 0;
+  font-size: 1.4rem; /* Tăng size */
+  font-weight: 500; /* Bớt đậm */
+  color: #333;
+  flex-grow: 1; /* Cho phép co giãn */
+  text-align: center; /* Căn giữa */
+}
+
+.nav-button {
+  background: none;
+  border: 1px solid #ccc;
+  border-radius: 50%;
+  width: 38px; /* To hơn */
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #555;
+  transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+  margin: 0 5px; /* Khoảng cách giữa các nút */
+}
+.nav-button:hover {
+  background-color: #eee;
+  color: #000;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.today-button {
+  border-radius: 5px; /* Nút hiện tại vuông hơn */
+  width: auto;
+  padding: 0 15px;
+  font-weight: 500;
+}
+
+/* Bảng Lịch */
+.calendar-grid-container {
+  overflow-x: auto; /* Cho phép cuộn ngang nếu màn hình hẹp */
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  border: 1px solid #eee; /* Thêm viền nhẹ */
+}
+
+.calendar-grid {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  min-width: 1000px; /* Tăng min-width */
+}
+
+.calendar-grid th,
+.calendar-grid td {
+  border: 1px solid #eee;
+  padding: 0; /* Bỏ padding mặc định */
+  vertical-align: top;
+  height: 120px; /* Tăng chiều cao ô */
+  position: relative; /* Để chứa spinner */
+}
+
+/* Header */
+.calendar-grid thead {
+  background-color: var(--primary-blue, #0a2e5d);
+  color: white;
+  position: sticky; /* Giữ header khi cuộn */
+  top: 0;
+  z-index: 10;
+}
+
+.day-header-cell {
+  padding: 10px 5px; /* Padding cho header */
+  text-align: center;
+  font-weight: 500;
+  width: calc((100% - 220px) / 7); /* Điều chỉnh chiều rộng */
+}
+.day-header-cell div:first-child {
+  font-size: 0.9em;
+  text-transform: capitalize;
+}
+.day-header-cell div:last-child {
+  font-size: 1.2em; /* To hơn */
+  font-weight: bold;
+}
+
+.route-header-cell,
+.route-name-cell {
+  width: 220px; /* Tăng chiều rộng cột tuyến */
+  text-align: left;
+  font-weight: bold;
+  background-color: #f8f9fa;
+  vertical-align: middle;
+  padding: 15px; /* Padding cho cột tuyến */
+}
+.route-name-cell {
+  font-weight: 500;
+  color: #333;
+}
+
+/* Ô lịch */
+.calendar-cell {
+  cursor: pointer;
+  transition: background-color 0.2s;
+  padding: 8px; /* Padding bên trong ô */
+}
+
+.calendar-cell.empty-cell:hover {
+  background-color: #e9f5ff; /* Màu xanh nhạt khi hover ô trống */
+}
+.calendar-cell.has-schedule {
+  background-color: #f9f9f9; /* Nền xám nhẹ cho ô có lịch */
+}
+.calendar-cell.has-schedule:hover {
+  background-color: #f1f3f5;
+}
+
+/* Mục lịch trình trong ô */
+.schedule-item {
+  background-color: #d6eaff; /* Màu nền xanh nhạt hơn */
+  border: 1px solid #91d5ff;
+  border-left: 4px solid #1890ff; /* Màu xanh dương accent */
+  border-radius: 4px;
+  padding: 8px 10px; /* Tăng padding */
+  font-size: 0.85rem; /* Tăng nhẹ font */
+  margin-bottom: 5px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+.schedule-item:hover {
+  border-color: #40a9ff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.schedule-time {
+  font-weight: bold;
+  color: #333;
+  display: block; /* Xuống dòng */
+  margin-bottom: 3px;
+}
+.schedule-driver,
+.schedule-bus {
+  color: #555;
+  font-size: 0.8rem; /* Tăng nhẹ */
+  display: block; /* Xuống dòng */
+}
+
+/* --- Modal Xem/Xóa --- */
+.modal-content.schedule-detail-modal {
+  max-width: 450px;
+  padding: 25px;
+}
+.schedule-detail-modal h4 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  text-align: center;
+  color: var(--primary-blue, #0a2e5d);
+  font-size: 1.3rem;
+}
+.schedule-detail-modal p {
+  margin: 0 0 12px;
+  line-height: 1.6; /* Tăng line-height */
+  color: #333;
+  font-size: 0.95rem; /* Tăng nhẹ font */
+}
+.schedule-detail-modal p strong {
+  color: #000;
+  margin-right: 5px;
+}
+
+.modal-actions {
+  margin-top: 25px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+  text-align: right;
+}
+
+.delete-schedule-btn {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 15px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: background-color 0.2s;
+}
+.delete-schedule-btn:hover {
+  background-color: #c0392b;
+}
+
+/* --- Modal Xác nhận Xóa --- */
+/* (Kế thừa từ Driver/Student nếu có .confirm-delete) */
+/* Nếu chưa có thì copy style của ConfirmDeleteModal từ file DriverListPage.css */
+.modal-content.confirm-delete-schedule {
+  max-width: 400px;
+  padding: 25px;
+  text-align: center;
+}
+.confirm-delete-schedule .modal-header {
+  border-bottom: none;
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column; /* Icon trên chữ */
+  align-items: center;
+  gap: 10px;
+}
+.confirm-delete-schedule h4 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+.confirm-delete-schedule .confirm-text {
+  /* Sửa tên class */
+  margin-bottom: 25px;
+  line-height: 1.6;
+  color: #333;
+}
+/* Kế thừa .confirm-actions, .confirm-btn, .cancel-btn, .delete-confirm-btn */
+
+/* --- Loading & Error --- */
+.loading-message,
+.loading-error {
+  text-align: center;
+  padding: 50px;
+  color: #555;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.loading-error button {
+  margin-left: 15px;
+  padding: 5px 10px;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+/* Spinner nhỏ trong ô */
+.cell-spinner {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  color: #ccc;
+  font-size: 0.8rem;
+  animation: spin 1.5s linear infinite;
+}
+
+.no-routes-message {
+  text-align: center;
+  color: #888;
+  font-style: italic;
+  padding: 20px;
+}
