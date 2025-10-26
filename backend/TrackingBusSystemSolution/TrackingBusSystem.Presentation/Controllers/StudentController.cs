@@ -38,7 +38,7 @@ namespace TrackingBusSystem.Presentation.Controllers
             return NotFound(result.Error);
         }
 
-        [HttpGet("all-without-pagination")]
+        [HttpGet("no-pagination")]
         public async Task<IActionResult> GetAllStudentsWithoutPagination()
         {
             var result = await mediator.Send(new GetAllStudentWithoutPaginationQuery());
