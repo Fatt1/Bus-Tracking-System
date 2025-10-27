@@ -1,9 +1,11 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using TrackingBusSystem.Application.Features.Buses.Command;
 
 namespace TrackingBusSystem.Infrastructure.Hubs
 {
+    [Authorize]
     public class GeolocationHub : Hub
     {
         private readonly IMediator _mediator;
