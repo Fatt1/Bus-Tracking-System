@@ -36,8 +36,7 @@ const busIcon = L.icon({
 const redIcon = L.icon({
   // iconUrl: '/marker-icon-red.png', // Đặt ảnh này trong thư mục /public
   // iconRetinaUrl: '/marker-icon-red-2x.png', // Ảnh retina
-  iconUrl:
-    "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png", // Dùng tạm ảnh online
+  iconUrl: "/src/assets/RedMarker.png", // Dùng tạm ảnh online
   shadowUrl: iconShadow,
   iconSize: [25, 41],
   iconAnchor: [12, 41],
