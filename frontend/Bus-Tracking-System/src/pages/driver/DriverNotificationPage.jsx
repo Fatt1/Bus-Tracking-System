@@ -90,7 +90,11 @@ const DriverSidebar = () => {
 };
 
 // --- COMPONENT HEADER (Tương tự các trang driver khác) ---
-const DriverHeader = ({ onReportIncident, driverName = "Phan Viết Huy", onLogout }) => {
+const DriverHeader = ({
+  onReportIncident,
+  driverName = "Phan Viết Huy",
+  onLogout,
+}) => {
   // Component này cũng cần state và logic để mở Profile Modal
   // Tạm thời chỉ là giao diện
   return (
@@ -171,11 +175,9 @@ const DriverNotificationPage = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post(
-        "https://localhost:7229/api/v1/auth/logout",
-        null,
-        { withCredentials: true }
-      );
+      await axios.post("https://localhost:7229/api/v1/auth/logout", null, {
+        withCredentials: true,
+      });
     } catch {
       // ignore
     } finally {
@@ -268,7 +270,13 @@ const DriverNotificationPage = () => {
       <div className="driver-page-container">
         <DriverSidebar />
         <div className="driver-main-wrapper">
-          <DriverHeader onReportIncident={() => alert("Mở modal báo cáo sự cố (chưa triển khai)")} driverName={fullName} onLogout={handleLogout} />
+          <DriverHeader
+            onReportIncident={() =>
+              alert("Mở modal báo cáo sự cố (chưa triển khai)")
+            }
+            driverName={fullName}
+            onLogout={handleLogout}
+          />
 
           <main className="driver-main-content">
             {/* CSS của trang này sẽ ghi đè padding mặc định của driver-main-content */}

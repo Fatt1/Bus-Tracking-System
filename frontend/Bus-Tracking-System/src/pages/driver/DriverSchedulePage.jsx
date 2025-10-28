@@ -140,11 +140,9 @@ const DriverSchedulePage = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post(
-        "https://localhost:7229/api/v1/auth/logout",
-        null,
-        { withCredentials: true }
-      );
+      await axios.post("https://localhost:7229/api/v1/auth/logout", null, {
+        withCredentials: true,
+      });
     } catch {
       // ignore
     } finally {
