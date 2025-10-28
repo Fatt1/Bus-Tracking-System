@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom"; // Import Link
+import { Link, useNavigate } from "react-router-dom"; // Import Link
+import axios from "axios";
+import { clearAuth } from "../../utils/auth";
 import "./DriverSchedulePage.css"; // Sẽ tạo ở bước 2
 import {
   FaHome,
@@ -100,7 +102,7 @@ const DriverSidebar = () => {
 
 // --- COMPONENT HEADER CỦA TÀI XẾ ---
 // (Copy từ DriverHomePage, bỏ onReportIncident vì trang này không có)
-const DriverHeader = ({ driverName = "Phan Viết Huy" }) => {
+const DriverHeader = ({ driverName = "Phan Viết Huy", onLogout }) => {
   return (
     <header className="driver-header">
       <div className="breadcrumbs">
@@ -118,6 +120,9 @@ const DriverHeader = ({ driverName = "Phan Viết Huy" }) => {
           <img src="https://i.pravatar.cc/40?u=driver1" alt="Avatar" />
           <span>{driverName}</span>
         </div>
+        <button className="driver-logout-btn" onClick={onLogout}>
+          Đăng xuất
+        </button>
       </div>
     </header>
   );
@@ -128,6 +133,25 @@ const DriverSchedulePage = () => {
   // State để lưu ngày đầu tiên của tuần đang xem
   // Bắt đầu với ngày hiện tại
   const [currentDate, setCurrentDate] = useState(new Date());
+  const navigate = useNavigate();
+  const fullName =
+    (typeof window !== "undefined" && localStorage.getItem("fullName")) ||
+    "Phan Viết Huy";
+
+  const handleLogout = async () => {
+    try {
+      await axios.post(
+        "https://localhost:7229/api/v1/auth/logout",
+        null,
+        { withCredentials: true }
+      );
+    } catch {
+      // ignore
+    } finally {
+      clearAuth();
+      navigate("/login", { replace: true });
+    }
+  };
 
   // Tính toán tuần
   const startOfCurrentWeek = startOfWeek(currentDate, { weekStartsOn: 1 }); // Tuần bắt đầu từ Thứ 2
@@ -153,7 +177,7 @@ const DriverSchedulePage = () => {
     <div className="driver-page-container">
       <DriverSidebar />
       <div className="driver-main-wrapper">
-        <DriverHeader />
+        <DriverHeader driverName={fullName} onLogout={handleLogout} />
 
         <main className="driver-main-content">
           {/* Header của bảng lịch trình */}

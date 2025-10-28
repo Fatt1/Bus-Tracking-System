@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { getAuthRoles, clearAuth } from "../utils/auth";
 import "./DashboardPage.css"; // Sẽ cập nhật file này ở bước 3
 import {
   FaBus,
@@ -41,6 +43,8 @@ const DashboardPage = () => {
   const [startIndex, setStartIndex] = useState(0);
   const [selectedRoute, setSelectedRoute] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [roles, setRoles] = useState(getAuthRoles());
+  const navigate = useNavigate();
 
   // --- THÊM STATE MỚI ---
   // State này sẽ kích hoạt logic gửi data qua SignalR
@@ -114,6 +118,22 @@ const DashboardPage = () => {
     setIsAnimationTriggered(false);
   };
 
+  const handleLogout = async () => {
+    try {
+      await axios.post(
+        "https://localhost:7229/api/v1/auth/logout",
+        null,
+        { withCredentials: true }
+      );
+    } catch {
+      // ignore errors on logout request
+    } finally {
+      clearAuth();
+      setRoles([]);
+      navigate("/login", { replace: true });
+    }
+  };
+
   return (
     <main className="main-content">
       <div className="main-content-top-wrapper">
@@ -127,7 +147,18 @@ const DashboardPage = () => {
               <FaSearch className="search-icon" />
               <input type="text" placeholder="Tìm kiếm..." />
             </div>
-            <button className="login-button">Đăng nhập</button>
+            {roles && roles.length > 0 ? (
+              <button className="login-button" onClick={handleLogout}>
+                Đăng xuất
+              </button>
+            ) : (
+              <button
+                className="login-button"
+                onClick={() => navigate("/login")}
+              >
+                Đăng nhập
+              </button>
+            )}
           </div>
         </header>
 

@@ -20,6 +20,7 @@ import NotificationPage from "./pages/NotificationPage";
 import DriverHomePage from "./pages/driver/DriverHomePage";
 import DriverSchedulePage from "./pages/driver/DriverSchedulePage";
 import DriverNotificationPage from "./pages/driver/DriverNotificationPage";
+import RequireRole from "./components/RequireRole";
 
 function App() {
   // Xóa useEffect gọi API ở đây, nó nên nằm trong component cần dữ liệu (DashboardPage)
@@ -38,16 +39,41 @@ function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/schedules/add-new" element={<ScheduleAddEditPageNew />} />
 
-      {/* 2. THÊM ROUTE MỚI CHO TRANG CHỦ TÀI XẾ */}
-      <Route path="/driver/home" element={<DriverHomePage />} />
-      <Route path="/driver/schedule" element={<DriverSchedulePage />} />
+      {/* 2. TRANG TÀI XẾ - CHỈ DÀNH CHO ROLE Driver */}
+      <Route
+        path="/driver/home"
+        element={
+          <RequireRole roles={["Driver"]}>
+            <DriverHomePage />
+          </RequireRole>
+        }
+      />
+      <Route
+        path="/driver/schedule"
+        element={
+          <RequireRole roles={["Driver"]}>
+            <DriverSchedulePage />
+          </RequireRole>
+        }
+      />
       <Route
         path="/driver/notifications"
-        element={<DriverNotificationPage />}
+        element={
+          <RequireRole roles={["Driver"]}>
+            <DriverNotificationPage />
+          </RequireRole>
+        }
       />
 
-      {/* Các Route CÓ Sidebar Admin */}
-      <Route path="/" element={<Layout />}>
+      {/* Các Route CÓ Sidebar Admin - CHỈ DÀNH CHO ROLE Admin */}
+      <Route
+        path="/"
+        element={
+          <RequireRole roles={["Admin"]}>
+            <Layout />
+          </RequireRole>
+        }
+      >
         <Route index element={<DashboardPage />} />
         <Route path="bus" element={<BusListPage />} />
         <Route path="bus/:busId" element={<BusDetailPage />} />

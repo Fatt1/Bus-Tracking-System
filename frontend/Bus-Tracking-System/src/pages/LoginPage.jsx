@@ -3,28 +3,58 @@
 import React, { useState } from "react";
 import "./LoginPage.css"; // Sẽ tạo file này ở bước tiếp theo
 import { FaEye, FaEyeSlash, FaExclamationTriangle } from "react-icons/fa"; // Cần cài react-icons
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { decodeJwt, extractRoles, setAuthInfo } from "../utils/auth";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false); // State để ẩn/hiện mật khẩu
   const [error, setError] = useState(""); // State để hiển thị lỗi
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const handleLogin = (e) => {
-    e.preventDefault(); // Ngăn chặn reload trang khi submit form
-    setError(""); // Xóa lỗi cũ khi thử đăng nhập lại
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
-    // DỮ LIỆU MẪU: Đăng nhập đơn giản cho mục đích demo
-    // Thực tế: Bạn sẽ gọi API tới backend ở đây
-    if (email === "admin@example.com" && password === "password123") {
-      alert("Đăng nhập thành công!");
-      // Chuyển hướng người dùng về trang chủ (Dashboard)
-      // (Bạn sẽ cần cài đặt React Router để xử lý việc chuyển hướng này một cách đúng đắn)
-      window.location.href = "/dashboard"; // Tạm thời dùng cách này
-    } else {
-      setError(
-        "Tên đăng nhập hoặc mật khẩu không đúng với tài khoản, vui lòng thử lại"
-      );
+    try {
+      // Cấu hình axios: baseURL và gửi cookie
+      const api = axios.create({
+        baseURL: "https://localhost:7229",
+        withCredentials: true,
+        headers: { "Content-Type": "application/json" },
+      });
+
+      // Backend dùng UserName/Password (không phải email)
+      const payload = { userName: email, password };
+      const res = await api.post("/api/v1/auth/login", payload);
+      const data = res.data || {};
+
+      const token = data.token || data.Token;
+      const payloadObj = decodeJwt(token);
+      const roles = extractRoles(payloadObj);
+
+      // Lưu thông tin cơ bản để guard routes (cookie HttpOnly lưu token cho API)
+      setAuthInfo({ roles, fullName: data.fullName || data.FullName, userName: data.userName || data.UserName });
+
+      // Điều hướng theo role
+      if (roles.includes("Admin")) {
+        navigate("/", { replace: true });
+      } else if (roles.includes("Driver")) {
+        navigate("/driver/home", { replace: true });
+      } else if (roles.includes("Parent")) {
+        // Chưa có UI cho phụ huynh: tạm thời quay lại login với thông báo
+        setError("Tài khoản Phụ huynh hiện chưa có giao diện. Vui lòng thử với Admin hoặc Driver.");
+      } else {
+        setError("Không xác định được quyền của tài khoản.");
+      }
+    } catch {
+      setError("Tên đăng nhập hoặc mật khẩu không đúng. Vui lòng thử lại.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -56,13 +86,13 @@ const LoginPage = () => {
               )}
 
               <div className="form-group">
-                <label htmlFor="email">EMAIL</label>
+                <label htmlFor="email">TÊN ĐĂNG NHẬP</label>
                 <input
-                  type="email"
+                  type="text"
                   id="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Nhập email của bạn"
+                  placeholder="Nhập tên đăng nhập"
                   required
                 />
               </div>
@@ -89,8 +119,8 @@ const LoginPage = () => {
                 {/* Nếu muốn hiển thị hint */}
               </div>
 
-              <button type="submit" className="login-button">
-                ĐĂNG NHẬP
+              <button type="submit" className="login-button" disabled={loading}>
+                {loading ? "Đang đăng nhập..." : "ĐĂNG NHẬP"}
               </button>
             </form>
           </div>

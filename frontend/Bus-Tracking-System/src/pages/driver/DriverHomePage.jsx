@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { clearAuth } from "../../utils/auth";
 import "./DriverHomePage.css";
 import {
   FaHome,
@@ -15,7 +18,7 @@ import {
   FaMapMarkedAlt,
   FaCalendarAlt, // Thêm icon lịch
 } from "react-icons/fa";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 
 // --- DỮ LIỆU MẪU CHO TÀI XẾ (SAU NÀY SẼ LẤY TỪ API) ---
 const mockDriverProfile = {
@@ -260,6 +263,7 @@ const DriverSidebar = () => {
 const DriverHeader = ({
   onReportIncident,
   onProfileClick,
+  onLogout,
   driverName = "Phan Viết Huy",
 }) => {
   return (
@@ -286,6 +290,9 @@ const DriverHeader = ({
           <img src="https://i.pravatar.cc/40?u=driver1" alt="Avatar" />
           <span>{driverName}</span>
         </div>
+        <button className="driver-logout-btn" onClick={onLogout}>
+          Đăng xuất
+        </button>
       </div>
     </header>
   );
@@ -295,6 +302,26 @@ const DriverHeader = ({
 const DriverHomePage = () => {
   const [isIncidentModalOpen, setIsIncidentModalOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false); // <-- STATE MỚI
+  const navigate = useNavigate();
+
+  const fullName =
+    (typeof window !== "undefined" && localStorage.getItem("fullName")) ||
+    `${mockDriverProfile.firstName} ${mockDriverProfile.lastName}`;
+
+  const handleLogout = async () => {
+    try {
+      await axios.post(
+        "https://localhost:7229/api/v1/auth/logout",
+        null,
+        { withCredentials: true }
+      );
+    } catch {
+      // ignore
+    } finally {
+      clearAuth();
+      navigate("/login", { replace: true });
+    }
+  };
 
   return (
     <div className="driver-page-container">
@@ -319,7 +346,8 @@ const DriverHomePage = () => {
         <DriverHeader
           onReportIncident={() => setIsIncidentModalOpen(true)}
           onProfileClick={() => setIsProfileModalOpen(true)} // <-- Thêm prop
-          driverName={`${mockDriverProfile.firstName} ${mockDriverProfile.lastName}`} // Lấy tên từ data
+          onLogout={handleLogout}
+          driverName={fullName}
         />
 
         <main className="driver-main-content">

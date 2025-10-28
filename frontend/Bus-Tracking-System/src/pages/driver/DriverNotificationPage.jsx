@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { clearAuth } from "../../utils/auth";
 import "./DriverNotificationPage.css"; // Sẽ tạo ở bước 2
 import {
   FaHome,
@@ -14,7 +16,7 @@ import {
   FaSpinner,
   FaSearch,
 } from "react-icons/fa";
-import { format } from "date-fns";
+// removed unused format import
 
 // --- DEMO DATA ---
 const mockDriverSent = Array.from({ length: 3 }, (_, i) => ({
@@ -88,7 +90,7 @@ const DriverSidebar = () => {
 };
 
 // --- COMPONENT HEADER (Tương tự các trang driver khác) ---
-const DriverHeader = ({ onReportIncident, driverName = "Phan Viết Huy" }) => {
+const DriverHeader = ({ onReportIncident, driverName = "Phan Viết Huy", onLogout }) => {
   // Component này cũng cần state và logic để mở Profile Modal
   // Tạm thời chỉ là giao diện
   return (
@@ -110,6 +112,9 @@ const DriverHeader = ({ onReportIncident, driverName = "Phan Viết Huy" }) => {
           <img src="https://i.pravatar.cc/40?u=driver1" alt="Avatar" />
           <span>{driverName}</span>
         </div>
+        <button className="driver-logout-btn" onClick={onLogout}>
+          Đăng xuất
+        </button>
       </div>
     </header>
   );
@@ -158,8 +163,26 @@ const DriverNotificationPage = () => {
   const [itemToDelete, setItemToDelete] = useState(null); // {id, count}
 
   // Logic modal báo cáo sự cố (từ trang chủ)
-  const [isIncidentModalOpen, setIsIncidentModalOpen] = useState(false);
-  // (Bạn cần import ReportIncidentModal nếu muốn dùng)
+  // (Bạn có thể thêm modal báo cáo sự cố sau này)
+  const navigate = useNavigate();
+  const fullName =
+    (typeof window !== "undefined" && localStorage.getItem("fullName")) ||
+    "Phan Viết Huy";
+
+  const handleLogout = async () => {
+    try {
+      await axios.post(
+        "https://localhost:7229/api/v1/auth/logout",
+        null,
+        { withCredentials: true }
+      );
+    } catch {
+      // ignore
+    } finally {
+      clearAuth();
+      navigate("/login", { replace: true });
+    }
+  };
 
   const notificationsToShow =
     activeTab === "sent" ? sentNotifications : inboxNotifications;
@@ -245,7 +268,7 @@ const DriverNotificationPage = () => {
       <div className="driver-page-container">
         <DriverSidebar />
         <div className="driver-main-wrapper">
-          <DriverHeader onReportIncident={() => setIsIncidentModalOpen(true)} />
+          <DriverHeader onReportIncident={() => alert("Mở modal báo cáo sự cố (chưa triển khai)")} driverName={fullName} onLogout={handleLogout} />
 
           <main className="driver-main-content">
             {/* CSS của trang này sẽ ghi đè padding mặc định của driver-main-content */}
