@@ -60,29 +60,34 @@ const DriverSidebar = () => {
       </div>
       <nav className="driver-sidebar-nav">
         <ul>
-          <li className={activePage === "home" ? "active" : ""}>
-            {/* Dùng Link của React Router */}
+          <li className={activePage === "/driver/home" ? "active" : ""}>
             <Link to="/driver/home">
               {" "}
               <FaHome /> Trang chủ{" "}
             </Link>
           </li>
-          <li className={activePage === "schedule" ? "active" : ""}>
+          <li className={activePage === "/driver/schedule" ? "active" : ""}>
             <Link to="/driver/schedule">
               {" "}
               <FaTasks /> Lịch trình làm việc{" "}
             </Link>
           </li>
-          <li className={activePage === "students" ? "active" : ""}>
-            {/* Cần tạo trang này sau */}
-            <Link to="#">
+          <li
+            className={
+              activePage.startsWith("/driver/students") ? "active" : ""
+            }
+          >
+            <Link to="/driver/students">
               {" "}
               <FaUserCheck /> Học sinh & điểm đón{" "}
             </Link>
           </li>
-          <li className={activePage === "notifications" ? "active" : ""}>
-            {/* Cần tạo trang này sau */}
-            <Link to="#">
+          <li
+            className={
+              activePage.startsWith("/driver/notifications") ? "active" : ""
+            }
+          >
+            <Link to="/driver/notifications">
               {" "}
               <FaBell /> Thông báo{" "}
             </Link>

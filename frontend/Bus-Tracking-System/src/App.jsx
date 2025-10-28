@@ -19,6 +19,7 @@ import NotificationPage from "./pages/NotificationPage";
 
 import DriverHomePage from "./pages/driver/DriverHomePage";
 import DriverSchedulePage from "./pages/driver/DriverSchedulePage";
+import DriverNotificationPage from "./pages/driver/DriverNotificationPage";
 
 function App() {
   // Xóa useEffect gọi API ở đây, nó nên nằm trong component cần dữ liệu (DashboardPage)
@@ -40,6 +41,10 @@ function App() {
       {/* 2. THÊM ROUTE MỚI CHO TRANG CHỦ TÀI XẾ */}
       <Route path="/driver/home" element={<DriverHomePage />} />
       <Route path="/driver/schedule" element={<DriverSchedulePage />} />
+      <Route
+        path="/driver/notifications"
+        element={<DriverNotificationPage />}
+      />
 
       {/* Các Route CÓ Sidebar Admin */}
       <Route path="/" element={<Layout />}>

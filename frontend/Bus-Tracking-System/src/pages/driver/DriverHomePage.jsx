@@ -245,7 +245,7 @@ const DriverSidebar = () => {
           </li>
           <li className={activePage === "notifications" ? "active" : ""}>
             {/* Sửa <a> thành <Link> */}
-            <Link to="#">
+            <Link to="/driver/notifications">
               {" "}
               <FaBell /> Thông báo{" "}
             </Link>
