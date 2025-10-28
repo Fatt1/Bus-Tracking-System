@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-// import axios from 'axios'; // Bỏ comment khi dùng API
+import axios from "axios";
 import "./NotificationPage.css"; // CSS riêng
 import "../pages/LayoutTable.css"; // Tái sử dụng CSS chung nếu cần (cho modal confirm)
 import MultiSelectDropdown from ".//MultiSelectDropdown"; // <-- 1. IMPORT COMPONENT MỚI
@@ -17,49 +17,20 @@ import {
 } from "react-icons/fa";
 import { format } from "date-fns"; // Để format thời gian
 
-// --- DEMO DATA ---
-const mockSentNotifications = Array.from({ length: 15 }, (_, i) => ({
-  id: `sent_${i + 1}`,
-  type: "sent",
-  recipient:
-    i % 3 === 0 ? "Tất cả tài xế" : `Tài xế Phan Viết Huy ${(i % 5) + 1}`,
-  subject: `Thông báo ${i + 1}: Cập nhật lịch trình quan trọng`,
-  message: `Nội dung chi tiết của thông báo số ${i + 1} gửi đến ${
-    i % 3 === 0 ? "tất cả tài xế" : `Tài xế Phan Viết Huy ${(i % 5) + 1}`
-  }. Vui lòng kiểm tra lịch trình mới nhất được cập nhật trên hệ thống.`,
-  timestamp: `2025-10-26 - ${String(8 + (i % 10)).padStart(2, "0")}:${String(
-    (i * 3) % 60
-  ).padStart(2, "0")} AM`,
-}));
+// --- API BASE URL ---
+const API_BASE = "https://localhost:7229/api/v1";
 
-const mockInboxNotifications = Array.from({ length: 8 }, (_, i) => ({
-  id: `inbox_${i + 1}`,
-  type: "inbox",
-  sender: `Tài xế Nguyễn Văn An ${i + 1}`,
-  subject: `Phản hồi ${i + 1}: Về sự cố xe B00${i + 1}`,
-  message: `Nội dung phản hồi chi tiết từ tài xế Nguyễn Văn An ${
-    i + 1
-  } về sự cố trên tuyến đường X vào ngày Y... cần hỗ trợ gấp.`,
-  timestamp: `2025-10-25 - ${String(14 + (i % 5)).padStart(2, "0")}:${String(
-    (i * 7) % 60
-  ).padStart(2, "0")} PM`,
-}));
+// Helper function to create axios instance with credentials
+const createAPI = () =>
+  axios.create({
+    baseURL: API_BASE,
+    withCredentials: true,
+    headers: { "Content-Type": "application/json" },
+  });
 
-// Dữ liệu mẫu cho dropdowns trong modal
-const mockDrivers = [
-  { id: 1, name: "Phan Viết Huy" },
-  { id: 2, name: "Nguyễn Văn An" },
-  { id: 3, name: "Lê Thị Cẩm" },
-  { id: 4, name: "Trần Bảo Ngọc" },
-  { id: 5, name: "Võ Thị Sáu" },
-];
-// 2. THÊM MOCK DATA PHỤ HUYNH
-const mockParents = [
-  { id: 101, name: "Phụ huynh em Nguyễn A" },
-  { id: 102, name: "Phụ huynh em Trần B" },
-  { id: 103, name: "Phụ huynh em Lê C" },
-  { id: 104, name: "Phụ huynh em Phạm D" },
-];
+// --- END API SETUP ---
+
+// --- DEMO DATA (REMOVED, will fetch from backend) ---
 // --- END DEMO DATA ---
 
 // --- COMPONENT MODAL TẠO THÔNG BÁO (ĐÃ CẬP NHẬT) ---
@@ -69,6 +40,7 @@ const CreateNotificationModal = ({
   onSend,
   drivers,
   parents,
+  isLoadingRecipients,
 }) => {
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
@@ -77,7 +49,6 @@ const CreateNotificationModal = ({
   const [selectedDriverIds, setSelectedDriverIds] = useState(new Set());
   const [selectedParentIds, setSelectedParentIds] = useState(new Set()); // Thêm state cho phụ huynh
   const [sendToSelf, setSendToSelf] = useState(false);
-  const [isLoadingOptions, setIsLoadingOptions] = useState(false); // Chung cho cả 2
 
   useEffect(() => {
     if (isOpen) {
@@ -87,7 +58,6 @@ const CreateNotificationModal = ({
       setSelectedDriverIds(new Set()); // Reset thành Set rỗng
       setSelectedParentIds(new Set()); // Reset thành Set rỗng
       setSendToSelf(false);
-      // Có thể gọi API lấy drivers/parents ở đây
     }
   }, [isOpen]);
 
@@ -216,7 +186,7 @@ const CreateNotificationModal = ({
             {/* 4. Sử dụng MultiSelectDropdown cho Tài xế */}
             {recipientType === "driver" && (
               <div className="multi-select-container">
-                {isLoadingOptions ? (
+                {isLoadingRecipients ? (
                   <div className="loading-drivers">
                     <FaSpinner className="spinner" /> Đang tải...
                   </div>
@@ -234,7 +204,7 @@ const CreateNotificationModal = ({
             {/* 5. Sử dụng MultiSelectDropdown cho Phụ huynh */}
             {recipientType === "parent" && (
               <div className="multi-select-container">
-                {isLoadingOptions ? (
+                {isLoadingRecipients ? (
                   <div className="loading-drivers">
                     <FaSpinner className="spinner" /> Đang tải...
                   </div>
@@ -315,18 +285,108 @@ const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, count }) => {
   );
 };
 
-// --- COMPONENT CHÍNH CỦA TRANG (Giữ nguyên phần lớn logic) ---
+// --- COMPONENT CHÍNH CỦA TRANG ---
 const NotificationPage = () => {
   const [activeTab, setActiveTab] = useState("sent");
-  const [sentNotifications, setSentNotifications] = useState(
-    mockSentNotifications
-  );
-  const [inboxNotifications, setInboxNotifications] = useState(
-    mockInboxNotifications
-  );
+  const [sentNotifications, setSentNotifications] = useState([]);
+  const [inboxNotifications, setInboxNotifications] = useState([]);
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
+
+  // Recipients data
+  const [drivers, setDrivers] = useState([]);
+  const [parents, setParents] = useState([]);
+  const [isLoadingRecipients, setIsLoadingRecipients] = useState(false);
+  const [isLoadingNotifications, setIsLoadingNotifications] = useState(false);
+
+  // Fetch sent and received notifications on mount
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
+
+  // Fetch drivers and parents when modal opens
+  useEffect(() => {
+    if (isCreateModalOpen) {
+      fetchRecipients();
+    }
+  }, [isCreateModalOpen]);
+
+  const fetchNotifications = async () => {
+    setIsLoadingNotifications(true);
+    try {
+      const api = createAPI();
+      const [sentRes, receivedRes] = await Promise.all([
+        api.get("/notificaton/sent-notifications"),
+        api.get("/notificaton/received-notifications"),
+      ]);
+
+      // Transform backend data to match UI structure
+      const sent = (sentRes.data || []).map((n) => ({
+        id: `sent_${n.sentNotificationId}`,
+        type: "sent",
+        recipient:
+          n.recipientUsers?.length > 0
+            ? n.recipientUsers.length === 1
+              ? n.recipientUsers[0].recipientUserName
+              : `${n.recipientUsers.length} người nhận`
+            : "Không xác định",
+        subject: n.title,
+        message: n.message,
+        timestamp: format(new Date(n.sendAt), "dd/MM/yyyy - hh:mm a"),
+      }));
+
+      const received = (receivedRes.data || []).map((n) => ({
+        id: `inbox_${n.receivedNotifcationId}`,
+        type: "inbox",
+        sender: n.senderUserName || "Unknown",
+        subject: n.title,
+        message: n.message,
+        timestamp: format(new Date(n.sendAt), "dd/MM/yyyy - hh:mm a"),
+        isRead: n.isRead,
+      }));
+
+      setSentNotifications(sent);
+      setInboxNotifications(received);
+    } catch (error) {
+      console.error("Failed to fetch notifications:", error);
+      alert("Không thể tải danh sách thông báo.");
+    } finally {
+      setIsLoadingNotifications(false);
+    }
+  };
+
+  const fetchRecipients = async () => {
+    setIsLoadingRecipients(true);
+    try {
+      const api = createAPI();
+      const [driversRes, studentsRes] = await Promise.all([
+        api.get("/driver/no-pagination"),
+        api.get("/student/no-pagination"),
+      ]);
+
+      // Transform drivers: backend returns { id (int), fullName, userId (string) }
+      // MultiSelectDropdown expects { id, name }, and we'll store userId separately
+      const driverList = (driversRes.data || []).map((d) => ({
+        id: d.userId, // Use userId as the id for selection
+        name: d.fullName,
+      }));
+
+      // Transform students (parents): { studentId (int), fullName, userId (string), class }
+      const parentList = (studentsRes.data || []).map((s) => ({
+        id: s.userId, // Use userId as the id
+        name: `${s.fullName} (${s.class})`,
+      }));
+
+      setDrivers(driverList);
+      setParents(parentList);
+    } catch (error) {
+      console.error("Failed to fetch recipients:", error);
+      alert("Không thể tải danh sách người nhận.");
+    } finally {
+      setIsLoadingRecipients(false);
+    }
+  };
 
   const notificationsToShow =
     activeTab === "sent" ? sentNotifications : inboxNotifications;
@@ -387,23 +447,45 @@ const NotificationPage = () => {
     alert(`Đã xóa ${itemToDelete.count} thông báo (mock data)!`);
   };
 
-  const handleSendNotification = (notificationData) => {
-    console.log("Adding new sent notification (mock):", notificationData);
-    const newNotification = {
-      id: `sent_${Date.now()}`,
-      type: "sent",
-      recipient: notificationData.recipientDisplay,
-      subject: notificationData.title,
-      message: notificationData.message,
-      timestamp: format(new Date(), "dd/MM/yyyy - hh:mm a"),
-    };
-    setSentNotifications((prev) => [newNotification, ...prev]);
-    setIsCreateModalOpen(false);
-    if (activeTab !== "sent") {
-      setActiveTab("sent");
-      setSelectedIds(new Set());
+  const handleSendNotification = async (notificationData) => {
+    try {
+      const api = createAPI();
+
+      // Build list of user IDs to send to
+      let toUserIds = [];
+      if (notificationData.recipientsInfo.type === "all") {
+        // Backend should handle "all" or we send all driver + parent userIds
+        // For simplicity, backend might accept an empty array or special flag
+        // Check backend implementation - if it needs explicit IDs, gather all
+        toUserIds = []; // Backend may treat empty as "all" or we send merged list
+      } else if (notificationData.recipientsInfo.type === "driver") {
+        toUserIds = notificationData.recipientsInfo.ids; // Already userId strings
+      } else if (notificationData.recipientsInfo.type === "parent") {
+        toUserIds = notificationData.recipientsInfo.ids;
+      }
+
+      const payload = {
+        toUserIds,
+        title: notificationData.title,
+        message: notificationData.message,
+        notificationType: 0, // 0 = Info, adjust as needed
+      };
+
+      await api.post("/notificaton/send", payload);
+
+      // Refresh notification list
+      await fetchNotifications();
+
+      setIsCreateModalOpen(false);
+      if (activeTab !== "sent") {
+        setActiveTab("sent");
+        setSelectedIds(new Set());
+      }
+      alert("Đã gửi thông báo thành công!");
+    } catch (error) {
+      console.error("Failed to send notification:", error);
+      alert("Không thể gửi thông báo. Vui lòng thử lại.");
     }
-    alert("Đã gửi thông báo mới (mock data)!");
   };
 
   const changeTab = (tabName) => {
@@ -419,8 +501,9 @@ const NotificationPage = () => {
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onSend={handleSendNotification}
-        drivers={mockDrivers} // Truyền mock drivers
-        parents={mockParents} // 6. Truyền mock parents
+        drivers={drivers}
+        parents={parents}
+        isLoadingRecipients={isLoadingRecipients}
       />
       <ConfirmDeleteModal
         isOpen={!!itemToDelete}
@@ -503,7 +586,11 @@ const NotificationPage = () => {
               </select>
             </div>
             <ul className="notification-list">
-              {notificationsToShow.length > 0 ? (
+              {isLoadingNotifications ? (
+                <li className="no-notifications">
+                  <FaSpinner className="spinner" /> Đang tải thông báo...
+                </li>
+              ) : notificationsToShow.length > 0 ? (
                 notificationsToShow.map((noti) => (
                   <li
                     key={noti.id}
