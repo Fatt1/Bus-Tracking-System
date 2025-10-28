@@ -235,15 +235,15 @@ const RouteListPage = () => {
         <div className="page-content">
           <div className="content-header">
             <h2>Danh sách tuyến đường</h2>
-            <div className="header-controls">
-              {/* Nút thêm tuyến đường (tạm thời chưa có chức năng) */}
+            {/* <div className="header-controls">
+             
               <button
                 className="control-btn add-btn"
                 title="Thêm tuyến đường (chưa hoạt động)"
               >
                 <FaPlus />
               </button>
-            </div>
+            </div> */}
           </div>
 
           {isLoading ? (

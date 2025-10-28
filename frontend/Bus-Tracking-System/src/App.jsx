@@ -17,6 +17,9 @@ import { useEffect } from "react";
 import axios from "axios";
 import NotificationPage from "./pages/NotificationPage";
 
+import DriverHomePage from "./pages/driver/DriverHomePage";
+import DriverSchedulePage from "./pages/driver/DriverSchedulePage";
+
 function App() {
   // Xóa useEffect gọi API ở đây, nó nên nằm trong component cần dữ liệu (DashboardPage)
   const loadCart = async () => {
@@ -30,35 +33,25 @@ function App() {
   }, []);
   return (
     <Routes>
-      {/* Route không có Sidebar (như Login) sẽ nằm ngoài Layout */}
+      {/* Route không có Sidebar Admin (ví dụ Login, Trang tài xế) */}
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/schedules/add-new" element={<ScheduleAddEditPageNew />} />
 
-      {/* 2. Các Route CÓ Sidebar sẽ nằm bên trong Layout */}
+      {/* 2. THÊM ROUTE MỚI CHO TRANG CHỦ TÀI XẾ */}
+      <Route path="/driver/home" element={<DriverHomePage />} />
+      <Route path="/driver/schedule" element={<DriverSchedulePage />} />
+
+      {/* Các Route CÓ Sidebar Admin */}
       <Route path="/" element={<Layout />}>
-        {/* 'index' có nghĩa là route mặc định "/" sẽ render DashboardPage */}
         <Route index element={<DashboardPage />} />
-
-        {/* Route cho danh sách xe buýt */}
         <Route path="bus" element={<BusListPage />} />
-
-        {/* Route động cho trang chi tiết */}
         <Route path="bus/:busId" element={<BusDetailPage />} />
-
+        <Route path="schedules-calendar" element={<ScheduleListPageNew />} />
         <Route path="schedule-trips" element={<TripListPage />} />
-
-        <Route path="schedule" element={<ScheduleListPageNew />} />
-
-        <Route path="schedules/add-new" element={<ScheduleAddEditPageNew />} />
-
         <Route path="students" element={<StudentListPage />} />
-
         <Route path="drivers" element={<DriverListPage />} />
-
         <Route path="routes" element={<RouteListPage />} />
-
-        <Route path="notification" element={<NotificationPage />} />
-
-        {/* <Route path="drivers" element={<DriverPage />} /> */}
+        <Route path="notifications" element={<NotificationPage />} />
       </Route>
     </Routes>
   );

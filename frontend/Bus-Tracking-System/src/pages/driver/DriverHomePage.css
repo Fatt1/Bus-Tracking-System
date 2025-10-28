@@ -1,0 +1,571 @@
+/* src/pages/DriverHomePage.css */
+
+/* --- Font & Biến màu --- */
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
+
+:root {
+  --driver-bg: #f4f7fa;
+  --driver-sidebar-bg: #ffffff;
+  --driver-content-bg: #ffffff;
+  --driver-text-primary: #1a202c;
+  --driver-text-secondary: #718096;
+  --driver-primary-blue: #2a64b5; /* Màu active sidebar */
+  --driver-border-color: #e2e8f0;
+  --driver-red: #e53e3e;
+  --driver-green: #38a169;
+  --driver-orange: #f6ad55;
+  --driver-gray-light: #f7fafc;
+  --driver-gray-medium: #edf2f7;
+  --driver-gray-dark: #a0aec0;
+}
+
+body {
+  font-family: "Roboto", sans-serif;
+}
+
+/* --- Layout chính --- */
+.driver-page-container {
+  display: flex;
+  height: 100vh;
+  background-color: var(--driver-bg);
+}
+
+.driver-main-wrapper {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden; /* Ngăn wrapper cuộn */
+}
+
+.driver-main-content {
+  flex-grow: 1;
+  overflow-y: auto; /* Chỉ cho phép nội dung chính cuộn */
+  padding: 24px;
+}
+
+/* --- Sidebar (Bên trái) --- */
+.driver-sidebar {
+  width: 240px;
+  background-color: var(--driver-sidebar-bg);
+  border-right: 1px solid var(--driver-border-color);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.driver-sidebar-header {
+  padding: 20px;
+  border-bottom: 1px solid var(--driver-border-color);
+}
+.driver-sidebar-header h3 {
+  text-align: center;
+  color: var(--driver-primary-blue);
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.driver-sidebar-nav {
+  padding: 15px;
+}
+.driver-sidebar-nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.driver-sidebar-nav li a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 15px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 500;
+  color: var(--driver-text-secondary);
+  transition: background-color 0.2s, color 0.2s;
+}
+.driver-sidebar-nav li a:hover {
+  background-color: var(--driver-gray-light);
+  color: var(--driver-text-primary);
+}
+.driver-sidebar-nav li.active a {
+  background-color: var(--driver-primary-blue);
+  color: white;
+}
+
+/* --- Header (Trên cùng) --- */
+.driver-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 24px;
+  background-color: var(--driver-content-bg);
+  border-bottom: 1px solid var(--driver-border-color);
+  flex-shrink: 0;
+}
+.driver-header .breadcrumbs {
+  color: var(--driver-text-secondary);
+  font-size: 0.9rem;
+}
+
+.driver-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.report-incident-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #fef2f2; /* Nền đỏ nhạt */
+  color: var(--driver-red);
+  border: 1px solid #fecaca; /* Viền đỏ nhạt */
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.report-incident-btn:hover {
+  background-color: #feebeb;
+  border-color: #fca5a5;
+}
+
+.driver-search-input {
+  padding: 8px 12px;
+  border: 1px solid var(--driver-border-color);
+  border-radius: 6px;
+  min-width: 250px;
+}
+
+.driver-user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+}
+.driver-user-info img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+/* --- Nội dung chính --- */
+.driver-welcome-section {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.driver-info-card,
+.driver-greeting-card {
+  background-color: var(--driver-content-bg);
+  border-radius: 8px;
+  border: 1px solid var(--driver-border-color);
+  padding: 24px;
+}
+.driver-info-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.driver-info-card img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+}
+.driver-details p {
+  margin: 0 0 5px;
+  color: var(--driver-text-secondary);
+}
+.driver-details h3 {
+  margin: 0 0 5px;
+  color: var(--driver-text-primary);
+  font-size: 1.5rem;
+}
+.driver-details span {
+  font-size: 0.9rem;
+}
+
+.driver-greeting-card {
+  background-color: var(--driver-gray-medium);
+  border-color: var(--driver-border-color);
+}
+.driver-greeting-card p {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  margin: 0;
+  color: var(--driver-text-primary);
+}
+
+/* Phần lịch trình (bên trái) */
+.driver-schedule-section {
+  display: grid;
+  grid-template-columns: 1.8fr 1.2fr;
+  gap: 24px;
+}
+.schedule-list h4 {
+  font-size: 1.3rem;
+  margin: 0 0 5px 0;
+}
+.schedule-list .schedule-date {
+  font-size: 1rem;
+  color: var(--driver-text-secondary);
+  margin-bottom: 20px;
+}
+
+.schedule-card {
+  display: grid;
+  grid-template-columns: auto 1fr 1.5fr auto;
+  align-items: center;
+  gap: 20px;
+  background-color: var(--driver-content-bg);
+  border: 1px solid var(--driver-border-color);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 15px;
+}
+.morning-card {
+  border-left: 5px solid var(--driver-green);
+}
+.afternoon-card {
+  border-left: 5px solid var(--driver-orange);
+}
+
+.schedule-card-icon {
+  padding: 15px;
+  background-color: var(--driver-primary-blue);
+  color: white;
+  border-radius: 8px;
+}
+.schedule-card-info h4 {
+  margin: 0 0 5px;
+  font-size: 1.1rem;
+}
+.schedule-card-info p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--driver-text-secondary);
+}
+.schedule-card-info span {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--driver-text-secondary);
+}
+
+.schedule-card-details h3 {
+  margin: 0 0 8px;
+  font-size: 1.2rem;
+}
+.schedule-card-details p {
+  margin: 0 0 5px;
+  font-size: 0.9rem;
+}
+.schedule-card-details .status-upcoming {
+  color: var(--driver-green);
+  font-weight: 500;
+}
+.schedule-card-details .status-waiting {
+  color: var(--driver-gray-dark);
+  font-weight: 500;
+}
+
+.start-trip-btn {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.start-trip-btn.active-btn {
+  background-color: var(--driver-green);
+  color: white;
+}
+.start-trip-btn.active-btn:hover {
+  background-color: #2f855a;
+}
+.start-trip-btn.disabled-btn {
+  background-color: var(--driver-gray-medium);
+  color: var(--driver-gray-dark);
+  cursor: not-allowed;
+}
+
+/* Phần bản đồ (bên phải) */
+.driver-map-container {
+  background-color: var(--driver-content-bg);
+  border: 1px solid var(--driver-border-color);
+  border-radius: 8px;
+  padding: 10px;
+  min-height: 400px;
+  display: flex;
+}
+.driver-map-placeholder {
+  flex-grow: 1;
+  background-color: var(--driver-gray-light);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--driver-gray-dark);
+  gap: 15px;
+}
+
+/* --- Modal Báo cáo sự cố --- */
+.driver-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+.driver-modal-content {
+  background-color: var(--driver-content-bg);
+  padding: 24px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  position: relative;
+}
+.driver-modal-close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--driver-text-secondary);
+}
+.incident-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.incident-option {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 20px;
+  background-color: var(--driver-gray-light);
+  border: 1px solid var(--driver-border-color);
+  border-radius: 6px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--driver-text-primary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.incident-option:hover {
+  background-color: var(--driver-gray-medium);
+  border-color: #cbd5e0;
+}
+/* Màu icon riêng */
+.incident-option:nth-child(1) svg {
+  color: var(--driver-red);
+}
+.incident-option:nth-child(2) svg {
+  color: var(--driver-orange);
+}
+.incident-option:nth-child(3) svg {
+  color: var(--driver-red);
+}
+.incident-option:nth-child(4) svg {
+  color: var(--driver-text-secondary);
+}
+/*  */
+/* ... (CSS cũ của bạn cho trang chủ tài xế) ... */
+
+/* --- THÊM MỚI: Style cho Modal Thông tin cá nhân --- */
+
+/* Thêm cursor pointer cho user info ở header */
+.driver-user-info {
+  cursor: pointer;
+  padding: 5px; /* Thêm padding để dễ click */
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+.driver-user-info:hover {
+  background-color: var(--driver-gray-light);
+}
+
+/* Nội dung modal */
+.driver-modal-content.profile-modal {
+  max-width: 900px; /* Rộng hơn modal sự cố */
+  padding: 0; /* Xóa padding mặc định */
+  overflow: hidden; /* Ẩn overflow để bo góc */
+}
+
+/* Form layout 2 cột */
+.profile-form {
+  display: grid;
+  grid-template-columns: 300px 1fr; /* Cột trái cố định, cột phải co giãn */
+  width: 100%;
+}
+
+/* Cột trái (Avatar) */
+.profile-left-column {
+  background-color: var(--driver-gray-light);
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid var(--driver-border-color);
+}
+.profile-avatar-large {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  border: 4px solid white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+.profile-left-column h3 {
+  font-size: 1.5rem;
+  color: var(--driver-text-primary);
+  margin: 0;
+}
+
+/* Cột phải (Thông tin) */
+.profile-right-column {
+  padding: 30px 40px;
+  max-height: 70vh; /* Giới hạn chiều cao */
+  overflow-y: auto; /* Cho phép cuộn nếu nội dung dài */
+}
+
+.profile-section h4 {
+  font-size: 1.1rem;
+  color: var(--driver-primary-blue);
+  margin: 0 0 20px 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--driver-border-color);
+}
+.profile-section:last-of-type {
+  margin-bottom: 0;
+}
+
+/* Tái sử dụng .form-group, .form-row từ StudentList (nếu có) */
+/* Nếu không, định nghĩa ở đây */
+.profile-form .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.profile-form .form-group {
+  margin-bottom: 20px;
+}
+.profile-form .form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: var(--driver-text-secondary);
+  font-size: 0.9rem;
+}
+.profile-form .form-group input[type="text"],
+.profile-form .form-group input[type="date"] {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--driver-border-color);
+  border-radius: 5px;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+  background-color: var(--driver-gray-light); /* Màu nền cho input chỉ đọc */
+  color: var(--driver-text-primary);
+  cursor: default; /* Không cho trỏ chuột */
+}
+
+.profile-form .gender-options {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  padding-top: 5px;
+}
+.profile-form .gender-options label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--driver-text-primary);
+}
+.profile-form .gender-options input {
+  cursor: default;
+}
+
+.profile-form .date-input-with-icon {
+  position: relative;
+}
+.profile-form .date-input-with-icon .icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--driver-text-secondary);
+}
+
+/* Nút bấm ở chân modal */
+.profile-form-actions {
+  grid-column: 1 / -1; /* Chiếm cả 2 cột */
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 20px 40px;
+  background-color: var(--driver-gray-light);
+  border-top: 1px solid var(--driver-border-color);
+}
+
+/* Tái sử dụng style nút từ các file CSS khác nếu có */
+.action-btn-form {
+  padding: 10px 25px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.action-btn-form.cancel-btn {
+  background-color: #f8f9fa;
+  color: #555;
+  border: 1px solid #ccc;
+}
+.action-btn-form.cancel-btn:hover {
+  background-color: #e9ecef;
+}
+.action-btn-form.confirm-btn {
+  background-color: var(--driver-primary-blue);
+  color: white;
+}
+.action-btn-form.confirm-btn:hover {
+  background-color: #2a5caa;
+}
+
+/* Responsive cho modal profile */
+@media (max-width: 768px) {
+  .profile-form {
+    grid-template-columns: 1fr; /* 1 cột */
+  }
+  .profile-left-column {
+    border-right: none;
+    border-bottom: 1px solid var(--driver-border-color);
+  }
+  .profile-right-column {
+    padding: 20px;
+    max-height: none; /* Bỏ giới hạn chiều cao */
+  }
+  .profile-form .form-row {
+    grid-template-columns: 1fr; /* 1 cột */
+    gap: 20px;
+  }
+  .profile-form-actions {
+    padding: 20px;
+  }
+}
