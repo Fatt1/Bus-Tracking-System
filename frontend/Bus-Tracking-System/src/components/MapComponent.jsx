@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react"; // Thêm useState
+import React, { useEffect, useRef } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
@@ -44,6 +44,7 @@ const redIcon = L.icon({
 // --- COMPONENT SIGNALR HANDLER (ĐÃ CẬP NHẬT) ---
 const SignalRHandler = () => {
   const map = useMap();
+  // Ref để lưu trữ TẤT CẢ marker xe buýt, key là busId
   const busMarkersRef = useRef(new Map());
   const hubConnectionRef = useRef(null);
 
@@ -56,7 +57,7 @@ const SignalRHandler = () => {
 
     hubConnectionRef.current = hubConnection;
 
-    // *** SỬA LỖI 3: SỬA TÊN TRƯỜNG DỮ LIỆU (PascalCase) ***
+    // *** SỬA LỖI 2: SỬA TÊN TRƯỜNG DỮ LIỆU (PascalCase) ***
     hubConnection.on("ReceiveLocationUpdate", (data) => {
       // DTO của C# là BusLastLocationDTO(double Lat, double Lng, int BusId)
       const lat = data.Lat || data.lat;
@@ -72,97 +73,65 @@ const SignalRHandler = () => {
       const markers = busMarkersRef.current;
 
       if (markers.has(busId)) {
+        // Nếu đã có marker, cập nhật vị trí
         markers.get(busId).setLatLng([lat, lng]);
       } else {
+        // Nếu chưa có, tạo marker mới
         const newMarker = L.marker([lat, lng], { icon: busIcon })
           .addTo(map)
           .bindPopup(`<b>Xe buýt ${busId}</b>`);
-        markers.set(busId, newMarker);
+        markers.set(busId, newMarker); // Lưu marker mới vào Map
       }
     });
 
+    // Bắt đầu kết nối
     hubConnection
       .start()
       .then(() => {
         console.log("Kết nối SignalR thành công!");
-        // *** SỬA LỖI 2: THAM GIA NHÓM "admin-group" ***
+        // *** SỬA LỖI 1: THAM GIA NHÓM "admin-group" ***
         hubConnection
           .invoke("JoinAdminGroup")
           .then(() => console.log("SignalR: Đã tham gia nhóm 'admin-group'."))
           .catch((err) =>
-            console.error("SignalR: Lỗi khi tham gia nhóm: ", err)
+            console.error("SignalR: Lỗi khi tham gia nhóm 'admin-group': ", err)
           );
       })
       .catch((err) => console.error("Lỗi kết nối SignalR: ", err)); // Lỗi CORS của bạn sẽ hiển thị ở đây
 
+    // Hàm dọn dẹp khi component bị hủy
     return () => {
       console.log("Ngắt kết nối SignalR.");
       if (hubConnectionRef.current) {
         hubConnectionRef.current.stop();
       }
+      // Xóa tất cả marker xe buýt khi component unmount
       busMarkersRef.current.forEach((marker) => map.removeLayer(marker));
       busMarkersRef.current.clear();
     };
-  }, [map]);
+  }, [map]); // Chỉ chạy 1 lần khi map sẵn sàng
 
-  return null;
+  return null; // Component này không render gì
 };
 
 // --- COMPONENT VẼ ĐƯỜNG ĐI VÀ ĐIỂM DỪNG (ĐÃ CẬP NHẬT) ---
 const SelectedRouteLayer = ({ selectedRoute }) => {
   const map = useMap();
-  // Các Ref này giờ là CỤC BỘ cho mỗi lần render của useEffect
-  // const routingControlRef = useRef(null);
-  // const stopMarkersRef = useRef([]);
-  // const busMarkerRef = useRef(null);
-  // const animationIntervalId = useRef(null);
-
-  // THAY ĐỔI: Dùng useState cho routeIndex để trigger re-render (dù không cần thiết)
-  // Thực ra cũng không cần state
-  // const [routeIndex, setRouteIndex] = useState(0);
-  const animationSpeed = 100;
+  const routingControlRef = useRef(null);
+  const stopMarkersRef = useRef([]);
 
   useEffect(() => {
-    // --- Định nghĩa các biến cục bộ cho lần render này ---
-    let currentRoutingControl = null;
-    let currentBusMarker = null;
-    let currentStopMarkers = [];
-    let currentAnimationIntervalId = null;
+    // --- Xóa control và stop markers cũ ---
+    // *** SỬA LỖI 3: KIỂM TRA _map TRƯỚC KHI XÓA ***
+    // Lỗi 'removeLayer' xảy ra do React Strict Mode
+    if (routingControlRef.current && routingControlRef.current._map) {
+      console.log("Map: Removing previous route control");
+      routingControlRef.current.remove(); // Dùng .remove()
+    }
+    routingControlRef.current = null;
 
-    // --- Hàm bắt đầu Animation (nằm trong useEffect) ---
-    const startAnimation = (coordinates, markerToAnimate) => {
-      console.log(
-        "startAnimation: Clearing previous interval ID (if any):",
-        currentAnimationIntervalId
-      );
-      // Clear interval trước đó (nếu có)
-      if (currentAnimationIntervalId) {
-        clearInterval(currentAnimationIntervalId);
-      }
-      let index = 0; // Index cục bộ
-
-      // Bắt đầu interval mới
-      currentAnimationIntervalId = setInterval(() => {
-        index++;
-        const nextIndex = index;
-
-        if (nextIndex >= coordinates.length) {
-          console.log("Animation finished, clearing interval.");
-          clearInterval(currentAnimationIntervalId);
-          currentAnimationIntervalId = null;
-          return;
-        }
-
-        // Cập nhật vị trí của marker CỤC BỘ
-        if (markerToAnimate) {
-          markerToAnimate.setLatLng(coordinates[nextIndex]);
-        }
-      }, animationSpeed);
-      console.log(
-        "Animation started with new interval ID:",
-        currentAnimationIntervalId
-      );
-    };
+    stopMarkersRef.current.forEach((marker) => map.removeLayer(marker));
+    stopMarkersRef.current = [];
 
     // --- Vẽ mới ---
     if (selectedRoute?.stopPoints?.length > 0) {
@@ -174,51 +143,31 @@ const SelectedRouteLayer = ({ selectedRoute }) => {
       );
 
       if (waypoints.length > 0) {
-        // --- Thêm marker xe buýt ở điểm bắt đầu ---
-        const startPoint = waypoints[0];
-        currentBusMarker = L.marker(startPoint, { icon: busIcon })
-          .bindPopup(
-            `<b>${selectedRoute.routeName}</b><br>Xe buýt: BUS-${String(
-              selectedRoute.id
-            ).padStart(3, "0")}`
-          )
-          .addTo(map);
+        // Tạo Routing Control (chỉ vẽ đường)
+        const newRoutingControl = L.Routing.control({
+          waypoints: waypoints,
+          addWaypoints: false,
+          draggableWaypoints: false,
+          routeWhileDragging: false,
+          show: false, // Ẩn chỉ đường
+          lineOptions: {
+            styles: [{ color: "#0A2E5D", opacity: 0.8, weight: 6 }],
+          },
+          createMarker: () => null, // Không tạo marker điểm dừng bằng control
+        }).addTo(map);
+        routingControlRef.current = newRoutingControl; // Lưu ref
 
-        // --- Thêm marker cho các điểm dừng ---
+        // --- Thêm marker cho các điểm dừng (custom icon) ---
         sortedPoints.forEach((point, index) => {
           const position = L.latLng(point.latitude, point.longitude);
+          // Điểm cuối dùng icon đỏ
           const markerIcon =
             index === sortedPoints.length - 1 ? redIcon : DefaultIcon;
           const stopMarker = L.marker(position, { icon: markerIcon })
             .bindPopup(`<b>${point.pointName}</b><br>Trạm dừng số ${index + 1}`)
             .addTo(map);
-          currentStopMarkers.push(stopMarker);
+          stopMarkersRef.current.push(stopMarker);
         });
-
-        // --- Tạo Routing Control (vẽ đường) ---
-        currentRoutingControl = L.Routing.control({
-          waypoints: waypoints,
-          addWaypoints: false,
-          draggableWaypoints: false,
-          routeWhileDragging: false,
-          show: false,
-          lineOptions: {
-            styles: [{ color: "#0A2E5D", opacity: 0.8, weight: 6 }],
-          },
-          createMarker: () => null,
-        })
-          .on("routesfound", function (e) {
-            // Lắng nghe sự kiện
-            if (e.routes && e.routes.length > 0) {
-              const coordinates = e.routes[0].coordinates;
-              console.log(
-                `Route found with ${coordinates.length} coordinates.`
-              );
-              // Bắt đầu animation với marker cục bộ
-              startAnimation(coordinates, currentBusMarker);
-            }
-          })
-          .addTo(map);
 
         // --- Zoom vào tuyến đường ---
         if (waypoints.length > 1) {
@@ -229,38 +178,23 @@ const SelectedRouteLayer = ({ selectedRoute }) => {
         }
       }
     } else {
-      // Reset view nếu không có route nào được chọn
-      map.setView([10.7769, 106.6954], 13);
+      // Chỉ reset view nếu không có route nào được chọn *và* map đã sẵn sàng
+      if (map) {
+        map.setView([10.7769, 106.6954], 13);
+      }
     }
 
     // --- Hàm dọn dẹp ---
     return () => {
-      console.log(
-        "Cleanup running: Clearing interval",
-        currentAnimationIntervalId
-      );
-      // 1. Dừng animation
-      if (currentAnimationIntervalId) {
-        clearInterval(currentAnimationIntervalId);
-        currentAnimationIntervalId = null;
+      // *** SỬA LỖI 3: KIỂM TRA _map TRƯỚC KHI XÓA ***
+      if (routingControlRef.current && routingControlRef.current._map) {
+        routingControlRef.current.remove();
+        routingControlRef.current = null;
       }
-      // 2. Xóa đường đi
-      if (currentRoutingControl && currentRoutingControl._map) {
-        console.log("Cleanup: Removing route control");
-        currentRoutingControl.remove();
-      }
-      // 3. Xóa marker xe buýt
-      if (currentBusMarker) {
-        console.log("Cleanup: Removing bus marker");
-        map.removeLayer(currentBusMarker);
-      }
-      // 4. Xóa marker điểm dừng
-      console.log(
-        `Cleanup: Removing ${currentStopMarkers.length} stop markers`
-      );
-      currentStopMarkers.forEach((marker) => map.removeLayer(marker));
+      stopMarkersRef.current.forEach((marker) => map.removeLayer(marker));
+      stopMarkersRef.current = [];
     };
-  }, [selectedRoute, map]); // Chỉ chạy lại khi selectedRoute hoặc map thay đổi
+  }, [selectedRoute, map]);
 
   return null;
 };
@@ -281,6 +215,8 @@ const MapComponent = ({ selectedRoute }) => {
         attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
       />
       <SelectedRouteLayer selectedRoute={selectedRoute} />
+
+      {/* Component này sẽ nhận vị trí xe buýt real-time */}
       <SignalRHandler />
     </MapContainer>
   );

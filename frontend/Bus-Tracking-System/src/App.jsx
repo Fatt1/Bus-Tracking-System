@@ -53,10 +53,13 @@ function App() {
         <Route path="bus/:busId" element={<BusDetailPage />} />
         <Route path="schedules-calendar" element={<ScheduleListPageNew />} />
         <Route path="schedule-trips" element={<TripListPage />} />
+        <Route path="schedule" element={<ScheduleListPageNew />} />
+
+        <Route path="schedules/add-new" element={<ScheduleAddEditPageNew />} />
         <Route path="students" element={<StudentListPage />} />
         <Route path="drivers" element={<DriverListPage />} />
         <Route path="routes" element={<RouteListPage />} />
-        <Route path="notifications" element={<NotificationPage />} />
+        <Route path="notification" element={<NotificationPage />} />
       </Route>
     </Routes>
   );
