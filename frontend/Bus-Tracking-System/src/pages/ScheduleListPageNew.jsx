@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios"; // Import axios
 import "./ScheduleListPageNew.css"; // Sẽ tạo ở bước 3
 import {
@@ -18,11 +18,15 @@ import {
   addWeeks,
   subWeeks,
   format,
-  isEqual,
-  isSameDay,
   parseISO,
 } from "date-fns";
 import { vi } from "date-fns/locale"; // Import Vietnamese locale
+
+// --- Axios instance with credentials ---
+const api = axios.create({
+  baseURL: "https://localhost:7229",
+  withCredentials: true,
+});
 
 // --- COMPONENT MODAL XEM/XÓA LỊCH TRÌNH ---
 const ScheduleDetailModal = ({
@@ -144,6 +148,7 @@ const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, scheduleInfo }) => {
 
 // --- COMPONENT CHÍNH: LỊCH TRÌNH THEO TUẦN ---
 const ScheduleListPageNew = () => {
+  const location = useLocation();
   const [currentDate, setCurrentDate] = useState(new Date()); // Bắt đầu từ ngày hiện tại
   const [schedules, setSchedules] = useState([]); // State lưu lịch trình từ API
   const [routes, setRoutes] = useState([]); // State lưu tuyến đường từ API
@@ -161,9 +166,9 @@ const ScheduleListPageNew = () => {
     setIsLoadingRoutes(true);
     setError(null); // Reset lỗi khi fetch
     try {
-      const response = await axios.get(
-        `https://localhost:7229/api/v1/route/all?PageNumber=1&PageSize=100`
-      ); // Lấy nhiều routes
+      const response = await api.get("/api/v1/route/all", {
+        params: { PageNumber: 1, PageSize: 100 },
+      }); // Lấy nhiều routes
       console.log("Routes API response:", response.data);
       setRoutes(response.data.items || []);
     } catch (err) {
@@ -180,9 +185,7 @@ const ScheduleListPageNew = () => {
     setIsLoadingSchedules(true);
     setError(null); // Reset lỗi khi fetch
     try {
-      const response = await axios.get(
-        `https://localhost:7229/api/v1/schedule/all`
-      );
+      const response = await api.get("/api/v1/schedule/all");
       console.log("Schedules API response:", response.data);
       setSchedules(Array.isArray(response.data) ? response.data : []);
     } catch (err) {
@@ -199,6 +202,28 @@ const ScheduleListPageNew = () => {
     fetchRoutes();
     fetchSchedules();
   }, []); // Chỉ chạy 1 lần
+
+  // useEffect để fetch lại schedules khi quay về từ trang add (phát hiện qua location.state)
+  useEffect(() => {
+    console.log("=== Location state changed ===");
+    console.log("location.state:", location.state);
+    
+    if (location.state?.refreshSchedules) {
+      console.log("=== Detected refresh flag, fetching schedules again ===");
+      fetchSchedules();
+      
+      // Nếu có thông tin tuần cần quay về, set lại currentDate
+      if (location.state?.returnToWeek) {
+        const weekStartDate = parseISO(location.state.returnToWeek);
+        console.log("=== Returning to week starting:", format(weekStartDate, "yyyy-MM-dd") + " ===");
+        setCurrentDate(weekStartDate);
+      }
+      
+      // Xóa flag để tránh fetch liên tục
+      console.log("=== Clearing navigation state ===");
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
 
   // --- LOGIC XỬ LÝ LỊCH ---
   const weekStartsOn = 1; // Bắt đầu tuần từ Thứ Hai (Monday)
@@ -257,9 +282,8 @@ const ScheduleListPageNew = () => {
     console.log(`Confirming delete for schedule ID: ${scheduleIdToDelete}`);
 
     try {
-      const apiUrl = `https://localhost:7229/api/v1/schedule/${scheduleIdToDelete}`;
-      console.log("Calling DELETE API:", apiUrl);
-      const response = await axios.delete(apiUrl);
+      const response = await api.delete(`/api/v1/schedule/${scheduleIdToDelete}`);
+      console.log("API DELETE response:", response);
       if (response.status === 200 || response.status === 204) {
         alert("Đã xóa lịch trình thành công!");
         // Cập nhật lại state schedules bằng cách loại bỏ phần tử đã xóa
@@ -280,11 +304,26 @@ const ScheduleListPageNew = () => {
   // --- HÀM CHUYỂN TRANG THÊM MỚI ---
   const handleAddSchedule = (routeId, routeName, date) => {
     const dateString = format(date, "yyyy-MM-dd");
+    const weekStartDate = format(currentWeekStart, "yyyy-MM-dd");
     console.log(
       `Navigating to add schedule for route ${routeId} (${routeName}) on date ${dateString}`
     );
-    navigate("/schedules/add-new", {
-      state: { routeId, routeName, date: dateString }, // Truyền dữ liệu qua state
+    console.log(`Current week start date: ${weekStartDate}`);
+    console.log(`Passing data:`, { 
+      routeId, 
+      routeName, 
+      date: dateString, 
+      returnWeekInfo: { weekStartDate } 
+    });
+    
+    // Lưu tuần hiện tại vào state để quay về đúng tuần
+    navigate("/schedule/add", {
+      state: { 
+        routeId, 
+        routeName, 
+        date: dateString, 
+        returnWeekInfo: { weekStartDate } 
+      },
     });
   };
 
