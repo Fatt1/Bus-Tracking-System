@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { clearAuth } from "../../utils/auth";
@@ -16,9 +16,18 @@ import {
   FaTimes,
   FaBus,
   FaMapMarkedAlt,
-  FaCalendarAlt, // Thêm icon lịch
+  FaCalendarAlt,
+  FaSpinner, // Thêm icon loading
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { format } from "date-fns"; // Thêm date-fns
+import { vi } from "date-fns/locale"; // Thêm locale tiếng Việt
+
+// --- Axios instance ---
+const api = axios.create({
+  baseURL: "https://localhost:7229",
+  withCredentials: true,
+});
 
 // --- DỮ LIỆU MẪU CHO TÀI XẾ (SAU NÀY SẼ LẤY TỪ API) ---
 const mockDriverProfile = {
@@ -298,15 +307,49 @@ const DriverHeader = ({
   );
 };
 
-// --- COMPONENT CHÍNH TRANG CHỦ TÀI XẾ (Cập nhật: Thêm state và render modal) ---
+// --- COMPONENT CHÍNH TRANG CHỦ TÀI XẾ (Cập nhật: Kết nối API) ---
 const DriverHomePage = () => {
   const [isIncidentModalOpen, setIsIncidentModalOpen] = useState(false);
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false); // <-- STATE MỚI
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [scheduleData, setScheduleData] = useState(null); // State lưu schedule từ API
+  const [isLoading, setIsLoading] = useState(true); // State loading
+  const [error, setError] = useState(null); // State lỗi
   const navigate = useNavigate();
 
   const fullName =
     (typeof window !== "undefined" && localStorage.getItem("fullName")) ||
     `${mockDriverProfile.firstName} ${mockDriverProfile.lastName}`;
+
+  // Hàm gọi API lấy schedule hôm nay
+  const fetchScheduleToday = async () => {
+    console.log("=== Fetching schedule for today ===");
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await api.get("/api/v1/driver/schedule-today");
+      console.log("Schedule API response:", response.data);
+
+      // Nếu trả về string "You have no schedule for today."
+      if (typeof response.data === "string") {
+        console.log("No schedule today");
+        setScheduleData(null);
+      } else {
+        // Có schedule
+        setScheduleData(response.data);
+      }
+    } catch (err) {
+      console.error("Lỗi khi tải lịch trình hôm nay:", err);
+      setError("Không thể tải lịch trình. Vui lòng thử lại.");
+      setScheduleData(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // useEffect để fetch data khi component mount
+  useEffect(() => {
+    fetchScheduleToday();
+  }, []); // Chỉ chạy 1 lần khi mount
 
   const handleLogout = async () => {
     try {
@@ -320,6 +363,66 @@ const DriverHomePage = () => {
       navigate("/login", { replace: true });
     }
   };
+
+  // Hàm format thời gian từ "HH:mm:ss" sang "HH:mm"
+  const formatTime = (timeString) => {
+    if (!timeString) return "--:--";
+    return timeString.substring(0, 5); // Lấy HH:mm
+  };
+
+  // Hàm lấy text trạng thái
+  const getStatusText = (status) => {
+    switch (status) {
+      case 0:
+        return { text: "Sắp khởi hành", class: "status-upcoming" };
+      case 1:
+        return { text: "Đang hoạt động", class: "status-active" };
+      case 2:
+        return { text: "Đã hoàn thành", class: "status-completed" };
+      default:
+        return { text: "Không rõ", class: "" };
+    }
+  };
+
+  // Hàm format ngày
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    try {
+      // dateString format: "YYYY-MM-DD"
+      const [year, month, day] = dateString.split("-");
+      const date = new Date(year, month - 1, day);
+      return format(date, "EEEE, 'Ngày' dd 'tháng' MM 'năm' yyyy", {
+        locale: vi,
+      });
+    } catch {
+      return dateString;
+    }
+  };
+
+  // Hàm kiểm tra thời gian hiện tại để quyết định nút nào active
+  const getCurrentTime = () => {
+    const now = new Date();
+    return `${String(now.getHours()).padStart(2, "0")}:${String(
+      now.getMinutes()
+    ).padStart(2, "0")}`;
+  };
+
+  // Logic kiểm tra nút nào được bật
+  const checkButtonState = () => {
+    if (!scheduleData) return { morning: false, afternoon: false };
+    const currentTime = getCurrentTime();
+    const morningTime = formatTime(scheduleData.pickupTime);
+    const afternoonTime = formatTime(scheduleData.dropOffTime);
+
+    // Chuyến sáng active nếu thời gian hiện tại >= pickupTime và < dropOffTime
+    // Chuyến chiều active nếu thời gian hiện tại >= dropOffTime
+    const morningActive = currentTime >= morningTime && currentTime < afternoonTime && scheduleData.status !== 2;
+    const afternoonActive = currentTime >= afternoonTime && scheduleData.status !== 2;
+
+    return { morning: morningActive, afternoon: afternoonActive };
+  };
+
+  const buttonState = checkButtonState();
 
   return (
     <div className="driver-page-container">
@@ -349,89 +452,164 @@ const DriverHomePage = () => {
         />
 
         <main className="driver-main-content">
-          {/* Phần trên: Thông tin tài xế và Lời chào */}
-          <section className="driver-welcome-section">
-            <div className="driver-info-card">
-              <img src={mockDriverProfile.avatarUrl} alt="Driver Avatar" />
-              <div className="driver-details">
-                <p>Tài xế:</p>
-                <h3>{`${mockDriverProfile.firstName} ${mockDriverProfile.lastName}`}</h3>
-                <span>
-                  Xe buýt phụ trách: <strong>001</strong>
-                </span>
-              </div>
+          {/* Hiển thị loading */}
+          {isLoading ? (
+            <div className="loading-message">
+              <FaSpinner className="spinner" /> Đang tải lịch trình...
             </div>
-            <div className="driver-greeting-card">
-              <p>
-                Buổi sáng tốt lành,{" "}
-                <strong>
-                  {mockDriverProfile.firstName} {mockDriverProfile.lastName}
-                </strong>
-                ! Hôm nay bạn có <strong>2 chuyến xe</strong> - bắt đầu lúc{" "}
-                <strong>6:00 sáng</strong>. Chúc bạn một hành trình an toàn!
-              </p>
+          ) : error ? (
+            // Hiển thị lỗi
+            <div className="error-message">{error}</div>
+          ) : !scheduleData ? (
+            // Không có lịch trình hôm nay
+            <div className="no-schedule-message">
+              <FaCalendarAlt size={50} />
+              <p>Bạn không có lịch trình cho hôm nay.</p>
             </div>
-          </section>
-
-          {/* Phần dưới: Lịch trình và Bản đồ (Giữ nguyên) */}
-          <section className="driver-schedule-section">
-            <div className="schedule-list">
-              <h4>Lịch trình hôm nay</h4>
-              <p className="schedule-date">Thứ 2, Ngày 6 tháng 10 năm 2025</p>
-
-              <div className="schedule-card morning-card">
-                {/* ... (code chuyến đi giữ nguyên) ... */}
-                <div className="schedule-card-icon">
-                  <FaBus size={24} />
+          ) : (
+            // Có lịch trình - Hiển thị UI
+            <>
+              {/* Phần trên: Thông tin tài xế và Lời chào */}
+              <section className="driver-welcome-section">
+                <div className="driver-info-card">
+                  <img src={mockDriverProfile.avatarUrl} alt="Driver Avatar" />
+                  <div className="driver-details">
+                    <p>Tài xế:</p>
+                    <h3>{fullName}</h3>
+                    <span>
+                      Xe buýt phụ trách:{" "}
+                      <strong>{scheduleData.busName || "N/A"}</strong>
+                    </span>
+                  </div>
                 </div>
-                <div className="schedule-card-info">
-                  <h4>Tuyến số 1</h4>
-                  <p>Đường An Dương Vương</p>
-                  <span>4:00 - 6:00</span>
-                </div>
-                <div className="schedule-card-details">
-                  <h3>Chuyến đi</h3>
+                <div className="driver-greeting-card">
                   <p>
-                    Trạng thái:{" "}
-                    <span className="status-upcoming">Sắp khởi hành</span>
+                    Buổi sáng tốt lành, <strong>{fullName}</strong>! Hôm nay
+                    bạn có <strong>2 chuyến xe</strong> trên tuyến{" "}
+                    <strong>{scheduleData.routeDTO?.routeName || "N/A"}</strong>{" "}
+                    - bắt đầu lúc{" "}
+                    <strong>{formatTime(scheduleData.pickupTime)}</strong>. Chúc
+                    bạn một hành trình an toàn!
                   </p>
-                  <p>Số học sinh cần đón: 40</p>
                 </div>
-                <button className="start-trip-btn active-btn">
-                  Bắt đầu chuyến đi
-                </button>
-              </div>
+              </section>
 
-              <div className="schedule-card afternoon-card">
-                {/* ... (code chuyến về giữ nguyên) ... */}
-                <div className="schedule-card-icon">
-                  <FaBus size={24} />
-                </div>
-                <div className="schedule-card-info">
-                  <h4>Tuyến số 1</h4>
-                  <p>Đường An Dương Vương</p>
-                  <span>4:00 - 6:00</span>
-                </div>
-                <div className="schedule-card-details">
-                  <h3>Chuyến về</h3>
-                  <p>
-                    Trạng thái: <span className="status-waiting">Đang chờ</span>
+              {/* Phần dưới: Lịch trình và Bản đồ */}
+              <section className="driver-schedule-section">
+                <div className="schedule-list">
+                  <h4>Lịch trình hôm nay</h4>
+                  <p className="schedule-date">
+                    {formatDate(scheduleData.scheduleDate)}
                   </p>
-                  <p>Số học sinh cần đưa về: 40</p>
-                </div>
-                <button className="start-trip-btn disabled-btn" disabled>
-                  Bắt đầu chuyến đi
-                </button>
-              </div>
-            </div>
 
-            <div className="driver-map-container">
-              <div className="driver-map-placeholder">
-                <FaMapMarkedAlt size={50} />
-                <span>Bản đồ sẽ hiển thị ở đây</span>
-              </div>
-            </div>
-          </section>
+                  {/* CHUYẾN ĐI (Sáng) */}
+                  <div className="schedule-card morning-card">
+                    <div className="schedule-card-icon">
+                      <FaBus size={24} />
+                    </div>
+                    <div className="schedule-card-info">
+                      <h4>{scheduleData.routeDTO?.routeName || "Tuyến N/A"}</h4>
+                      <p>Xe buýt: {scheduleData.busName}</p>
+                      <span>
+                        Khởi hành: {formatTime(scheduleData.pickupTime)}
+                      </span>
+                    </div>
+                    <div className="schedule-card-details">
+                      <h3>Chuyến đi</h3>
+                      <p>
+                        Trạng thái:{" "}
+                        <span
+                          className={
+                            buttonState.morning
+                              ? "status-upcoming"
+                              : scheduleData.status === 2
+                              ? "status-completed"
+                              : "status-waiting"
+                          }
+                        >
+                          {buttonState.morning
+                            ? "Sẵn sàng khởi hành"
+                            : scheduleData.status === 2
+                            ? "Đã hoàn thành"
+                            : "Đang chờ"}
+                        </span>
+                      </p>
+                      <p>
+                        Số học sinh cần đón: {scheduleData.totalStudents || 0}
+                      </p>
+                    </div>
+                    <button
+                      className={`start-trip-btn ${
+                        buttonState.morning ? "active-btn" : "disabled-btn"
+                      }`}
+                      disabled={!buttonState.morning}
+                    >
+                      Bắt đầu chuyến đi
+                    </button>
+                  </div>
+
+                  {/* CHUYẾN VỀ (Chiều) */}
+                  <div className="schedule-card afternoon-card">
+                    <div className="schedule-card-icon">
+                      <FaBus size={24} />
+                    </div>
+                    <div className="schedule-card-info">
+                      <h4>{scheduleData.routeDTO?.routeName || "Tuyến N/A"}</h4>
+                      <p>Xe buýt: {scheduleData.busName}</p>
+                      <span>
+                        Khởi hành: {formatTime(scheduleData.dropOffTime)}
+                      </span>
+                    </div>
+                    <div className="schedule-card-details">
+                      <h3>Chuyến về</h3>
+                      <p>
+                        Trạng thái:{" "}
+                        <span
+                          className={
+                            buttonState.afternoon
+                              ? "status-upcoming"
+                              : scheduleData.status === 2
+                              ? "status-completed"
+                              : "status-waiting"
+                          }
+                        >
+                          {buttonState.afternoon
+                            ? "Sẵn sàng khởi hành"
+                            : scheduleData.status === 2
+                            ? "Đã hoàn thành"
+                            : "Đang chờ"}
+                        </span>
+                      </p>
+                      <p>
+                        Số học sinh cần đưa về: {scheduleData.totalStudents || 0}
+                      </p>
+                    </div>
+                    <button
+                      className={`start-trip-btn ${
+                        buttonState.afternoon ? "active-btn" : "disabled-btn"
+                      }`}
+                      disabled={!buttonState.afternoon}
+                    >
+                      Bắt đầu chuyến đi
+                    </button>
+                  </div>
+                </div>
+
+                <div className="driver-map-container">
+                  <div className="driver-map-placeholder">
+                    <FaMapMarkedAlt size={50} />
+                    <span>Bản đồ sẽ hiển thị ở đây</span>
+                    {scheduleData.lastLocation && (
+                      <small>
+                        Vị trí xe: {scheduleData.lastLocation.latitude},{" "}
+                        {scheduleData.lastLocation.longitude}
+                      </small>
+                    )}
+                  </div>
+                </div>
+              </section>
+            </>
+          )}
         </main>
       </div>
     </div>
