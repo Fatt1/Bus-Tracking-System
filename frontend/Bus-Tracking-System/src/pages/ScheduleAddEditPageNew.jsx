@@ -12,6 +12,40 @@ const api = axios.create({
   withCredentials: true,
 });
 
+// Thêm request interceptor để log mọi request
+api.interceptors.request.use(
+  (config) => {
+    console.log("=== AXIOS REQUEST ===");
+    console.log("URL:", config.url);
+    console.log("Method:", config.method);
+    console.log("Headers:", config.headers);
+    console.log("Data:", config.data);
+    console.log("Params:", config.params);
+    return config;
+  },
+  (error) => {
+    console.error("Request interceptor error:", error);
+    return Promise.reject(error);
+  }
+);
+
+// Thêm response interceptor để log mọi response
+api.interceptors.response.use(
+  (response) => {
+    console.log("=== AXIOS RESPONSE ===");
+    console.log("Status:", response.status);
+    console.log("Data:", response.data);
+    console.log("Headers:", response.headers);
+    return response;
+  },
+  (error) => {
+    console.error("=== AXIOS ERROR ===");
+    console.error("Error:", error);
+    console.error("Response:", error.response);
+    return Promise.reject(error);
+  }
+);
+
 const ScheduleAddEditPageNew = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -108,6 +142,10 @@ const ScheduleAddEditPageNew = () => {
     e.preventDefault();
 
     console.log("=== handleSave called ===");
+    console.log("Selected date:", date);
+    console.log("Selected routeId:", routeId);
+    console.log("Selected driverId:", selectedDriverId);
+    console.log("Selected busId:", selectedBusId);
 
     // Kiểm tra đã chọn tài xế và xe buýt chưa
     if (!selectedDriverId || !selectedBusId) {
@@ -119,19 +157,43 @@ const ScheduleAddEditPageNew = () => {
     const selectedDriver = drivers.find(d => d.id === parseInt(selectedDriverId));
     const selectedBus = buses.find(b => b.id === parseInt(selectedBusId));
     
+    console.log("Selected driver object:", selectedDriver);
+    console.log("Selected bus object:", selectedBus);
+    
     if (selectedDriver && !selectedDriver.canClickable) {
+      console.warn("Driver is NOT available (canClickable = false)");
       alert(`⚠️ Tài xế "${selectedDriver.driverName}" đã có lịch trình khác trong ngày này. Vui lòng chọn tài xế khác.`);
       return;
     }
     
     if (selectedBus && !selectedBus.canClickable) {
+      console.warn("Bus is NOT available (canClickable = false)");
       alert(`⚠️ Xe buýt "${selectedBus.busName}" đã có lịch trình khác trong ngày này. Vui lòng chọn xe buýt khác.`);
       return;
     }
 
+    console.log("✅ Driver and bus are available, proceeding to POST...");
+
+    // VALIDATE date format
+    if (!date || typeof date !== 'string') {
+      console.error("❌ Invalid date:", date);
+      alert(`Lỗi: Ngày không hợp lệ (${date})`);
+      return;
+    }
+    
+    // Kiểm tra date có đúng format YYYY-MM-DD không
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(date)) {
+      console.error("❌ Date format is wrong:", date);
+      alert(`Lỗi: Định dạng ngày sai. Cần: YYYY-MM-DD, nhận được: ${date}`);
+      return;
+    }
+    
+    console.log("✅ Date format is valid:", date);
+
     // Chuẩn bị payload cho API POST /schedule/create
     const payload = {
-      scheduleDate: date, // Lấy từ state navigate
+      scheduleDate: date, // Lấy từ state navigate - PHẢI LÀ "YYYY-MM-DD"
       driverId: parseInt(selectedDriverId),
       busId: parseInt(selectedBusId),
       routeId: routeId, // Lấy từ state navigate
@@ -144,12 +206,36 @@ const ScheduleAddEditPageNew = () => {
     console.log("Return week info:", returnWeekInfo);
 
     try {
+      console.log("Calling POST /api/v1/schedule/create...");
       const response = await api.post("/api/v1/schedule/create", payload);
       console.log("=== API POST schedule response ===");
+      console.log("Full response object:", response);
       console.log("Status:", response.status);
+      console.log("Status Text:", response.statusText);
       console.log("Data:", response.data);
+      console.log("Data type:", typeof response.data);
+      console.log("Data stringified:", JSON.stringify(response.data));
+      console.log("Headers:", response.headers);
+      
+      // CHECK chi tiết response.data có Id không
+      if (response.data && response.data.id) {
+        console.log("✅ Response contains schedule ID:", response.data.id);
+      } else {
+        console.warn("⚠️ Response does NOT contain schedule ID!");
+        console.warn("This might indicate the schedule was not saved to database.");
+      }
       
       if (response.status === 200 || response.status === 201) {
+        console.log("✅ POST SUCCESS - Schedule created!");
+        
+        // KIỂM TRA xem backend có trả về error trong success response không
+        if (response.data && response.data.isSuccess === false) {
+          console.error("❌ Backend returned success status but isSuccess=false!");
+          console.error("Error from backend:", response.data.error);
+          alert(`Lỗi từ backend: ${JSON.stringify(response.data.error)}`);
+          return;
+        }
+        
         alert("Thêm lịch trình thành công!");
         console.log("=== Navigating back to schedule list ===");
         console.log("Passing state:", { 
@@ -164,12 +250,17 @@ const ScheduleAddEditPageNew = () => {
           },
         });
       } else {
+        console.error("❌ POST FAILED - Unexpected status:", response.status);
         alert(`Thêm lịch trình thất bại. Status: ${response.status}`);
       }
     } catch (error) {
-      console.error("=== Lỗi khi thêm lịch trình ===");
-      console.error("Error:", error);
-      console.error("Response:", error.response);
+      console.error("=== ❌ Lỗi khi thêm lịch trình ===");
+      console.error("Error object:", error);
+      console.error("Error message:", error.message);
+      console.error("Error response:", error.response);
+      console.error("Error response data:", error.response?.data);
+      console.error("Error response status:", error.response?.status);
+      
       // Hiển thị lỗi cụ thể từ backend nếu có
       const errorMsg =
         error.response?.data?.errors || // Lỗi validation cụ thể
