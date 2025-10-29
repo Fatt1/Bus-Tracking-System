@@ -4,6 +4,17 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { clearAuth } from "../../utils/auth";
 import ReportIncidentModal from "../../components/driver/ReportIncidentModal";
 import DriverMapComponent from "../../components/driver/DriverMapComponent";
+import {
+  startPickupTrip,
+  startDropoffTrip,
+  isPickupTripCompleted,
+  isDropoffTripCompleted,
+  getCurrentTripType,
+  TRIP_TYPE,
+  saveCurrentScheduleId,
+  getCurrentScheduleId,
+  resetAllTripState,
+} from "../../utils/tripStateManager";
 import "./DriverHomePage.css";
 import {
   FaHome,
@@ -296,7 +307,9 @@ const DriverHomePage = () => {
         setScheduleData(null);
       } else {
         // Có schedule
+        console.log("✅ Schedule loaded:", response.data.scheduleId);
         setScheduleData(response.data);
+        // ❌ KHÔNG save scheduleId ở đây - chỉ save khi driver bấm "Bắt đầu chuyến đi"
       }
     } catch (err) {
       console.error("Lỗi khi tải lịch trình hôm nay:", err);
@@ -309,8 +322,67 @@ const DriverHomePage = () => {
 
   // useEffect để fetch data khi component mount
   useEffect(() => {
-    fetchScheduleToday();
+    console.log("=== DriverHomePage mounted ===");
+    
+    // Fetch schedule first
+    const loadScheduleAndSyncState = async () => {
+      await fetchScheduleToday();
+    };
+    
+    loadScheduleAndSyncState();
   }, []); // Chỉ chạy 1 lần khi mount
+  
+  // useEffect riêng để sync state SAU KHI có scheduleData
+  useEffect(() => {
+    if (!scheduleData) {
+      console.log("⏳ Waiting for scheduleData...");
+      return;
+    }
+    
+    console.log("=== Syncing trip state with localStorage ===");
+    
+    // Lấy scheduleId từ localStorage
+    const savedScheduleId = getCurrentScheduleId();
+    console.log("📋 Saved scheduleId:", savedScheduleId, typeof savedScheduleId);
+    console.log("📋 Current scheduleId:", scheduleData.scheduleId, typeof scheduleData.scheduleId);
+    
+    // Nếu scheduleId khác nhau (ngày mới / session mới) → CLEAR state
+    if (savedScheduleId && savedScheduleId !== scheduleData.scheduleId) {
+      console.log("⚠️ Different schedule detected! Clearing old trip state...");
+      resetAllTripState();
+      setIsDrivingPickup(false);
+      setIsDrivingDropoff(false);
+      return;
+    }
+    
+    // Nếu chưa có scheduleId trong localStorage → đây là session mới
+    if (!savedScheduleId) {
+      console.log("🆕 New session - clearing any old state");
+      resetAllTripState();
+      setIsDrivingPickup(false);
+      setIsDrivingDropoff(false);
+      return;
+    }
+    
+    // Schedule ID match → sync state từ localStorage
+    const tripType = getCurrentTripType();
+    console.log("📍 Current trip type from localStorage:", tripType);
+    console.log("📍 Pickup completed:", isPickupTripCompleted());
+    
+    if (tripType === TRIP_TYPE.PICKUP) {
+      console.log("✅ Syncing state: isDrivingPickup = true");
+      setIsDrivingPickup(true);
+      setIsDrivingDropoff(false);
+    } else if (tripType === TRIP_TYPE.DROPOFF) {
+      console.log("✅ Syncing state: isDrivingDropoff = true");
+      setIsDrivingPickup(false);
+      setIsDrivingDropoff(true);
+    } else {
+      console.log("⭕ No active trip");
+      setIsDrivingPickup(false);
+      setIsDrivingDropoff(false);
+    }
+  }, [scheduleData]); // Chạy khi scheduleData thay đổi
 
   const handleLogout = async () => {
     try {
@@ -346,29 +418,32 @@ const DriverHomePage = () => {
     }
   };
 
-  // Hàm kiểm tra thời gian hiện tại để quyết định nút nào active
-  const getCurrentTime = () => {
-    const now = new Date();
-    return `${String(now.getHours()).padStart(2, "0")}:${String(
-      now.getMinutes()
-    ).padStart(2, "0")}`;
-  };
-
   // Logic kiểm tra nút nào được bật
   const checkButtonState = () => {
     if (!scheduleData) return { morning: false, afternoon: false };
-    const currentTime = getCurrentTime();
-    const morningTime = formatTime(scheduleData.pickupTime);
-    const afternoonTime = formatTime(scheduleData.dropOffTime);
+    
+    // Kiểm tra xem các chuyến đã hoàn thành chưa
+    const pickupCompleted = isPickupTripCompleted();
+    const dropoffCompleted = isDropoffTripCompleted();
+    
+    console.log("🔍 checkButtonState:");
+    console.log("  - Schedule status:", scheduleData.status);
+    console.log("  - Pickup completed:", pickupCompleted);
+    console.log("  - Dropoff completed:", dropoffCompleted);
+    
+    // Chuyến sáng active nếu:
+    // - Chưa hoàn thành chuyến đi
+    // - Schedule status !== 2 (Completed)
+    const morningActive = !pickupCompleted && scheduleData.status !== 2;
+    
+    // Chuyến chiều active nếu:
+    // - Đã hoàn thành chuyến đi sáng
+    // - CHƯA hoàn thành chuyến về
+    // - Schedule status !== 2 (Completed)
+    const afternoonActive = pickupCompleted && !dropoffCompleted && scheduleData.status !== 2;
 
-    // Chuyến sáng active nếu thời gian hiện tại >= pickupTime và < dropOffTime
-    // Chuyến chiều active nếu thời gian hiện tại >= dropOffTime
-    const morningActive =
-      currentTime >= morningTime &&
-      currentTime < afternoonTime &&
-      scheduleData.status !== 2;
-    const afternoonActive =
-      currentTime >= afternoonTime && scheduleData.status !== 2;
+    console.log("  - Morning button active:", morningActive);
+    console.log("  - Afternoon button active:", afternoonActive);
 
     return { morning: morningActive, afternoon: afternoonActive };
   };
@@ -494,7 +569,20 @@ const DriverHomePage = () => {
                         buttonState.morning ? "active-btn" : "disabled-btn"
                       }`}
                       disabled={!buttonState.morning || isDrivingPickup}
-                      onClick={() => setIsDrivingPickup(true)}
+                      onClick={() => {
+                        console.log("🚀 PICKUP TRIP STARTED");
+                        console.log("  - Schedule ID:", scheduleData.scheduleId);
+                        console.log("  - Saving schedule ID to localStorage");
+                        
+                        // CRITICAL: Save schedule ID FIRST
+                        saveCurrentScheduleId(scheduleData.scheduleId);
+                        
+                        console.log("  - Setting isDrivingPickup = true");
+                        console.log("  - Calling startPickupTrip()");
+                        setIsDrivingPickup(true);
+                        startPickupTrip();
+                        console.log("  - localStorage after start:", localStorage);
+                      }}
                     >
                       {isDrivingPickup ? "Đang chạy..." : "Bắt đầu chuyến đi"}
                     </button>
@@ -542,9 +630,22 @@ const DriverHomePage = () => {
                         buttonState.afternoon ? "active-btn" : "disabled-btn"
                       }`}
                       disabled={!buttonState.afternoon || isDrivingDropoff}
-                      onClick={() => setIsDrivingDropoff(true)}
+                      onClick={() => {
+                        console.log("🚀 DROPOFF TRIP STARTED");
+                        console.log("  - Schedule ID:", scheduleData.scheduleId);
+                        console.log("  - Saving schedule ID to localStorage");
+                        
+                        // CRITICAL: Save schedule ID FIRST (should already be saved, but ensure)
+                        saveCurrentScheduleId(scheduleData.scheduleId);
+                        
+                        console.log("  - Setting isDrivingDropoff = true");
+                        console.log("  - Calling startDropoffTrip()");
+                        setIsDrivingDropoff(true);
+                        startDropoffTrip();
+                        console.log("  - localStorage after start:", localStorage);
+                      }}
                     >
-                      {isDrivingDropoff ? "Đang chạy..." : "Bắt đầu chuyến đi"}
+                      {isDrivingDropoff ? "Đang chạy..." : "Bắt đầu chuyến về"}
                     </button>
                   </div>
                 </div>
@@ -565,11 +666,6 @@ const DriverHomePage = () => {
                         ),
                       }}
                       isDriving={isDrivingPickup || isDrivingDropoff}
-                      onDrivingFinished={() => {
-                        setIsDrivingPickup(false);
-                        setIsDrivingDropoff(false);
-                        alert("Chuyến đi hoàn thành!");
-                      }}
                       tripType={
                         isDrivingPickup
                           ? "pickup"

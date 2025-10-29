@@ -1,0 +1,725 @@
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: https://localhost:7229
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://localhost:5070
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Development
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: C:\Users\danh\Desktop\prJetWeb\DIY\projectCnpmRiel\Bus-Tracking-System\backend\TrackingBusSystemSolution\TrackingBusSystem.Presentation
+warn: LuckyPennySoftware.MediatR.License[0]
+      You do not have a valid license key for the Lucky Penny software MediatR. This is allowed for development and testing scenarios. If you are running in production you are required to have a licensed version. Please visit https://luckypennysoftware.com to obtain a valid license.
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10622]
+      Entity 'Bus' has a global query filter defined and is the required end of a relationship with the entity 'BusLastLocation'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10622]
+      Entity 'Bus' has a global query filter defined and is the required end of a relationship with the entity 'Schedule'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10622]
+      Entity 'Student' has a global query filter defined and is the required end of a relationship with the entity 'StudentCheckingHistory'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (33ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [b].[Id], [b].[BusName], CAST(1 AS bit) AS [CanClickable]
+      FROM [Buses] AS [b]
+      WHERE [b].[IsDeleted] = CAST(0 AS bit)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [b].[Id], [b].[BusName], CAST(1 AS bit) AS [CanClickable]
+      FROM [Buses] AS [b]
+      WHERE [b].[IsDeleted] = CAST(0 AS bit)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (14ms) [Parameters=[@__normalizedUserName_0='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[DateOfBirth], [a].[Email], [a].[EmailConfirmed], [a].[FirstName], [a].[IsActive], [a].[LastName], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[Sex], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @__normalizedUserName_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (9ms) [Parameters=[@__userId_0='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @__userId_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (7ms) [Parameters=[@__user_Id_0='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [d].[Id], [d].[Address], [d].[IDCard], [d].[IsDeleted], [d].[Status], [d].[UserId]
+      FROM [Drivers] AS [d]
+      INNER JOIN [AspNetUsers] AS [a] ON [d].[UserId] = [a].[Id]
+      WHERE [d].[IsDeleted] = CAST(0 AS bit) AND [a].[Id] = @__user_Id_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (8ms) [Parameters=[@__driverId_0='?' (DbType = Int32), @__today_1='?' (DbType = Date)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [s].[Id], [s].[BusId], [s].[DriverId], [s].[DropOffTime], [s].[PickupTime], [s].[RouteId], [s].[ScheduleDate], [s].[Status]
+      FROM [Schedules] AS [s]
+      WHERE [s].[DriverId] = @__driverId_0 AND [s].[ScheduleDate] = @__today_1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@__userId_0='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @__userId_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__request_UserId_0='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [d].[Id], [d].[Address], [d].[IDCard], [d].[IsDeleted], [d].[Status], [d].[UserId]
+      FROM [Drivers] AS [d]
+      WHERE [d].[IsDeleted] = CAST(0 AS bit) AND [d].[UserId] = @__request_UserId_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (33ms) [Parameters=[@__today_0='?' (DbType = Date), @__driver_Id_1='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT [s3].[Id], [s3].[DriverId], [s3].[BusName], [s3].[BusId], [s3].[DropOffTime], [s3].[PickupTime], [s3].[c], [s3].[Latitude], [s3].[Longitude], [s3].[Id0], [s3].[RouteName], [s3].[Id1], [s3].[BusId0], [s0].[Id], [s0].[Latitude], [s0].[Longitude], [s0].[SequenceOrder], [s3].[ScheduleDate], [s3].[Status], [s3].[c0]
+      FROM (
+          SELECT TOP(1) [s].[Id], [s].[DriverId], [b0].[BusName], [s].[BusId], [s].[DropOffTime], [s].[PickupTime], CASE
+              WHEN [b1].[BusId] IS NOT NULL THEN CAST(1 AS bit)
+              ELSE CAST(0 AS bit)
+          END AS [c], [b1].[Latitude], [b1].[Longitude], [r].[Id] AS [Id0], [r].[RouteName], [s].[ScheduleDate], [s].[Status], (
+              SELECT COUNT(*)
+              FROM [Student] AS [s1]
+              INNER JOIN [StopPoints] AS [s2] ON [s1].[PointId] = [s2].[Id]
+              WHERE [s1].[IsDeleted] = CAST(0 AS bit) AND [s2].[RouteId] = [s].[RouteId]) AS [c0], [b0].[Id] AS [Id1], [b1].[BusId] AS [BusId0]
+          FROM [Schedules] AS [s]
+          INNER JOIN (
+              SELECT [b].[Id], [b].[BusName]
+              FROM [Buses] AS [b]
+              WHERE [b].[IsDeleted] = CAST(0 AS bit)
+          ) AS [b0] ON [s].[BusId] = [b0].[Id]
+          LEFT JOIN [BusLastLocations] AS [b1] ON [b0].[Id] = [b1].[BusId]
+          INNER JOIN [Routes] AS [r] ON [s].[RouteId] = [r].[Id]
+          WHERE [s].[ScheduleDate] = @__today_0 AND [s].[DriverId] = @__driver_Id_1
+      ) AS [s3]
+      LEFT JOIN [StopPoints] AS [s0] ON [s3].[Id0] = [s0].[RouteId]
+      ORDER BY [s3].[Id], [s3].[Id1], [s3].[BusId0], [s3].[Id0]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__request_UserId_0='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [d].[Id], [d].[Address], [d].[IDCard], [d].[IsDeleted], [d].[Status], [d].[UserId]
+      FROM [Drivers] AS [d]
+      WHERE [d].[IsDeleted] = CAST(0 AS bit) AND [d].[UserId] = @__request_UserId_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__today_0='?' (DbType = Date), @__driver_Id_1='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT [s3].[Id], [s3].[DriverId], [s3].[BusName], [s3].[BusId], [s3].[DropOffTime], [s3].[PickupTime], [s3].[c], [s3].[Latitude], [s3].[Longitude], [s3].[Id0], [s3].[RouteName], [s3].[Id1], [s3].[BusId0], [s0].[Id], [s0].[Latitude], [s0].[Longitude], [s0].[SequenceOrder], [s3].[ScheduleDate], [s3].[Status], [s3].[c0]
+      FROM (
+          SELECT TOP(1) [s].[Id], [s].[DriverId], [b0].[BusName], [s].[BusId], [s].[DropOffTime], [s].[PickupTime], CASE
+              WHEN [b1].[BusId] IS NOT NULL THEN CAST(1 AS bit)
+              ELSE CAST(0 AS bit)
+          END AS [c], [b1].[Latitude], [b1].[Longitude], [r].[Id] AS [Id0], [r].[RouteName], [s].[ScheduleDate], [s].[Status], (
+              SELECT COUNT(*)
+              FROM [Student] AS [s1]
+              INNER JOIN [StopPoints] AS [s2] ON [s1].[PointId] = [s2].[Id]
+              WHERE [s1].[IsDeleted] = CAST(0 AS bit) AND [s2].[RouteId] = [s].[RouteId]) AS [c0], [b0].[Id] AS [Id1], [b1].[BusId] AS [BusId0]
+          FROM [Schedules] AS [s]
+          INNER JOIN (
+              SELECT [b].[Id], [b].[BusName]
+              FROM [Buses] AS [b]
+              WHERE [b].[IsDeleted] = CAST(0 AS bit)
+          ) AS [b0] ON [s].[BusId] = [b0].[Id]
+          LEFT JOIN [BusLastLocations] AS [b1] ON [b0].[Id] = [b1].[BusId]
+          INNER JOIN [Routes] AS [r] ON [s].[RouteId] = [r].[Id]
+          WHERE [s].[ScheduleDate] = @__today_0 AND [s].[DriverId] = @__driver_Id_1
+      ) AS [s3]
+      LEFT JOIN [StopPoints] AS [s0] ON [s3].[Id0] = [s0].[RouteId]
+      ORDER BY [s3].[Id], [s3].[Id1], [s3].[BusId0], [s3].[Id0]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@__request_UserId_0='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [d].[Id], [d].[Address], [d].[IDCard], [d].[IsDeleted], [d].[Status], [d].[UserId]
+      FROM [Drivers] AS [d]
+      WHERE [d].[IsDeleted] = CAST(0 AS bit) AND [d].[UserId] = @__request_UserId_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@__today_0='?' (DbType = Date), @__driver_Id_1='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT [s3].[Id], [s3].[DriverId], [s3].[BusName], [s3].[BusId], [s3].[DropOffTime], [s3].[PickupTime], [s3].[c], [s3].[Latitude], [s3].[Longitude], [s3].[Id0], [s3].[RouteName], [s3].[Id1], [s3].[BusId0], [s0].[Id], [s0].[Latitude], [s0].[Longitude], [s0].[SequenceOrder], [s3].[ScheduleDate], [s3].[Status], [s3].[c0]
+      FROM (
+          SELECT TOP(1) [s].[Id], [s].[DriverId], [b0].[BusName], [s].[BusId], [s].[DropOffTime], [s].[PickupTime], CASE
+              WHEN [b1].[BusId] IS NOT NULL THEN CAST(1 AS bit)
+              ELSE CAST(0 AS bit)
+          END AS [c], [b1].[Latitude], [b1].[Longitude], [r].[Id] AS [Id0], [r].[RouteName], [s].[ScheduleDate], [s].[Status], (
+              SELECT COUNT(*)
+              FROM [Student] AS [s1]
+              INNER JOIN [StopPoints] AS [s2] ON [s1].[PointId] = [s2].[Id]
+              WHERE [s1].[IsDeleted] = CAST(0 AS bit) AND [s2].[RouteId] = [s].[RouteId]) AS [c0], [b0].[Id] AS [Id1], [b1].[BusId] AS [BusId0]
+          FROM [Schedules] AS [s]
+          INNER JOIN (
+              SELECT [b].[Id], [b].[BusName]
+              FROM [Buses] AS [b]
+              WHERE [b].[IsDeleted] = CAST(0 AS bit)
+          ) AS [b0] ON [s].[BusId] = [b0].[Id]
+          LEFT JOIN [BusLastLocations] AS [b1] ON [b0].[Id] = [b1].[BusId]
+          INNER JOIN [Routes] AS [r] ON [s].[RouteId] = [r].[Id]
+          WHERE [s].[ScheduleDate] = @__today_0 AND [s].[DriverId] = @__driver_Id_1
+      ) AS [s3]
+      LEFT JOIN [StopPoints] AS [s0] ON [s3].[Id0] = [s0].[RouteId]
+      ORDER BY [s3].[Id], [s3].[Id1], [s3].[BusId0], [s3].[Id0]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__request_UserId_0='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [d].[Id], [d].[Address], [d].[IDCard], [d].[IsDeleted], [d].[Status], [d].[UserId]
+      FROM [Drivers] AS [d]
+      WHERE [d].[IsDeleted] = CAST(0 AS bit) AND [d].[UserId] = @__request_UserId_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__today_0='?' (DbType = Date), @__driver_Id_1='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT [s3].[Id], [s3].[DriverId], [s3].[BusName], [s3].[BusId], [s3].[DropOffTime], [s3].[PickupTime], [s3].[c], [s3].[Latitude], [s3].[Longitude], [s3].[Id0], [s3].[RouteName], [s3].[Id1], [s3].[BusId0], [s0].[Id], [s0].[Latitude], [s0].[Longitude], [s0].[SequenceOrder], [s3].[ScheduleDate], [s3].[Status], [s3].[c0]
+      FROM (
+          SELECT TOP(1) [s].[Id], [s].[DriverId], [b0].[BusName], [s].[BusId], [s].[DropOffTime], [s].[PickupTime], CASE
+              WHEN [b1].[BusId] IS NOT NULL THEN CAST(1 AS bit)
+              ELSE CAST(0 AS bit)
+          END AS [c], [b1].[Latitude], [b1].[Longitude], [r].[Id] AS [Id0], [r].[RouteName], [s].[ScheduleDate], [s].[Status], (
+              SELECT COUNT(*)
+              FROM [Student] AS [s1]
+              INNER JOIN [StopPoints] AS [s2] ON [s1].[PointId] = [s2].[Id]
+              WHERE [s1].[IsDeleted] = CAST(0 AS bit) AND [s2].[RouteId] = [s].[RouteId]) AS [c0], [b0].[Id] AS [Id1], [b1].[BusId] AS [BusId0]
+          FROM [Schedules] AS [s]
+          INNER JOIN (
+              SELECT [b].[Id], [b].[BusName]
+              FROM [Buses] AS [b]
+              WHERE [b].[IsDeleted] = CAST(0 AS bit)
+          ) AS [b0] ON [s].[BusId] = [b0].[Id]
+          LEFT JOIN [BusLastLocations] AS [b1] ON [b0].[Id] = [b1].[BusId]
+          INNER JOIN [Routes] AS [r] ON [s].[RouteId] = [r].[Id]
+          WHERE [s].[ScheduleDate] = @__today_0 AND [s].[DriverId] = @__driver_Id_1
+      ) AS [s3]
+      LEFT JOIN [StopPoints] AS [s0] ON [s3].[Id0] = [s0].[RouteId]
+      ORDER BY [s3].[Id], [s3].[Id1], [s3].[BusId0], [s3].[Id0]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [b].[Id], [b].[BusName], CAST(1 AS bit) AS [CanClickable]
+      FROM [Buses] AS [b]
+      WHERE [b].[IsDeleted] = CAST(0 AS bit)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [b].[Id], [b].[BusName], CAST(1 AS bit) AS [CanClickable]
+      FROM [Buses] AS [b]
+      WHERE [b].[IsDeleted] = CAST(0 AS bit)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (11ms) [Parameters=[@__normalizedUserName_0='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[DateOfBirth], [a].[Email], [a].[EmailConfirmed], [a].[FirstName], [a].[IsActive], [a].[LastName], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[Sex], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @__normalizedUserName_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (18ms) [Parameters=[@__userId_0='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @__userId_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (15ms) [Parameters=[@__user_Id_0='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [d].[Id], [d].[Address], [d].[IDCard], [d].[IsDeleted], [d].[Status], [d].[UserId]
+      FROM [Drivers] AS [d]
+      INNER JOIN [AspNetUsers] AS [a] ON [d].[UserId] = [a].[Id]
+      WHERE [d].[IsDeleted] = CAST(0 AS bit) AND [a].[Id] = @__user_Id_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (11ms) [Parameters=[@__driverId_0='?' (DbType = Int32), @__today_1='?' (DbType = Date)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [s].[Id], [s].[BusId], [s].[DriverId], [s].[DropOffTime], [s].[PickupTime], [s].[RouteId], [s].[ScheduleDate], [s].[Status]
+      FROM [Schedules] AS [s]
+      WHERE [s].[DriverId] = @__driverId_0 AND [s].[ScheduleDate] = @__today_1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @__userId_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (14ms) [Parameters=[@__request_UserId_0='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [d].[Id], [d].[Address], [d].[IDCard], [d].[IsDeleted], [d].[Status], [d].[UserId]
+      FROM [Drivers] AS [d]
+      WHERE [d].[IsDeleted] = CAST(0 AS bit) AND [d].[UserId] = @__request_UserId_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (49ms) [Parameters=[@__today_0='?' (DbType = Date), @__driver_Id_1='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT [s3].[Id], [s3].[DriverId], [s3].[BusName], [s3].[BusId], [s3].[DropOffTime], [s3].[PickupTime], [s3].[c], [s3].[Latitude], [s3].[Longitude], [s3].[Id0], [s3].[RouteName], [s3].[Id1], [s3].[BusId0], [s0].[Id], [s0].[Latitude], [s0].[Longitude], [s0].[SequenceOrder], [s3].[ScheduleDate], [s3].[Status], [s3].[c0]
+      FROM (
+          SELECT TOP(1) [s].[Id], [s].[DriverId], [b0].[BusName], [s].[BusId], [s].[DropOffTime], [s].[PickupTime], CASE
+              WHEN [b1].[BusId] IS NOT NULL THEN CAST(1 AS bit)
+              ELSE CAST(0 AS bit)
+          END AS [c], [b1].[Latitude], [b1].[Longitude], [r].[Id] AS [Id0], [r].[RouteName], [s].[ScheduleDate], [s].[Status], (
+              SELECT COUNT(*)
+              FROM [Student] AS [s1]
+              INNER JOIN [StopPoints] AS [s2] ON [s1].[PointId] = [s2].[Id]
+              WHERE [s1].[IsDeleted] = CAST(0 AS bit) AND [s2].[RouteId] = [s].[RouteId]) AS [c0], [b0].[Id] AS [Id1], [b1].[BusId] AS [BusId0]
+          FROM [Schedules] AS [s]
+          INNER JOIN (
+              SELECT [b].[Id], [b].[BusName]
+              FROM [Buses] AS [b]
+              WHERE [b].[IsDeleted] = CAST(0 AS bit)
+          ) AS [b0] ON [s].[BusId] = [b0].[Id]
+          LEFT JOIN [BusLastLocations] AS [b1] ON [b0].[Id] = [b1].[BusId]
+          INNER JOIN [Routes] AS [r] ON [s].[RouteId] = [r].[Id]
+          WHERE [s].[ScheduleDate] = @__today_0 AND [s].[DriverId] = @__driver_Id_1
+      ) AS [s3]
+      LEFT JOIN [StopPoints] AS [s0] ON [s3].[Id0] = [s0].[RouteId]
+      ORDER BY [s3].[Id], [s3].[Id1], [s3].[BusId0], [s3].[Id0]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (7ms) [Parameters=[@__request_UserId_0='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [d].[Id], [d].[Address], [d].[IDCard], [d].[IsDeleted], [d].[Status], [d].[UserId]
+      FROM [Drivers] AS [d]
+      WHERE [d].[IsDeleted] = CAST(0 AS bit) AND [d].[UserId] = @__request_UserId_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__today_0='?' (DbType = Date), @__driver_Id_1='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT [s3].[Id], [s3].[DriverId], [s3].[BusName], [s3].[BusId], [s3].[DropOffTime], [s3].[PickupTime], [s3].[c], [s3].[Latitude], [s3].[Longitude], [s3].[Id0], [s3].[RouteName], [s3].[Id1], [s3].[BusId0], [s0].[Id], [s0].[Latitude], [s0].[Longitude], [s0].[SequenceOrder], [s3].[ScheduleDate], [s3].[Status], [s3].[c0]
+      FROM (
+          SELECT TOP(1) [s].[Id], [s].[DriverId], [b0].[BusName], [s].[BusId], [s].[DropOffTime], [s].[PickupTime], CASE
+              WHEN [b1].[BusId] IS NOT NULL THEN CAST(1 AS bit)
+              ELSE CAST(0 AS bit)
+          END AS [c], [b1].[Latitude], [b1].[Longitude], [r].[Id] AS [Id0], [r].[RouteName], [s].[ScheduleDate], [s].[Status], (
+              SELECT COUNT(*)
+              FROM [Student] AS [s1]
+              INNER JOIN [StopPoints] AS [s2] ON [s1].[PointId] = [s2].[Id]
+              WHERE [s1].[IsDeleted] = CAST(0 AS bit) AND [s2].[RouteId] = [s].[RouteId]) AS [c0], [b0].[Id] AS [Id1], [b1].[BusId] AS [BusId0]
+          FROM [Schedules] AS [s]
+          INNER JOIN (
+              SELECT [b].[Id], [b].[BusName]
+              FROM [Buses] AS [b]
+              WHERE [b].[IsDeleted] = CAST(0 AS bit)
+          ) AS [b0] ON [s].[BusId] = [b0].[Id]
+          LEFT JOIN [BusLastLocations] AS [b1] ON [b0].[Id] = [b1].[BusId]
+          INNER JOIN [Routes] AS [r] ON [s].[RouteId] = [r].[Id]
+          WHERE [s].[ScheduleDate] = @__today_0 AND [s].[DriverId] = @__driver_Id_1
+      ) AS [s3]
+      LEFT JOIN [StopPoints] AS [s0] ON [s3].[Id0] = [s0].[RouteId]
+      ORDER BY [s3].[Id], [s3].[Id1], [s3].[BusId0], [s3].[Id0]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (15ms) [Parameters=[@__request_userId_0='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [d].[Id], [d].[Address], [d].[IDCard], [d].[IsDeleted], [d].[Status], [d].[UserId], [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[DateOfBirth], [a].[Email], [a].[EmailConfirmed], [a].[FirstName], [a].[IsActive], [a].[LastName], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[Sex], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [Drivers] AS [d]
+      INNER JOIN [AspNetUsers] AS [a] ON [d].[UserId] = [a].[Id]
+      WHERE [d].[IsDeleted] = CAST(0 AS bit) AND [a].[Id] = @__request_userId_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[@__driver_Id_0='?' (DbType = Int32), @__today_1='?' (DbType = Date)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [s].[Id], [s].[BusId], [s].[DriverId], [s].[DropOffTime], [s].[PickupTime], [s].[RouteId], [s].[ScheduleDate], [s].[Status]
+      FROM [Schedules] AS [s]
+      WHERE [s].[DriverId] = @__driver_Id_0 AND [s].[ScheduleDate] = @__today_1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (12ms) [Parameters=[@__driverSchedule_Id_1='?' (DbType = Int32), @__driverSchedule_RouteId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id] AS [StudentId], [a].[LastName] + N' ' + [a].[FirstName] AS [StudentName], [s].[Class], [s].[ParentName], [a].[PhoneNumber] AS [ParentPhoneNumber], @__driverSchedule_Id_1 AS [ScheduleId], [s].[PointId] AS [StopPointId], [s0].[PointName] AS [StopPointName], [s].[UserId]
+      FROM [Student] AS [s]
+      INNER JOIN [StopPoints] AS [s0] ON [s].[PointId] = [s0].[Id]
+      INNER JOIN [AspNetUsers] AS [a] ON [s].[UserId] = [a].[Id]
+      WHERE [s].[IsDeleted] = CAST(0 AS bit) AND [s0].[RouteId] = @__driverSchedule_RouteId_0
+      ORDER BY [a].[FirstName]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__request_userId_0='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [d].[Id], [d].[Address], [d].[IDCard], [d].[IsDeleted], [d].[Status], [d].[UserId], [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[DateOfBirth], [a].[Email], [a].[EmailConfirmed], [a].[FirstName], [a].[IsActive], [a].[LastName], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[Sex], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [Drivers] AS [d]
+      INNER JOIN [AspNetUsers] AS [a] ON [d].[UserId] = [a].[Id]
+      WHERE [d].[IsDeleted] = CAST(0 AS bit) AND [a].[Id] = @__request_userId_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__driver_Id_0='?' (DbType = Int32), @__today_1='?' (DbType = Date)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [s].[Id], [s].[BusId], [s].[DriverId], [s].[DropOffTime], [s].[PickupTime], [s].[RouteId], [s].[ScheduleDate], [s].[Status]
+      FROM [Schedules] AS [s]
+      WHERE [s].[DriverId] = @__driver_Id_0 AND [s].[ScheduleDate] = @__today_1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__driverSchedule_Id_1='?' (DbType = Int32), @__driverSchedule_RouteId_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id] AS [StudentId], [a].[LastName] + N' ' + [a].[FirstName] AS [StudentName], [s].[Class], [s].[ParentName], [a].[PhoneNumber] AS [ParentPhoneNumber], @__driverSchedule_Id_1 AS [ScheduleId], [s].[PointId] AS [StopPointId], [s0].[PointName] AS [StopPointName], [s].[UserId]
+      FROM [Student] AS [s]
+      INNER JOIN [StopPoints] AS [s0] ON [s].[PointId] = [s0].[Id]
+      INNER JOIN [AspNetUsers] AS [a] ON [s].[UserId] = [a].[Id]
+      WHERE [s].[IsDeleted] = CAST(0 AS bit) AND [s0].[RouteId] = @__driverSchedule_RouteId_0
+      ORDER BY [a].[FirstName]
+warn: LuckyPennySoftware.AutoMapper.License[0]
+      You do not have a valid license key for the Lucky Penny software AutoMapper. This is allowed for development and testing scenarios. If you are running in production you are required to have a licensed version. Please visit https://luckypennysoftware.com to obtain a valid license.
+=== CompleteTripCommandHandler ===
+?? Received 2 students
+  - Student 3, Schedule 12, Status Absent, Type Outbound, StopPoint 7
+  - Student 4, Schedule 12, Status CheckedIn, Type Outbound, StopPoint 8
+? Mapped to 2 StudentCheckingHistory entities
+? Added to repository
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (18ms) [Parameters=[@p0='?' (DbType = Int32), @p1='?' (DbType = Int32), @p2='?' (DbType = Int32), @p3='?' (DbType = Int32), @p4='?' (DbType = Int32), @p5='?' (DbType = Int32), @p6='?' (DbType = Int32), @p7='?' (DbType = Int32), @p8='?' (DbType = Int32), @p9='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SET IMPLICIT_TRANSACTIONS OFF;
+      SET NOCOUNT ON;
+      MERGE [StudentCheckingHistory] USING (
+      VALUES (@p0, @p1, @p2, @p3, @p4, 0),
+      (@p5, @p6, @p7, @p8, @p9, 1)) AS i ([CheckingStatus], [ScheduleId], [StopPointId], [StudentId], [Type], _Position) ON 1=0
+      WHEN NOT MATCHED THEN
+      INSERT ([CheckingStatus], [ScheduleId], [StopPointId], [StudentId], [Type])
+      VALUES (i.[CheckingStatus], i.[ScheduleId], i.[StopPointId], i.[StudentId], i.[Type])
+      OUTPUT INSERTED.[Id], i._Position;
+? SaveChanges completed successfully
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__request_UserId_0='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [d].[Id], [d].[Address], [d].[IDCard], [d].[IsDeleted], [d].[Status], [d].[UserId]
+      FROM [Drivers] AS [d]
+      WHERE [d].[IsDeleted] = CAST(0 AS bit) AND [d].[UserId] = @__request_UserId_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [b].[Id], [b].[BusName], CAST(1 AS bit) AS [CanClickable]
+      FROM [Buses] AS [b]
+      WHERE [b].[IsDeleted] = CAST(0 AS bit)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [b].[Id], [b].[BusName], CAST(1 AS bit) AS [CanClickable]
+      FROM [Buses] AS [b]
+      WHERE [b].[IsDeleted] = CAST(0 AS bit)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (31ms) [Parameters=[@__today_0='?' (DbType = Date), @__driver_Id_1='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT [s3].[Id], [s3].[DriverId], [s3].[BusName], [s3].[BusId], [s3].[DropOffTime], [s3].[PickupTime], [s3].[c], [s3].[Latitude], [s3].[Longitude], [s3].[Id0], [s3].[RouteName], [s3].[Id1], [s3].[BusId0], [s0].[Id], [s0].[Latitude], [s0].[Longitude], [s0].[SequenceOrder], [s3].[ScheduleDate], [s3].[Status], [s3].[c0]
+      FROM (
+          SELECT TOP(1) [s].[Id], [s].[DriverId], [b0].[BusName], [s].[BusId], [s].[DropOffTime], [s].[PickupTime], CASE
+              WHEN [b1].[BusId] IS NOT NULL THEN CAST(1 AS bit)
+              ELSE CAST(0 AS bit)
+          END AS [c], [b1].[Latitude], [b1].[Longitude], [r].[Id] AS [Id0], [r].[RouteName], [s].[ScheduleDate], [s].[Status], (
+              SELECT COUNT(*)
+              FROM [Student] AS [s1]
+              INNER JOIN [StopPoints] AS [s2] ON [s1].[PointId] = [s2].[Id]
+              WHERE [s1].[IsDeleted] = CAST(0 AS bit) AND [s2].[RouteId] = [s].[RouteId]) AS [c0], [b0].[Id] AS [Id1], [b1].[BusId] AS [BusId0]
+          FROM [Schedules] AS [s]
+          INNER JOIN (
+              SELECT [b].[Id], [b].[BusName]
+              FROM [Buses] AS [b]
+              WHERE [b].[IsDeleted] = CAST(0 AS bit)
+          ) AS [b0] ON [s].[BusId] = [b0].[Id]
+          LEFT JOIN [BusLastLocations] AS [b1] ON [b0].[Id] = [b1].[BusId]
+          INNER JOIN [Routes] AS [r] ON [s].[RouteId] = [r].[Id]
+          WHERE [s].[ScheduleDate] = @__today_0 AND [s].[DriverId] = @__driver_Id_1
+      ) AS [s3]
+      LEFT JOIN [StopPoints] AS [s0] ON [s3].[Id0] = [s0].[RouteId]
+      ORDER BY [s3].[Id], [s3].[Id1], [s3].[BusId0], [s3].[Id0]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__request_UserId_0='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [d].[Id], [d].[Address], [d].[IDCard], [d].[IsDeleted], [d].[Status], [d].[UserId]
+      FROM [Drivers] AS [d]
+      WHERE [d].[IsDeleted] = CAST(0 AS bit) AND [d].[UserId] = @__request_UserId_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__today_0='?' (DbType = Date), @__driver_Id_1='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT [s3].[Id], [s3].[DriverId], [s3].[BusName], [s3].[BusId], [s3].[DropOffTime], [s3].[PickupTime], [s3].[c], [s3].[Latitude], [s3].[Longitude], [s3].[Id0], [s3].[RouteName], [s3].[Id1], [s3].[BusId0], [s0].[Id], [s0].[Latitude], [s0].[Longitude], [s0].[SequenceOrder], [s3].[ScheduleDate], [s3].[Status], [s3].[c0]
+      FROM (
+          SELECT TOP(1) [s].[Id], [s].[DriverId], [b0].[BusName], [s].[BusId], [s].[DropOffTime], [s].[PickupTime], CASE
+              WHEN [b1].[BusId] IS NOT NULL THEN CAST(1 AS bit)
+              ELSE CAST(0 AS bit)
+          END AS [c], [b1].[Latitude], [b1].[Longitude], [r].[Id] AS [Id0], [r].[RouteName], [s].[ScheduleDate], [s].[Status], (
+              SELECT COUNT(*)
+              FROM [Student] AS [s1]
+              INNER JOIN [StopPoints] AS [s2] ON [s1].[PointId] = [s2].[Id]
+              WHERE [s1].[IsDeleted] = CAST(0 AS bit) AND [s2].[RouteId] = [s].[RouteId]) AS [c0], [b0].[Id] AS [Id1], [b1].[BusId] AS [BusId0]
+          FROM [Schedules] AS [s]
+          INNER JOIN (
+              SELECT [b].[Id], [b].[BusName]
+              FROM [Buses] AS [b]
+              WHERE [b].[IsDeleted] = CAST(0 AS bit)
+          ) AS [b0] ON [s].[BusId] = [b0].[Id]
+          LEFT JOIN [BusLastLocations] AS [b1] ON [b0].[Id] = [b1].[BusId]
+          INNER JOIN [Routes] AS [r] ON [s].[RouteId] = [r].[Id]
+          WHERE [s].[ScheduleDate] = @__today_0 AND [s].[DriverId] = @__driver_Id_1
+      ) AS [s3]
+      LEFT JOIN [StopPoints] AS [s0] ON [s3].[Id0] = [s0].[RouteId]
+      ORDER BY [s3].[Id], [s3].[Id1], [s3].[BusId0], [s3].[Id0]
+=== CompleteTripCommandHandler ===
+?? Received 2 students
+  - Student 3, Schedule 12, Status CheckedOut, Type Inbound, StopPoint 7
+  - Student 4, Schedule 12, Status Absent, Type Inbound, StopPoint 8
+? Mapped to 2 StudentCheckingHistory entities
+? Added to repository
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@p0='?' (DbType = Int32), @p1='?' (DbType = Int32), @p2='?' (DbType = Int32), @p3='?' (DbType = Int32), @p4='?' (DbType = Int32), @p5='?' (DbType = Int32), @p6='?' (DbType = Int32), @p7='?' (DbType = Int32), @p8='?' (DbType = Int32), @p9='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SET IMPLICIT_TRANSACTIONS OFF;
+      SET NOCOUNT ON;
+      MERGE [StudentCheckingHistory] USING (
+      VALUES (@p0, @p1, @p2, @p3, @p4, 0),
+      (@p5, @p6, @p7, @p8, @p9, 1)) AS i ([CheckingStatus], [ScheduleId], [StopPointId], [StudentId], [Type], _Position) ON 1=0
+      WHEN NOT MATCHED THEN
+      INSERT ([CheckingStatus], [ScheduleId], [StopPointId], [StudentId], [Type])
+      VALUES (i.[CheckingStatus], i.[ScheduleId], i.[StopPointId], i.[StudentId], i.[Type])
+      OUTPUT INSERTED.[Id], i._Position;
+? SaveChanges completed successfully
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__request_UserId_0='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [d].[Id], [d].[Address], [d].[IDCard], [d].[IsDeleted], [d].[Status], [d].[UserId]
+      FROM [Drivers] AS [d]
+      WHERE [d].[IsDeleted] = CAST(0 AS bit) AND [d].[UserId] = @__request_UserId_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [b].[Id], [b].[BusName], CAST(1 AS bit) AS [CanClickable]
+      FROM [Buses] AS [b]
+      WHERE [b].[IsDeleted] = CAST(0 AS bit)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__today_0='?' (DbType = Date), @__driver_Id_1='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT [s3].[Id], [s3].[DriverId], [s3].[BusName], [s3].[BusId], [s3].[DropOffTime], [s3].[PickupTime], [s3].[c], [s3].[Latitude], [s3].[Longitude], [s3].[Id0], [s3].[RouteName], [s3].[Id1], [s3].[BusId0], [s0].[Id], [s0].[Latitude], [s0].[Longitude], [s0].[SequenceOrder], [s3].[ScheduleDate], [s3].[Status], [s3].[c0]
+      FROM (
+          SELECT TOP(1) [s].[Id], [s].[DriverId], [b0].[BusName], [s].[BusId], [s].[DropOffTime], [s].[PickupTime], CASE
+              WHEN [b1].[BusId] IS NOT NULL THEN CAST(1 AS bit)
+              ELSE CAST(0 AS bit)
+          END AS [c], [b1].[Latitude], [b1].[Longitude], [r].[Id] AS [Id0], [r].[RouteName], [s].[ScheduleDate], [s].[Status], (
+              SELECT COUNT(*)
+              FROM [Student] AS [s1]
+              INNER JOIN [StopPoints] AS [s2] ON [s1].[PointId] = [s2].[Id]
+              WHERE [s1].[IsDeleted] = CAST(0 AS bit) AND [s2].[RouteId] = [s].[RouteId]) AS [c0], [b0].[Id] AS [Id1], [b1].[BusId] AS [BusId0]
+          FROM [Schedules] AS [s]
+          INNER JOIN (
+              SELECT [b].[Id], [b].[BusName]
+              FROM [Buses] AS [b]
+              WHERE [b].[IsDeleted] = CAST(0 AS bit)
+          ) AS [b0] ON [s].[BusId] = [b0].[Id]
+          LEFT JOIN [BusLastLocations] AS [b1] ON [b0].[Id] = [b1].[BusId]
+          INNER JOIN [Routes] AS [r] ON [s].[RouteId] = [r].[Id]
+          WHERE [s].[ScheduleDate] = @__today_0 AND [s].[DriverId] = @__driver_Id_1
+      ) AS [s3]
+      LEFT JOIN [StopPoints] AS [s0] ON [s3].[Id0] = [s0].[RouteId]
+      ORDER BY [s3].[Id], [s3].[Id1], [s3].[BusId0], [s3].[Id0]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [b].[Id], [b].[BusName], CAST(1 AS bit) AS [CanClickable]
+      FROM [Buses] AS [b]
+      WHERE [b].[IsDeleted] = CAST(0 AS bit)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__request_UserId_0='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [d].[Id], [d].[Address], [d].[IDCard], [d].[IsDeleted], [d].[Status], [d].[UserId]
+      FROM [Drivers] AS [d]
+      WHERE [d].[IsDeleted] = CAST(0 AS bit) AND [d].[UserId] = @__request_UserId_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__today_0='?' (DbType = Date), @__driver_Id_1='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT [s3].[Id], [s3].[DriverId], [s3].[BusName], [s3].[BusId], [s3].[DropOffTime], [s3].[PickupTime], [s3].[c], [s3].[Latitude], [s3].[Longitude], [s3].[Id0], [s3].[RouteName], [s3].[Id1], [s3].[BusId0], [s0].[Id], [s0].[Latitude], [s0].[Longitude], [s0].[SequenceOrder], [s3].[ScheduleDate], [s3].[Status], [s3].[c0]
+      FROM (
+          SELECT TOP(1) [s].[Id], [s].[DriverId], [b0].[BusName], [s].[BusId], [s].[DropOffTime], [s].[PickupTime], CASE
+              WHEN [b1].[BusId] IS NOT NULL THEN CAST(1 AS bit)
+              ELSE CAST(0 AS bit)
+          END AS [c], [b1].[Latitude], [b1].[Longitude], [r].[Id] AS [Id0], [r].[RouteName], [s].[ScheduleDate], [s].[Status], (
+              SELECT COUNT(*)
+              FROM [Student] AS [s1]
+              INNER JOIN [StopPoints] AS [s2] ON [s1].[PointId] = [s2].[Id]
+              WHERE [s1].[IsDeleted] = CAST(0 AS bit) AND [s2].[RouteId] = [s].[RouteId]) AS [c0], [b0].[Id] AS [Id1], [b1].[BusId] AS [BusId0]
+          FROM [Schedules] AS [s]
+          INNER JOIN (
+              SELECT [b].[Id], [b].[BusName]
+              FROM [Buses] AS [b]
+              WHERE [b].[IsDeleted] = CAST(0 AS bit)
+          ) AS [b0] ON [s].[BusId] = [b0].[Id]
+          LEFT JOIN [BusLastLocations] AS [b1] ON [b0].[Id] = [b1].[BusId]
+          INNER JOIN [Routes] AS [r] ON [s].[RouteId] = [r].[Id]
+          WHERE [s].[ScheduleDate] = @__today_0 AND [s].[DriverId] = @__driver_Id_1
+      ) AS [s3]
+      LEFT JOIN [StopPoints] AS [s0] ON [s3].[Id0] = [s0].[RouteId]
+      ORDER BY [s3].[Id], [s3].[Id1], [s3].[BusId0], [s3].[Id0]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [b].[Id], [b].[BusName], CAST(1 AS bit) AS [CanClickable]
+      FROM [Buses] AS [b]
+      WHERE [b].[IsDeleted] = CAST(0 AS bit)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [b].[Id], [b].[BusName], CAST(1 AS bit) AS [CanClickable]
+      FROM [Buses] AS [b]
+      WHERE [b].[IsDeleted] = CAST(0 AS bit)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (5ms) [Parameters=[@__normalizedUserName_0='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[DateOfBirth], [a].[Email], [a].[EmailConfirmed], [a].[FirstName], [a].[IsActive], [a].[LastName], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[Sex], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @__normalizedUserName_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (7ms) [Parameters=[@__userId_0='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @__userId_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__userId_0='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @__userId_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM [Routes] AS [r]
+warn: Microsoft.EntityFrameworkCore.Query[10102]
+      The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator. This may lead to unpredictable results. If the 'Distinct' operator is used after 'OrderBy', then make sure to use the 'OrderBy' operator after 'Distinct' as the ordering would otherwise get erased.
+warn: Microsoft.EntityFrameworkCore.Query[10102]
+      The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator. This may lead to unpredictable results. If the 'Distinct' operator is used after 'OrderBy', then make sure to use the 'OrderBy' operator after 'Distinct' as the ordering would otherwise get erased.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (12ms) [Parameters=[@__p_0='?' (DbType = Int32), @__p_1='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT [r0].[Id], [r0].[RouteName], [s].[Id], [s].[PointName], [s].[Latitude], [s].[Longitude], [s].[SequenceOrder], [r0].[c]
+      FROM (
+          SELECT [r].[Id], [r].[RouteName], (
+              SELECT COUNT(*)
+              FROM [StopPoints] AS [s0]
+              INNER JOIN (
+                  SELECT [s1].[PointId]
+                  FROM [Student] AS [s1]
+                  WHERE [s1].[IsDeleted] = CAST(0 AS bit)
+              ) AS [s2] ON [s0].[Id] = [s2].[PointId]
+              WHERE [r].[Id] = [s0].[RouteId]) AS [c]
+          FROM [Routes] AS [r]
+          ORDER BY (SELECT 1)
+          OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+      ) AS [r0]
+      LEFT JOIN [StopPoints] AS [s] ON [r0].[Id] = [s].[RouteId]
+      ORDER BY [r0].[Id], [s].[SequenceOrder]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM [Routes] AS [r]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__p_0='?' (DbType = Int32), @__p_1='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT [r0].[Id], [r0].[RouteName], [s].[Id], [s].[PointName], [s].[Latitude], [s].[Longitude], [s].[SequenceOrder], [r0].[c]
+      FROM (
+          SELECT [r].[Id], [r].[RouteName], (
+              SELECT COUNT(*)
+              FROM [StopPoints] AS [s0]
+              INNER JOIN (
+                  SELECT [s1].[PointId]
+                  FROM [Student] AS [s1]
+                  WHERE [s1].[IsDeleted] = CAST(0 AS bit)
+              ) AS [s2] ON [s0].[Id] = [s2].[PointId]
+              WHERE [r].[Id] = [s0].[RouteId]) AS [c]
+          FROM [Routes] AS [r]
+          ORDER BY (SELECT 1)
+          OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+      ) AS [r0]
+      LEFT JOIN [StopPoints] AS [s] ON [r0].[Id] = [s].[RouteId]
+      ORDER BY [r0].[Id], [s].[SequenceOrder]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM [Routes] AS [r]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__p_0='?' (DbType = Int32), @__p_1='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT [r0].[Id], [r0].[RouteName], [s].[Id], [s].[PointName], [s].[Latitude], [s].[Longitude], [s].[SequenceOrder], [r0].[c]
+      FROM (
+          SELECT [r].[Id], [r].[RouteName], (
+              SELECT COUNT(*)
+              FROM [StopPoints] AS [s0]
+              INNER JOIN (
+                  SELECT [s1].[PointId]
+                  FROM [Student] AS [s1]
+                  WHERE [s1].[IsDeleted] = CAST(0 AS bit)
+              ) AS [s2] ON [s0].[Id] = [s2].[PointId]
+              WHERE [r].[Id] = [s0].[RouteId]) AS [c]
+          FROM [Routes] AS [r]
+          ORDER BY (SELECT 1)
+          OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+      ) AS [r0]
+      LEFT JOIN [StopPoints] AS [s] ON [r0].[Id] = [s].[RouteId]
+      ORDER BY [r0].[Id], [s].[SequenceOrder]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM [Routes] AS [r]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__p_0='?' (DbType = Int32), @__p_1='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT [r0].[Id], [r0].[RouteName], [s].[Id], [s].[PointName], [s].[Latitude], [s].[Longitude], [s].[SequenceOrder], [r0].[c]
+      FROM (
+          SELECT [r].[Id], [r].[RouteName], (
+              SELECT COUNT(*)
+              FROM [StopPoints] AS [s0]
+              INNER JOIN (
+                  SELECT [s1].[PointId]
+                  FROM [Student] AS [s1]
+                  WHERE [s1].[IsDeleted] = CAST(0 AS bit)
+              ) AS [s2] ON [s0].[Id] = [s2].[PointId]
+              WHERE [r].[Id] = [s0].[RouteId]) AS [c]
+          FROM [Routes] AS [r]
+          ORDER BY (SELECT 1)
+          OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+      ) AS [r0]
+      LEFT JOIN [StopPoints] AS [s] ON [r0].[Id] = [s].[RouteId]
+      ORDER BY [r0].[Id], [s].[SequenceOrder]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (13ms) [Parameters=[@__startDate_0='?' (DbType = Date), @__endDate_1='?' (DbType = Date)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[RouteId], [b].[BusName], [r].[RouteName], [a].[LastName] + N' ' + [a].[FirstName] AS [DriverName], [s].[DropOffTime], [s].[Id], [s].[PickupTime], [s].[Status], [s].[ScheduleDate]
+      FROM [Schedules] AS [s]
+      INNER JOIN [Buses] AS [b] ON [s].[BusId] = [b].[Id]
+      INNER JOIN [Routes] AS [r] ON [s].[RouteId] = [r].[Id]
+      INNER JOIN [Drivers] AS [d] ON [s].[DriverId] = [d].[Id]
+      INNER JOIN [AspNetUsers] AS [a] ON [d].[UserId] = [a].[Id]
+      WHERE [s].[ScheduleDate] >= @__startDate_0 AND [s].[ScheduleDate] <= @__endDate_1
+      ORDER BY [s].[ScheduleDate]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__startDate_0='?' (DbType = Date), @__endDate_1='?' (DbType = Date)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[RouteId], [b].[BusName], [r].[RouteName], [a].[LastName] + N' ' + [a].[FirstName] AS [DriverName], [s].[DropOffTime], [s].[Id], [s].[PickupTime], [s].[Status], [s].[ScheduleDate]
+      FROM [Schedules] AS [s]
+      INNER JOIN [Buses] AS [b] ON [s].[BusId] = [b].[Id]
+      INNER JOIN [Routes] AS [r] ON [s].[RouteId] = [r].[Id]
+      INNER JOIN [Drivers] AS [d] ON [s].[DriverId] = [d].[Id]
+      INNER JOIN [AspNetUsers] AS [a] ON [d].[UserId] = [a].[Id]
+      WHERE [s].[ScheduleDate] >= @__startDate_0 AND [s].[ScheduleDate] <= @__endDate_1
+      ORDER BY [s].[ScheduleDate]
+=== GetScheduleByIdWithHistoryQuery ===
+?? Schedule ID: 13, TripDirection: Outbound
+?? Using TripDirection: Outbound
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (25ms) [Parameters=[@__request_Id_0='?' (DbType = Int32), @__tripDirection_1='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT [s3].[Id], [s3].[BusName], [s3].[c], [s3].[DropOffTime], [s3].[PickupTime], [s3].[Status], [s3].[Id0], [s3].[Id1], [s3].[Id2], [s4].[Status], [s4].[StopPointName], [s4].[StudentId], [s4].[StudentName], [s4].[Type], [s4].[Id], [s4].[Id0], [s4].[Id1], [s4].[Id2]
+      FROM (
+          SELECT TOP(1) [s].[Id], [b].[BusName], [a].[LastName] + N' ' + [a].[FirstName] AS [c], [s].[DropOffTime], [s].[PickupTime], [s].[Status], [b].[Id] AS [Id0], [d].[Id] AS [Id1], [a].[Id] AS [Id2]
+          FROM [Schedules] AS [s]
+          INNER JOIN [Buses] AS [b] ON [s].[BusId] = [b].[Id]
+          INNER JOIN [Drivers] AS [d] ON [s].[DriverId] = [d].[Id]
+          INNER JOIN [AspNetUsers] AS [a] ON [d].[UserId] = [a].[Id]
+          WHERE [s].[Id] = @__request_Id_0
+      ) AS [s3]
+      LEFT JOIN (
+          SELECT CASE [s0].[CheckingStatus]
+              WHEN 0 THEN N'Pending'
+              WHEN 1 THEN N'CheckedIn'
+              WHEN 2 THEN N'CheckedOut'
+              WHEN 3 THEN N'Absent'
+              ELSE CAST([s0].[CheckingStatus] AS nvarchar(max))
+          END AS [Status], [s1].[PointName] AS [StopPointName], [s0].[StudentId], [a0].[LastName] + N' ' + [a0].[FirstName] AS [StudentName], CASE [s0].[Type]
+              WHEN 1 THEN N'Outbound'
+              WHEN 2 THEN N'Inbound'
+              ELSE CAST([s0].[Type] AS nvarchar(max))
+          END AS [Type], [s0].[Id], [s1].[Id] AS [Id0], [s2].[Id] AS [Id1], [a0].[Id] AS [Id2], [s0].[ScheduleId]
+          FROM [StudentCheckingHistory] AS [s0]
+          INNER JOIN [StopPoints] AS [s1] ON [s0].[StopPointId] = [s1].[Id]
+          INNER JOIN [Student] AS [s2] ON [s0].[StudentId] = [s2].[Id]
+          INNER JOIN [AspNetUsers] AS [a0] ON [s2].[UserId] = [a0].[Id]
+          WHERE [s0].[Type] = @__tripDirection_1
+      ) AS [s4] ON [s3].[Id] = [s4].[ScheduleId]
+      ORDER BY [s3].[Id], [s3].[Id0], [s3].[Id1], [s3].[Id2], [s4].[Id], [s4].[Id0], [s4].[Id1]
+? Found schedule with 0 history records for Outbound
+=== GetScheduleByIdWithHistoryQuery ===
+?? Schedule ID: 13, TripDirection: Outbound
+?? Using TripDirection: Outbound
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__request_Id_0='?' (DbType = Int32), @__tripDirection_1='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT [s3].[Id], [s3].[BusName], [s3].[c], [s3].[DropOffTime], [s3].[PickupTime], [s3].[Status], [s3].[Id0], [s3].[Id1], [s3].[Id2], [s4].[Status], [s4].[StopPointName], [s4].[StudentId], [s4].[StudentName], [s4].[Type], [s4].[Id], [s4].[Id0], [s4].[Id1], [s4].[Id2]
+      FROM (
+          SELECT TOP(1) [s].[Id], [b].[BusName], [a].[LastName] + N' ' + [a].[FirstName] AS [c], [s].[DropOffTime], [s].[PickupTime], [s].[Status], [b].[Id] AS [Id0], [d].[Id] AS [Id1], [a].[Id] AS [Id2]
+          FROM [Schedules] AS [s]
+          INNER JOIN [Buses] AS [b] ON [s].[BusId] = [b].[Id]
+          INNER JOIN [Drivers] AS [d] ON [s].[DriverId] = [d].[Id]
+          INNER JOIN [AspNetUsers] AS [a] ON [d].[UserId] = [a].[Id]
+          WHERE [s].[Id] = @__request_Id_0
+      ) AS [s3]
+      LEFT JOIN (
+          SELECT CASE [s0].[CheckingStatus]
+              WHEN 0 THEN N'Pending'
+              WHEN 1 THEN N'CheckedIn'
+              WHEN 2 THEN N'CheckedOut'
+              WHEN 3 THEN N'Absent'
+              ELSE CAST([s0].[CheckingStatus] AS nvarchar(max))
+          END AS [Status], [s1].[PointName] AS [StopPointName], [s0].[StudentId], [a0].[LastName] + N' ' + [a0].[FirstName] AS [StudentName], CASE [s0].[Type]
+              WHEN 1 THEN N'Outbound'
+              WHEN 2 THEN N'Inbound'
+              ELSE CAST([s0].[Type] AS nvarchar(max))
+          END AS [Type], [s0].[Id], [s1].[Id] AS [Id0], [s2].[Id] AS [Id1], [a0].[Id] AS [Id2], [s0].[ScheduleId]
+          FROM [StudentCheckingHistory] AS [s0]
+          INNER JOIN [StopPoints] AS [s1] ON [s0].[StopPointId] = [s1].[Id]
+          INNER JOIN [Student] AS [s2] ON [s0].[StudentId] = [s2].[Id]
+          INNER JOIN [AspNetUsers] AS [a0] ON [s2].[UserId] = [a0].[Id]
+          WHERE [s0].[Type] = @__tripDirection_1
+      ) AS [s4] ON [s3].[Id] = [s4].[ScheduleId]
+      ORDER BY [s3].[Id], [s3].[Id0], [s3].[Id1], [s3].[Id2], [s4].[Id], [s4].[Id0], [s4].[Id1]
+? Found schedule with 0 history records for Outbound
+=== GetScheduleByIdWithHistoryQuery ===
+?? Schedule ID: 13, TripDirection: Inbound
+?? Using TripDirection: Inbound
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@__request_Id_0='?' (DbType = Int32), @__tripDirection_1='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT [s3].[Id], [s3].[BusName], [s3].[c], [s3].[DropOffTime], [s3].[PickupTime], [s3].[Status], [s3].[Id0], [s3].[Id1], [s3].[Id2], [s4].[Status], [s4].[StopPointName], [s4].[StudentId], [s4].[StudentName], [s4].[Type], [s4].[Id], [s4].[Id0], [s4].[Id1], [s4].[Id2]
+      FROM (
+          SELECT TOP(1) [s].[Id], [b].[BusName], [a].[LastName] + N' ' + [a].[FirstName] AS [c], [s].[DropOffTime], [s].[PickupTime], [s].[Status], [b].[Id] AS [Id0], [d].[Id] AS [Id1], [a].[Id] AS [Id2]
+          FROM [Schedules] AS [s]
+          INNER JOIN [Buses] AS [b] ON [s].[BusId] = [b].[Id]
+          INNER JOIN [Drivers] AS [d] ON [s].[DriverId] = [d].[Id]
+          INNER JOIN [AspNetUsers] AS [a] ON [d].[UserId] = [a].[Id]
+          WHERE [s].[Id] = @__request_Id_0
+      ) AS [s3]
+      LEFT JOIN (
+          SELECT CASE [s0].[CheckingStatus]
+              WHEN 0 THEN N'Pending'
+              WHEN 1 THEN N'CheckedIn'
+              WHEN 2 THEN N'CheckedOut'
+              WHEN 3 THEN N'Absent'
+              ELSE CAST([s0].[CheckingStatus] AS nvarchar(max))
+          END AS [Status], [s1].[PointName] AS [StopPointName], [s0].[StudentId], [a0].[LastName] + N' ' + [a0].[FirstName] AS [StudentName], CASE [s0].[Type]
+              WHEN 1 THEN N'Outbound'
+              WHEN 2 THEN N'Inbound'
+              ELSE CAST([s0].[Type] AS nvarchar(max))
+          END AS [Type], [s0].[Id], [s1].[Id] AS [Id0], [s2].[Id] AS [Id1], [a0].[Id] AS [Id2], [s0].[ScheduleId]
+          FROM [StudentCheckingHistory] AS [s0]
+          INNER JOIN [StopPoints] AS [s1] ON [s0].[StopPointId] = [s1].[Id]
+          INNER JOIN [Student] AS [s2] ON [s0].[StudentId] = [s2].[Id]
+          INNER JOIN [AspNetUsers] AS [a0] ON [s2].[UserId] = [a0].[Id]
+          WHERE [s0].[Type] = @__tripDirection_1
+      ) AS [s4] ON [s3].[Id] = [s4].[ScheduleId]
+      ORDER BY [s3].[Id], [s3].[Id0], [s3].[Id1], [s3].[Id2], [s4].[Id], [s4].[Id0], [s4].[Id1]
+? Found schedule with 0 history records for Inbound

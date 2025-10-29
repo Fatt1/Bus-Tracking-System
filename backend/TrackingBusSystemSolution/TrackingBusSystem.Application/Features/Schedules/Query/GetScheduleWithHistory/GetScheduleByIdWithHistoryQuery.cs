@@ -22,9 +22,21 @@ namespace TrackingBusSystem.Application.Features.Schedules.Query.GetScheduleWith
 
         public async Task<Result<ScheduleWithHistoryDTO>> Handle(GetScheduleByIdWithHistoryQuery request, CancellationToken cancellationToken)
         {
+            Console.WriteLine("=== GetScheduleByIdWithHistoryQuery ===");
+            Console.WriteLine($"📥 Schedule ID: {request.Id}, TripDirection: {request.TripDirection}");
+            
             var tripDirection = request.TripDirection == 0 ? TripDirection.Outbound : request.TripDirection;
+            Console.WriteLine($"🔄 Using TripDirection: {tripDirection}");
+            
             var schedule = await _context.Schedules
-
+                .Include(s => s.Bus)
+                .Include(s => s.Driver)
+                    .ThenInclude(d => d.User)
+                .Include(s => s.StudentCheckingHistories)
+                    .ThenInclude(sh => sh.Student)
+                        .ThenInclude(st => st.User)
+                .Include(s => s.StudentCheckingHistories)
+                    .ThenInclude(sh => sh.StopPoint)
                 .IgnoreQueryFilters()
                 .AsQueryable()
                 .Where(s => s.Id == request.Id)
@@ -51,8 +63,16 @@ namespace TrackingBusSystem.Application.Features.Schedules.Query.GetScheduleWith
 
             if (schedule == null)
             {
+                Console.WriteLine("❌ Schedule not found");
                 return Result<ScheduleWithHistoryDTO>.Failure(ScheduleErrors.ScheduleNotFound);
             }
+            
+            Console.WriteLine($"✅ Found schedule with {schedule.StudentCheckingHistories.Count} history records for {tripDirection}");
+            foreach (var history in schedule.StudentCheckingHistories)
+            {
+                Console.WriteLine($"  - Student {history.StudentId} ({history.StudentName}): {history.Status} at {history.StopPointName}");
+            }
+            
             return Result<ScheduleWithHistoryDTO>.Success(schedule);
         }
     }

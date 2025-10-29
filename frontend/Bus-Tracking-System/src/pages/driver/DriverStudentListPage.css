@@ -155,3 +155,19 @@
 .status-badge.status-finished {
   background-color: var(--driver-red);
 } /* Vắng */
+
+/* Spinner animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Disabled dropdown */
+.status-dropdown.disabled {
+  pointer-events: none;
+  opacity: 0.6;
+}

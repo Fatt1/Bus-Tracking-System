@@ -84,8 +84,21 @@ namespace TrackingBusSystem.Presentation.Controllers
         [HttpGet("{id:int}/cheking-history")]
         public async Task<IActionResult> GetScheduleByIdWithCheckingHistory(int id, [FromQuery] TripDirection direction)
         {
+            Console.WriteLine($"=== GetScheduleByIdWithCheckingHistory Controller ===");
+            Console.WriteLine($"📥 Received: Schedule ID = {id}, Direction = {direction} ({(int)direction})");
+            
             var result = await _mediator.Send(new GetScheduleByIdWithHistoryQuery(id, direction));
-            return result.IsSuccess ? Ok(result.Value) : NotFound(result.Error);
+            
+            if (result.IsSuccess)
+            {
+                Console.WriteLine($"✅ Success: Returning {result.Value.StudentCheckingHistories.Count} history records");
+                return Ok(result.Value);
+            }
+            else
+            {
+                Console.WriteLine($"❌ Failed: {result.Error.Code} - {result.Error.Message}");
+                return NotFound(result.Error);
+            }
         }
     }
 }
