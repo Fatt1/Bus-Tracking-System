@@ -262,9 +262,9 @@ const DriverStudentListPage = () => {
   return (
     <>
       {/* Modal Báo cáo sự cố */}
-      <ReportIncidentModal 
-        isOpen={isIncidentModalOpen} 
-        onClose={() => setIsIncidentModalOpen(false)} 
+      <ReportIncidentModal
+        isOpen={isIncidentModalOpen}
+        onClose={() => setIsIncidentModalOpen(false)}
       />
 
       <div className="driver-page-container">

@@ -83,7 +83,11 @@ const DriverSidebar = () => {
 };
 
 // --- COMPONENT HEADER CỦA TÀI XẾ ---
-const DriverHeader = ({ onReportIncident, driverName = "Phan Viết Huy", onLogout }) => {
+const DriverHeader = ({
+  onReportIncident,
+  driverName = "Phan Viết Huy",
+  onLogout,
+}) => {
   return (
     <header className="driver-header">
       <div className="breadcrumbs">

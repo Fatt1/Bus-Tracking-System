@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import { clearAuth } from "../../utils/auth";
 import ReportIncidentModal from "../../components/driver/ReportIncidentModal";
+import DriverMapComponent from "../../components/driver/DriverMapComponent";
 import "./DriverHomePage.css";
 import {
   FaHome,
@@ -269,6 +270,11 @@ const DriverHomePage = () => {
   const [scheduleData, setScheduleData] = useState(null); // State lưu schedule từ API
   const [isLoading, setIsLoading] = useState(true); // State loading
   const [error, setError] = useState(null); // State lỗi
+  
+  // States cho việc lái xe
+  const [isDrivingPickup, setIsDrivingPickup] = useState(false); // Đang lái chuyến đi
+  const [isDrivingDropoff, setIsDrivingDropoff] = useState(false); // Đang lái chuyến về
+  
   const navigate = useNavigate();
 
   const fullName =
@@ -323,20 +329,6 @@ const DriverHomePage = () => {
   const formatTime = (timeString) => {
     if (!timeString) return "--:--";
     return timeString.substring(0, 5); // Lấy HH:mm
-  };
-
-  // Hàm lấy text trạng thái
-  const getStatusText = (status) => {
-    switch (status) {
-      case 0:
-        return { text: "Sắp khởi hành", class: "status-upcoming" };
-      case 1:
-        return { text: "Đang hoạt động", class: "status-active" };
-      case 2:
-        return { text: "Đã hoàn thành", class: "status-completed" };
-      default:
-        return { text: "Không rõ", class: "" };
-    }
   };
 
   // Hàm format ngày
@@ -501,9 +493,10 @@ const DriverHomePage = () => {
                       className={`start-trip-btn ${
                         buttonState.morning ? "active-btn" : "disabled-btn"
                       }`}
-                      disabled={!buttonState.morning}
+                      disabled={!buttonState.morning || isDrivingPickup}
+                      onClick={() => setIsDrivingPickup(true)}
                     >
-                      Bắt đầu chuyến đi
+                      {isDrivingPickup ? "Đang chạy..." : "Bắt đầu chuyến đi"}
                     </button>
                   </div>
 
@@ -548,24 +541,40 @@ const DriverHomePage = () => {
                       className={`start-trip-btn ${
                         buttonState.afternoon ? "active-btn" : "disabled-btn"
                       }`}
-                      disabled={!buttonState.afternoon}
+                      disabled={!buttonState.afternoon || isDrivingDropoff}
+                      onClick={() => setIsDrivingDropoff(true)}
                     >
-                      Bắt đầu chuyến đi
+                      {isDrivingDropoff ? "Đang chạy..." : "Bắt đầu chuyến đi"}
                     </button>
                   </div>
                 </div>
 
                 <div className="driver-map-container">
-                  <div className="driver-map-placeholder">
-                    <FaMapMarkedAlt size={50} />
-                    <span>Bản đồ sẽ hiển thị ở đây</span>
-                    {scheduleData.lastLocation && (
-                      <small>
-                        Vị trí xe: {scheduleData.lastLocation.latitude},{" "}
-                        {scheduleData.lastLocation.longitude}
-                      </small>
-                    )}
-                  </div>
+                  {scheduleData && scheduleData.routeDTO ? (
+                    <DriverMapComponent
+                      busId={scheduleData.busId}
+                      route={{
+                        stopPoints: scheduleData.routeDTO.stopPoints.map(sp => ({
+                          sequenceOrder: sp.sequenceOrder,
+                          latitude: sp.latitude,
+                          longitude: sp.longitude,
+                          pointName: sp.pointName || `Điểm ${sp.sequenceOrder}`
+                        }))
+                      }}
+                      isDriving={isDrivingPickup || isDrivingDropoff}
+                      onDrivingFinished={() => {
+                        setIsDrivingPickup(false);
+                        setIsDrivingDropoff(false);
+                        alert("Chuyến đi hoàn thành!");
+                      }}
+                      tripType={isDrivingPickup ? "pickup" : isDrivingDropoff ? "dropoff" : "pickup"}
+                    />
+                  ) : (
+                    <div className="driver-map-placeholder">
+                      <FaMapMarkedAlt size={50} />
+                      <span>Không có dữ liệu lộ trình để hiển thị</span>
+                    </div>
+                  )}
                 </div>
               </section>
             </>

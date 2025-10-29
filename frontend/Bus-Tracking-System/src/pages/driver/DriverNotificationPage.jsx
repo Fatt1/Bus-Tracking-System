@@ -176,7 +176,9 @@ const DriverNotificationPage = () => {
     try {
       if (activeTab === "sent") {
         // Fetch sent notifications
-        const response = await api.get("/api/v1/notificaton/sent-notifications");
+        const response = await api.get(
+          "/api/v1/notificaton/sent-notifications"
+        );
         console.log("Sent notifications response:", response.data);
         setSentNotifications(response.data || []);
       } else {
@@ -292,11 +294,11 @@ const DriverNotificationPage = () => {
   return (
     <>
       {/* Modal báo cáo sự cố */}
-      <ReportIncidentModal 
-        isOpen={isIncidentModalOpen} 
-        onClose={() => setIsIncidentModalOpen(false)} 
+      <ReportIncidentModal
+        isOpen={isIncidentModalOpen}
+        onClose={() => setIsIncidentModalOpen(false)}
       />
-      
+
       <ConfirmDeleteModal
         isOpen={!!itemToDelete}
         onClose={() => setItemToDelete(null)}
@@ -363,10 +365,7 @@ const DriverNotificationPage = () => {
                 ) : error ? (
                   <div className="error-container">
                     <p className="error-message">{error}</p>
-                    <button
-                      onClick={fetchNotifications}
-                      className="retry-btn"
-                    >
+                    <button onClick={fetchNotifications} className="retry-btn">
                       Thử lại
                     </button>
                   </div>
@@ -464,8 +463,7 @@ const DriverNotificationPage = () => {
                       ) : (
                         <li className="no-notifications">
                           Không có thông báo nào trong{" "}
-                          {activeTab === "sent" ? "hộp thư đi" : "hộp thư đến"}
-                          .
+                          {activeTab === "sent" ? "hộp thư đi" : "hộp thư đến"}.
                         </li>
                       )}
                     </ul>

@@ -41,22 +41,29 @@ const redIcon = L.icon({
   shadowSize: [41, 41],
 });
 
-// --- COMPONENT XỬ LÝ TẤT CẢ LOGIC SIGNALR (Gửi và Nhận) ---
-const SignalRHandler = ({
-  selectedRoute,
-  isAnimationTriggered,
-  onAnimationFinished,
-  listenOnly = false, // NEW: Chỉ lắng nghe, không gửi (dùng cho BusDetailPage)
-  specificBusId = null, // NEW: Lắng nghe xe cụ thể (dùng cho BusDetailPage)
+/**
+ * Component xử lý SignalR - GỬI location từ driver
+ * Props:
+ * - busId: ID của xe bus
+ * - route: Object chứa stopPoints với sequenceOrder, latitude, longitude
+ * - isDriving: Boolean trigger việc bắt đầu gửi location
+ * - onDrivingFinished: Callback khi hoàn thành chuyến đi
+ * - tripType: 'pickup' hoặc 'dropoff' để xác định điểm xuất phát
+ */
+const DriverSignalRHandler = ({
+  busId,
+  route,
+  isDriving,
+  onDrivingFinished,
+  tripType,
 }) => {
   const map = useMap();
-  const busMarkersRef = useRef(new Map());
+  const busMarkerRef = useRef(null);
   const hubConnectionRef = useRef(null);
   const animationIntervalRef = useRef(null);
-  const currentBusIdRef = useRef(null); // Lưu busId hiện tại
 
-  // --- Hàm gửi (bắt đầu giả lập) ---
-  const startSimulationSender = (route) => {
+  // Hàm bắt đầu gửi location
+  const startSendingLocation = (routeObj) => {
     // Clear interval cũ nếu có
     if (animationIntervalRef.current) {
       clearInterval(animationIntervalRef.current);
@@ -68,24 +75,30 @@ const SignalRHandler = ({
       !hubConnection ||
       hubConnection.state !== signalR.HubConnectionState.Connected
     ) {
-      console.error("SignalR chưa kết nối, không thể bắt đầu giả lập.");
-      onAnimationFinished();
+      console.error("SignalR chưa kết nối, không thể bắt đầu gửi location.");
+      onDrivingFinished();
       return;
     }
 
-    // 1. Lấy tọa độ chi tiết từ L.Routing.control
-    const sortedPoints = [...route.stopPoints].sort(
+    // Sắp xếp điểm dừng theo thứ tự
+    const sortedPoints = [...routeObj.stopPoints].sort(
       (a, b) => a.sequenceOrder - b.sequenceOrder
     );
+
+    // Nếu là chuyến về (dropoff), đảo ngược thứ tự
+    if (tripType === "dropoff") {
+      sortedPoints.reverse();
+    }
+
     const waypoints = sortedPoints.map((p) =>
       L.latLng(p.latitude, p.longitude)
     );
 
     console.log(
-      `Tạo routing control để lấy coordinates cho Bus ${route.id}...`
+      `Driver bắt đầu gửi location cho Bus ${busId} (${tripType})...`
     );
 
-    // Tạo routing control tạm thời
+    // Tạo routing control tạm thời để lấy coordinates chi tiết
     const tempRouting = L.Routing.control({
       waypoints: waypoints,
       addWaypoints: false,
@@ -99,34 +112,31 @@ const SignalRHandler = ({
 
     // Lắng nghe sự kiện routesfound
     tempRouting.on("routesfound", function (e) {
-      console.log("Routes found event triggered!", e);
+      console.log("Routes found!", e);
 
       if (e.routes && e.routes.length > 0) {
         const coordinates = e.routes[0].coordinates;
-        console.log(
-          `Đã lấy được ${coordinates.length} tọa độ cho Bus ${route.id}`
-        );
+        console.log(`Có ${coordinates.length} tọa độ để gửi`);
 
         let routeIndex = 0;
-        const busId = route.id;
 
-        // 2. Bắt đầu interval
+        // Bắt đầu interval gửi location
         animationIntervalRef.current = setInterval(() => {
           routeIndex++;
 
           if (routeIndex >= coordinates.length) {
             clearInterval(animationIntervalRef.current);
             animationIntervalRef.current = null;
-            console.log(`Kết thúc giả lập cho Bus ${busId}.`);
+            console.log(`Driver hoàn thành chuyến ${tripType} cho Bus ${busId}`);
             // Xóa tempRouting
             if (tempRouting._map) {
               map.removeControl(tempRouting);
             }
-            onAnimationFinished();
+            onDrivingFinished();
             return;
           }
 
-          // 3. Gửi vị trí lên Hub
+          // Gửi vị trí hiện tại lên Hub
           const currentPos = coordinates[routeIndex];
 
           if (
@@ -136,20 +146,26 @@ const SignalRHandler = ({
           ) {
             hubConnectionRef.current
               .invoke("SendLocation", busId, currentPos.lat, currentPos.lng)
+              .then(() => {
+                // Cập nhật marker của chính mình
+                if (busMarkerRef.current) {
+                  busMarkerRef.current.setLatLng([currentPos.lat, currentPos.lng]);
+                }
+              })
               .catch((err) =>
                 console.error(
-                  `Lỗi khi invoke SendLocation cho Bus ${busId}:`,
+                  `Lỗi khi gửi location cho Bus ${busId}:`,
                   err
                 )
               );
           }
-        }, 500);
+        }, 500); // Gửi mỗi 500ms
       } else {
-        console.error("Không tìm thấy tuyến đường (coordinates) để giả lập.");
+        console.error("Không tìm thấy route để gửi location.");
         if (tempRouting._map) {
           map.removeControl(tempRouting);
         }
-        onAnimationFinished();
+        onDrivingFinished();
       }
     });
 
@@ -159,14 +175,14 @@ const SignalRHandler = ({
       if (tempRouting._map) {
         map.removeControl(tempRouting);
       }
-      onAnimationFinished();
+      onDrivingFinished();
     });
 
     // Thêm control vào map để nó tính toán
     tempRouting.addTo(map);
   };
 
-  // Effect 1: Quản lý kết nối và Lắng nghe (Receiver)
+  // Effect 1: Kết nối SignalR và tham gia group Bus-{busId}
   useEffect(() => {
     const HUB_URL = "https://localhost:7229/geolocationHub";
     const hubConnection = new signalR.HubConnectionBuilder()
@@ -176,114 +192,85 @@ const SignalRHandler = ({
 
     hubConnectionRef.current = hubConnection;
 
-    // Lắng nghe sự kiện "ReceiveLocationUpdate"
-    hubConnection.on("ReceiveLocationUpdate", (data) => {
-      const lat = data.Lat || data.lat;
-      const lng = data.Lng || data.lng;
-      const busId = data.BusId || data.busId;
-
-      if (lat === undefined || lng === undefined || busId === undefined) return;
-
-      // Nếu đang ở chế độ listenOnly và có specificBusId, chỉ xử lý bus đó
-      if (listenOnly && specificBusId && busId !== specificBusId) {
-        return; // Bỏ qua các bus khác
-      }
-
-      const markers = busMarkersRef.current;
-
-      if (markers.has(busId)) {
-        // Cập nhật vị trí marker đã tồn tại
-        markers.get(busId).setLatLng([lat, lng]);
-      } else {
-        // Tạo marker mới nếu chưa có
-        const newMarker = L.marker([lat, lng], { icon: busIcon })
-          .addTo(map)
-          .bindPopup(`<b>Xe buýt ${busId}</b>`);
-        markers.set(busId, newMarker);
-      }
-    });
-
-    // Bắt đầu kết nối và tham gia nhóm
+    // Bắt đầu kết nối
     hubConnection
       .start()
       .then(() => {
-        console.log("Kết nối SignalR thành công!");
+        console.log(`Driver kết nối SignalR thành công!`);
+        // Tham gia group Bus-{busId}
         hubConnection
-          .invoke("JoinAdminGroup")
-          .then(() => console.log("SignalR: Đã tham gia nhóm 'admin-group'."))
+          .invoke("JoinBusGroup", busId)
+          .then(() =>
+            console.log(`Driver đã tham gia group Bus-${busId}`)
+          )
           .catch((err) =>
-            console.error("SignalR: Lỗi khi tham gia nhóm: ", err)
+            console.error("Lỗi khi tham gia Bus group: ", err)
           );
       })
       .catch((err) =>
-        console.error("Lỗi kết nối SignalR (Kiểm tra CORS Backend): ", err)
+        console.error("Lỗi kết nối SignalR: ", err)
       );
 
     // Hàm dọn dẹp
     return () => {
-      console.log("Ngắt kết nối SignalR.");
-      const markersToRemove = busMarkersRef.current;
+      console.log("Driver ngắt kết nối SignalR.");
       if (hubConnectionRef.current) {
         hubConnectionRef.current.stop();
       }
-      markersToRemove.forEach((marker) => map.removeLayer(marker));
-      markersToRemove.clear();
+      if (busMarkerRef.current) {
+        map.removeLayer(busMarkerRef.current);
+        busMarkerRef.current = null;
+      }
     };
-  }, [map, listenOnly, specificBusId]);
+  }, [map, busId]);
 
-  // Effect 2: Xử lý Gửi (Sender/Simulator) - CHỈ DÙNG TRONG DASHBOARD
+  // Effect 2: Xử lý khi bắt đầu lái xe (isDriving = true)
   useEffect(() => {
-    // Dọn dẹp interval cũ trước
+    // Dọn dẹp interval cũ
     if (animationIntervalRef.current) {
-      console.log("Cleanup (Effect 2): Clearing old interval.");
       clearInterval(animationIntervalRef.current);
       animationIntervalRef.current = null;
     }
 
-    // Nếu là chế độ listenOnly (BusDetailPage), không gửi location
-    if (listenOnly) {
-      return;
-    }
-
-    // Nếu được kích hoạt và có route được chọn (Dashboard mode)
-    if (isAnimationTriggered && selectedRoute) {
-      startSimulationSender(selectedRoute);
+    // Nếu được trigger và có route
+    if (isDriving && route) {
+      startSendingLocation(route);
     }
 
     // Hàm dọn dẹp cho effect này
     return () => {
       if (animationIntervalRef.current) {
-        console.log("Cleanup (Effect 2 Return): Clearing interval.");
         clearInterval(animationIntervalRef.current);
         animationIntervalRef.current = null;
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAnimationTriggered, selectedRoute, map, listenOnly]);
+  }, [isDriving, route, map, busId, tripType]);
 
-  // Effect 3: Tạo marker xe bus ban đầu khi chọn route (đứng yên) - CHỈ TRONG DASHBOARD
+  // Effect 3: Tạo marker xe bus ban đầu
   useEffect(() => {
-    // Nếu là chế độ listenOnly, không tạo marker ban đầu (sẽ nhận từ SignalR)
-    if (listenOnly) {
-      return;
-    }
-
-    if (!selectedRoute?.stopPoints?.length) return;
-
-    const busId = selectedRoute.id;
-    currentBusIdRef.current = busId;
+    if (!route?.stopPoints?.length) return;
 
     // Xóa marker cũ nếu có
-    if (busMarkersRef.current.has(busId)) {
-      map.removeLayer(busMarkersRef.current.get(busId));
-      busMarkersRef.current.delete(busId);
+    if (busMarkerRef.current) {
+      map.removeLayer(busMarkerRef.current);
+      busMarkerRef.current = null;
     }
 
-    // Lấy điểm xuất phát (stopPoint đầu tiên)
-    const sortedPoints = [...selectedRoute.stopPoints].sort(
+    // Sắp xếp điểm dừng
+    const sortedPoints = [...route.stopPoints].sort(
       (a, b) => a.sequenceOrder - b.sequenceOrder
     );
-    const startPoint = sortedPoints[0];
+
+    // Chọn điểm xuất phát dựa vào tripType
+    let startPoint;
+    if (tripType === "pickup") {
+      // Chuyến đi: bắt đầu từ điểm đầu tiên
+      startPoint = sortedPoints[0];
+    } else {
+      // Chuyến về: bắt đầu từ điểm cuối cùng (trường Sài Gòn)
+      startPoint = sortedPoints[sortedPoints.length - 1];
+    }
 
     if (startPoint) {
       // Tạo marker xe bus tại điểm xuất phát
@@ -294,28 +281,38 @@ const SignalRHandler = ({
         }
       )
         .addTo(map)
-        .bindPopup(`<b>Xe buýt ${busId}</b><br>Đang chờ khởi hành`);
+        .bindPopup(
+          `<b>Xe buýt ${busId}</b><br>Chuyến ${
+            tripType === "pickup" ? "đi" : "về"
+          }<br>Đang chờ khởi hành`
+        );
 
-      busMarkersRef.current.set(busId, initialMarker);
-      console.log(`Đã tạo marker xe bus ${busId} tại điểm xuất phát`);
+      busMarkerRef.current = initialMarker;
+      console.log(
+        `Đã tạo marker xe bus ${busId} tại điểm ${
+          tripType === "pickup" ? "xuất phát" : "cuối (trường)"
+        }`
+      );
     }
 
     return () => {
-      // Không xóa marker ở đây vì có thể đang chạy animation
+      // Không xóa marker ở đây vì có thể đang chạy
     };
-  }, [selectedRoute, map, listenOnly]);
+  }, [route, map, busId, tripType]);
 
   return null;
 };
 
-// --- COMPONENT VẼ ĐƯỜNG ĐI VÀ ĐIỂM DỪNG (Tĩnh) ---
-const SelectedRouteLayer = ({ selectedRoute }) => {
+/**
+ * Component vẽ đường đi và điểm dừng (tĩnh)
+ */
+const RouteLayer = ({ route, tripType }) => {
   const map = useMap();
   const routingControlRef = useRef(null);
   const stopMarkersRef = useRef([]);
 
   useEffect(() => {
-    // --- Xóa control và stop markers cũ ---
+    // Xóa control và markers cũ
     if (routingControlRef.current && routingControlRef.current._map) {
       routingControlRef.current.remove();
     }
@@ -323,11 +320,17 @@ const SelectedRouteLayer = ({ selectedRoute }) => {
     stopMarkersRef.current.forEach((marker) => map.removeLayer(marker));
     stopMarkersRef.current = [];
 
-    // --- Vẽ mới (chỉ vẽ đường và điểm dừng) ---
-    if (selectedRoute?.stopPoints?.length > 0) {
-      const sortedPoints = [...selectedRoute.stopPoints].sort(
+    // Vẽ mới
+    if (route?.stopPoints?.length > 0) {
+      const sortedPoints = [...route.stopPoints].sort(
         (a, b) => a.sequenceOrder - b.sequenceOrder
       );
+
+      // Nếu là chuyến về, đảo ngược thứ tự để vẽ đường ngược lại
+      if (tripType === "dropoff") {
+        sortedPoints.reverse();
+      }
+
       const waypoints = sortedPoints.map((p) =>
         L.latLng(p.latitude, p.longitude)
       );
@@ -346,16 +349,23 @@ const SelectedRouteLayer = ({ selectedRoute }) => {
         }).addTo(map);
         routingControlRef.current = newRoutingControl;
 
+        // Vẽ markers cho điểm dừng
         sortedPoints.forEach((point, index) => {
           const position = L.latLng(point.latitude, point.longitude);
-          const markerIcon =
-            index === sortedPoints.length - 1 ? redIcon : DefaultIcon;
+          // Điểm cuối cùng trong mảng sau khi đảo/không đảo sẽ là điểm đích
+          const isDestination = index === sortedPoints.length - 1;
+          const markerIcon = isDestination ? redIcon : DefaultIcon;
           const stopMarker = L.marker(position, { icon: markerIcon })
-            .bindPopup(`<b>${point.pointName}</b><br>Trạm dừng số ${index + 1}`)
+            .bindPopup(
+              `<b>${point.pointName || "Điểm dừng"}</b><br>Trạm số ${
+                index + 1
+              }`
+            )
             .addTo(map);
           stopMarkersRef.current.push(stopMarker);
         });
 
+        // Fit bounds
         if (waypoints.length > 1) {
           const bounds = L.latLngBounds(waypoints);
           map.fitBounds(bounds, { padding: [50, 50] });
@@ -364,12 +374,13 @@ const SelectedRouteLayer = ({ selectedRoute }) => {
         }
       }
     } else {
+      // Default view (Sài Gòn)
       if (map) {
         map.setView([10.7769, 106.6954], 13);
       }
     }
 
-    // --- Hàm dọn dẹp ---
+    // Hàm dọn dẹp
     return () => {
       if (routingControlRef.current && routingControlRef.current._map) {
         routingControlRef.current.remove();
@@ -378,21 +389,29 @@ const SelectedRouteLayer = ({ selectedRoute }) => {
       stopMarkersRef.current.forEach((marker) => map.removeLayer(marker));
       stopMarkersRef.current = [];
     };
-  }, [selectedRoute, map]);
+  }, [route, map, tripType]);
 
   return null;
 };
 
-// --- COMPONENT MAP CHÍNH ---
-const MapComponent = ({
-  selectedRoute,
-  isAnimationTriggered = false,
-  onAnimationFinished = () => {},
-  listenOnly = false, // NEW: Chỉ lắng nghe realtime (không giả lập)
-  specificBusId = null, // NEW: Lắng nghe xe cụ thể
+/**
+ * Component map chính cho Driver
+ * Props:
+ * - busId: ID xe bus
+ * - route: Object chứa stopPoints (với sequenceOrder, latitude, longitude, pointName)
+ * - isDriving: Boolean trigger việc bắt đầu lái xe
+ * - onDrivingFinished: Callback khi hoàn thành
+ * - tripType: 'pickup' hoặc 'dropoff'
+ */
+const DriverMapComponent = ({
+  busId,
+  route,
+  isDriving,
+  onDrivingFinished,
+  tripType = "pickup",
 }) => {
-  const initialPosition = [10.7769, 106.6954];
-  console.log("MapComponent rendering với selectedRoute:", selectedRoute, "listenOnly:", listenOnly);
+  const initialPosition = [10.7769, 106.6954]; // Sài Gòn
+  console.log("DriverMapComponent rendering với busId:", busId, "tripType:", tripType);
 
   return (
     <MapContainer
@@ -404,19 +423,20 @@ const MapComponent = ({
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
       />
-      {/* Component này vẽ đường đi tĩnh */}
-      <SelectedRouteLayer selectedRoute={selectedRoute} />
+      
+      {/* Vẽ đường đi và điểm dừng */}
+      <RouteLayer route={route} tripType={tripType} />
 
-      {/* Component này xử lý SignalR (Gửi và Nhận) */}
-      <SignalRHandler
-        selectedRoute={selectedRoute}
-        isAnimationTriggered={isAnimationTriggered}
-        onAnimationFinished={onAnimationFinished}
-        listenOnly={listenOnly}
-        specificBusId={specificBusId}
+      {/* Xử lý SignalR và gửi location */}
+      <DriverSignalRHandler
+        busId={busId}
+        route={route}
+        isDriving={isDriving}
+        onDrivingFinished={onDrivingFinished}
+        tripType={tripType}
       />
     </MapContainer>
   );
 };
 
-export default MapComponent;
+export default DriverMapComponent;

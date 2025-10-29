@@ -34,7 +34,7 @@ const ReportIncidentModal = ({ isOpen, onClose }) => {
     try {
       const response = await api.get("/api/v1/user/all");
       console.log("All users response:", response.data);
-      
+
       // Filter users có role "Admin"
       const admins = response.data.filter((user) =>
         user.roles.includes("Admin")

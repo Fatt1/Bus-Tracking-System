@@ -139,6 +139,8 @@ const BusDetailPage = () => {
               selectedRoute={route}
               isAnimationTriggered={false}
               onAnimationFinished={() => {}}
+              listenOnly={true} // Chỉ lắng nghe realtime, không giả lập
+              specificBusId={bus.id} // Chỉ hiển thị xe bus này
             />
           ) : (
             <div className="map-placeholder-detail">
