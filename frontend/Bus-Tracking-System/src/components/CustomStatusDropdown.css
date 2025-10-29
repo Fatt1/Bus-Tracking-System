@@ -1,0 +1,80 @@
+/* src/components/CustomStatusDropdown.css */
+
+.status-dropdown {
+  position: relative;
+  width: 100%;
+  max-width: 160px; /* Giới hạn chiều rộng */
+  margin: 0 auto; /* Căn giữa trong ô */
+}
+
+/* Nút bấm hiển thị trạng thái hiện tại */
+.dropdown-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background-color: #fff;
+  border: 1px solid #ccc; /* Viền xám nhạt */
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dropdown-toggle:hover {
+  border-color: #aaa;
+}
+
+.dropdown-toggle .arrow {
+  transition: transform 0.2s;
+}
+.dropdown-toggle .arrow.open {
+  transform: rotate(180deg);
+}
+
+.dropdown-toggle > svg:first-child {
+  margin-right: 8px; /* Icon trạng thái */
+}
+
+/* Danh sách lựa chọn */
+.dropdown-menu {
+  position: absolute;
+  top: 105%; /* Hiển thị ngay dưới nút */
+  left: 0;
+  width: 100%;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  list-style: none;
+  padding: 5px;
+  margin: 0;
+  z-index: 10;
+  animation: fadeInDropdown 0.15s ease-out;
+}
+
+@keyframes fadeInDropdown {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+.dropdown-item:hover {
+  background-color: #f4f7fa; /* Nền xám nhạt khi hover */
+}

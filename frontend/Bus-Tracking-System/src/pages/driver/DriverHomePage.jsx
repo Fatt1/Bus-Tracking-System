@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { clearAuth } from "../../utils/auth";
 import "./DriverHomePage.css";
 import {
@@ -222,10 +222,10 @@ const DriverProfileModal = ({ isOpen, onClose, driver }) => {
   );
 };
 
-// --- COMPONENT SIDEBAR CỦA TÀI XẾ (Giữ nguyên) ---
+// --- COMPONENT SIDEBAR CỦA TÀI XẾ (Cập nhật: Dùng useLocation) ---
 const DriverSidebar = () => {
-  // Đặt trang này là active
-  const activePage = "home";
+  const location = useLocation();
+  const activePage = location.pathname;
 
   return (
     <aside className="driver-sidebar">
@@ -234,28 +234,36 @@ const DriverSidebar = () => {
       </div>
       <nav className="driver-sidebar-nav">
         <ul>
-          <li className={activePage === "home" ? "active" : ""}>
+          <li className={activePage === "/driver/home" ? "active" : ""}>
             {/* Sửa <a> thành <Link> */}
             <Link to="/driver/home">
               {" "}
               <FaHome /> Trang chủ{" "}
             </Link>
           </li>
-          <li className={activePage === "schedule" ? "active" : ""}>
+          <li className={activePage === "/driver/schedule" ? "active" : ""}>
             {/* Sửa <a> thành <Link> và thêm path */}
             <Link to="/driver/schedule">
               {" "}
               <FaTasks /> Lịch trình làm việc{" "}
             </Link>
           </li>
-          <li className={activePage === "students" ? "active" : ""}>
+          <li
+            className={
+              activePage.startsWith("/driver/students") ? "active" : ""
+            }
+          >
             {/* Sửa <a> thành <Link> */}
-            <Link to="#">
+            <Link to="/driver/students">
               {" "}
               <FaUserCheck /> Học sinh & điểm đón{" "}
             </Link>
           </li>
-          <li className={activePage === "notifications" ? "active" : ""}>
+          <li
+            className={
+              activePage.startsWith("/driver/notifications") ? "active" : ""
+            }
+          >
             {/* Sửa <a> thành <Link> */}
             <Link to="/driver/notifications">
               {" "}

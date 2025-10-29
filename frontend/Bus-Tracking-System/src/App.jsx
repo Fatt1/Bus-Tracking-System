@@ -22,6 +22,7 @@ import DriverSchedulePage from "./pages/driver/DriverSchedulePage";
 import DriverNotificationPage from "./pages/driver/DriverNotificationPage";
 import RequireRole from "./components/RequireRole";
 import TripHistoryPage from "./pages/ScheduleHistoryPage";
+import DriverStudentListPage from "./pages/driver/DriverStudentListPage";
 
 function App() {
   // Xóa useEffect gọi API ở đây, nó nên nằm trong component cần dữ liệu (DashboardPage)
@@ -61,6 +62,14 @@ function App() {
         element={
           <RequireRole roles={["Driver"]}>
             <DriverNotificationPage />
+          </RequireRole>
+        }
+      />
+      <Route
+        path="/driver/students"
+        element={
+          <RequireRole roles={["Driver"]}>
+            <DriverStudentListPage />
           </RequireRole>
         }
       />
