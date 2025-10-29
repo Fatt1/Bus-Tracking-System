@@ -129,7 +129,7 @@ namespace TrackingBusSystem.Infrastructure.Hubs
                                 // Cache sẽ tự động xóa sau 30 phút
                                 _cache.Set(cacheKey, true, TimeSpan.FromMinutes(30));
 
-                                Console.WriteLine($"✅ Đã gửi thông báo cho điểm dừng '{stopPoint.PointName}' (Distance: {Math.Round(distance)}m)");
+
                             }
                         }
                     }
