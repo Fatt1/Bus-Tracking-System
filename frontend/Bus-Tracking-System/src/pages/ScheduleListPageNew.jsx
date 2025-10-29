@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios"; // Import axios
 import "./ScheduleListPageNew.css"; // Sẽ tạo ở bước 3
@@ -157,6 +157,7 @@ const ScheduleListPageNew = () => {
   const [viewingSchedule, setViewingSchedule] = useState(null);
   const [deletingScheduleInfo, setDeletingScheduleInfo] = useState(null); // Lưu { id, routeName, date, time }
   const [error, setError] = useState(null); // State báo lỗi
+  const lastLocationKey = useRef(null); // Track location key để tránh process trùng
 
   const navigate = useNavigate();
 
@@ -180,13 +181,21 @@ const ScheduleListPageNew = () => {
     }
   };
 
-  const fetchSchedules = async () => {
-    console.log("Fetching schedules...");
+  const fetchSchedules = useCallback(async (dateForWeek) => {
+    // dateForWeek PHẢI được truyền vào, không dùng currentDate từ closure
+    const dateString = format(dateForWeek, "yyyy-MM-dd");
+    
+    console.log("=== Fetching schedules for week containing date:", dateString, "===");
     setIsLoadingSchedules(true);
     setError(null); // Reset lỗi khi fetch
     try {
-      const response = await api.get("/api/v1/schedule/all");
+      const response = await api.get("/api/v1/schedule/all", {
+        params: {
+          DateInWeek: dateString, // QUAN TRỌNG: Truyền date để backend biết tuần nào
+        },
+      });
       console.log("Schedules API response:", response.data);
+      console.log("Number of schedules returned:", response.data?.length || 0);
       setSchedules(Array.isArray(response.data) ? response.data : []);
     } catch (err) {
       console.error("Lỗi khi tải danh sách lịch trình:", err);
@@ -195,35 +204,51 @@ const ScheduleListPageNew = () => {
     } finally {
       setIsLoadingSchedules(false);
     }
-  };
+  }, []); // KHÔNG CÓ dependency - hàm này stable
 
   // useEffect để fetch dữ liệu khi component mount lần đầu
   useEffect(() => {
     fetchRoutes();
-    fetchSchedules();
-  }, []); // Chỉ chạy 1 lần
+  }, []); // Chỉ chạy 1 lần khi mount
+
+  // useEffect để fetch schedules khi currentDate thay đổi (chuyển tuần)
+  useEffect(() => {
+    console.log("=== Current date changed, fetching schedules for new week ===");
+    console.log("Current date:", currentDate);
+    fetchSchedules(currentDate); // Truyền currentDate vào
+  }, [currentDate, fetchSchedules]); // Dependencies: currentDate và fetchSchedules (stable)
 
   // useEffect để fetch lại schedules khi quay về từ trang add (phát hiện qua location.state)
   useEffect(() => {
+    // Chỉ xử lý nếu có refreshSchedules flag VÀ chưa process key này
+    if (!location.state?.refreshSchedules) return;
+    if (lastLocationKey.current === location.key) return; // Đã process rồi
+    
     console.log("=== Location state changed ===");
     console.log("location.state:", location.state);
+    console.log("location.key:", location.key);
     
-    if (location.state?.refreshSchedules) {
-      console.log("=== Detected refresh flag, fetching schedules again ===");
-      fetchSchedules();
-      
-      // Nếu có thông tin tuần cần quay về, set lại currentDate
-      if (location.state?.returnToWeek) {
-        const weekStartDate = parseISO(location.state.returnToWeek);
-        console.log("=== Returning to week starting:", format(weekStartDate, "yyyy-MM-dd") + " ===");
-        setCurrentDate(weekStartDate);
-      }
-      
-      // Xóa flag để tránh fetch liên tục
-      console.log("=== Clearing navigation state ===");
-      window.history.replaceState({}, document.title);
+    lastLocationKey.current = location.key; // Đánh dấu đã process
+    
+    console.log("=== Detected refresh flag ===");
+    
+    // Nếu có thông tin tuần cần quay về, set lại currentDate
+    if (location.state?.returnToWeek) {
+      const weekStartDate = parseISO(location.state.returnToWeek);
+      console.log("=== Returning to week starting:", format(weekStartDate, "yyyy-MM-dd") + " ===");
+      // CHỈ set currentDate, KHÔNG gọi fetchSchedules ở đây
+      // useEffect khác sẽ tự động fetch khi currentDate thay đổi
+      setCurrentDate(weekStartDate);
+    } else {
+      // Nếu không có returnToWeek, fetch với currentDate hiện tại
+      console.log("=== No returnToWeek, fetching with current date ===");
+      fetchSchedules(currentDate);
     }
-  }, [location]);
+    
+    // Xóa flag để tránh nhầm lẫn
+    console.log("=== Clearing navigation state ===");
+    navigate(location.pathname, { replace: true, state: {} });
+  }, [location, fetchSchedules, currentDate, navigate]);
 
   // --- LOGIC XỬ LÝ LỊCH ---
   const weekStartsOn = 1; // Bắt đầu tuần từ Thứ Hai (Monday)
