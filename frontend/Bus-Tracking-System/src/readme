@@ -4,3 +4,5 @@ npm cần tải
 npm install date-fns
 npm install react-route-dom
 npm install axios
+
+npm install axios date-fns leaflet leaflet-routing-machine react react-dom react-icons react-leaflet react-router react-router-dom @microsoft/signalr
