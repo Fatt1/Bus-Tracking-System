@@ -36,7 +36,9 @@ const BusDetailPage = () => {
             });
             const allRoutes = routesRes.data?.items || [];
             const foundRoute = allRoutes.find(
-              (r) => (r.routeName || "").toLowerCase() === busData.routeName.toLowerCase()
+              (r) =>
+                (r.routeName || "").toLowerCase() ===
+                busData.routeName.toLowerCase()
             );
             if (foundRoute) {
               setRoute(foundRoute);
@@ -116,7 +118,9 @@ const BusDetailPage = () => {
               <strong>Trạng thái:</strong>{" "}
               {Number(bus.status) === 1 ? "Đang hoạt động" : "Đang bảo trì"}
               <span
-                className={`status-dot ${Number(bus.status) === 1 ? "active" : "inactive"}`}
+                className={`status-dot ${
+                  Number(bus.status) === 1 ? "active" : "inactive"
+                }`}
               ></span>
             </div>
           </div>

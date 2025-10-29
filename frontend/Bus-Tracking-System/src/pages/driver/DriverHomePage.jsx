@@ -270,11 +270,11 @@ const DriverHomePage = () => {
   const [scheduleData, setScheduleData] = useState(null); // State lưu schedule từ API
   const [isLoading, setIsLoading] = useState(true); // State loading
   const [error, setError] = useState(null); // State lỗi
-  
+
   // States cho việc lái xe
   const [isDrivingPickup, setIsDrivingPickup] = useState(false); // Đang lái chuyến đi
   const [isDrivingDropoff, setIsDrivingDropoff] = useState(false); // Đang lái chuyến về
-  
+
   const navigate = useNavigate();
 
   const fullName =
@@ -554,12 +554,15 @@ const DriverHomePage = () => {
                     <DriverMapComponent
                       busId={scheduleData.busId}
                       route={{
-                        stopPoints: scheduleData.routeDTO.stopPoints.map(sp => ({
-                          sequenceOrder: sp.sequenceOrder,
-                          latitude: sp.latitude,
-                          longitude: sp.longitude,
-                          pointName: sp.pointName || `Điểm ${sp.sequenceOrder}`
-                        }))
+                        stopPoints: scheduleData.routeDTO.stopPoints.map(
+                          (sp) => ({
+                            sequenceOrder: sp.sequenceOrder,
+                            latitude: sp.latitude,
+                            longitude: sp.longitude,
+                            pointName:
+                              sp.pointName || `Điểm ${sp.sequenceOrder}`,
+                          })
+                        ),
                       }}
                       isDriving={isDrivingPickup || isDrivingDropoff}
                       onDrivingFinished={() => {
@@ -567,7 +570,13 @@ const DriverHomePage = () => {
                         setIsDrivingDropoff(false);
                         alert("Chuyến đi hoàn thành!");
                       }}
-                      tripType={isDrivingPickup ? "pickup" : isDrivingDropoff ? "dropoff" : "pickup"}
+                      tripType={
+                        isDrivingPickup
+                          ? "pickup"
+                          : isDrivingDropoff
+                          ? "dropoff"
+                          : "pickup"
+                      }
                     />
                   ) : (
                     <div className="driver-map-placeholder">

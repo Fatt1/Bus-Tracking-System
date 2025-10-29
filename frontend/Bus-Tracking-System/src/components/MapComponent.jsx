@@ -392,7 +392,12 @@ const MapComponent = ({
   specificBusId = null, // NEW: Lắng nghe xe cụ thể
 }) => {
   const initialPosition = [10.7769, 106.6954];
-  console.log("MapComponent rendering với selectedRoute:", selectedRoute, "listenOnly:", listenOnly);
+  console.log(
+    "MapComponent rendering với selectedRoute:",
+    selectedRoute,
+    "listenOnly:",
+    listenOnly
+  );
 
   return (
     <MapContainer

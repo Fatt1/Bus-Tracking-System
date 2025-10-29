@@ -127,7 +127,9 @@ const DriverSignalRHandler = ({
           if (routeIndex >= coordinates.length) {
             clearInterval(animationIntervalRef.current);
             animationIntervalRef.current = null;
-            console.log(`Driver hoàn thành chuyến ${tripType} cho Bus ${busId}`);
+            console.log(
+              `Driver hoàn thành chuyến ${tripType} cho Bus ${busId}`
+            );
             // Xóa tempRouting
             if (tempRouting._map) {
               map.removeControl(tempRouting);
@@ -149,14 +151,14 @@ const DriverSignalRHandler = ({
               .then(() => {
                 // Cập nhật marker của chính mình
                 if (busMarkerRef.current) {
-                  busMarkerRef.current.setLatLng([currentPos.lat, currentPos.lng]);
+                  busMarkerRef.current.setLatLng([
+                    currentPos.lat,
+                    currentPos.lng,
+                  ]);
                 }
               })
               .catch((err) =>
-                console.error(
-                  `Lỗi khi gửi location cho Bus ${busId}:`,
-                  err
-                )
+                console.error(`Lỗi khi gửi location cho Bus ${busId}:`, err)
               );
           }
         }, 500); // Gửi mỗi 500ms
@@ -200,16 +202,10 @@ const DriverSignalRHandler = ({
         // Tham gia group Bus-{busId}
         hubConnection
           .invoke("JoinBusGroup", busId)
-          .then(() =>
-            console.log(`Driver đã tham gia group Bus-${busId}`)
-          )
-          .catch((err) =>
-            console.error("Lỗi khi tham gia Bus group: ", err)
-          );
+          .then(() => console.log(`Driver đã tham gia group Bus-${busId}`))
+          .catch((err) => console.error("Lỗi khi tham gia Bus group: ", err));
       })
-      .catch((err) =>
-        console.error("Lỗi kết nối SignalR: ", err)
-      );
+      .catch((err) => console.error("Lỗi kết nối SignalR: ", err));
 
     // Hàm dọn dẹp
     return () => {
@@ -357,9 +353,7 @@ const RouteLayer = ({ route, tripType }) => {
           const markerIcon = isDestination ? redIcon : DefaultIcon;
           const stopMarker = L.marker(position, { icon: markerIcon })
             .bindPopup(
-              `<b>${point.pointName || "Điểm dừng"}</b><br>Trạm số ${
-                index + 1
-              }`
+              `<b>${point.pointName || "Điểm dừng"}</b><br>Trạm số ${index + 1}`
             )
             .addTo(map);
           stopMarkersRef.current.push(stopMarker);
@@ -411,7 +405,12 @@ const DriverMapComponent = ({
   tripType = "pickup",
 }) => {
   const initialPosition = [10.7769, 106.6954]; // Sài Gòn
-  console.log("DriverMapComponent rendering với busId:", busId, "tripType:", tripType);
+  console.log(
+    "DriverMapComponent rendering với busId:",
+    busId,
+    "tripType:",
+    tripType
+  );
 
   return (
     <MapContainer
@@ -423,7 +422,7 @@ const DriverMapComponent = ({
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
       />
-      
+
       {/* Vẽ đường đi và điểm dừng */}
       <RouteLayer route={route} tripType={tripType} />
 
