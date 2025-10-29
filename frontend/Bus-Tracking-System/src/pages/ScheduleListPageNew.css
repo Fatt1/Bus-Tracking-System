@@ -527,3 +527,11 @@
   font-style: italic;
   padding: 20px;
 }
+
+/* Nút Xem lịch sử - màu xanh dương */
+.delete-schedule-btn.view-history-btn {
+  background-color: #3498db;
+}
+.delete-schedule-btn.view-history-btn:hover {
+  background-color: #2980b9;
+}

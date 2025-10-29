@@ -5,7 +5,7 @@ import BusListPage from "./pages/BusListPage";
 import BusDetailPage from "./pages/BusDetailPage";
 import Layout from "./components/Layout"; // <-- 1. IMPORT LAYOUT
 // import ScheduleListPage from "./pages/ScheduleListPageNew";
-import TripListPage from "./pages/TripListPage";
+// import TripListPage from "./pages/TripListPage";
 // import ScheduleAddEditPage from "./pages/ScheduleAddEditPage";
 import StudentListPage from "./pages/StudentListPage";
 import DriverListPage from "./pages/DriverListPage";
@@ -21,6 +21,7 @@ import DriverHomePage from "./pages/driver/DriverHomePage";
 import DriverSchedulePage from "./pages/driver/DriverSchedulePage";
 import DriverNotificationPage from "./pages/driver/DriverNotificationPage";
 import RequireRole from "./components/RequireRole";
+import TripHistoryPage from "./pages/ScheduleHistoryPage";
 
 function App() {
   // Xóa useEffect gọi API ở đây, nó nên nằm trong component cần dữ liệu (DashboardPage)
@@ -77,9 +78,10 @@ function App() {
         <Route path="bus" element={<BusListPage />} />
         <Route path="bus/:busId" element={<BusDetailPage />} />
         <Route path="schedules-calendar" element={<ScheduleListPageNew />} />
-        <Route path="schedule-trips" element={<TripListPage />} />
+        {/* <Route path="schedule-trips" element={<Schedule />} /> */}
         <Route path="schedule" element={<ScheduleListPageNew />} />
         <Route path="schedule/add" element={<ScheduleAddEditPageNew />} />
+        <Route path="schedule/history/:tripId" element={<TripHistoryPage />} />
         <Route path="students" element={<StudentListPage />} />
         <Route path="drivers" element={<DriverListPage />} />
         <Route path="routes" element={<RouteListPage />} />

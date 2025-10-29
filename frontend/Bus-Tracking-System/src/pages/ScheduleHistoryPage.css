@@ -1,0 +1,173 @@
+/* src/pages/TripHistoryPage.css */
+
+/* Kế thừa CSS bảng chung */
+@import url("./LayoutTable.css");
+
+.trip-history-page {
+  max-width: 1000px; /* Giới hạn chiều rộng nội dung */
+  margin: 0 auto; /* Căn giữa */
+}
+
+/* Nút quay lại ở header */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--primary-blue, #0a2e5d);
+  text-decoration: none;
+  font-weight: 500;
+}
+.back-link:hover {
+  text-decoration: underline;
+}
+
+/* Tiêu đề trang */
+.history-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+.history-header h2 {
+  font-size: 1.8rem;
+  color: var(--primary-blue, #0a2e5d);
+  margin: 0 0 5px 0;
+}
+.history-header .history-date {
+  font-size: 1.1rem;
+  color: #555;
+  font-weight: 500;
+}
+
+/* Form thông tin (chỉ đọc) */
+.history-form-container {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+.history-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin-bottom: 20px;
+}
+.history-form-row:last-child {
+  margin-bottom: 0;
+}
+
+.form-group.readonly-group label {
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+  font-size: 0.9rem;
+}
+.input-with-icon {
+  position: relative;
+}
+.input-with-icon input {
+  width: 100%;
+  padding: 12px 15px 12px 40px; /* Thêm padding trái cho icon */
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+  box-sizing: border-box;
+  background-color: #f1f3f5; /* Nền xám */
+  cursor: default;
+  color: #333;
+  font-weight: 500;
+}
+.input-with-icon .icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+}
+
+/* Khu vực danh sách học sinh */
+.student-list-section {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 30px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+.student-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+.student-list-header h4 {
+  margin: 0;
+  font-size: 1.3rem;
+  color: var(--primary-blue, #0a2e5d);
+}
+.student-list-header .form-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 0; /* Ghi đè margin */
+}
+.student-list-header .form-group label {
+  margin-bottom: 0;
+  font-weight: 500;
+}
+.student-list-header .form-group select {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 0.95rem;
+  min-width: 150px;
+}
+
+/* Tùy chỉnh bảng học sinh */
+.student-history-table {
+  margin-bottom: 0; /* Bỏ margin cuối */
+}
+.student-history-table th:nth-child(1), /* Cột STT */
+.student-history-table td:nth-child(1) {
+  width: 60px;
+  text-align: center;
+}
+.student-history-table th:nth-child(4), /* Cột Trạng thái */
+.student-history-table td:nth-child(4) {
+  width: 150px;
+  text-align: center;
+}
+.student-history-table .status-badge {
+  font-size: 0.85rem;
+}
+
+/* Loading và Error messages */
+.loading-message,
+.error-message {
+  text-align: center;
+  padding: 50px 20px;
+  font-size: 1.1rem;
+  color: #666;
+}
+
+.error-message {
+  color: #e74c3c;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Status badge classes */
+.status-badge.status-default {
+  background-color: #95a5a6;
+}

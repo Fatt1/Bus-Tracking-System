@@ -43,6 +43,7 @@ const ScheduleDetailModal = ({
   onClose,
   onDelete,
   onEdit,
+  onViewHistory, // Thêm prop này
 }) => {
   if (!isOpen || !schedule) return null;
 
@@ -58,6 +59,15 @@ const ScheduleDetailModal = ({
       default:
         return "Không rõ";
     }
+  };
+
+  // Kiểm tra xem có hiển thị nút "Xem lịch sử" không (ngày <= hôm nay)
+  const canViewHistory = () => {
+    if (!schedule.scheduleDate) return false;
+    const scheduleDate = parseISO(schedule.scheduleDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset giờ để so sánh chỉ ngày
+    return scheduleDate <= today;
   };
 
   return (
@@ -99,6 +109,16 @@ const ScheduleDetailModal = ({
           <strong>Trạng thái:</strong> {getStatusText(schedule.status)}
         </p>
         <div className="modal-actions">
+          {/* Nút Xem lịch sử - Chỉ hiển thị khi ngày <= hôm nay */}
+          {canViewHistory() && (
+            <button
+              className="delete-schedule-btn view-history-btn"
+              onClick={() => onViewHistory(schedule)}
+              title="Xem lịch sử đưa/đón học sinh"
+            >
+              Xem lịch sử
+            </button>
+          )}
           {/* Nút sửa và xóa chỉ hoạt động khi có ID */}
           <button
             className="delete-schedule-btn"
@@ -711,6 +731,17 @@ const ScheduleListPageNew = () => {
     });
   };
 
+  // --- HÀM CHUYỂN TRANG XEM LỊCH SỬ ---
+  const handleViewHistory = (schedule) => {
+    console.log(`Navigating to history for schedule ID: ${schedule.id}`);
+    navigate(`/schedule/history/${schedule.id}`, {
+      state: {
+        schedule: schedule, // Truyền toàn bộ schedule info
+        routeName: getRouteName(schedule.routeId),
+      },
+    });
+  };
+
   // --- LẤY TÊN TUYẾN ĐƯỜNG (Tối ưu dùng useMemo) ---
   const routeNameMap = useMemo(() => {
     return routes.reduce((map, route) => {
@@ -752,6 +783,7 @@ const ScheduleListPageNew = () => {
           setEditingSchedule(s);
           setViewingSchedule(null);
         }}
+        onViewHistory={handleViewHistory} // Truyền hàm chuyển trang lịch sử
       />
       {/* Modal Chỉnh sửa */}
       <ScheduleEditModal
