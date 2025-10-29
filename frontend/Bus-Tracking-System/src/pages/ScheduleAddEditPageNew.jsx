@@ -39,34 +39,51 @@ const ScheduleAddEditPageNew = () => {
   // --- Fetch dữ liệu cho dropdowns ---
   useEffect(() => {
     const fetchDropdownData = async () => {
-      console.log("Fetching dropdown data...");
+      console.log("=== Fetching dropdown data ===");
+      console.log("For date:", date);
       setIsLoadingDropdowns(true);
       try {
-        // Gọi API lấy drivers
-        const driverResponse = await api.get("/api/v1/driver/dropdown");
+        // QUAN TRỌNG: Truyền dateInWeek parameter để backend check availability
+        const params = { dateInWeek: date }; // date đã là string "YYYY-MM-DD"
+        console.log("Dropdown API params:", params);
+
+        // Gọi API lấy drivers với parameter dateInWeek
+        const driverResponse = await api.get("/api/v1/driver/dropdown", { params });
         console.log("Drivers dropdown response:", driverResponse.data);
-        // Lọc chỉ lấy tài xế có canClickable: true
-        const availableDrivers = (
-          Array.isArray(driverResponse.data) ? driverResponse.data : []
-        ).filter((d) => d.canClickable);
-        setDrivers(availableDrivers);
-        // Tự động chọn tài xế đầu tiên nếu có
-        if (availableDrivers.length > 0) {
-          setSelectedDriverId(availableDrivers[0].id);
+        
+        // LƯU TẤT CẢ drivers (kể cả bận) để hiển thị trong dropdown
+        const allDrivers = Array.isArray(driverResponse.data) ? driverResponse.data : [];
+        setDrivers(allDrivers);
+        
+        // Tự động chọn tài xế RẢNH đầu tiên
+        const firstAvailableDriver = allDrivers.find((d) => d.canClickable);
+        if (firstAvailableDriver) {
+          setSelectedDriverId(firstAvailableDriver.id);
+        } else if (allDrivers.length > 0) {
+          // Nếu không có ai rảnh, chọn người đầu tiên (sẽ báo lỗi khi submit)
+          setSelectedDriverId(allDrivers[0].id);
         }
 
-        // Gọi API lấy buses
-        const busResponse = await api.get("/api/v1/bus/dropdown");
+        // Gọi API lấy buses với parameter dateInWeek
+        const busResponse = await api.get("/api/v1/bus/dropdown", { params });
         console.log("Buses dropdown response:", busResponse.data);
-        // Lọc chỉ lấy xe buýt có canClickable: true
-        const availableBuses = (
-          Array.isArray(busResponse.data) ? busResponse.data : []
-        ).filter((b) => b.canClickable);
-        setBuses(availableBuses);
-        // Tự động chọn xe buýt đầu tiên nếu có
-        if (availableBuses.length > 0) {
-          setSelectedBusId(availableBuses[0].id);
+        
+        // LƯU TẤT CẢ buses (kể cả bận) để hiển thị trong dropdown
+        const allBuses = Array.isArray(busResponse.data) ? busResponse.data : [];
+        setBuses(allBuses);
+        
+        // Tự động chọn xe buýt RẢNH đầu tiên
+        const firstAvailableBus = allBuses.find((b) => b.canClickable);
+        if (firstAvailableBus) {
+          setSelectedBusId(firstAvailableBus.id);
+        } else if (allBuses.length > 0) {
+          // Nếu không có xe rảnh, chọn xe đầu tiên (sẽ báo lỗi khi submit)
+          setSelectedBusId(allBuses[0].id);
         }
+        
+        console.log("Available drivers:", allDrivers.filter(d => d.canClickable).length);
+        console.log("Available buses:", allBuses.filter(b => b.canClickable).length);
+        
       } catch (error) {
         console.error("Lỗi khi tải dữ liệu dropdowns:", error);
         alert("Không thể tải danh sách tài xế hoặc xe buýt.");
@@ -95,6 +112,20 @@ const ScheduleAddEditPageNew = () => {
     // Kiểm tra đã chọn tài xế và xe buýt chưa
     if (!selectedDriverId || !selectedBusId) {
       alert("Vui lòng chọn tài xế và xe buýt.");
+      return;
+    }
+
+    // KIỂM TRA xem driver/bus có bận không (canClickable = false)
+    const selectedDriver = drivers.find(d => d.id === parseInt(selectedDriverId));
+    const selectedBus = buses.find(b => b.id === parseInt(selectedBusId));
+    
+    if (selectedDriver && !selectedDriver.canClickable) {
+      alert(`⚠️ Tài xế "${selectedDriver.driverName}" đã có lịch trình khác trong ngày này. Vui lòng chọn tài xế khác.`);
+      return;
+    }
+    
+    if (selectedBus && !selectedBus.canClickable) {
+      alert(`⚠️ Xe buýt "${selectedBus.busName}" đã có lịch trình khác trong ngày này. Vui lòng chọn xe buýt khác.`);
       return;
     }
 
@@ -233,12 +264,24 @@ const ScheduleAddEditPageNew = () => {
                     -- Chọn tài xế --
                   </option>
                   {drivers.map((driver) => (
-                    // API dropdown trả về driverName
-                    <option key={driver.id} value={driver.id}>
-                      {driver.driverName}
+                    <option 
+                      key={driver.id} 
+                      value={driver.id}
+                      disabled={!driver.canClickable}
+                      style={{ 
+                        color: driver.canClickable ? 'inherit' : '#999',
+                        fontStyle: driver.canClickable ? 'normal' : 'italic'
+                      }}
+                    >
+                      {driver.driverName} {!driver.canClickable && '(Đã có lịch)'}
                     </option>
                   ))}
                 </select>
+                {drivers.length > 0 && drivers.every(d => !d.canClickable) && (
+                  <small style={{ color: '#e74c3c', marginTop: '4px', display: 'block' }}>
+                    ⚠️ Tất cả tài xế đều đã có lịch trong ngày này
+                  </small>
+                )}
               </div>
               <div className="form-group">
                 <label htmlFor="busId">Xe buýt</label>
@@ -252,12 +295,24 @@ const ScheduleAddEditPageNew = () => {
                     -- Chọn xe buýt --
                   </option>
                   {buses.map((bus) => (
-                    // API dropdown trả về busName
-                    <option key={bus.id} value={bus.id}>
-                      {bus.busName}
+                    <option 
+                      key={bus.id} 
+                      value={bus.id}
+                      disabled={!bus.canClickable}
+                      style={{ 
+                        color: bus.canClickable ? 'inherit' : '#999',
+                        fontStyle: bus.canClickable ? 'normal' : 'italic'
+                      }}
+                    >
+                      {bus.busName} {!bus.canClickable && '(Đã có lịch)'}
                     </option>
                   ))}
                 </select>
+                {buses.length > 0 && buses.every(b => !b.canClickable) && (
+                  <small style={{ color: '#e74c3c', marginTop: '4px', display: 'block' }}>
+                    ⚠️ Tất cả xe buýt đều đã có lịch trong ngày này
+                  </small>
+                )}
               </div>
             </div>
           )}
