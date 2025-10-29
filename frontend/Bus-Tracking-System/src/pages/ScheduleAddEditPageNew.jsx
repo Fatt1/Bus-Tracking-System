@@ -2,15 +2,28 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios"; // Import axios
 import "./ScheduleAddEditPageNew.css"; // Sẽ tạo ở bước 5
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { vi } from "date-fns/locale";
 import { FaSpinner } from "react-icons/fa"; // Icon loading
-import { parseISO } from "date-fns";
+
+// --- Axios instance with credentials ---
+const api = axios.create({
+  baseURL: "https://localhost:7229",
+  withCredentials: true,
+});
+
 const ScheduleAddEditPageNew = () => {
   const location = useLocation();
   const navigate = useNavigate();
   // Lấy dữ liệu từ state khi navigate
-  const { routeId, routeName, date } = location.state || {};
+  const { routeId, routeName, date, returnWeekInfo } = location.state || {};
+
+  console.log("=== ScheduleAddEditPageNew Loaded ===");
+  console.log("Location state:", location.state);
+  console.log("routeId:", routeId);
+  console.log("routeName:", routeName);
+  console.log("date:", date);
+  console.log("returnWeekInfo:", returnWeekInfo);
 
   // State cho form
   const [pickupTime, setPickupTime] = useState("06:00");
@@ -30,9 +43,7 @@ const ScheduleAddEditPageNew = () => {
       setIsLoadingDropdowns(true);
       try {
         // Gọi API lấy drivers
-        const driverResponse = await axios.get(
-          "https://localhost:7229/api/v1/driver/dropdown"
-        );
+        const driverResponse = await api.get("/api/v1/driver/dropdown");
         console.log("Drivers dropdown response:", driverResponse.data);
         // Lọc chỉ lấy tài xế có canClickable: true
         const availableDrivers = (
@@ -45,9 +56,7 @@ const ScheduleAddEditPageNew = () => {
         }
 
         // Gọi API lấy buses
-        const busResponse = await axios.get(
-          "https://localhost:7229/api/v1/bus/dropdown"
-        );
+        const busResponse = await api.get("/api/v1/bus/dropdown");
         console.log("Buses dropdown response:", busResponse.data);
         // Lọc chỉ lấy xe buýt có canClickable: true
         const availableBuses = (
@@ -71,7 +80,7 @@ const ScheduleAddEditPageNew = () => {
     // Redirect nếu không có dữ liệu cần thiết
     if (!routeId || !routeName || !date) {
       console.warn("Dữ liệu không hợp lệ, quay về trang lịch.");
-      navigate("/schedules-new");
+      navigate("/schedule");
     } else {
       fetchDropdownData(); // Gọi fetch data nếu có đủ thông tin
     }
@@ -80,6 +89,8 @@ const ScheduleAddEditPageNew = () => {
   // --- Xử lý Lưu ---
   const handleSave = async (e) => {
     e.preventDefault();
+
+    console.log("=== handleSave called ===");
 
     // Kiểm tra đã chọn tài xế và xe buýt chưa
     if (!selectedDriverId || !selectedBusId) {
@@ -97,23 +108,37 @@ const ScheduleAddEditPageNew = () => {
       dropOffTime: dropOffTime, // Giờ về
     };
 
-    console.log("Submitting schedule data:", payload);
+    console.log("=== Submitting schedule data ===");
+    console.log("Payload:", JSON.stringify(payload, null, 2));
+    console.log("Return week info:", returnWeekInfo);
 
     try {
-      const response = await axios.post(
-        "https://localhost:7229/api/v1/schedule/create",
-        payload
-      );
-      console.log("API POST schedule response:", response);
+      const response = await api.post("/api/v1/schedule/create", payload);
+      console.log("=== API POST schedule response ===");
+      console.log("Status:", response.status);
+      console.log("Data:", response.data);
+      
       if (response.status === 200 || response.status === 201) {
         alert("Thêm lịch trình thành công!");
-        // Không cần lưu vào localStorage nữa vì trang lịch sẽ fetch lại từ API
-        navigate(-1); // Quay lại trang lịch
+        console.log("=== Navigating back to schedule list ===");
+        console.log("Passing state:", { 
+          refreshSchedules: true,
+          returnToWeek: returnWeekInfo?.weekStartDate
+        });
+        // Navigate về trang schedule với flag refresh và thông tin tuần
+        navigate("/schedule", {
+          state: { 
+            refreshSchedules: true,
+            returnToWeek: returnWeekInfo?.weekStartDate
+          },
+        });
       } else {
         alert(`Thêm lịch trình thất bại. Status: ${response.status}`);
       }
     } catch (error) {
-      console.error("Lỗi khi thêm lịch trình:", error);
+      console.error("=== Lỗi khi thêm lịch trình ===");
+      console.error("Error:", error);
+      console.error("Response:", error.response);
       // Hiển thị lỗi cụ thể từ backend nếu có
       const errorMsg =
         error.response?.data?.errors || // Lỗi validation cụ thể
@@ -129,7 +154,7 @@ const ScheduleAddEditPageNew = () => {
   };
 
   const handleCancel = () => {
-    navigate(-1); // Quay lại trang trước (trang lịch)
+    navigate("/schedule"); // Quay về trang schedule
   };
 
   // Định dạng lại ngày để hiển thị
@@ -144,7 +169,7 @@ const ScheduleAddEditPageNew = () => {
         <div className="breadcrumbs">
           <span>Trang</span> /{" "}
           <span
-            onClick={() => navigate("/schedules-new")}
+            onClick={() => navigate("/schedule")}
             style={{ cursor: "pointer", color: "#0a2e5d" }}
           >
             Quản lý lịch trình

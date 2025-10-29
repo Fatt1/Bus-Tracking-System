@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 // Bỏ Link vì không còn dùng card nữa
 import "./BusListPage.css"; // CSS riêng cho trang này
 import "../pages/LayoutTable.css"; // Tái sử dụng CSS layout bảng chung
@@ -11,6 +12,12 @@ import {
   FaEllipsisH,
   FaExclamationTriangle, // Thêm icon cho modal xóa
 } from "react-icons/fa";
+
+// --- Axios instance with base URL and credentials ---
+const api = axios.create({
+  baseURL: "https://localhost:7229",
+  withCredentials: true,
+});
 
 // --- COMPONENT MODAL THÊM XE BUÝT (Đã cập nhật: Bỏ Tuyến đường) ---
 const AddBusModal = ({ isOpen, onClose, onSave }) => {
@@ -111,8 +118,8 @@ const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, busName }) => {
 // --- COMPONENT 1 DÒNG TRONG BẢNG XE BUÝT ---
 const BusRow = ({ bus, onEdit, onDelete, onViewDetails }) => {
   const getStatusClass = (status) => {
-    // API /all trả về status: true/false
-    return status ? "status-active" : "status-maintenance";
+    // Backend trả enum: 1 = Active, 2 = Maintenance
+    return Number(status) === 1 ? "status-active" : "status-maintenance";
   };
 
   return (
@@ -124,7 +131,7 @@ const BusRow = ({ bus, onEdit, onDelete, onViewDetails }) => {
       <td>{bus.plateNumber || "N/A"}</td>
       <td style={{ textAlign: "center" }}>
         <span className={`status-badge ${getStatusClass(bus.status)}`}>
-          {bus.status ? "Đang hoạt động" : "Đang bảo trì"}
+          {Number(bus.status) === 1 ? "Đang hoạt động" : "Đang bảo trì"}
         </span>
       </td>
       {/* API /all trả về driverName */}
@@ -205,12 +212,87 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
 };
 
 // --- COMPONENT CHÍNH CỦA TRANG ---
+// --- MODAL SỬA XE BUÝT ---
+const EditBusModal = ({ isOpen, onClose, onSave, bus }) => {
+  const [busName, setBusName] = useState("");
+  const [plateNumber, setPlateNumber] = useState("");
+  const [status, setStatus] = useState(1);
+
+  useEffect(() => {
+    if (isOpen && bus) {
+      setBusName(bus.busName || "");
+      setPlateNumber(bus.plateNumber || "");
+      setStatus(Number(bus.status) || 1);
+    }
+  }, [isOpen, bus]);
+
+  if (!isOpen) return null;
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSave({ id: bus.id, busName, plateNumber, status: Number(status) });
+  };
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <button className="modal-close-btn" onClick={onClose}>
+          <FaTimes />
+        </button>
+        <div className="modal-header">
+          <h3>36 36 BUS BUS</h3>
+          <h4>Sửa xe buýt</h4>
+        </div>
+        <form onSubmit={handleSubmit} className="modal-form bus-modal-form">
+          <div className="form-group">
+            <label htmlFor="busName_edit">Tên xe buýt</label>
+            <input
+              type="text"
+              id="busName_edit"
+              value={busName}
+              onChange={(e) => setBusName(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="plateNumber_edit">Biển số xe</label>
+            <input
+              type="text"
+              id="plateNumber_edit"
+              value={plateNumber}
+              onChange={(e) => setPlateNumber(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="status_edit">Trạng thái</label>
+            <select
+              id="status_edit"
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+            >
+              <option value={1}>Đang hoạt động</option>
+              <option value={2}>Đang bảo trì</option>
+            </select>
+          </div>
+          <button type="submit" className="modal-submit-btn">
+            Lưu thay đổi
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};
+
 const BusListPage = () => {
+  const navigate = useNavigate();
   const [buses, setBuses] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [busToEdit, setBusToEdit] = useState(null);
   const [busToDelete, setBusToDelete] = useState(null); // State cho modal xác nhận xóa
   const itemsPerPage = 6;
 
@@ -219,9 +301,9 @@ const BusListPage = () => {
     console.log(`Fetching data from API for page ${page}...`);
     setIsLoading(true);
     try {
-      const apiUrl = `https://localhost:7229/api/v1/bus/all?PageNumber=${page}&PageSize=${itemsPerPage}`;
-      console.log(`Calling API URL: ${apiUrl}`);
-      const response = await axios.get(apiUrl);
+      const response = await api.get("/api/v1/bus/all", {
+        params: { PageNumber: page, PageSize: itemsPerPage },
+      });
       console.log(`API response for page ${page}:`, response.data);
 
       setBuses(response.data.items || []);
@@ -250,10 +332,7 @@ const BusListPage = () => {
   const handleSaveBus = async (newBusData) => {
     console.log("handleSaveBus: Dữ liệu gửi lên API:", newBusData);
     try {
-      const response = await axios.post(
-        "https://localhost:7229/api/v1/bus/create",
-        newBusData
-      );
+      const response = await api.post("/api/v1/bus/create", newBusData);
       console.log("handleSaveBus: API POST response:", response);
       if (response.status === 201 || response.status === 200) {
         alert("Thêm xe buýt thành công!");
@@ -286,6 +365,42 @@ const BusListPage = () => {
     }
   };
 
+  // --- HÀM XỬ LÝ LƯU SỬA XE BUÝT (API PUT) ---
+  const handleUpdateBus = async (updatedBus) => {
+    try {
+      const { id, busName, plateNumber, status } = updatedBus;
+      const response = await api.put(`/api/v1/bus/${id}`, {
+        id,
+        busName,
+        plateNumber,
+        status,
+      });
+      console.log("API PUT response:", response);
+      if (response.status === 204 || response.status === 200) {
+        alert("Cập nhật xe buýt thành công!");
+        fetchBusesFromApi(currentPage);
+      } else {
+        alert(`Cập nhật xe buýt thất bại. Status code: ${response.status}`);
+      }
+    } catch (error) {
+      console.error("Lỗi khi cập nhật xe buýt:", error);
+      let errorMessage = "Đã xảy ra lỗi khi cập nhật xe buýt.";
+      if (error.response) {
+        errorMessage += `\nServer response: ${
+          error.response.status
+        } - ${JSON.stringify(error.response.data)}`;
+      } else if (error.request) {
+        errorMessage += "\nKhông nhận được phản hồi từ server.";
+      } else {
+        errorMessage += `\nLỗi: ${error.message}`;
+      }
+      alert(errorMessage);
+    } finally {
+      setIsEditModalOpen(false);
+      setBusToEdit(null);
+    }
+  };
+
   // --- HÀM MỞ MODAL XÁC NHẬN XÓA ---
   const handleOpenDeleteConfirm = (bus) => {
     setBusToDelete(bus); // Lưu thông tin xe cần xóa vào state
@@ -297,9 +412,7 @@ const BusListPage = () => {
 
     console.log(`handleConfirmDelete: Deleting bus with ID: ${busToDelete.id}`);
     try {
-      const apiUrl = `https://localhost:7229/api/v1/bus/${busToDelete.id}`;
-      console.log(`Calling API URL: ${apiUrl}`);
-      const response = await axios.delete(apiUrl);
+      const response = await api.delete(`/api/v1/bus/${busToDelete.id}`);
       console.log("API DELETE response:", response);
 
       // API DELETE thường trả về 200 OK hoặc 204 No Content khi thành công
@@ -347,10 +460,11 @@ const BusListPage = () => {
   };
 
   // --- CÁC HÀM XỬ LÝ KHÁC (Tạm thời) ---
-  const handleEditBus = (bus) =>
-    alert(`Chức năng sửa xe ${bus.id} đang phát triển.`);
-  const handleViewBusDetails = (bus) =>
-    alert(`Chức năng xem chi tiết xe ${bus.id} đang phát triển.`);
+  const handleEditBus = (bus) => {
+    setBusToEdit(bus);
+    setIsEditModalOpen(true);
+  };
+  const handleViewBusDetails = (bus) => navigate(`/bus/${bus.id}`);
 
   return (
     <>
@@ -358,6 +472,15 @@ const BusListPage = () => {
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onSave={handleSaveBus}
+      />
+      <EditBusModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setBusToEdit(null);
+        }}
+        onSave={handleUpdateBus}
+        bus={busToEdit}
       />
       {/* Render Modal Xác nhận Xóa */}
       <ConfirmDeleteModal

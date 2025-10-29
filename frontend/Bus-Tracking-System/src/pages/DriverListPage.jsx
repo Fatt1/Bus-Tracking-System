@@ -1,16 +1,21 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios"; // Import axios
-import "./DriverListPage.css"; // CSS riêng cho trang này
-import "../pages/LayoutTable.css"; // Tái sử dụng CSS layout bảng
+import axios from "axios";
+import "./DriverListPage.css";
+import "../pages/LayoutTable.css";
 import {
   FaPlus,
   FaPen,
   FaMinusCircle,
-  FaFileAlt, // Icon nút Xem (màu xanh dương)
+  FaFileAlt,
   FaTimes,
   FaExclamationTriangle,
 } from "react-icons/fa";
-import { format } from "date-fns"; // Import hàm format
+
+// --- Axios instance with credentials ---
+const api = axios.create({
+  baseURL: "https://localhost:7229",
+  withCredentials: true,
+});
 
 // Bỏ dữ liệu mẫu initialDriversData
 
@@ -24,61 +29,72 @@ const DriverModal = ({ mode, driverId, isOpen, onClose, onSave }) => {
 
   // Hàm tạo mật khẩu từ ngày sinh (DDMMYYYY)
   const generatePassword = (birthDate) => {
-    if (!birthDate || birthDate.length < 10) return "*********"; // Kiểm tra format YYYY-MM-DD...
+    console.log("=== generatePassword called ===");
+    console.log("Input birthDate:", birthDate);
+
+    if (!birthDate) {
+      console.log("No birthDate provided");
+      return "";
+    }
+
     try {
-      // Lấy YYYY-MM-DD từ chuỗi ISO hoặc YYYY-MM-DD
-      const datePart = birthDate.split("T")[0];
+      // Xử lý nhiều format: "YYYY-MM-DD" hoặc "YYYY-MM-DDTHH:mm:ss"
+      const datePart = birthDate.split("T")[0]; // Lấy phần ngày
+      console.log("Date part:", datePart);
+
       const [year, month, day] = datePart.split("-");
-      if (
-        !day ||
-        !month ||
-        !year ||
-        isNaN(parseInt(day)) ||
-        isNaN(parseInt(month)) ||
-        isNaN(parseInt(year))
-      )
-        return "*********";
-      return `${day}${month}${year}`;
+      console.log("Parsed:", { day, month, year });
+
+      if (!day || !month || !year) {
+        console.log("Invalid date format - missing parts");
+        return "";
+      }
+
+      const password = `${day}${month}${year}`;
+      console.log("Generated password:", password);
+      return password;
     } catch (e) {
-      console.error("Lỗi định dạng ngày sinh:", e);
-      return "*********";
+      console.error("Error generating password:", e);
+      return "";
     }
   };
 
   // useEffect để fetch dữ liệu chi tiết khi mở modal Xem/Sửa
   useEffect(() => {
     const fetchDriverDetails = async (id) => {
+      console.log("=== Fetching driver details for ID:", id, "===");
       setIsLoadingModal(true);
       try {
-        const response = await axios.get(
-          `https://localhost:7229/api/v1/driver/${id}`
-        );
+        const response = await api.get(`/api/v1/driver/${id}`);
+        console.log("Driver detail response:", response.data);
         const driverData = response.data;
+
         // Map dữ liệu API chi tiết vào state form
         setFormData({
           firstName: driverData.firstName || "",
           lastName: driverData.lastName || "",
-          idCard: driverData.idCard || "", // API chi tiết dùng idCard
-          phoneNumber: driverData.phoneNumber || "", // API chi tiết dùng phoneNumber
+          idCard: driverData.idCard || "",
+          phoneNumber: driverData.phoneNumber || "",
           address: driverData.address || "",
           assignedBus: driverData.assignedBus || null,
           dateOfBirth: driverData.dateOfBirth
             ? driverData.dateOfBirth.split("T")[0]
-            : "", // Lấy YYYY-MM-DD
-          sex: driverData.sex ?? 0, // Dùng ?? để xử lý null/undefined, mặc định là 0 (Nam)
+            : "",
+          sex: driverData.sex ?? 0,
+          status: driverData.status ?? 1, // DriverStatus enum: 1=Available, 2=Absence, 3=Suspended
         });
-        // Cập nhật tài khoản/mật khẩu dựa trên dữ liệu chi tiết
+
+        // Cập nhật tài khoản
         setAccountUsername(driverData.phoneNumber || "");
-        // Mật khẩu chỉ hiển thị '*' khi xem
-        setAccountPassword(
-          mode === "view"
-            ? "********"
-            : generatePassword(driverData.dateOfBirth)
-        );
+
+        // QUAN TRỌNG: Tạo mật khẩu từ ngày sinh, không dùng password từ backend
+        const generatedPassword = generatePassword(driverData.dateOfBirth);
+        console.log("Setting password to:", generatedPassword);
+        setAccountPassword(generatedPassword);
       } catch (error) {
         console.error(`Lỗi khi tải chi tiết tài xế ID ${id}:`, error);
         alert("Không thể tải chi tiết thông tin tài xế.");
-        onClose(); // Đóng modal nếu lỗi
+        onClose();
       } finally {
         setIsLoadingModal(false);
       }
@@ -95,7 +111,8 @@ const DriverModal = ({ mode, driverId, isOpen, onClose, onSave }) => {
           address: "",
           assignedBus: null,
           dateOfBirth: "",
-          sex: 0, // Mặc định giới tính Nam (0)
+          sex: 0,
+          status: 1, // Mặc định là Available
         });
         setAccountUsername("");
         setAccountPassword("");
@@ -135,27 +152,34 @@ const DriverModal = ({ mode, driverId, isOpen, onClose, onSave }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Chuẩn bị dữ liệu để gửi đi (khớp với API POST /create)
+    console.log("=== handleSubmit called ===");
+    console.log("Mode:", mode);
+    console.log("Form data:", formData);
+
+    // Chuẩn bị dữ liệu cơ bản
     const driverDataToSave = {
       firstName: formData.firstName,
       lastName: formData.lastName,
-      idCard: formData.citizenId || formData.idCard, // Ưu tiên citizenId nếu có, fallback về idCard
+      idCard: formData.idCard,
       phoneNumber: formData.phoneNumber,
       address: formData.address,
-      // Format lại ngày sinh nếu cần (API có vẻ chấp nhận YYYY-MM-DD)
       dateOfBirth: formData.dateOfBirth,
-      sex: formData.sex, // Gửi 0 hoặc 1
-      // Tạo userName và password
-      userName: accountUsername,
-      password: accountPassword, // Mật khẩu dạng DDMMYYYY
+      sex: formData.sex,
     };
 
-    // Thêm ID nếu là mode edit (cho hàm onSave biết)
-    if (mode === "edit") {
-      driverDataToSave.id = driverId;
+    // Nếu là mode ADD: cần userName và password
+    if (mode === "add") {
+      driverDataToSave.userName = accountUsername;
+      driverDataToSave.password = accountPassword;
     }
 
-    console.log("Data to save:", driverDataToSave);
+    // Nếu là mode EDIT: cần id và status
+    if (mode === "edit") {
+      driverDataToSave.id = driverId;
+      driverDataToSave.status = formData.status ?? 1; // DriverStatus enum
+    }
+
+    console.log("Data to save:", JSON.stringify(driverDataToSave, null, 2));
     onSave(driverDataToSave);
   };
 
@@ -323,12 +347,12 @@ const DriverModal = ({ mode, driverId, isOpen, onClose, onSave }) => {
               <div className="form-group">
                 <label htmlFor="accountPassword">Mật khẩu</label>
                 <input
-                  type={mode === "view" ? "password" : "text"}
+                  type="text"
                   id="accountPassword"
                   name="accountPassword"
-                  value={accountPassword} // Hiển thị state mật khẩu
-                  readOnly // Luôn chỉ đọc
-                  disabled // Không cho sửa
+                  value={accountPassword}
+                  readOnly
+                  disabled
                   placeholder="Ngày sinh dạng DDMMYYYY"
                 />
               </div>
@@ -391,11 +415,21 @@ const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, driverName }) => {
 
 // --- COMPONENT 1 DÒNG TRONG BẢNG (Map dữ liệu từ API GET /all) ---
 const DriverRow = ({ driver, onView, onEdit, onDelete }) => {
-  // API GET all trả về status: true/false/null? và assignmentRouteName
+  // API GET all trả về status là DriverStatus enum:
+  // 1 = Available (Đang làm việc)
+  // 2 = Absence (Vắng mặt)
+  // 3 = Suspended (Bị đình chỉ)
   const getStatusText = (status) => {
-    if (status === true) return "Đang làm việc";
-    if (status === false) return "Tạm ngưng"; // Hoặc "Nghỉ phép" tùy logic backend
-    return "Chưa rõ"; // Hoặc trạng thái khác nếu status là null
+    switch (status) {
+      case 1:
+        return "Đang làm việc";
+      case 2:
+        return "Vắng mặt";
+      case 3:
+        return "Bị đình chỉ";
+      default:
+        return "Chưa rõ";
+    }
   };
 
   return (
@@ -506,9 +540,12 @@ const DriverListPage = () => {
     console.log(`Fetching drivers for page ${page}...`);
     setIsLoading(true);
     try {
-      const apiUrl = `https://localhost:7229/api/v1/driver/all?PageNumber=${page}&PageSize=${itemsPerPage}`;
-      console.log(`Calling API URL: ${apiUrl}`);
-      const response = await axios.get(apiUrl);
+      const response = await api.get("/api/v1/driver/all", {
+        params: {
+          PageNumber: page,
+          PageSize: itemsPerPage,
+        },
+      });
       console.log(`API response for page ${page}:`, response.data);
 
       setDrivers(response.data.items || []);
@@ -546,20 +583,21 @@ const DriverListPage = () => {
 
   // --- HÀM XỬ LÝ LƯU (Thêm/Sửa) - Gọi API POST/PUT ---
   const handleSaveDriver = async (driverData) => {
-    const { id, ...payload } = driverData; // Tách ID ra nếu có (cho mode edit)
     const mode = modalState.mode;
-    console.log(`Saving driver in mode: ${mode}. Data:`, payload);
+    console.log(`=== Saving driver in mode: ${mode} ===`);
+    console.log("Full data received:", driverData);
 
     if (mode === "add") {
       try {
-        console.log("Calling POST API:", payload);
-        const response = await axios.post(
-          "https://localhost:7229/api/v1/driver/create",
-          payload
-        );
+        // Loại bỏ id khỏi payload khi thêm mới (không cần id)
+        const { id: _id, ...payload } = driverData;
+        console.log("Calling POST /api/v1/driver/create");
+        console.log("POST payload:", payload);
+        const response = await api.post("/api/v1/driver/create", payload);
+        console.log("POST response:", response);
+
         if (response.status === 200 || response.status === 201) {
           alert("Thêm tài xế thành công!");
-          // Fetch lại trang đầu tiên
           if (currentPage !== 1) setCurrentPage(1);
           else fetchDriversFromApi(1);
         } else {
@@ -567,41 +605,48 @@ const DriverListPage = () => {
         }
       } catch (error) {
         console.error("Lỗi khi thêm tài xế:", error);
-        alert(`Lỗi khi thêm tài xế: ${error.response?.data || error.message}`);
+        const errorMsg =
+          error.response?.data?.errors ||
+          error.response?.data?.title ||
+          error.response?.data ||
+          error.message;
+        alert(
+          `Lỗi khi thêm tài xế: ${
+            typeof errorMsg === "object" ? JSON.stringify(errorMsg) : errorMsg
+          }`
+        );
       }
     } else if (mode === "edit") {
-      // --- CHỨC NĂNG SỬA (API PUT - Chưa có) ---
-      // try {
-      //     console.log(`Calling PUT API for ID ${id}:`, payload);
-      //     const response = await axios.put(`https://localhost:7229/api/v1/driver/${id}`, payload);
-      //     if (response.status === 200 || response.status === 204) {
-      //         alert("Cập nhật thông tin tài xế thành công!");
-      //         fetchDriversFromApi(currentPage); // Fetch lại trang hiện tại
-      //     } else {
-      //         alert(`Cập nhật thất bại. Status: ${response.status}`);
-      //     }
-      // } catch (error) {
-      //      console.error(`Lỗi khi cập nhật tài xế ID ${id}:`, error);
-      //      alert(`Lỗi khi cập nhật: ${error.response?.data || error.message}`);
-      // }
-      alert(
-        `Chức năng sửa (API PUT) chưa được làm. Dữ liệu gửi đi (giả lập): ${JSON.stringify(
-          payload
-        )}`
-      );
-      // Tạm cập nhật client-side để thấy thay đổi
-      setDrivers((prev) =>
-        prev.map((d) =>
-          d.id === id
-            ? {
-                ...d,
-                ...payload,
-                fullName: `${payload.firstName} ${payload.lastName}`,
-                phoneNumber: payload.phone,
-              }
-            : d
-        )
-      );
+      try {
+        const driverId = driverData.id;
+        console.log(`Calling PUT /api/v1/driver/${driverId}`);
+        console.log("PUT payload (full data with id):", driverData);
+        // GỬI TOÀN BỘ driverData bao gồm cả id trong body
+        const response = await api.put(
+          `/api/v1/driver/${driverId}`,
+          driverData
+        );
+        console.log("PUT response:", response);
+
+        if (response.status === 200 || response.status === 204) {
+          alert("Cập nhật thông tin tài xế thành công!");
+          fetchDriversFromApi(currentPage);
+        } else {
+          alert(`Cập nhật thất bại. Status: ${response.status}`);
+        }
+      } catch (error) {
+        console.error(`Lỗi khi cập nhật tài xế:`, error);
+        const errorMsg =
+          error.response?.data?.errors ||
+          error.response?.data?.title ||
+          error.response?.data ||
+          error.message;
+        alert(
+          `Lỗi khi cập nhật: ${
+            typeof errorMsg === "object" ? JSON.stringify(errorMsg) : errorMsg
+          }`
+        );
+      }
     }
     handleCloseModal();
   };
@@ -613,29 +658,40 @@ const DriverListPage = () => {
   const handleConfirmDelete = async () => {
     if (!driverToDelete) return;
     const { id, name } = driverToDelete;
-    console.log(`Confirming delete for driver ID: ${id}, Name: ${name}`);
+    console.log(
+      `=== Confirming delete for driver ID: ${id}, Name: ${name} ===`
+    );
 
     try {
-      const apiUrl = `https://localhost:7229/api/v1/driver/${id}`;
-      console.log(`Calling DELETE API: ${apiUrl}`);
-      const response = await axios.delete(apiUrl);
+      console.log(`Calling DELETE /api/v1/driver/${id}`);
+      const response = await api.delete(`/api/v1/driver/${id}`);
+      console.log("DELETE response:", response);
+
       if (response.status === 200 || response.status === 204) {
         alert(`Đã xóa tài xế "${name}" thành công!`);
-        // Fetch lại dữ liệu sau khi xóa
         // Kiểm tra xem trang hiện tại còn item không
         if (drivers.length === 1 && currentPage > 1) {
-          setCurrentPage(currentPage - 1); // Lùi về trang trước
+          setCurrentPage(currentPage - 1);
         } else {
-          fetchDriversFromApi(currentPage); // Fetch lại trang hiện tại
+          fetchDriversFromApi(currentPage);
         }
       } else {
         alert(`Xóa thất bại. Status: ${response.status}`);
       }
     } catch (error) {
       console.error(`Lỗi khi xóa tài xế ID ${id}:`, error);
-      alert(`Lỗi khi xóa: ${error.response?.data || error.message}`);
+      const errorMsg =
+        error.response?.data?.errors ||
+        error.response?.data?.title ||
+        error.response?.data ||
+        error.message;
+      alert(
+        `Lỗi khi xóa: ${
+          typeof errorMsg === "object" ? JSON.stringify(errorMsg) : errorMsg
+        }`
+      );
     } finally {
-      handleCloseModal(); // Luôn đóng modal sau khi xử lý
+      handleCloseModal();
     }
   };
 

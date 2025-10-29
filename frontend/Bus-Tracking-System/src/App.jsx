@@ -37,7 +37,6 @@ function App() {
     <Routes>
       {/* Route không có Sidebar Admin (ví dụ Login, Trang tài xế) */}
       <Route path="/login" element={<LoginPage />} />
-      <Route path="/schedules/add-new" element={<ScheduleAddEditPageNew />} />
 
       {/* 2. TRANG TÀI XẾ - CHỈ DÀNH CHO ROLE Driver */}
       <Route
@@ -80,8 +79,7 @@ function App() {
         <Route path="schedules-calendar" element={<ScheduleListPageNew />} />
         <Route path="schedule-trips" element={<TripListPage />} />
         <Route path="schedule" element={<ScheduleListPageNew />} />
-
-        <Route path="schedules/add-new" element={<ScheduleAddEditPageNew />} />
+        <Route path="schedule/add" element={<ScheduleAddEditPageNew />} />
         <Route path="students" element={<StudentListPage />} />
         <Route path="drivers" element={<DriverListPage />} />
         <Route path="routes" element={<RouteListPage />} />

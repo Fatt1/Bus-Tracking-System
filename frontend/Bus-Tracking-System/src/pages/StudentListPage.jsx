@@ -10,7 +10,12 @@ import {
   FaTimes,
   FaExclamationTriangle,
 } from "react-icons/fa";
-import { format } from "date-fns"; // Import hàm format
+
+// --- Axios instance with base URL and credentials ---
+const api = axios.create({
+  baseURL: "https://localhost:7229",
+  withCredentials: true,
+});
 
 // --- Dữ liệu tĩnh cho dropdown Lớp (Vì API không cung cấp) ---
 const availableClasses = [
@@ -38,42 +43,42 @@ const StudentModal = ({ mode, studentData, isOpen, onClose, onSave }) => {
 
   // Hàm tạo mật khẩu từ ngày sinh (DDMMYYYY)
   const generatePassword = (birthDate) => {
-    if (!birthDate || birthDate.length < 10) return "*********"; // Kiểm tra format YYYY-MM-DD...
+    console.log("generatePassword called with:", birthDate);
+    if (!birthDate) return "*********";
     try {
-      const datePart = birthDate.split("T")[0]; // Lấy phần YYYY-MM-DD
-      const [year, month, day] = datePart.split("-");
-      if (
-        !day ||
-        !month ||
-        !year ||
-        isNaN(parseInt(day)) ||
-        isNaN(parseInt(month)) ||
-        isNaN(parseInt(year))
-      )
-        return "*********";
-      return `${day}${month}${year}`;
+      // Xử lý nhiều định dạng: "YYYY-MM-DD", "YYYY-MM-DDTHH:mm:ss", hoặc DateOnly từ C#
+      const dateStr = String(birthDate).split("T")[0]; // Lấy phần trước T nếu có
+      console.log("dateStr after split:", dateStr);
+      
+      // Kiểm tra format YYYY-MM-DD
+      if (dateStr.length >= 10) {
+        const [year, month, day] = dateStr.split("-");
+        if (day && month && year && !isNaN(parseInt(day)) && !isNaN(parseInt(month)) && !isNaN(parseInt(year))) {
+          const password = `${day}${month}${year}`;
+          console.log("Generated password:", password);
+          return password;
+        }
+      }
+      console.warn("Invalid date format:", birthDate);
+      return "*********";
     } catch (e) {
       console.error("Lỗi định dạng ngày sinh:", e);
       return "*********";
     }
   };
 
-  // useEffect để fetch danh sách tuyến đường khi modal mở lần đầu (chế độ add/edit)
+  // useEffect để fetch danh sách tuyến đường khi modal mở lần đầu (chế độ add/edit/view)
   useEffect(() => {
     const fetchRoutes = async () => {
-      // Chỉ fetch khi modal mở, ở mode add/edit và chưa có dữ liệu routes
-      if (
-        isOpen &&
-        (mode === "add" || mode === "edit") &&
-        allRoutes.length === 0
-      ) {
+      // Chỉ fetch khi modal mở và chưa có dữ liệu routes
+      if (isOpen && allRoutes.length === 0) {
         console.log("Modal: Fetching routes for dropdown...");
         setIsLoadingRoutes(true);
         try {
           // Gọi API lấy tất cả tuyến đường (luôn trang 1, size lớn)
-          const response = await axios.get(
-            `https://localhost:7229/api/v1/route/all?PageNumber=1&PageSize=100`
-          );
+          const response = await api.get("/api/v1/route/all", {
+            params: { PageNumber: 1, PageSize: 100 },
+          });
           console.log("Modal: Routes API response:", response.data);
           setAllRoutes(response.data.items || []);
         } catch (error) {
@@ -86,72 +91,96 @@ const StudentModal = ({ mode, studentData, isOpen, onClose, onSave }) => {
       }
     };
     fetchRoutes();
-  }, [isOpen, mode, allRoutes.length]); // Dependencies
+  }, [isOpen, allRoutes.length]); // Dependencies
 
-  // useEffect để cập nhật form data ban đầu và điểm đón khi sửa
+  // useEffect để cập nhật form data ban đầu khi modal mở
   useEffect(() => {
-    if (isOpen) {
-      console.log(
-        `Modal: Initializing form for mode '${mode}'. Student data:`,
-        studentData
-      );
-      const initialData =
-        mode === "add"
-          ? {
-              // Dữ liệu mặc định khi thêm mới
-              firstName: "",
-              lastName: "",
-              class: availableClasses[0] || "",
-              sex: 0,
-              address: "",
-              pointId: "",
-              parentName: "",
-              dateOfBirth: "",
-              parentPhoneNumber: "",
-              routeId: "",
+    const fetchStudentDetail = async () => {
+      if (isOpen) {
+        console.log(
+          `Modal: Initializing form for mode '${mode}'. Student data:`,
+          studentData
+        );
+
+        if (mode === "add") {
+          // Dữ liệu mặc định khi thêm mới
+          const initialData = {
+            firstName: "",
+            lastName: "",
+            class: availableClasses[0] || "",
+            sex: 0,
+            address: "",
+            pointId: "",
+            parentName: "",
+            dateOfBirth: "",
+            parentPhoneNumber: "",
+            routeId: "",
+          };
+          setFormData(initialData);
+          setAccountUsername("");
+          setParentPassword("*********");
+          setAvailablePickupPoints([]);
+        } else if ((mode === "edit" || mode === "view") && studentData?.id) {
+          // Gọi API GET by ID để lấy đầy đủ thông tin học sinh
+          try {
+            console.log(`Fetching student detail for ID: ${studentData.id}`);
+            const response = await api.get(`/api/v1/student/${studentData.id}`);
+            const detail = response.data;
+            console.log("Student detail from API:", detail);
+
+            // Map dữ liệu từ GetStudentDTO
+            const initialData = {
+              firstName: detail.firstName || "",
+              lastName: detail.lastName || "",
+              class: detail.class || availableClasses[0] || "",
+              sex: Number(detail.sex) || 0,
+              address: detail.address || "",
+              pointId: detail.stopPointId || "",
+              routeId: detail.routeId || "",
+              parentName: detail.parentName || "",
+              dateOfBirth: detail.dateOfBirth || "", // YYYY-MM-DD từ backend
+              parentPhoneNumber: detail.parentPhoneNumber || "",
+            };
+            setFormData(initialData);
+            setAccountUsername(detail.userName || "");
+            // Tạo lại mật khẩu từ ngày sinh thay vì dùng password đã hash từ backend
+            setParentPassword(generatePassword(detail.dateOfBirth || ""));
+
+            // Cập nhật điểm đón nếu có routeId và routes đã load
+            if (initialData.routeId && allRoutes.length > 0) {
+              const selectedRoute = allRoutes.find(
+                (r) => r.id === initialData.routeId
+              );
+              setAvailablePickupPoints(selectedRoute?.stopPoints || []);
+            } else {
+              setAvailablePickupPoints([]);
             }
-          : {
-              // Map dữ liệu từ studentData (lấy từ GET /all)
-              // API GET /all có: id, fullName, class, address, parentName, parentPhoneNumber
-              // Tách fullName thành firstName, lastName (ước lượng)
+          } catch (error) {
+            console.error("Lỗi khi tải chi tiết học sinh:", error);
+            alert("Không thể tải thông tin chi tiết học sinh.");
+            // Fallback: sử dụng dữ liệu từ list (không đầy đủ)
+            const initialData = {
               firstName:
                 studentData?.fullName?.split(" ").slice(0, -1).join(" ") || "",
               lastName: studentData?.fullName?.split(" ").slice(-1)[0] || "",
               class: studentData?.class || availableClasses[0] || "",
-              // API GET /all không có sex, dateOfBirth, pointId, routeId -> Cần gọi API GET by ID nếu muốn sửa chính xác
-              // Tạm thời để trống hoặc lấy từ studentData nếu có (dù GET /all không trả về)
-              sex: studentData?.sex ?? 0, // Mặc định Nam nếu GET /all không có
+              sex: 0,
               address: studentData?.address || "",
-              pointId: studentData?.pointId || "", // Cần API GET by ID
-              routeId: studentData?.routeId || "", // Cần API GET by ID
+              pointId: "",
+              routeId: "",
               parentName: studentData?.parentName || "",
-              dateOfBirth: studentData?.dateOfBirth
-                ? studentData.dateOfBirth.split("T")[0]
-                : "", // Cần API GET by ID
+              dateOfBirth: "",
               parentPhoneNumber: studentData?.parentPhoneNumber || "",
             };
-      setFormData(initialData);
-
-      // Cập nhật tài khoản/mật khẩu
-      setAccountUsername(initialData.parentPhoneNumber || "");
-      setParentPassword(generatePassword(initialData.dateOfBirth));
-
-      // Cập nhật điểm đón ban đầu khi sửa (nếu có routeId và routes đã load)
-      if (mode === "edit" && initialData.routeId && allRoutes.length > 0) {
-        const selectedRoute = allRoutes.find(
-          (r) => r.id === initialData.routeId
-        );
-        setAvailablePickupPoints(selectedRoute?.stopPoints || []);
-        // Giữ lại pointId đã có
-        setFormData((prev) => ({
-          ...prev,
-          pointId: initialData.pointId || "",
-        }));
-      } else {
-        setAvailablePickupPoints([]); // Reset điểm đón khi thêm mới hoặc chưa có routeId
-        setFormData((prev) => ({ ...prev, pointId: "" }));
+            setFormData(initialData);
+            setAccountUsername(studentData?.parentPhoneNumber || "");
+            setParentPassword("*********");
+            setAvailablePickupPoints([]);
+          }
+        }
       }
-    }
+    };
+    fetchStudentDetail();
   }, [studentData, mode, isOpen, allRoutes]); // Thêm allRoutes
 
   // useEffect để cập nhật Điểm đón khi Tuyến đường thay đổi
@@ -178,13 +207,14 @@ const StudentModal = ({ mode, studentData, isOpen, onClose, onSave }) => {
         );
         setFormData((prev) => ({ ...prev, pointId: firstPointId }));
       }
-      // Nếu là edit và pointId cũ vẫn hợp lệ thì không làm gì cả
+      // Nếu là edit/view và pointId cũ vẫn hợp lệ thì không làm gì cả
     } else if (!formData.routeId) {
       // Nếu bỏ chọn route
       console.log("Modal: Route deselected. Clearing pickup points.");
       setAvailablePickupPoints([]);
       setFormData((prev) => ({ ...prev, pointId: "" })); // Reset pointId
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.routeId, allRoutes, mode]); // Thêm mode
 
   // useEffect để cập nhật Tài khoản/Mật khẩu khi SĐT/Ngày sinh trong form thay đổi
@@ -197,9 +227,13 @@ const StudentModal = ({ mode, studentData, isOpen, onClose, onSave }) => {
 
   if (!isOpen) return null;
 
-  const isReadOnly = mode === "view"; // Chỉ đọc khi xem (Hiện tại không có mode view)
+  const isReadOnly = mode === "view"; // Chỉ đọc khi xem
   const title =
-    mode === "add" ? "Thêm học sinh" : "Chỉnh sửa thông tin học sinh";
+    mode === "add"
+      ? "Thêm học sinh"
+      : mode === "view"
+      ? "Chi tiết học sinh"
+      : "Chỉnh sửa thông tin học sinh";
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
@@ -450,7 +484,7 @@ const StudentModal = ({ mode, studentData, isOpen, onClose, onSave }) => {
               <div className="form-group">
                 <label htmlFor="parentPassword">Mật khẩu</label>
                 <input
-                  type={mode === "view" ? "password" : "text"}
+                  type="text"
                   id="parentPassword"
                   name="parentPassword"
                   value={parentPassword} // Hiển thị state mật khẩu
@@ -517,9 +551,7 @@ const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, studentName }) => {
 };
 
 // --- COMPONENT 1 DÒNG TRONG BẢNG ---
-const StudentRow = (
-  { student, onEdit, onDelete } // Thêm onDelete
-) => (
+const StudentRow = ({ student, onEdit, onDelete, onView }) => (
   <tr>
     <td style={{ textAlign: "center" }}>{student.id}</td>
     {/* API trả về fullName */}
@@ -534,13 +566,18 @@ const StudentRow = (
     <td>{student.parentPhoneNumber || "N/A"}</td>
     <td className="cell-center">
       <div className="action-buttons">
-        {/* Nút Xem chi tiết (Tạm thời dùng nút Sửa để mở modal edit) */}
-        {/* <button className="action-btn-student more-btn" onClick={() => onView(student)}>
+        {/* Nút Xem chi tiết */}
+        <button
+          className="action-btn-student more-btn"
+          title="Xem chi tiết"
+          onClick={() => onView(student)}
+        >
           <FaEllipsisH />
-        </button> */}
+        </button>
         {/* Nút Xóa */}
         <button
           className="action-btn-student delete-btn"
+          title="Xóa"
           onClick={() => onDelete(student)}
         >
           <FaMinusCircle />
@@ -548,6 +585,7 @@ const StudentRow = (
         {/* Nút Sửa */}
         <button
           className="action-btn-student edit-btn"
+          title="Sửa"
           onClick={() => onEdit(student)}
         >
           <FaPen />
@@ -619,9 +657,9 @@ const StudentListPage = () => {
     console.log(`Fetching students for page ${page}...`);
     setIsLoading(true);
     try {
-      const apiUrl = `https://localhost:7229/api/v1/student/all?PageNumber=${page}&PageSize=${itemsPerPage}`;
-      console.log(`Calling API URL: ${apiUrl}`);
-      const response = await axios.get(apiUrl);
+      const response = await api.get("/api/v1/student/all", {
+        params: { PageNumber: page, PageSize: itemsPerPage },
+      });
       console.log(`API response for page ${page}:`, response.data);
 
       // API trả về { items: [], totalPages: ... }
@@ -648,9 +686,10 @@ const StudentListPage = () => {
   // --- CÁC HÀM XỬ LÝ MODAL ---
   const handleOpenAddModal = () =>
     setModalState({ isOpen: true, mode: "add", student: null });
-  const handleOpenEditModal = (
-    student // Nhận object student từ GET /all
-  ) => setModalState({ isOpen: true, mode: "edit", student: student });
+  const handleOpenEditModal = (student) =>
+    setModalState({ isOpen: true, mode: "edit", student: student });
+  const handleOpenViewModal = (student) =>
+    setModalState({ isOpen: true, mode: "view", student: student });
   const handleCloseModal = () => {
     setModalState({ isOpen: false, mode: "add", student: null });
     setStudentToDelete(null);
@@ -665,10 +704,7 @@ const StudentListPage = () => {
     if (mode === "add") {
       try {
         console.log("Calling POST API:", payload);
-        const response = await axios.post(
-          "https://localhost:7229/api/v1/student/create",
-          payload
-        );
+        const response = await api.post("/api/v1/student/create", payload);
         if (response.status === 200 || response.status === 201) {
           alert("Thêm học sinh thành công!");
           // Fetch lại trang đầu tiên
@@ -692,10 +728,7 @@ const StudentListPage = () => {
         console.log(`Calling PUT API for ID ${id}:`, payload);
         // API PUT yêu cầu ID trong payload (theo hình ảnh)
         const putPayload = { ...payload, id: id };
-        const response = await axios.put(
-          `https://localhost:7229/api/v1/student/${id}`,
-          putPayload
-        );
+        const response = await api.put(`/api/v1/student/${id}`, putPayload);
         if (response.status === 200 || response.status === 204) {
           alert("Cập nhật thông tin học sinh thành công!");
           fetchStudentsFromApi(currentPage); // Fetch lại trang hiện tại
@@ -728,9 +761,7 @@ const StudentListPage = () => {
     console.log(`Confirming delete for student ID: ${id}, Name: ${fullName}`);
 
     try {
-      const apiUrl = `https://localhost:7229/api/v1/student/${id}`;
-      console.log(`Calling DELETE API: ${apiUrl}`);
-      const response = await axios.delete(apiUrl);
+      const response = await api.delete(`/api/v1/student/${id}`);
       if (response.status === 200 || response.status === 204) {
         alert(`Đã xóa học sinh "${fullName}" thành công!`);
         // Fetch lại dữ liệu sau khi xóa
@@ -828,7 +859,8 @@ const StudentListPage = () => {
                           key={student.id}
                           student={student}
                           onEdit={handleOpenEditModal}
-                          onDelete={handleOpenDeleteConfirm} // Thêm hàm xóa
+                          onDelete={handleOpenDeleteConfirm}
+                          onView={handleOpenViewModal}
                         />
                       ))
                     ) : (
