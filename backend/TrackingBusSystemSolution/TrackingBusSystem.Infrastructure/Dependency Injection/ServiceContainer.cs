@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using TrackingBusSystem.Application.Abstractions.Common.Interfaces;
@@ -50,6 +51,7 @@ namespace TrackingBusSystem.Infrastructure.Dependency_Injection
             services.AddScoped<IBusRepository, BusRepository>();
             services.AddScoped<IStudentRepository, StudentRepository>();
             services.AddScoped<INotificationService, NotificationService>();
+            services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
             services.AddDataProtection();
 
 

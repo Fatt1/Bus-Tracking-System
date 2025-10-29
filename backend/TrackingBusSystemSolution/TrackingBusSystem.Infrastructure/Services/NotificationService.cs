@@ -44,6 +44,7 @@ namespace TrackingBusSystem.Infrastructure.Services
 
             });
             _context.SaveChanges();
+
             await _hubContext.Clients.Users(toUserIds).SendAsync("ReceiveNotification", notification);
             return Result.Success();
         }
