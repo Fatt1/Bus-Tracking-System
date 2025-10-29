@@ -4,6 +4,7 @@ import "./DriverHomePage.css"; // Tái sử dụng layout chung
 import "./DriverStudentListPage.css"; // Sẽ tạo ở bước 2
 // import "./CustomStatusDropdown.css"; // Sẽ tạo ở bước 3
 import "../../components/CustomStatusDropdown.css";
+import ReportIncidentModal from "../../components/driver/ReportIncidentModal";
 import {
   FaHome,
   FaTasks,
@@ -260,8 +261,11 @@ const DriverStudentListPage = () => {
 
   return (
     <>
-      {/* Bạn cần import ReportIncidentModal từ DriverHomePage nếu muốn dùng */}
-      {/* <ReportIncidentModal isOpen={isIncidentModalOpen} onClose={() => setIsIncidentModalOpen(false)} /> */}
+      {/* Modal Báo cáo sự cố */}
+      <ReportIncidentModal 
+        isOpen={isIncidentModalOpen} 
+        onClose={() => setIsIncidentModalOpen(false)} 
+      />
 
       <div className="driver-page-container">
         <DriverSidebar />

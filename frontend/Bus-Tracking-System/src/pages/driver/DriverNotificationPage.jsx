@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { clearAuth } from "../../utils/auth";
+import ReportIncidentModal from "../../components/driver/ReportIncidentModal";
 import "./DriverNotificationPage.css"; // Sẽ tạo ở bước 2
 import {
   FaHome,
@@ -16,28 +17,14 @@ import {
   FaSpinner,
   FaSearch,
 } from "react-icons/fa";
-// removed unused format import
+import { format } from "date-fns";
+import { vi } from "date-fns/locale";
 
-// --- DEMO DATA ---
-const mockDriverSent = Array.from({ length: 3 }, (_, i) => ({
-  id: `sent_${i + 1}`,
-  type: "sent",
-  recipient: "Admin - Trần Chính Thành",
-  subject: `Báo cáo sự cố ${i + 1}: Sự cố kỹ thuật`,
-  message: `Nội dung chi tiết báo cáo sự cố kỹ thuật xe B001...`,
-  timestamp: `09/10/2025 - ${String(9 + i).padStart(2, "0")}:15 AM`,
-}));
-
-const mockDriverInbox = Array.from({ length: 8 }, (_, i) => ({
-  id: `inbox_${i + 1}`,
-  type: "inbox",
-  sender: `Admin - Trần Chính Thành`,
-  subject: `Thông báo ${i + 1}: Cập nhật lịch trình tuần sau`,
-  message: `Nội dung thông báo chi tiết từ admin về việc cập nhật lịch...`,
-  timestamp: `08/10/2025 - ${String(14 + i).padStart(2, "0")}:30 PM`,
-}));
-
-// --- END DEMO DATA ---
+// --- Axios instance ---
+const api = axios.create({
+  baseURL: "https://localhost:7229",
+  withCredentials: true,
+});
 
 // --- COMPONENT SIDEBAR (Tương tự các trang driver khác) ---
 const DriverSidebar = () => {
@@ -161,10 +148,13 @@ const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, count }) => {
 // --- COMPONENT CHÍNH TRANG THÔNG BÁO ---
 const DriverNotificationPage = () => {
   const [activeTab, setActiveTab] = useState("inbox"); // 'sent' hoặc 'inbox' (Bắt đầu bằng Thư đến)
-  const [sentNotifications, setSentNotifications] = useState(mockDriverSent);
-  const [inboxNotifications, setInboxNotifications] = useState(mockDriverInbox);
+  const [sentNotifications, setSentNotifications] = useState([]);
+  const [inboxNotifications, setInboxNotifications] = useState([]);
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [itemToDelete, setItemToDelete] = useState(null); // {id, count}
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [isIncidentModalOpen, setIsIncidentModalOpen] = useState(false);
 
   // Logic modal báo cáo sự cố (từ trang chủ)
   // (Bạn có thể thêm modal báo cáo sự cố sau này)
@@ -172,6 +162,38 @@ const DriverNotificationPage = () => {
   const fullName =
     (typeof window !== "undefined" && localStorage.getItem("fullName")) ||
     "Phan Viết Huy";
+
+  // Fetch notifications from backend
+  useEffect(() => {
+    fetchNotifications();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
+
+  const fetchNotifications = async () => {
+    console.log("=== Fetching notifications for tab:", activeTab, "===");
+    setIsLoading(true);
+    setError(null);
+    try {
+      if (activeTab === "sent") {
+        // Fetch sent notifications
+        const response = await api.get("/api/v1/notificaton/sent-notifications");
+        console.log("Sent notifications response:", response.data);
+        setSentNotifications(response.data || []);
+      } else {
+        // Fetch received notifications
+        const response = await api.get(
+          "/api/v1/notificaton/received-notifications"
+        );
+        console.log("Received notifications response:", response.data);
+        setInboxNotifications(response.data || []);
+      }
+    } catch (err) {
+      console.error("Lỗi khi tải thông báo:", err);
+      setError("Không thể tải thông báo. Vui lòng thử lại.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -257,9 +279,24 @@ const DriverNotificationPage = () => {
     }
   };
 
+  // Format timestamp
+  const formatTimestamp = (isoString) => {
+    try {
+      const date = new Date(isoString);
+      return format(date, "dd/MM/yyyy - HH:mm", { locale: vi });
+    } catch {
+      return isoString;
+    }
+  };
+
   return (
     <>
-      {/* (Modal báo cáo sự cố và modal profile nếu bạn muốn import vào đây) */}
+      {/* Modal báo cáo sự cố */}
+      <ReportIncidentModal 
+        isOpen={isIncidentModalOpen} 
+        onClose={() => setIsIncidentModalOpen(false)} 
+      />
+      
       <ConfirmDeleteModal
         isOpen={!!itemToDelete}
         onClose={() => setItemToDelete(null)}
@@ -271,9 +308,7 @@ const DriverNotificationPage = () => {
         <DriverSidebar />
         <div className="driver-main-wrapper">
           <DriverHeader
-            onReportIncident={() =>
-              alert("Mở modal báo cáo sự cố (chưa triển khai)")
-            }
+            onReportIncident={() => setIsIncidentModalOpen(true)}
             driverName={fullName}
             onLogout={handleLogout}
           />
@@ -320,79 +355,122 @@ const DriverNotificationPage = () => {
 
               {/* Notification List Area */}
               <div className="notification-list-container">
-                <div className="list-controls">
-                  <div className="select-all-container">
-                    <input
-                      type="checkbox"
-                      id="select-all"
-                      checked={isAllSelected}
-                      onChange={handleSelectAll}
-                      disabled={notificationsToShow.length === 0}
-                    />
-                    <label htmlFor="select-all">Chọn tất cả</label>
+                {isLoading ? (
+                  <div className="loading-container">
+                    <FaSpinner className="spinner" />
+                    <p>Đang tải thông báo...</p>
                   </div>
-                  <select
-                    className="filter-dropdown"
-                    defaultValue={activeTab === "sent" ? "Đến" : "Từ"}
-                  >
-                    <option value={activeTab === "sent" ? "Đến" : "Từ"}>
-                      {activeTab === "sent" ? "Đến" : "Từ"}
-                    </option>
-                  </select>
-                </div>
-
-                <ul className="notification-list">
-                  {notificationsToShow.length > 0 ? (
-                    notificationsToShow.map((noti) => (
-                      <li
-                        key={noti.id}
-                        className={`notification-item ${
-                          selectedIds.has(noti.id) ? "selected" : ""
-                        }`}
-                      >
+                ) : error ? (
+                  <div className="error-container">
+                    <p className="error-message">{error}</p>
+                    <button
+                      onClick={fetchNotifications}
+                      className="retry-btn"
+                    >
+                      Thử lại
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="list-controls">
+                      <div className="select-all-container">
                         <input
                           type="checkbox"
-                          checked={selectedIds.has(noti.id)}
-                          onChange={() => handleSelectItem(noti.id)}
-                          onClick={(e) => e.stopPropagation()}
+                          id="select-all"
+                          checked={isAllSelected}
+                          onChange={handleSelectAll}
+                          disabled={notificationsToShow.length === 0}
                         />
-                        <div
-                          className="notification-clickable-area"
-                          onClick={() => handleSelectItem(noti.id)}
-                        >
-                          <div className="notification-content">
-                            <span className="sender-recipient">
-                              {activeTab === "sent"
-                                ? `Đến: ${noti.recipient}`
-                                : `Từ: ${noti.sender}`}
-                            </span>
-                            <span className="subject">{noti.subject}</span>
-                            <span className="message-preview">
-                              {" "}
-                              - {noti.message.substring(0, 50)}...
-                            </span>
-                          </div>
-                          <span className="timestamp">{noti.timestamp}</span>
-                        </div>
-                        <button
-                          className="delete-single-btn"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteRequest(noti.id);
-                          }}
-                          title="Xóa thông báo này"
-                        >
-                          <FaTrashAlt />
-                        </button>
-                      </li>
-                    ))
-                  ) : (
-                    <li className="no-notifications">
-                      Không có thông báo nào trong{" "}
-                      {activeTab === "sent" ? "hộp thư đi" : "hộp thư đến"}.
-                    </li>
-                  )}
-                </ul>
+                        <label htmlFor="select-all">Chọn tất cả</label>
+                      </div>
+                      <select
+                        className="filter-dropdown"
+                        defaultValue={activeTab === "sent" ? "Đến" : "Từ"}
+                      >
+                        <option value={activeTab === "sent" ? "Đến" : "Từ"}>
+                          {activeTab === "sent" ? "Đến" : "Từ"}
+                        </option>
+                      </select>
+                    </div>
+
+                    <ul className="notification-list">
+                      {notificationsToShow.length > 0 ? (
+                        notificationsToShow.map((noti) => {
+                          // Map dữ liệu từ backend DTO
+                          const id =
+                            activeTab === "sent"
+                              ? noti.sentNotificationId
+                              : noti.receivedNotifcationId;
+                          const sender =
+                            activeTab === "inbox" ? noti.senderUserName : null;
+                          const recipients =
+                            activeTab === "sent"
+                              ? noti.recipientUsers
+                                  .map((r) => r.recipientUserName)
+                                  .join(", ")
+                              : null;
+
+                          return (
+                            <li
+                              key={id}
+                              className={`notification-item ${
+                                selectedIds.has(id) ? "selected" : ""
+                              } ${
+                                activeTab === "inbox" && !noti.isRead
+                                  ? "unread"
+                                  : ""
+                              }`}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={selectedIds.has(id)}
+                                onChange={() => handleSelectItem(id)}
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                              <div
+                                className="notification-clickable-area"
+                                onClick={() => handleSelectItem(id)}
+                              >
+                                <div className="notification-content">
+                                  <span className="sender-recipient">
+                                    {activeTab === "sent"
+                                      ? `Đến: ${recipients}`
+                                      : `Từ: ${sender}`}
+                                  </span>
+                                  <span className="subject">{noti.title}</span>
+                                  <span className="message-preview">
+                                    {" "}
+                                    - {noti.message.substring(0, 50)}
+                                    {noti.message.length > 50 ? "..." : ""}
+                                  </span>
+                                </div>
+                                <span className="timestamp">
+                                  {formatTimestamp(noti.sendAt)}
+                                </span>
+                              </div>
+                              <button
+                                className="delete-single-btn"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteRequest(id);
+                                }}
+                                title="Xóa thông báo này"
+                              >
+                                <FaTrashAlt />
+                              </button>
+                            </li>
+                          );
+                        })
+                      ) : (
+                        <li className="no-notifications">
+                          Không có thông báo nào trong{" "}
+                          {activeTab === "sent" ? "hộp thư đi" : "hộp thư đến"}
+                          .
+                        </li>
+                      )}
+                    </ul>
+                  </>
+                )}
               </div>
             </div>
           </main>

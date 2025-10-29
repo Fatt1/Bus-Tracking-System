@@ -5,6 +5,62 @@
 /* Tái sử dụng style modal confirm nếu cần */
 @import url("../DriverListPage.css"); /* Chứa style cho .modal-overlay, .confirm-delete, v.v. */
 
+/* Loading và Error states */
+.loading-container,
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  background-color: var(--driver-content-bg);
+}
+
+.loading-container .spinner {
+  font-size: 2.5rem;
+  color: var(--driver-accent-color);
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-container p,
+.error-container .error-message {
+  font-size: 1.1rem;
+  color: var(--driver-text-secondary);
+  margin-bottom: 15px;
+}
+
+.error-container .error-message {
+  color: #dc3545;
+  font-weight: 500;
+}
+
+.retry-btn {
+  padding: 10px 24px;
+  background-color: var(--driver-accent-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.retry-btn:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+}
+
 /* Ghi đè padding của nội dung chính để list sát lề */
 .driver-main-content.notification-page-driver,
 .notification-page-driver {
@@ -149,9 +205,15 @@
   border-bottom: 1px solid var(--driver-border-color);
   cursor: pointer;
   transition: background-color 0.1s;
+  background-color: white;
 }
 .notification-item:last-child {
   border-bottom: none;
+}
+.notification-item.unread {
+  background-color: #e3f2fd; /* Màu xanh nhạt cho unread */
+  border-left: 4px solid var(--driver-accent-color);
+  font-weight: 500;
 }
 .notification-item:hover {
   background-color: var(--driver-gray-light);

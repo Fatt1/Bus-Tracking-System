@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { clearAuth } from "../../utils/auth";
+import ReportIncidentModal from "../../components/driver/ReportIncidentModal";
 import "./DriverSchedulePage.css"; // Sẽ tạo ở bước 2
 import {
   FaHome,
@@ -82,16 +83,17 @@ const DriverSidebar = () => {
 };
 
 // --- COMPONENT HEADER CỦA TÀI XẾ ---
-// (Copy từ DriverHomePage, bỏ onReportIncident vì trang này không có)
-const DriverHeader = ({ driverName = "Phan Viết Huy", onLogout }) => {
+const DriverHeader = ({ onReportIncident, driverName = "Phan Viết Huy", onLogout }) => {
   return (
     <header className="driver-header">
       <div className="breadcrumbs">
         <span>Trang</span> / <span>Lịch trình làm việc</span>
       </div>
       <div className="driver-header-actions">
-        {/* Tạm thời ẩn nút báo cáo ở trang này */}
-        {/* <button className="report-incident-btn"> ... </button> */}
+        <button className="report-incident-btn" onClick={onReportIncident}>
+          <FaExclamationTriangle />
+          <span>Báo cáo sự cố</span>
+        </button>
         <input
           type="text"
           placeholder="Tìm kiếm..."
@@ -116,6 +118,7 @@ const DriverSchedulePage = () => {
   const [scheduleData, setScheduleData] = useState([]); // Lưu schedule từ API
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isIncidentModalOpen, setIsIncidentModalOpen] = useState(false);
   const navigate = useNavigate();
   const fullName =
     (typeof window !== "undefined" && localStorage.getItem("fullName")) ||
@@ -131,7 +134,7 @@ const DriverSchedulePage = () => {
       // Format date thành YYYY-MM-DD
       const dateString = format(date, "yyyy-MM-dd");
       console.log("Calling API with DateInWeek:", dateString);
-      
+
       const response = await api.get("/api/v1/schedule/all", {
         params: { DateInWeek: dateString },
       });
@@ -142,7 +145,9 @@ const DriverSchedulePage = () => {
       // Filter schedules theo tên driver hiện tại
       const driverSchedules = Array.isArray(response.data)
         ? response.data.filter((schedule) => {
-            console.log(`Comparing: schedule.driverName="${schedule.driverName}" vs fullName="${fullName}"`);
+            console.log(
+              `Comparing: schedule.driverName="${schedule.driverName}" vs fullName="${fullName}"`
+            );
             return schedule.driverName === fullName;
           })
         : [];
@@ -204,9 +209,17 @@ const DriverSchedulePage = () => {
 
   return (
     <div className="driver-page-container">
+      <ReportIncidentModal
+        isOpen={isIncidentModalOpen}
+        onClose={() => setIsIncidentModalOpen(false)}
+      />
       <DriverSidebar />
       <div className="driver-main-wrapper">
-        <DriverHeader driverName={fullName} onLogout={handleLogout} />
+        <DriverHeader
+          onReportIncident={() => setIsIncidentModalOpen(true)}
+          driverName={fullName}
+          onLogout={handleLogout}
+        />
 
         <main className="driver-main-content">
           {/* Header của bảng lịch trình */}

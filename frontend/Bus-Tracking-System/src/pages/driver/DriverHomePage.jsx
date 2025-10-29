@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import { clearAuth } from "../../utils/auth";
+import ReportIncidentModal from "../../components/driver/ReportIncidentModal";
 import "./DriverHomePage.css";
 import {
   FaHome,
@@ -9,10 +10,6 @@ import {
   FaUserCheck,
   FaBell,
   FaExclamationTriangle,
-  FaWrench,
-  FaCarCrash,
-  FaFirstAid,
-  FaEllipsisH,
   FaTimes,
   FaBus,
   FaMapMarkedAlt,
@@ -39,56 +36,6 @@ const mockDriverProfile = {
   phone: "0987654321",
   email: "huy@gmail.com",
   address: "196 Hoàng Diệu Phường 8 Quận 4 TPHCM",
-};
-
-// --- COMPONENT MODAL BÁO CÁO SỰ CỐ (Giữ nguyên) ---
-const ReportIncidentModal = ({ isOpen, onClose }) => {
-  if (!isOpen) return null;
-  const handleOptionClick = (option) => {
-    console.log("Đã chọn:", option);
-    onClose();
-  };
-  return (
-    <div className="driver-modal-overlay" onClick={onClose}>
-      <div
-        className="driver-modal-content"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button className="driver-modal-close-btn" onClick={onClose}>
-          {" "}
-          <FaTimes />{" "}
-        </button>
-        <div className="incident-options-list">
-          <button
-            className="incident-option"
-            onClick={() => handleOptionClick("technical")}
-          >
-            <FaWrench size={24} />{" "}
-            <span>Sự cố kỹ thuật (Hỏng hóc, xịt lốp)</span>
-          </button>
-          <button
-            className="incident-option"
-            onClick={() => handleOptionClick("traffic")}
-          >
-            <FaCarCrash size={24} />{" "}
-            <span>Sự cố giao thông (Kẹt xe, tai nạn nhỏ)</span>
-          </button>
-          <button
-            className="incident-option"
-            onClick={() => handleOptionClick("medical")}
-          >
-            <FaFirstAid size={24} /> <span>Khẩn cấp y tế (Học sinh bị ốm)</span>
-          </button>
-          <button
-            className="incident-option"
-            onClick={() => handleOptionClick("other")}
-          >
-            <FaEllipsisH size={24} /> <span>Khác</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  );
 };
 
 // --- COMPONENT MODAL THÔNG TIN CÁ NHÂN (MỚI) ---
