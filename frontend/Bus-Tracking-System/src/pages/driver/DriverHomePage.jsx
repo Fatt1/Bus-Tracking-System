@@ -424,8 +424,12 @@ const DriverHomePage = () => {
 
     // Chuyến sáng active nếu thời gian hiện tại >= pickupTime và < dropOffTime
     // Chuyến chiều active nếu thời gian hiện tại >= dropOffTime
-    const morningActive = currentTime >= morningTime && currentTime < afternoonTime && scheduleData.status !== 2;
-    const afternoonActive = currentTime >= afternoonTime && scheduleData.status !== 2;
+    const morningActive =
+      currentTime >= morningTime &&
+      currentTime < afternoonTime &&
+      scheduleData.status !== 2;
+    const afternoonActive =
+      currentTime >= afternoonTime && scheduleData.status !== 2;
 
     return { morning: morningActive, afternoon: afternoonActive };
   };
@@ -492,8 +496,8 @@ const DriverHomePage = () => {
                 </div>
                 <div className="driver-greeting-card">
                   <p>
-                    Buổi sáng tốt lành, <strong>{fullName}</strong>! Hôm nay
-                    bạn có <strong>2 chuyến xe</strong> trên tuyến{" "}
+                    Buổi sáng tốt lành, <strong>{fullName}</strong>! Hôm nay bạn
+                    có <strong>2 chuyến xe</strong> trên tuyến{" "}
                     <strong>{scheduleData.routeDTO?.routeName || "N/A"}</strong>{" "}
                     - bắt đầu lúc{" "}
                     <strong>{formatTime(scheduleData.pickupTime)}</strong>. Chúc
@@ -589,7 +593,8 @@ const DriverHomePage = () => {
                         </span>
                       </p>
                       <p>
-                        Số học sinh cần đưa về: {scheduleData.totalStudents || 0}
+                        Số học sinh cần đưa về:{" "}
+                        {scheduleData.totalStudents || 0}
                       </p>
                     </div>
                     <button

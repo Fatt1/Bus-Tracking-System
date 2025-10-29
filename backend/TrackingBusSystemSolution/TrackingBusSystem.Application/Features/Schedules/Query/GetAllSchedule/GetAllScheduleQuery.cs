@@ -46,7 +46,7 @@ namespace TrackingBusSystem.Application.Features.Schedules.Query.GetAllSchedule
                   RouteId = s.RouteId,
                   BusName = s.Bus.BusName,
                   RouteName = s.Route.RouteName,
-                  DriverName = s.Driver.User.FirstName + " " + s.Driver.User.LastName,
+                  DriverName = s.Driver.User.LastName + " " + s.Driver.User.FirstName, // Sửa lại thành LastName + FirstName
                   DropOffTime = s.DropOffTime,
                   Id = s.Id,
                   PickupTime = s.PickupTime,

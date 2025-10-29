@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom"; // Import Link
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { clearAuth } from "../../utils/auth";
 import "./DriverSchedulePage.css"; // Sẽ tạo ở bước 2
@@ -12,6 +12,7 @@ import {
   FaCalendarAlt,
   FaChevronLeft,
   FaChevronRight,
+  FaSpinner, // Thêm spinner
 } from "react-icons/fa";
 import {
   startOfWeek,
@@ -24,36 +25,16 @@ import {
 } from "date-fns";
 import { vi } from "date-fns/locale"; // Import tiếng Việt
 
-// --- DỮ LIỆU MẪU LỊCH TRÌNH ---
-// Dữ liệu này sau này bạn sẽ fetch từ API dựa trên tuần
-const mockSchedule = {
-  "Tuần 42": {
-    // Giả sử tuần hiện tại là tuần 42
-    "Thứ Hai": { trip: "Đưa đi", return: "Đón về" },
-    "Thứ Ba": { trip: "Đưa đi", return: "Đón về" },
-    "Thứ Tư": { trip: "Đưa đi", return: "Đón về" },
-    "Thứ Năm": { trip: "Đưa đi", return: "Đón về" },
-    "Thứ Sáu": { trip: "Đưa đi", return: "Đón về" },
-    "Thứ Bảy": { trip: null, return: null }, // Nghỉ
-    "Chủ Nhật": { trip: null, return: null }, // Nghỉ
-  },
-  "Tuần 43": {
-    // Tuần sau
-    "Thứ Hai": { trip: "Đưa đi", return: "Đón về" },
-    "Thứ Ba": { trip: "Đưa đi", return: "Đón về" },
-    "Thứ Tư": { trip: null, return: null },
-    "Thứ Năm": { trip: "Đưa đi", return: "Đón về" },
-    "Thứ Sáu": { trip: "Đưa đi", return: "Đón về" },
-    "Thứ Bảy": { trip: null, return: null },
-    "Thứ Nhật": { trip: null, return: null },
-  },
-};
-// --- HẾT DỮ LIỆU MẪU ---
+// --- Axios instance ---
+const api = axios.create({
+  baseURL: "https://localhost:7229",
+  withCredentials: true,
+});
 
 // --- COMPONENT SIDEBAR CỦA TÀI XẾ ---
-// (Copy từ DriverHomePage, nhưng đổi 'activePage')
 const DriverSidebar = () => {
-  const activePage = "schedule"; // Đặt trang này là active
+  const location = useLocation();
+  const activePage = location.pathname;
 
   return (
     <aside className="driver-sidebar">
@@ -131,12 +112,60 @@ const DriverHeader = ({ driverName = "Phan Viết Huy", onLogout }) => {
 // --- COMPONENT CHÍNH TRANG LỊCH TRÌNH ---
 const DriverSchedulePage = () => {
   // State để lưu ngày đầu tiên của tuần đang xem
-  // Bắt đầu với ngày hiện tại
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [scheduleData, setScheduleData] = useState([]); // Lưu schedule từ API
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
   const fullName =
     (typeof window !== "undefined" && localStorage.getItem("fullName")) ||
     "Phan Viết Huy";
+
+  // Hàm gọi API lấy schedule theo tuần
+  const fetchScheduleByWeek = async (date) => {
+    console.log("=== Fetching schedule for week containing date:", date, "===");
+    console.log("Current driver fullName from localStorage:", fullName);
+    setIsLoading(true);
+    setError(null);
+    try {
+      // Format date thành YYYY-MM-DD
+      const dateString = format(date, "yyyy-MM-dd");
+      console.log("Calling API with DateInWeek:", dateString);
+      
+      const response = await api.get("/api/v1/schedule/all", {
+        params: { DateInWeek: dateString },
+      });
+      console.log("=== Schedule API full response ===");
+      console.log("Total schedules returned:", response.data?.length || 0);
+      console.log("All schedules:", response.data);
+
+      // Filter schedules theo tên driver hiện tại
+      const driverSchedules = Array.isArray(response.data)
+        ? response.data.filter((schedule) => {
+            console.log(`Comparing: schedule.driverName="${schedule.driverName}" vs fullName="${fullName}"`);
+            return schedule.driverName === fullName;
+          })
+        : [];
+
+      console.log("=== Filtered driver schedules ===");
+      console.log("Count:", driverSchedules.length);
+      console.log("Data:", driverSchedules);
+      setScheduleData(driverSchedules);
+    } catch (err) {
+      console.error("Lỗi khi tải lịch trình tuần:", err);
+      console.error("Error details:", err.response?.data || err.message);
+      setError("Không thể tải lịch trình. Vui lòng thử lại.");
+      setScheduleData([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // useEffect để fetch data khi currentDate thay đổi
+  useEffect(() => {
+    fetchScheduleByWeek(currentDate);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentDate]); // Chỉ chạy khi currentDate thay đổi
 
   const handleLogout = async () => {
     try {
@@ -167,9 +196,11 @@ const DriverSchedulePage = () => {
   const goToNextWeek = () => setCurrentDate(addWeeks(currentDate, 1));
   const goToPrevWeek = () => setCurrentDate(subWeeks(currentDate, 1));
 
-  // Lấy dữ liệu lịch trình cho tuần hiện tại (từ mock data)
-  // Giả lập chọn tuần 42 hoặc 43, còn lại là rỗng
-  const currentScheduleData = mockSchedule[`Tuần ${weekNumber}`] || {};
+  // Hàm lấy schedule cho 1 ngày cụ thể
+  const getScheduleForDay = (date) => {
+    const dateString = format(date, "yyyy-MM-dd");
+    return scheduleData.filter((s) => s.scheduleDate === dateString);
+  };
 
   return (
     <div className="driver-page-container">
@@ -198,76 +229,106 @@ const DriverSchedulePage = () => {
             </div>
           </div>
 
+          {/* Loading và Error state */}
+          {isLoading && (
+            <div className="loading-container">
+              <FaSpinner className="spinner" />
+              <p>Đang tải lịch trình...</p>
+            </div>
+          )}
+
+          {error && (
+            <div className="error-container">
+              <p className="error-message">{error}</p>
+              <button
+                onClick={() => fetchScheduleByWeek(currentDate)}
+                className="retry-btn"
+              >
+                Thử lại
+              </button>
+            </div>
+          )}
+
           {/* Bảng Lịch trình */}
-          <div className="schedule-table-container">
-            <table className="schedule-table-driver">
-              <thead>
-                <tr>
-                  <th>Chuyến</th>
-                  {daysInWeek.map((day) => (
-                    <th key={day.toISOString()}>
-                      {format(day, "EEEE", { locale: vi })} {/* Thứ */}
-                      <div>{format(day, "dd/MM")}</div> {/* Ngày */}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {/* Hàng Chuyến đi */}
-                <tr>
-                  <td className="trip-type-header">Đưa đi</td>
-                  {daysInWeek.map((day) => {
-                    const dayName = format(day, "EEEE", { locale: vi });
-                    const schedule = currentScheduleData[dayName];
-                    return (
-                      <td
-                        key={`${day.toISOString()}-trip`}
-                        className={`trip-cell ${
-                          schedule?.trip ? "active" : "inactive"
-                        }`}
-                      >
-                        {schedule?.trip ? (
-                          <div className="trip-info trip-am">
-                            <span>{schedule.trip}</span>
-                            <time>6:00</time>
-                            <time>6:45</time>
-                          </div>
-                        ) : (
-                          "—"
-                        )}
-                      </td>
-                    );
-                  })}
-                </tr>
-                {/* Hàng Chuyến về */}
-                <tr>
-                  <td className="trip-type-header">Đón về</td>
-                  {daysInWeek.map((day) => {
-                    const dayName = format(day, "EEEE", { locale: vi });
-                    const schedule = currentScheduleData[dayName];
-                    return (
-                      <td
-                        key={`${day.toISOString()}-return`}
-                        className={`trip-cell ${
-                          schedule?.return ? "active" : "inactive"
-                        }`}
-                      >
-                        {schedule?.return ? (
-                          <div className="trip-info trip-pm">
-                            <span>{schedule.return}</span>
-                            <time>16:00</time>
-                            <time>17:00</time>
-                          </div>
-                        ) : (
-                          "—"
-                        )}
-                      </td>
-                    );
-                  })}
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          {!isLoading && !error && (
+            <div className="schedule-table-container">
+              <table className="schedule-table-driver">
+                <thead>
+                  <tr>
+                    <th>Chuyến</th>
+                    {daysInWeek.map((day) => (
+                      <th key={day.toISOString()}>
+                        {format(day, "EEEE", { locale: vi })} {/* Thứ */}
+                        <div>{format(day, "dd/MM")}</div> {/* Ngày */}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {/* Hàng Chuyến đi (Sáng - pickupTime) */}
+                  <tr>
+                    <td className="trip-type-header">Đưa đi</td>
+                    {daysInWeek.map((day) => {
+                      const schedulesForDay = getScheduleForDay(day);
+                      // Lấy schedule có pickupTime (chuyến sáng)
+                      const morningSchedule = schedulesForDay.find(
+                        (s) => s.pickupTime
+                      );
+                      return (
+                        <td
+                          key={`${day.toISOString()}-morning`}
+                          className={`trip-cell ${
+                            morningSchedule ? "active" : "inactive"
+                          }`}
+                        >
+                          {morningSchedule ? (
+                            <div className="trip-info trip-am">
+                              <span>{morningSchedule.routeName}</span>
+                              <time>
+                                {morningSchedule.pickupTime.substring(0, 5)}
+                              </time>
+                            </div>
+                          ) : (
+                            "—"
+                          )}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                  {/* Hàng Chuyến về (Chiều - dropOffTime) */}
+                  <tr>
+                    <td className="trip-type-header">Đón về</td>
+                    {daysInWeek.map((day) => {
+                      const schedulesForDay = getScheduleForDay(day);
+                      // Lấy schedule có dropOffTime (chuyến chiều)
+                      const afternoonSchedule = schedulesForDay.find(
+                        (s) => s.dropOffTime
+                      );
+                      return (
+                        <td
+                          key={`${day.toISOString()}-afternoon`}
+                          className={`trip-cell ${
+                            afternoonSchedule ? "active" : "inactive"
+                          }`}
+                        >
+                          {afternoonSchedule ? (
+                            <div className="trip-info trip-pm">
+                              <span>{afternoonSchedule.routeName}</span>
+                              <time>
+                                {afternoonSchedule.dropOffTime.substring(0, 5)}
+                              </time>
+                            </div>
+                          ) : (
+                            "—"
+                          )}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          )}
         </main>
       </div>
     </div>
