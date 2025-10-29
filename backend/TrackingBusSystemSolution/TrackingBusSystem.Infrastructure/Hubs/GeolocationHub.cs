@@ -4,6 +4,7 @@ using TrackingBusSystem.Application.Features.Buses.Command;
 
 namespace TrackingBusSystem.Infrastructure.Hubs
 {
+
     public class GeolocationHub : Hub
     {
         private readonly IMediator _mediator;
