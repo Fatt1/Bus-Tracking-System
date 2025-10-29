@@ -76,7 +76,12 @@ const statusOptions = [
 // --- END STATUS OPTIONS ---
 
 // --- COMPONENT DROPDOWN TRẠNG THÁI (TÙY CHỈNH) ---
-const CustomStatusDropdown = ({ options, selectedValue, onChange, disabled = false }) => {
+const CustomStatusDropdown = ({
+  options,
+  selectedValue,
+  onChange,
+  disabled = false,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
   const selectedOption =
@@ -99,7 +104,10 @@ const CustomStatusDropdown = ({ options, selectedValue, onChange, disabled = fal
   };
 
   return (
-    <div className={`status-dropdown ${disabled ? 'disabled' : ''}`} ref={dropdownRef}>
+    <div
+      className={`status-dropdown ${disabled ? "disabled" : ""}`}
+      ref={dropdownRef}
+    >
       <button
         type="button"
         className="dropdown-toggle"
@@ -109,7 +117,7 @@ const CustomStatusDropdown = ({ options, selectedValue, onChange, disabled = fal
           color: selectedOption.color,
           borderColor: selectedOption.color + "80",
           opacity: disabled ? 0.6 : 1,
-          cursor: disabled ? 'not-allowed' : 'pointer',
+          cursor: disabled ? "not-allowed" : "pointer",
         }}
       >
         {selectedOption.icon}
@@ -216,7 +224,7 @@ const DriverStudentListPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isCompletingTrip, setIsCompletingTrip] = useState(false);
-  
+
   // State riêng biệt cho 2 chuyến
   const [pickupStudents, setPickupStudents] = useState([]);
   const [returnStudents, setReturnStudents] = useState([]);
@@ -228,7 +236,7 @@ const DriverStudentListPage = () => {
   useEffect(() => {
     console.log("=== DriverStudentListPage mounted ===");
     console.log("📍 Current trip type:", getCurrentTripType());
-    
+
     const fetchStudents = async () => {
       try {
         setLoading(true);
@@ -236,7 +244,10 @@ const DriverStudentListPage = () => {
 
         // Get current schedule ID from localStorage
         const currentScheduleId = getCurrentScheduleId();
-        console.log("📋 Current Schedule ID from localStorage:", currentScheduleId);
+        console.log(
+          "📋 Current Schedule ID from localStorage:",
+          currentScheduleId
+        );
 
         // Check if we have saved data in localStorage first
         const savedPickup = getPickupStudents();
@@ -249,7 +260,12 @@ const DriverStudentListPage = () => {
         let needRefetch = false;
         if (savedPickup && savedPickup.length > 0) {
           const savedScheduleId = savedPickup[0]?.scheduleId;
-          console.log("🔍 Saved pickup scheduleId:", savedScheduleId, "vs Current:", currentScheduleId);
+          console.log(
+            "🔍 Saved pickup scheduleId:",
+            savedScheduleId,
+            "vs Current:",
+            currentScheduleId
+          );
           if (savedScheduleId && savedScheduleId !== currentScheduleId) {
             console.log("⚠️ ScheduleId mismatch! Need to refetch from API");
             needRefetch = true;
@@ -266,11 +282,17 @@ const DriverStudentListPage = () => {
         }
 
         // If both lists are empty OR scheduleId mismatch, fetch from API
-        if (needRefetch || (!savedPickup || savedPickup.length === 0) && (!savedDropoff || savedDropoff.length === 0)) {
-          console.log("🌐 Fetching students from API: GET /pickup-student-today");
-          const response = await api.get('/pickup-student-today');
+        if (
+          needRefetch ||
+          ((!savedPickup || savedPickup.length === 0) &&
+            (!savedDropoff || savedDropoff.length === 0))
+        ) {
+          console.log(
+            "🌐 Fetching students from API: GET /pickup-student-today"
+          );
+          const response = await api.get("/pickup-student-today");
           console.log("📥 API Response:", response.data);
-          
+
           // Map PickupScheduleDriverDTO to UI format
           const mappedStudents = response.data.map((student) => ({
             id: student.studentId,
@@ -282,15 +304,15 @@ const DriverStudentListPage = () => {
             status: STUDENT_STATUS_UI.NOT_BOARDED, // Initial status
             stopPointId: student.stopPointId,
             scheduleId: student.scheduleId,
-            userId: student.userId
+            userId: student.userId,
           }));
 
           console.log("✅ Mapped students:", mappedStudents.length);
-          
+
           // Initialize both lists with the same data
           setPickupStudents(mappedStudents);
           setReturnStudents(mappedStudents);
-          
+
           // Save to localStorage
           savePickupStudents(mappedStudents);
           saveDropoffStudents(mappedStudents);
@@ -299,8 +321,8 @@ const DriverStudentListPage = () => {
 
         setLoading(false);
       } catch (err) {
-        console.error('❌ Error fetching students:', err);
-        setError('Không thể tải danh sách học sinh. Vui lòng thử lại!');
+        console.error("❌ Error fetching students:", err);
+        setError("Không thể tải danh sách học sinh. Vui lòng thử lại!");
         setLoading(false);
       }
     };
@@ -323,32 +345,34 @@ const DriverStudentListPage = () => {
   // Check if current tab is editable based on trip type
   const isTabEditable = (tabType) => {
     const tripType = getCurrentTripType();
-    
+
     // Check if currently driving this trip type
-    const isCurrentlyDriving = tabType === "pickup" 
-      ? tripType === TRIP_TYPE.PICKUP 
-      : tripType === TRIP_TYPE.DROPOFF;
-    
+    const isCurrentlyDriving =
+      tabType === "pickup"
+        ? tripType === TRIP_TYPE.PICKUP
+        : tripType === TRIP_TYPE.DROPOFF;
+
     // Check if this trip has already been completed
-    const isAlreadyCompleted = tabType === "pickup"
-      ? isPickupTripCompleted()
-      : isDropoffTripCompleted();
-    
+    const isAlreadyCompleted =
+      tabType === "pickup" ? isPickupTripCompleted() : isDropoffTripCompleted();
+
     const editable = isCurrentlyDriving && !isAlreadyCompleted;
-    
+
     console.log(`🔒 isTabEditable(${tabType}):`, {
       isCurrentlyDriving,
       isAlreadyCompleted,
       editable,
-      tripType
+      tripType,
     });
     return editable;
   };
 
   // Hàm cập nhật trạng thái
   const handleStatusChange = (studentId, newStatus) => {
-    console.log(`📝 Status change: Student ${studentId} -> ${newStatus} (Tab: ${activeTab})`);
-    
+    console.log(
+      `📝 Status change: Student ${studentId} -> ${newStatus} (Tab: ${activeTab})`
+    );
+
     if (activeTab === "pickup") {
       const updatedList = pickupStudents.map((student) =>
         student.id === studentId ? { ...student, status: newStatus } : student
@@ -374,19 +398,24 @@ const DriverStudentListPage = () => {
     console.log("🏁 COMPLETE TRIP CLICKED");
     console.log("  - Active tab:", activeTab);
     console.log("  - Can complete:", canComplete);
-    console.log("  - Current student list:", currentStudentList.length, "students");
-    
+    console.log(
+      "  - Current student list:",
+      currentStudentList.length,
+      "students"
+    );
+
     // Check if trip is already completed
-    const isAlreadyCompleted = activeTab === "pickup" 
-      ? isPickupTripCompleted()
-      : isDropoffTripCompleted();
-    
+    const isAlreadyCompleted =
+      activeTab === "pickup"
+        ? isPickupTripCompleted()
+        : isDropoffTripCompleted();
+
     if (isAlreadyCompleted) {
       console.log("❌ Cannot complete: Trip already completed");
       alert("Chuyến đi này đã được hoàn thành rồi!");
       return;
     }
-    
+
     if (!canComplete) {
       console.log("❌ Cannot complete: Some students not updated");
       alert(
@@ -410,10 +439,10 @@ const DriverStudentListPage = () => {
       setIsCompletingTrip(true);
       const scheduleId = getCurrentScheduleId();
       console.log("📋 Schedule ID:", scheduleId);
-      
+
       if (!scheduleId) {
         console.log("❌ No schedule ID found");
-        alert('Không tìm thấy thông tin lịch trình!');
+        alert("Không tìm thấy thông tin lịch trình!");
         return;
       }
 
@@ -423,18 +452,18 @@ const DriverStudentListPage = () => {
         studentId: student.id,
         checkingStatus: mapUIStatusToBackend(student.status),
         type: activeTab === "pickup" ? 1 : 2, // 1: Outbound (pickup), 2: Inbound (dropoff)
-        stopPointId: student.stopPointId
+        stopPointId: student.stopPointId,
       }));
 
       console.log("📤 Sending to API:", {
-        endpoint: '/api/v1/driver/complete-drip',
+        endpoint: "/api/v1/driver/complete-drip",
         scheduleId: scheduleId,
         studentCount: studentsDTOs.length,
-        payload: { studentsDTOs }
+        payload: { studentsDTOs },
       });
 
       // Call API to complete trip
-      await api.post('/api/v1/driver/complete-drip', { studentsDTOs });
+      await api.post("/api/v1/driver/complete-drip", { studentsDTOs });
       console.log("✅ API call successful");
 
       // Update localStorage trip state
@@ -448,15 +477,14 @@ const DriverStudentListPage = () => {
 
       console.log("✅ Trip completed successfully!");
       alert("Đã hoàn thành chuyến đi thành công!");
-      
+
       // Navigate back to home page
       console.log("🔄 Navigating to /driver/home");
-      window.location.href = '/driver/home';
-      
+      window.location.href = "/driver/home";
     } catch (err) {
-      console.error('❌ Error completing trip:', err);
-      console.error('Error details:', err.response?.data);
-      alert('Có lỗi xảy ra khi hoàn thành chuyến đi. Vui lòng thử lại!');
+      console.error("❌ Error completing trip:", err);
+      console.error("Error details:", err.response?.data);
+      alert("Có lỗi xảy ra khi hoàn thành chuyến đi. Vui lòng thử lại!");
     } finally {
       setIsCompletingTrip(false);
     }
@@ -478,116 +506,136 @@ const DriverStudentListPage = () => {
           <main className="driver-main-content student-attendance-page">
             {/* Loading State */}
             {loading && (
-              <div style={{ textAlign: 'center', padding: '2rem' }}>
-                <FaSpinner style={{ animation: 'spin 1s linear infinite', fontSize: '2rem' }} />
+              <div style={{ textAlign: "center", padding: "2rem" }}>
+                <FaSpinner
+                  style={{
+                    animation: "spin 1s linear infinite",
+                    fontSize: "2rem",
+                  }}
+                />
                 <p>Đang tải danh sách học sinh...</p>
               </div>
             )}
 
             {/* Error State */}
             {error && (
-              <div style={{ textAlign: 'center', padding: '2rem', color: '#e74c3c' }}>
+              <div
+                style={{
+                  textAlign: "center",
+                  padding: "2rem",
+                  color: "#e74c3c",
+                }}
+              >
                 <p>{error}</p>
-                <button onClick={() => window.location.reload()}>Thử lại</button>
+                <button onClick={() => window.location.reload()}>
+                  Thử lại
+                </button>
               </div>
             )}
 
             {/* Main Content */}
             {!loading && !error && (
               <>
-            {/* Header của trang điểm danh */}
-            <div className="student-list-header">
-              <div className="date-picker-group">
-                <label>Ngày</label>
-                <div className="date-input-wrapper">
-                  <input
-                    type="text"
-                    value={format(currentDate, "dd/MM/yyyy")}
-                    readOnly
-                  />
-                  <FaCalendarAlt className="icon" />
+                {/* Header của trang điểm danh */}
+                <div className="student-list-header">
+                  <div className="date-picker-group">
+                    <label>Ngày</label>
+                    <div className="date-input-wrapper">
+                      <input
+                        type="text"
+                        value={format(currentDate, "dd/MM/yyyy")}
+                        readOnly
+                      />
+                      <FaCalendarAlt className="icon" />
+                    </div>
+                  </div>
+
+                  <div className="student-list-tabs">
+                    <button
+                      className={`tab-btn ${
+                        activeTab === "pickup" ? "active" : ""
+                      }`}
+                      onClick={() => setActiveTab("pickup")}
+                    >
+                      Đưa đi
+                    </button>
+                    <button
+                      className={`tab-btn ${
+                        activeTab === "return" ? "active" : ""
+                      }`}
+                      onClick={() => setActiveTab("return")}
+                    >
+                      Đón về
+                    </button>
+                  </div>
+
+                  <button
+                    className="complete-trip-btn"
+                    onClick={handleCompleteTrip}
+                    disabled={
+                      !canComplete ||
+                      !isTabEditable(activeTab) ||
+                      isCompletingTrip
+                    }
+                  >
+                    {isCompletingTrip ? (
+                      <>
+                        <FaSpinner
+                          style={{ animation: "spin 1s linear infinite" }}
+                        />{" "}
+                        Đang xử lý...
+                      </>
+                    ) : (
+                      <>
+                        <FaCheckCircle /> Hoàn thành chuyến đi
+                      </>
+                    )}
+                  </button>
                 </div>
-              </div>
 
-              <div className="student-list-tabs">
-                <button
-                  className={`tab-btn ${
-                    activeTab === "pickup" ? "active" : ""
-                  }`}
-                  onClick={() => setActiveTab("pickup")}
-                >
-                  Đưa đi
-                </button>
-                <button
-                  className={`tab-btn ${
-                    activeTab === "return" ? "active" : ""
-                  }`}
-                  onClick={() => setActiveTab("return")}
-                >
-                  Đón về
-                </button>
-              </div>
-
-              <button
-                className="complete-trip-btn"
-                onClick={handleCompleteTrip}
-                disabled={!canComplete || !isTabEditable(activeTab) || isCompletingTrip}
-              >
-                {isCompletingTrip ? (
-                  <>
-                    <FaSpinner style={{ animation: 'spin 1s linear infinite' }} /> Đang xử lý...
-                  </>
-                ) : (
-                  <>
-                    <FaCheckCircle /> Hoàn thành chuyến đi
-                  </>
-                )}
-              </button>
-            </div>
-
-            {/* Bảng danh sách học sinh */}
-            <div className="student-table-container">
-              <table className="student-attendance-table">
-                <thead>
-                  <tr>
-                    <th>STT</th>
-                    <th>Tên học sinh</th>
-                    <th>Lớp</th>
-                    <th>Địa điểm đón/trả</th>
-                    <th>Phụ huynh</th>
-                    <th>Số điện thoại</th>
-                    <th>Trạng thái</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {currentStudentList.map((student, index) => (
-                    <tr key={student.id}>
-                      <td style={{ textAlign: "center" }}>{index + 1}</td>
-                      <td>{student.name}</td>
-                      <td>{student.class}</td>
-                      <td>{student.pickupPoint}</td>
-                      <td>{student.parentName}</td>
-                      <td>{student.parentPhone}</td>
-                      <td>
-                        <CustomStatusDropdown
-                          options={
-                            activeTab === "pickup"
-                              ? statusOptionsForPickup
-                              : statusOptionsForReturn
-                          }
-                          selectedValue={student.status}
-                          onChange={(newStatus) =>
-                            handleStatusChange(student.id, newStatus)
-                          }
-                          disabled={!isTabEditable(activeTab)}
-                        />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            </>
+                {/* Bảng danh sách học sinh */}
+                <div className="student-table-container">
+                  <table className="student-attendance-table">
+                    <thead>
+                      <tr>
+                        <th>STT</th>
+                        <th>Tên học sinh</th>
+                        <th>Lớp</th>
+                        <th>Địa điểm đón/trả</th>
+                        <th>Phụ huynh</th>
+                        <th>Số điện thoại</th>
+                        <th>Trạng thái</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {currentStudentList.map((student, index) => (
+                        <tr key={student.id}>
+                          <td style={{ textAlign: "center" }}>{index + 1}</td>
+                          <td>{student.name}</td>
+                          <td>{student.class}</td>
+                          <td>{student.pickupPoint}</td>
+                          <td>{student.parentName}</td>
+                          <td>{student.parentPhone}</td>
+                          <td>
+                            <CustomStatusDropdown
+                              options={
+                                activeTab === "pickup"
+                                  ? statusOptionsForPickup
+                                  : statusOptionsForReturn
+                              }
+                              selectedValue={student.status}
+                              onChange={(newStatus) =>
+                                handleStatusChange(student.id, newStatus)
+                              }
+                              disabled={!isTabEditable(activeTab)}
+                            />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             )}
           </main>
         </div>

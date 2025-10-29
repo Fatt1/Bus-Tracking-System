@@ -49,19 +49,14 @@ const redIcon = L.icon({
  * - isDriving: Boolean trigger việc bắt đầu gửi location
  * - tripType: 'pickup' hoặc 'dropoff' để xác định điểm xuất phát
  */
-const DriverSignalRHandler = ({
-  busId,
-  route,
-  isDriving,
-  tripType,
-}) => {
+const DriverSignalRHandler = ({ busId, route, isDriving, tripType }) => {
   const map = useMap();
   const busMarkerRef = useRef(null);
   const hubConnectionRef = useRef(null);
   const animationIntervalRef = useRef(null);
   const routeIndexRef = useRef(0); // Track current position in route
   const coordinatesRef = useRef(null); // Store route coordinates
-  
+
   // localStorage keys for persisting route progress
   const ROUTE_PROGRESS_KEY = `busRouteProgress_${busId}_${tripType}`;
   const ROUTE_COORDS_KEY = `busRouteCoords_${busId}_${tripType}`;
@@ -121,32 +116,39 @@ const DriverSignalRHandler = ({
       if (e.routes && e.routes.length > 0) {
         const coordinates = e.routes[0].coordinates;
         console.log(`📍 Có ${coordinates.length} tọa độ để gửi`);
-        
+
         // Store coordinates in ref and localStorage
         coordinatesRef.current = coordinates;
-        localStorage.setItem(ROUTE_COORDS_KEY, JSON.stringify(coordinates.map(c => ({lat: c.lat, lng: c.lng}))));
-        
+        localStorage.setItem(
+          ROUTE_COORDS_KEY,
+          JSON.stringify(coordinates.map((c) => ({ lat: c.lat, lng: c.lng })))
+        );
+
         // Try to restore progress from localStorage
         const savedProgress = localStorage.getItem(ROUTE_PROGRESS_KEY);
         let startIndex = 0;
-        
+
         if (savedProgress) {
           const parsed = parseInt(savedProgress);
           if (!isNaN(parsed) && parsed < coordinates.length) {
             startIndex = parsed;
-            console.log(`🔄 Restoring progress from index ${startIndex}/${coordinates.length}`);
-            
+            console.log(
+              `🔄 Restoring progress from index ${startIndex}/${coordinates.length}`
+            );
+
             // Set marker to saved position immediately
             const savedPos = coordinates[startIndex];
             if (busMarkerRef.current) {
               busMarkerRef.current.setLatLng([savedPos.lat, savedPos.lng]);
-              console.log(`📍 Marker set to saved position: ${savedPos.lat}, ${savedPos.lng}`);
+              console.log(
+                `📍 Marker set to saved position: ${savedPos.lat}, ${savedPos.lng}`
+              );
             }
           }
         } else {
           console.log(`🆕 Starting fresh from beginning`);
         }
-        
+
         routeIndexRef.current = startIndex;
 
         // Bắt đầu interval gửi location
@@ -168,7 +170,10 @@ const DriverSignalRHandler = ({
           }
 
           // Save progress to localStorage
-          localStorage.setItem(ROUTE_PROGRESS_KEY, routeIndexRef.current.toString());
+          localStorage.setItem(
+            ROUTE_PROGRESS_KEY,
+            routeIndexRef.current.toString()
+          );
 
           // Gửi vị trí hiện tại lên Hub
           const currentPos = coordinates[routeIndexRef.current];
@@ -255,7 +260,7 @@ const DriverSignalRHandler = ({
   // Effect 2: Xử lý khi bắt đầu lái xe (isDriving = true)
   useEffect(() => {
     console.log("🔄 isDriving effect triggered:", isDriving);
-    
+
     // Dọn dẹp interval cũ
     if (animationIntervalRef.current) {
       clearInterval(animationIntervalRef.current);
@@ -267,20 +272,22 @@ const DriverSignalRHandler = ({
       // Check if we have saved coordinates - if yes, resume directly without routing
       const savedCoords = localStorage.getItem(ROUTE_COORDS_KEY);
       const savedProgress = localStorage.getItem(ROUTE_PROGRESS_KEY);
-      
+
       if (savedCoords && savedProgress) {
         try {
           const coordinates = JSON.parse(savedCoords);
           const startIndex = parseInt(savedProgress);
-          
+
           if (!isNaN(startIndex) && startIndex < coordinates.length) {
-            console.log(`✅ Found saved progress at index ${startIndex}/${coordinates.length}`);
+            console.log(
+              `✅ Found saved progress at index ${startIndex}/${coordinates.length}`
+            );
             console.log(`🚀 Resuming trip from saved position`);
-            
+
             // Store in ref
             coordinatesRef.current = coordinates;
             routeIndexRef.current = startIndex;
-            
+
             // Start interval directly (without routing calculation)
             animationIntervalRef.current = setInterval(() => {
               routeIndexRef.current++;
@@ -295,28 +302,38 @@ const DriverSignalRHandler = ({
               }
 
               // Save progress
-              localStorage.setItem(ROUTE_PROGRESS_KEY, routeIndexRef.current.toString());
+              localStorage.setItem(
+                ROUTE_PROGRESS_KEY,
+                routeIndexRef.current.toString()
+              );
 
               // Send location
               const currentPos = coordinates[routeIndexRef.current];
 
               if (
                 hubConnectionRef.current &&
-                hubConnectionRef.current.state === signalR.HubConnectionState.Connected
+                hubConnectionRef.current.state ===
+                  signalR.HubConnectionState.Connected
               ) {
                 hubConnectionRef.current
                   .invoke("SendLocation", busId, currentPos.lat, currentPos.lng)
                   .then(() => {
                     if (busMarkerRef.current) {
-                      busMarkerRef.current.setLatLng([currentPos.lat, currentPos.lng]);
+                      busMarkerRef.current.setLatLng([
+                        currentPos.lat,
+                        currentPos.lng,
+                      ]);
                     }
                   })
                   .catch((err) =>
-                    console.error(`❌ Lỗi khi gửi location cho Bus ${busId}:`, err)
+                    console.error(
+                      `❌ Lỗi khi gửi location cho Bus ${busId}:`,
+                      err
+                    )
                   );
               }
             }, 500);
-            
+
             console.log(`✅ Interval resumed successfully`);
             return; // Don't call startSendingLocation
           }
@@ -324,7 +341,7 @@ const DriverSignalRHandler = ({
           console.error("❌ Error parsing saved data:", e);
         }
       }
-      
+
       // No saved data - start fresh with routing calculation
       console.log(`🆕 No saved data - starting fresh with routing`);
       startSendingLocation(route);
@@ -338,7 +355,15 @@ const DriverSignalRHandler = ({
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isDriving, route, map, busId, tripType, ROUTE_COORDS_KEY, ROUTE_PROGRESS_KEY]);
+  }, [
+    isDriving,
+    route,
+    map,
+    busId,
+    tripType,
+    ROUTE_COORDS_KEY,
+    ROUTE_PROGRESS_KEY,
+  ]);
 
   // Effect 3: Tạo marker xe bus ban đầu
   useEffect(() => {
@@ -369,35 +394,38 @@ const DriverSignalRHandler = ({
       // Try to restore saved position first
       let initialLat = startPoint.latitude;
       let initialLng = startPoint.longitude;
-      let popupText = `<b>Xe buýt ${busId}</b><br>Chuyến ${tripType === "pickup" ? "đi" : "về"}<br>Đang chờ khởi hành`;
-      
+      let popupText = `<b>Xe buýt ${busId}</b><br>Chuyến ${
+        tripType === "pickup" ? "đi" : "về"
+      }<br>Đang chờ khởi hành`;
+
       // Check if we have saved coordinates from previous session
       const savedCoords = localStorage.getItem(ROUTE_COORDS_KEY);
       const savedProgress = localStorage.getItem(ROUTE_PROGRESS_KEY);
-      
+
       if (savedCoords && savedProgress) {
         try {
           const coords = JSON.parse(savedCoords);
           const progressIndex = parseInt(savedProgress);
-          
+
           if (!isNaN(progressIndex) && coords[progressIndex]) {
             initialLat = coords[progressIndex].lat;
             initialLng = coords[progressIndex].lng;
-            popupText = `<b>Xe buýt ${busId}</b><br>Chuyến ${tripType === "pickup" ? "đi" : "về"}<br>Đang di chuyển (${progressIndex}/${coords.length})`;
-            console.log(`🔄 Restoring marker at saved position: ${initialLat}, ${initialLng} (index ${progressIndex})`);
+            popupText = `<b>Xe buýt ${busId}</b><br>Chuyến ${
+              tripType === "pickup" ? "đi" : "về"
+            }<br>Đang di chuyển (${progressIndex}/${coords.length})`;
+            console.log(
+              `🔄 Restoring marker at saved position: ${initialLat}, ${initialLng} (index ${progressIndex})`
+            );
           }
         } catch (e) {
           console.error("Error parsing saved coordinates:", e);
         }
       }
-      
+
       // Tạo marker xe bus tại vị trí đã lưu hoặc điểm xuất phát
-      const initialMarker = L.marker(
-        [initialLat, initialLng],
-        {
-          icon: busIcon,
-        }
-      )
+      const initialMarker = L.marker([initialLat, initialLng], {
+        icon: busIcon,
+      })
         .addTo(map)
         .bindPopup(popupText);
 
@@ -511,7 +539,7 @@ const RouteLayer = ({ route, tripType }) => {
  * - route: Object chứa stopPoints (với sequenceOrder, latitude, longitude, pointName)
  * - isDriving: Boolean trigger việc bắt đầu lái xe
  * - tripType: 'pickup' hoặc 'dropoff'
- * 
+ *
  * Note: Chuyến đi KHÔNG tự động hoàn thành. Driver phải hoàn thành thủ công trong DriverStudentListPage.
  */
 const DriverMapComponent = ({
