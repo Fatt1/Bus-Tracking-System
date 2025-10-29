@@ -49,11 +49,18 @@ const StudentModal = ({ mode, studentData, isOpen, onClose, onSave }) => {
       // Xử lý nhiều định dạng: "YYYY-MM-DD", "YYYY-MM-DDTHH:mm:ss", hoặc DateOnly từ C#
       const dateStr = String(birthDate).split("T")[0]; // Lấy phần trước T nếu có
       console.log("dateStr after split:", dateStr);
-      
+
       // Kiểm tra format YYYY-MM-DD
       if (dateStr.length >= 10) {
         const [year, month, day] = dateStr.split("-");
-        if (day && month && year && !isNaN(parseInt(day)) && !isNaN(parseInt(month)) && !isNaN(parseInt(year))) {
+        if (
+          day &&
+          month &&
+          year &&
+          !isNaN(parseInt(day)) &&
+          !isNaN(parseInt(month)) &&
+          !isNaN(parseInt(year))
+        ) {
           const password = `${day}${month}${year}`;
           console.log("Generated password:", password);
           return password;
@@ -118,7 +125,7 @@ const StudentModal = ({ mode, studentData, isOpen, onClose, onSave }) => {
           };
           setFormData(initialData);
           setAccountUsername("");
-          setParentPassword("*********");
+          setParentPassword("********");
           setAvailablePickupPoints([]);
         } else if ((mode === "edit" || mode === "view") && studentData?.id) {
           // Gọi API GET by ID để lấy đầy đủ thông tin học sinh
@@ -143,8 +150,8 @@ const StudentModal = ({ mode, studentData, isOpen, onClose, onSave }) => {
             };
             setFormData(initialData);
             setAccountUsername(detail.userName || "");
-            // Tạo lại mật khẩu từ ngày sinh thay vì dùng password đã hash từ backend
-            setParentPassword(generatePassword(detail.dateOfBirth || ""));
+            // Hiển thị ******** khi xem/sửa (không hiển thị mật khẩu thực)
+            setParentPassword("********");
 
             // Cập nhật điểm đón nếu có routeId và routes đã load
             if (initialData.routeId && allRoutes.length > 0) {
@@ -174,7 +181,7 @@ const StudentModal = ({ mode, studentData, isOpen, onClose, onSave }) => {
             };
             setFormData(initialData);
             setAccountUsername(studentData?.parentPhoneNumber || "");
-            setParentPassword("*********");
+            setParentPassword("********");
             setAvailablePickupPoints([]);
           }
         }
@@ -217,12 +224,14 @@ const StudentModal = ({ mode, studentData, isOpen, onClose, onSave }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.routeId, allRoutes, mode]); // Thêm mode
 
-  // useEffect để cập nhật Tài khoản/Mật khẩu khi SĐT/Ngày sinh trong form thay đổi
+  // useEffect để cập nhật Tài khoản/Mật khẩu CHỈ KHI THÊM MỚI
   useEffect(() => {
-    if (mode === "add" || mode === "edit") {
+    if (mode === "add") {
+      // Chỉ tự động cập nhật khi thêm mới
       setAccountUsername(formData.parentPhoneNumber || "");
       setParentPassword(generatePassword(formData.dateOfBirth));
     }
+    // Khi edit hoặc view: KHÔNG tự động cập nhật
   }, [formData.parentPhoneNumber, formData.dateOfBirth, mode]);
 
   if (!isOpen) return null;

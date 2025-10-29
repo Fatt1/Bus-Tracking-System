@@ -181,14 +181,16 @@ const ScheduleEditModal = ({
         allBuses = allBuses.map((b) => ({ ...b, id: Number(b.id) }));
 
         // 3) Find current driver/bus ID by matching NAME from detail response
-        const currentDriverName = detail.driverName || schedule.driverName || "";
+        const currentDriverName =
+          detail.driverName || schedule.driverName || "";
         const currentBusName = detail.busName || schedule.busName || "";
-        
+
         console.log("Edit Modal - Looking for driver name:", currentDriverName);
         console.log("Edit Modal - Looking for bus name:", currentBusName);
 
         const matchedDriver = allDrivers.find(
-          (d) => d.driverName && d.driverName.trim() === currentDriverName.trim()
+          (d) =>
+            d.driverName && d.driverName.trim() === currentDriverName.trim()
         );
         const matchedBus = allBuses.find(
           (b) => b.busName && b.busName.trim() === currentBusName.trim()

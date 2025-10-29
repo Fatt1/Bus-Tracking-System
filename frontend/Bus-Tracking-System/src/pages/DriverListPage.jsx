@@ -87,10 +87,8 @@ const DriverModal = ({ mode, driverId, isOpen, onClose, onSave }) => {
         // Cập nhật tài khoản
         setAccountUsername(driverData.phoneNumber || "");
 
-        // QUAN TRỌNG: Tạo mật khẩu từ ngày sinh, không dùng password từ backend
-        const generatedPassword = generatePassword(driverData.dateOfBirth);
-        console.log("Setting password to:", generatedPassword);
-        setAccountPassword(generatedPassword);
+        // Hiển thị ******** khi xem/sửa (không hiển thị mật khẩu thực)
+        setAccountPassword("********");
       } catch (error) {
         console.error(`Lỗi khi tải chi tiết tài xế ID ${id}:`, error);
         alert("Không thể tải chi tiết thông tin tài xế.");
@@ -124,13 +122,14 @@ const DriverModal = ({ mode, driverId, isOpen, onClose, onSave }) => {
     }
   }, [driverId, mode, isOpen, onClose]); // Thêm onClose vào dependencies
 
-  // useEffect để cập nhật Tài khoản/Mật khẩu khi SĐT/Ngày sinh trong form thay đổi (CHỈ KHI THÊM/SỬA)
+  // useEffect để cập nhật Tài khoản/Mật khẩu CHỈ KHI THÊM MỚI
   useEffect(() => {
-    // Chỉ cập nhật nếu đang ở mode add hoặc edit VÀ không đang loading modal
-    if (!isLoadingModal && (mode === "add" || mode === "edit")) {
+    // Chỉ cập nhật nếu đang ở mode add VÀ không đang loading modal
+    if (!isLoadingModal && mode === "add") {
       setAccountUsername(formData.phoneNumber || ""); // Tài khoản tự cập nhật theo SĐT
       setAccountPassword(generatePassword(formData.dateOfBirth)); // Mật khẩu tự cập nhật theo ngày sinh
     }
+    // Khi edit hoặc view: KHÔNG tự động cập nhật
   }, [formData.phoneNumber, formData.dateOfBirth, mode, isLoadingModal]);
 
   if (!isOpen) return null;
