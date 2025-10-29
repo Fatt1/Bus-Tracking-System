@@ -17,6 +17,11 @@ import { useEffect } from "react";
 import axios from "axios";
 import NotificationPage from "./pages/NotificationPage";
 
+import DriverHomePage from "./pages/driver/DriverHomePage";
+import DriverSchedulePage from "./pages/driver/DriverSchedulePage";
+import DriverNotificationPage from "./pages/driver/DriverNotificationPage";
+import RequireRole from "./components/RequireRole";
+
 function App() {
   // Xóa useEffect gọi API ở đây, nó nên nằm trong component cần dữ liệu (DashboardPage)
   const loadCart = async () => {
@@ -30,35 +35,57 @@ function App() {
   }, []);
   return (
     <Routes>
-      {/* Route không có Sidebar (như Login) sẽ nằm ngoài Layout */}
+      {/* Route không có Sidebar Admin (ví dụ Login, Trang tài xế) */}
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/schedules/add-new" element={<ScheduleAddEditPageNew />} />
 
-      {/* 2. Các Route CÓ Sidebar sẽ nằm bên trong Layout */}
-      <Route path="/" element={<Layout />}>
-        {/* 'index' có nghĩa là route mặc định "/" sẽ render DashboardPage */}
+      {/* 2. TRANG TÀI XẾ - CHỈ DÀNH CHO ROLE Driver */}
+      <Route
+        path="/driver/home"
+        element={
+          <RequireRole roles={["Driver"]}>
+            <DriverHomePage />
+          </RequireRole>
+        }
+      />
+      <Route
+        path="/driver/schedule"
+        element={
+          <RequireRole roles={["Driver"]}>
+            <DriverSchedulePage />
+          </RequireRole>
+        }
+      />
+      <Route
+        path="/driver/notifications"
+        element={
+          <RequireRole roles={["Driver"]}>
+            <DriverNotificationPage />
+          </RequireRole>
+        }
+      />
+
+      {/* Các Route CÓ Sidebar Admin - CHỈ DÀNH CHO ROLE Admin */}
+      <Route
+        path="/"
+        element={
+          <RequireRole roles={["Admin"]}>
+            <Layout />
+          </RequireRole>
+        }
+      >
         <Route index element={<DashboardPage />} />
-
-        {/* Route cho danh sách xe buýt */}
         <Route path="bus" element={<BusListPage />} />
-
-        {/* Route động cho trang chi tiết */}
         <Route path="bus/:busId" element={<BusDetailPage />} />
-
+        <Route path="schedules-calendar" element={<ScheduleListPageNew />} />
         <Route path="schedule-trips" element={<TripListPage />} />
-
         <Route path="schedule" element={<ScheduleListPageNew />} />
 
         <Route path="schedules/add-new" element={<ScheduleAddEditPageNew />} />
-
         <Route path="students" element={<StudentListPage />} />
-
         <Route path="drivers" element={<DriverListPage />} />
-
         <Route path="routes" element={<RouteListPage />} />
-
         <Route path="notification" element={<NotificationPage />} />
-
-        {/* <Route path="drivers" element={<DriverPage />} /> */}
       </Route>
     </Routes>
   );
