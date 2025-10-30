@@ -23,6 +23,7 @@ import DriverNotificationPage from "./pages/driver/DriverNotificationPage";
 import RequireRole from "./components/RequireRole";
 import TripHistoryPage from "./pages/ScheduleHistoryPage";
 import DriverStudentListPage from "./pages/driver/DriverStudentListPage";
+import ParentHomePage from "./pages/parent/ParentHomePage";
 
 function App() {
   // Xóa useEffect gọi API ở đây, nó nên nằm trong component cần dữ liệu (DashboardPage)
@@ -39,6 +40,7 @@ function App() {
     <Routes>
       {/* Route không có Sidebar Admin (ví dụ Login, Trang tài xế) */}
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/parenthome" element={<ParentHomePage />} />
 
       {/* 2. TRANG TÀI XẾ - CHỈ DÀNH CHO ROLE Driver */}
       <Route
