@@ -26,7 +26,9 @@ const ParentSidebar = () => {
               <span>Vị trí xe</span>
             </Link>
           </li>
-          <li className={activePage === "/parent/notifications" ? "active" : ""}>
+          <li
+            className={activePage === "/parent/notifications" ? "active" : ""}
+          >
             <Link to="/parent/notifications">
               <FiBell />
               <span>Thông báo</span>

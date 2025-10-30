@@ -5,7 +5,10 @@ import { clearAuth } from "../../utils/auth";
 import { FiUser } from "react-icons/fi";
 import "./ParentHeader.css";
 
-const ParentHeader = ({ breadcrumbs = "Trang / Trang chủ", parentName = "Phụ Huynh" }) => {
+const ParentHeader = ({
+  breadcrumbs = "Trang / Trang chủ",
+  parentName = "Phụ Huynh",
+}) => {
   const navigate = useNavigate();
 
   const handleLogout = async () => {

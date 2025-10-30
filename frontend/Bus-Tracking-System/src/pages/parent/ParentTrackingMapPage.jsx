@@ -38,7 +38,7 @@ const ParentTrackingMapPage = () => {
           setRouteData(null);
         } else {
           setBusLocation(response.data);
-          
+
           // If response contains route information, set it
           if (response.data.route && response.data.route.stopPoints) {
             setRouteData({

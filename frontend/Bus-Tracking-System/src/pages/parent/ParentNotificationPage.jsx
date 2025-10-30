@@ -65,7 +65,8 @@ const ParentNotificationPage = () => {
       notif.message?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       notif.senderName?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesTab = activeTab === "all" || (activeTab === "unread" && !notif.isRead);
+    const matchesTab =
+      activeTab === "all" || (activeTab === "unread" && !notif.isRead);
 
     return matchesSearch && matchesTab;
   });
@@ -98,13 +99,17 @@ const ParentNotificationPage = () => {
           {/* Tabs */}
           <div className="notification-tabs">
             <button
-              className={`notification-tab ${activeTab === "all" ? "active" : ""}`}
+              className={`notification-tab ${
+                activeTab === "all" ? "active" : ""
+              }`}
               onClick={() => setActiveTab("all")}
             >
               Tất cả thông báo
             </button>
             <button
-              className={`notification-tab ${activeTab === "unread" ? "active" : ""}`}
+              className={`notification-tab ${
+                activeTab === "unread" ? "active" : ""
+              }`}
               onClick={() => setActiveTab("unread")}
             >
               Chưa đọc

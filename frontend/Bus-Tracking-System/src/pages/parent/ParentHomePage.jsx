@@ -114,8 +114,7 @@ const ParentHomePage = () => {
                       <FiMapPin /> Thông tin chuyến đi
                     </h4>
                     <p>
-                      <strong>Tuyến:</strong>{" "}
-                      {scheduleData.routeName || "N/A"}
+                      <strong>Tuyến:</strong> {scheduleData.routeName || "N/A"}
                     </p>
                     <p>
                       <strong>Đón và trả học sinh tại:</strong>{" "}
@@ -135,8 +134,7 @@ const ParentHomePage = () => {
                       <strong>Xe:</strong> {scheduleData.busName || "N/A"}
                     </p>
                     <p>
-                      <strong>Đi:</strong>{" "}
-                      {formatTime(scheduleData.pickupTime)}
+                      <strong>Đi:</strong> {formatTime(scheduleData.pickupTime)}
                     </p>
                     <p>
                       <strong>Về:</strong>{" "}
@@ -145,7 +143,10 @@ const ParentHomePage = () => {
                   </div>
                 </div>
 
-                <button className="parent-track-button" onClick={handleTrackBus}>
+                <button
+                  className="parent-track-button"
+                  onClick={handleTrackBus}
+                >
                   <FaBus /> Theo dõi vị trí xe buýt
                 </button>
               </div>
