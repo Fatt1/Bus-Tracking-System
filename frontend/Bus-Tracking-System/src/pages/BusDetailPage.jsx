@@ -1,16 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import axios from "axios";
+import api from "../utils/api";
 import "./BusDetailPage.css";
 import busImg from "../assets/bus.png";
 import { FaBus, FaAngleLeft } from "react-icons/fa";
-import MapComponent from "../components/MapComponent"; // <-- 1. IMPORT MAP COMPONENT
-
-// Axios instance with credentials
-const api = axios.create({
-  baseURL: "https://localhost:7229",
-  withCredentials: true,
-});
+import MapComponent from "../components/MapComponent";
 
 // Component chính của trang
 const BusDetailPage = () => {

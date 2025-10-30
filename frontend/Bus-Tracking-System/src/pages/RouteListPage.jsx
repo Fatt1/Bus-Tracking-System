@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios"; // Import axios
+import api from "../utils/api"; // Import api instance với withCredentials
 import "./RouteListPage.css"; // CSS riêng cho trang này
 import "../pages/LayoutTable.css"; // Tái sử dụng CSS layout bảng
 import { FaMapMarkerAlt, FaPlus, FaTimes, FaSpinner } from "react-icons/fa"; // Thêm FaSpinner
@@ -142,18 +142,27 @@ const RouteListPage = () => {
     console.log("Fetching route list...");
     setIsLoading(true);
     try {
-      // Gọi API cố định trang 1, size 10
-      const apiUrl = `https://localhost:7229/api/v1/route/all?PageNumber=1&PageSize=10`;
-      console.log(`Calling API URL: ${apiUrl}`);
-      const response = await axios.get(apiUrl);
+      // Gọi API với withCredentials để gửi JWT cookie
+      console.log(`Calling API: /api/v1/route/all?PageNumber=1&PageSize=10`);
+      const response = await api.get("/api/v1/route/all", {
+        params: {
+          PageNumber: 1,
+          PageSize: 10,
+        },
+      });
       console.log(`API response (routes):`, response.data);
       setRoutes(response.data.items || []); // Chỉ lấy mảng items
     } catch (error) {
       console.error("Lỗi khi tải danh sách tuyến đường:", error);
       setRoutes([]);
-      alert(
-        `Không thể tải danh sách tuyến đường. Vui lòng kiểm tra backend và thử lại.\nLỗi: ${error.message}`
-      );
+
+      // Hiển thị lỗi chi tiết hơn
+      const errorMsg =
+        error.response?.status === 401
+          ? "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."
+          : `Không thể tải danh sách tuyến đường. Vui lòng kiểm tra backend và thử lại.\nLỗi: ${error.message}`;
+
+      alert(errorMsg);
     } finally {
       setIsLoading(false);
     }
@@ -175,9 +184,10 @@ const RouteListPage = () => {
     setModalStudents([]); // Xóa danh sách cũ
 
     try {
-      const apiUrl = `https://localhost:7229/api/v1/route/${route.id}/students`;
-      console.log(`Calling student list API URL: ${apiUrl}`);
-      const response = await axios.get(apiUrl);
+      console.log(
+        `Calling student list API: /api/v1/route/${route.id}/students`
+      );
+      const response = await api.get(`/api/v1/route/${route.id}/students`);
       console.log(
         `API response (students for route ${route.id}):`,
         response.data
@@ -190,9 +200,13 @@ const RouteListPage = () => {
         error
       );
       setModalStudents([]);
-      alert(
-        `Không thể tải danh sách học sinh. Vui lòng thử lại.\nLỗi: ${error.message}`
-      );
+
+      const errorMsg =
+        error.response?.status === 401
+          ? "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."
+          : `Không thể tải danh sách học sinh. Vui lòng thử lại.\nLỗi: ${error.message}`;
+
+      alert(errorMsg);
     } finally {
       setIsModalLoading(false); // Kết thúc loading cho modal
     }

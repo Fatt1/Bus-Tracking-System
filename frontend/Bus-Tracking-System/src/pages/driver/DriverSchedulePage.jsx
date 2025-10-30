@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import axios from "axios";
-import { clearAuth } from "../../utils/auth";
+import api from "../../utils/api"; // Import api instance với token support
+import { clearAuth, getFullName } from "../../utils/auth";
 import ReportIncidentModal from "../../components/driver/ReportIncidentModal";
 import "./DriverSchedulePage.css"; // Sẽ tạo ở bước 2
 import {
@@ -25,12 +25,6 @@ import {
   getISOWeek,
 } from "date-fns";
 import { vi } from "date-fns/locale"; // Import tiếng Việt
-
-// --- Axios instance ---
-const api = axios.create({
-  baseURL: "https://localhost:7229",
-  withCredentials: true,
-});
 
 // --- COMPONENT SIDEBAR CỦA TÀI XẾ ---
 const DriverSidebar = () => {
@@ -124,9 +118,7 @@ const DriverSchedulePage = () => {
   const [error, setError] = useState(null);
   const [isIncidentModalOpen, setIsIncidentModalOpen] = useState(false);
   const navigate = useNavigate();
-  const fullName =
-    (typeof window !== "undefined" && localStorage.getItem("fullName")) ||
-    "Phan Viết Huy";
+  const fullName = getFullName() || "Phan Viết Huy";
 
   // Hàm gọi API lấy schedule theo tuần
   const fetchScheduleByWeek = async (date) => {
@@ -178,9 +170,7 @@ const DriverSchedulePage = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post("https://localhost:7229/api/v1/auth/logout", null, {
-        withCredentials: true,
-      });
+      await api.post("/api/v1/auth/logout");
     } catch {
       // ignore
     } finally {

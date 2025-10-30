@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
-import axios from "axios";
+import api from "../../utils/api"; // Import api instance với token support
 import "./DriverHomePage.css"; // Tái sử dụng layout chung
 import "./DriverStudentListPage.css"; // Sẽ tạo ở bước 2
 // import "./CustomStatusDropdown.css"; // Sẽ tạo ở bước 3
@@ -38,12 +38,6 @@ import {
 } from "react-icons/fa";
 import { format } from "date-fns";
 // import { vi } from "date-fns/locale";
-
-// --- Axios instance ---
-const api = axios.create({
-  baseURL: "https://localhost:7229",
-  withCredentials: true,
-});
 
 // --- STATUS OPTIONS ---
 // Các lựa chọn trạng thái
@@ -288,9 +282,9 @@ const DriverStudentListPage = () => {
             (!savedDropoff || savedDropoff.length === 0))
         ) {
           console.log(
-            "🌐 Fetching students from API: GET /pickup-student-today"
+            "🌐 Fetching students from API: GET /api/v1/driver/pickup-student-today"
           );
-          const response = await api.get("/pickup-student-today");
+          const response = await api.get("/api/v1/driver/pickup-student-today");
           console.log("📥 API Response:", response.data);
 
           // Map PickupScheduleDriverDTO to UI format

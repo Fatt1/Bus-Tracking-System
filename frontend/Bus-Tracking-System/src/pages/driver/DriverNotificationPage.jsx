@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
-import { clearAuth } from "../../utils/auth";
+import api from "../../utils/api"; // Import api instance với token support
+import { clearAuth, getFullName } from "../../utils/auth";
 import ReportIncidentModal from "../../components/driver/ReportIncidentModal";
 import "./DriverNotificationPage.css"; // Sẽ tạo ở bước 2
 import {
@@ -19,12 +19,6 @@ import {
 } from "react-icons/fa";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
-
-// --- Axios instance ---
-const api = axios.create({
-  baseURL: "https://localhost:7229",
-  withCredentials: true,
-});
 
 // --- COMPONENT SIDEBAR (Tương tự các trang driver khác) ---
 const DriverSidebar = () => {
@@ -159,9 +153,7 @@ const DriverNotificationPage = () => {
   // Logic modal báo cáo sự cố (từ trang chủ)
   // (Bạn có thể thêm modal báo cáo sự cố sau này)
   const navigate = useNavigate();
-  const fullName =
-    (typeof window !== "undefined" && localStorage.getItem("fullName")) ||
-    "Phan Viết Huy";
+  const fullName = getFullName() || "Phan Viết Huy";
 
   // Fetch notifications from backend
   useEffect(() => {
@@ -199,9 +191,7 @@ const DriverNotificationPage = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post("https://localhost:7229/api/v1/auth/logout", null, {
-        withCredentials: true,
-      });
+      await api.post("/api/v1/auth/logout");
     } catch {
       // ignore
     } finally {

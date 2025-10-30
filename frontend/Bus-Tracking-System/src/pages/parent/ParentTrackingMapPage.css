@@ -1,0 +1,180 @@
+/* Parent Tracking Map Page Container */
+.parent-tracking-page-container {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background: #f8f9fa;
+}
+
+.parent-tracking-content {
+  flex: 1;
+  padding: 2rem;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 80px);
+  overflow: hidden;
+}
+
+/* Page Header */
+.tracking-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-shrink: 0;
+}
+
+.tracking-page-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.tracking-page-title svg {
+  color: #3b82f6;
+}
+
+/* Bus Info Badge */
+.bus-info-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  box-shadow: 0 4px 6px rgba(59, 130, 246, 0.2);
+}
+
+.bus-info-badge svg {
+  font-size: 1.25rem;
+}
+
+.bus-info-badge strong {
+  font-weight: 700;
+}
+
+.route-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.875rem;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  font-weight: 600;
+  margin-left: auto;
+}
+
+.route-badge svg {
+  font-size: 1rem;
+}
+
+/* Loading, Error, No Data States */
+.tracking-loading,
+.tracking-error,
+.tracking-no-data {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  padding: 3rem;
+  color: #6b7280;
+}
+
+.tracking-loading {
+  color: #3b82f6;
+}
+
+.tracking-error {
+  color: #ef4444;
+}
+
+.tracking-no-data svg {
+  color: #9ca3af;
+  margin-bottom: 1rem;
+}
+
+.tracking-no-data p {
+  margin: 0.5rem 0;
+  font-size: 1.125rem;
+}
+
+.tracking-no-data-hint {
+  font-size: 0.95rem !important;
+  color: #9ca3af;
+}
+
+/* Map Container */
+.tracking-map-container {
+  flex: 1;
+  background: #f9fafb;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+/* Map Placeholder */
+.tracking-map-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #6b7280;
+}
+
+.tracking-map-placeholder svg {
+  color: #9ca3af;
+  margin-bottom: 1rem;
+}
+
+.tracking-map-placeholder p {
+  font-size: 1.125rem;
+  font-weight: 500;
+}
+
+/* Spinner Animation */
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .parent-tracking-content {
+    padding: 1rem;
+    height: calc(100vh - 150px);
+  }
+
+  .tracking-page-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .tracking-page-title {
+    font-size: 1.5rem;
+  }
+
+  .bus-info-badge {
+    width: 100%;
+    justify-content: center;
+  }
+}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../utils/api"; // Import api instance với token support
 import "./DriverListPage.css";
 import "../pages/LayoutTable.css";
 import {
@@ -10,12 +10,6 @@ import {
   FaTimes,
   FaExclamationTriangle,
 } from "react-icons/fa";
-
-// --- Axios instance with credentials ---
-const api = axios.create({
-  baseURL: "https://localhost:7229",
-  withCredentials: true,
-});
 
 // Bỏ dữ liệu mẫu initialDriversData
 

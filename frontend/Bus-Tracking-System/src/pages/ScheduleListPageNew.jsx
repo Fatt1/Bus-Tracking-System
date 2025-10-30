@@ -6,7 +6,6 @@ import React, {
   useRef,
 } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import axios from "axios"; // Import axios
 import "./ScheduleListPageNew.css"; // Sẽ tạo ở bước 3
 import {
   FaChevronLeft,
@@ -29,11 +28,8 @@ import {
 } from "date-fns";
 import { vi } from "date-fns/locale"; // Import Vietnamese locale
 
-// --- Axios instance with credentials ---
-const api = axios.create({
-  baseURL: "https://localhost:7229",
-  withCredentials: true,
-});
+// --- Import api instance từ utils ---
+import api from "../utils/api";
 
 // --- COMPONENT MODAL XEM/XÓA/CHỈNH SỬA LỊCH TRÌNH ---
 const ScheduleDetailModal = ({

@@ -37,11 +37,12 @@ const LoginPage = () => {
       const payloadObj = decodeJwt(token);
       const roles = extractRoles(payloadObj);
 
-      // Lưu thông tin cơ bản để guard routes (cookie HttpOnly lưu token cho API)
+      // Lưu thông tin vào sessionStorage (mỗi tab độc lập)
       setAuthInfo({
         roles,
         fullName: data.fullName || data.FullName,
         userName: data.userName || data.UserName,
+        token, // Lưu token để gửi trong Authorization header
       });
 
       // Điều hướng theo role
@@ -50,10 +51,7 @@ const LoginPage = () => {
       } else if (roles.includes("Driver")) {
         navigate("/driver/home", { replace: true });
       } else if (roles.includes("Parent")) {
-        // Chưa có UI cho phụ huynh: tạm thời quay lại login với thông báo
-        setError(
-          "Tài khoản Phụ huynh hiện chưa có giao diện. Vui lòng thử với Admin hoặc Driver."
-        );
+        navigate("/parent/home", { replace: true });
       } else {
         setError("Không xác định được quyền của tài khoản.");
       }
