@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TrackingBusSystem.Application.Features.Schedules.Command.CreateSchedule;
 using TrackingBusSystem.Application.Features.Schedules.Command.DeleteScheduleById;
@@ -21,6 +22,7 @@ namespace TrackingBusSystem.Presentation.Controllers
             _mediator = mediator;
         }
 
+        [Authorize]
         [HttpGet("all")]
         public async Task<IActionResult> GetAllSchedules([FromQuery] GetAllScheduleQuery request)
         {
@@ -29,6 +31,7 @@ namespace TrackingBusSystem.Presentation.Controllers
             return Ok(result.Value);
         }
 
+        [Authorize]
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetScheduleById(int id)
         {
@@ -41,6 +44,7 @@ namespace TrackingBusSystem.Presentation.Controllers
 
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateSchedule([FromBody] CreateScheduleCommand request)
         {
@@ -52,6 +56,7 @@ namespace TrackingBusSystem.Presentation.Controllers
             return BadRequest(result.Error);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteSchedule(int id)
         {
@@ -63,6 +68,7 @@ namespace TrackingBusSystem.Presentation.Controllers
             return BadRequest(result.Error);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id:int}")]
         public async Task<IActionResult> UpdateSchedule(int id, [FromBody] UpdateScheduleByIdCommand request)
         {
@@ -80,23 +86,22 @@ namespace TrackingBusSystem.Presentation.Controllers
         }
 
 
-
+        [Authorize(Roles = "Admin")]
         [HttpGet("{id:int}/cheking-history")]
         public async Task<IActionResult> GetScheduleByIdWithCheckingHistory(int id, [FromQuery] TripDirection direction)
         {
-            Console.WriteLine($"=== GetScheduleByIdWithCheckingHistory Controller ===");
-            Console.WriteLine($"📥 Received: Schedule ID = {id}, Direction = {direction} ({(int)direction})");
-            
+
+
             var result = await _mediator.Send(new GetScheduleByIdWithHistoryQuery(id, direction));
-            
+
             if (result.IsSuccess)
             {
-                Console.WriteLine($"✅ Success: Returning {result.Value.StudentCheckingHistories.Count} history records");
+
                 return Ok(result.Value);
             }
             else
             {
-                Console.WriteLine($"❌ Failed: {result.Error.Code} - {result.Error.Message}");
+
                 return NotFound(result.Error);
             }
         }

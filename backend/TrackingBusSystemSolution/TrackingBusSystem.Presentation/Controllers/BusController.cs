@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TrackingBusSystem.Application.Features.Buses.Command;
 using TrackingBusSystem.Application.Features.Buses.DTOs;
@@ -18,6 +19,7 @@ namespace TrackingBusSystem.Presentation.Controllers
         {
             _mediator = mediator;
         }
+        [Authorize]
         [HttpGet("all")]
         public async Task<IActionResult> GetAllBuses([FromQuery] GetAllBusesQuery request)
         {
@@ -25,6 +27,7 @@ namespace TrackingBusSystem.Presentation.Controllers
             return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);
         }
 
+        [Authorize]
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetBusById(int id)
         {
@@ -32,12 +35,16 @@ namespace TrackingBusSystem.Presentation.Controllers
             return result.IsSuccess ? Ok(result.Value) : NotFound(result.Error);
         }
 
+        [Authorize]
         [HttpGet("dropdown")]
         public async Task<IActionResult> GetAllBusSimple([FromQuery] GetAllBusDropdownQuery request)
         {
             var result = await _mediator.Send(request);
             return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);
         }
+
+
+        [Authorize(Roles = ("Admin"))]
         [HttpPost("create")]
         public async Task<IActionResult> CreateBus([FromBody] CreateBusCommand request)
         {
@@ -50,6 +57,7 @@ namespace TrackingBusSystem.Presentation.Controllers
             return BadRequest(result.Error);
         }
 
+        [Authorize(Roles = ("Admin"))]
         [HttpPut("{id:int}")]
         public async Task<IActionResult> UpdateBus(int id, [FromBody] BusUpdateCommand request)
         {
@@ -61,13 +69,14 @@ namespace TrackingBusSystem.Presentation.Controllers
             return result.IsSuccess ? NoContent() : BadRequest(result.Error);
         }
 
+        [Authorize(Roles = ("Admin"))]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteBus(int id)
         {
             var result = await _mediator.Send(new DeleteBusByIdCommand(id));
             return result.IsSuccess ? NoContent() : BadRequest(result.Error);
         }
-
+        [Authorize]
         [HttpPost("{id:int}/start")]
         public async Task<IActionResult> StartBus(int id, [FromBody] BusLocationUpdateRequest request)
         {

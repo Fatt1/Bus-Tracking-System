@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TrackingBusSystem.Application.Features.Users.Query;
 
@@ -13,6 +14,7 @@ namespace TrackingBusSystem.Presentation.Controllers
         {
             this.mediator = mediator;
         }
+        [Authorize(Roles = ("Admin"))]
         [HttpGet("all")]
         public async Task<IActionResult> GetAllUsers()
         {

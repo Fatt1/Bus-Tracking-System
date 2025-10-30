@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TrackingBusSystem.Application.Features.Routes.Query.GetAllRoutes;
 using TrackingBusSystem.Application.Features.Routes.Query.GetRouteByIdQuery;
@@ -10,6 +11,7 @@ namespace TrackingBusSystem.Presentation.Controllers
     [ApiController]
     public class RouteController(IMediator mediator) : ControllerBase
     {
+        [Authorize]
         [HttpGet("all")]
         public async Task<IActionResult> GetAllRoutes([FromQuery] GetAllRoutesQuery request)
         {
@@ -20,6 +22,7 @@ namespace TrackingBusSystem.Presentation.Controllers
             }
             return BadRequest(result.Error);
         }
+        [Authorize]
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetRouteById(int id)
         {
@@ -31,6 +34,7 @@ namespace TrackingBusSystem.Presentation.Controllers
             return NotFound(result.Error);
         }
 
+        [Authorize]
         [HttpGet("{id:int}/students")]
         public async Task<IActionResult> GetRouteStudents(int id)
         {

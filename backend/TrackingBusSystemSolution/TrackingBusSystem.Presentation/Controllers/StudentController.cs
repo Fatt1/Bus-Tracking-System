@@ -16,6 +16,7 @@ namespace TrackingBusSystem.Presentation.Controllers
     [ApiController]
     public class StudentController(IMediator mediator) : ControllerBase
     {
+        [Authorize(Roles = "Admin")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateStudent(CreateStudentCommand request)
         {
@@ -27,6 +28,7 @@ namespace TrackingBusSystem.Presentation.Controllers
             return BadRequest(result.Error);
         }
 
+        [Authorize]
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetStudentById(int id)
         {
@@ -38,6 +40,7 @@ namespace TrackingBusSystem.Presentation.Controllers
             return NotFound(result.Error);
         }
 
+        [Authorize]
         [HttpGet("no-pagination")]
         public async Task<IActionResult> GetAllStudentsWithoutPagination()
         {
@@ -49,6 +52,7 @@ namespace TrackingBusSystem.Presentation.Controllers
             return Ok(result.Value);
         }
 
+        [Authorize]
         [HttpGet("all")]
         public async Task<IActionResult> GetAllStudents([FromQuery] GetAllStudentQuery request)
         {
@@ -86,6 +90,7 @@ namespace TrackingBusSystem.Presentation.Controllers
             return Ok(result.Value);
         }
 
+        [Authorize(Roles = "Admin, Parent")]
         [HttpPut("{id:int}")]
         public async Task<IActionResult> UpdateStudent(int id, [FromBody] UpdateStudentByIdCommand request)
         {
@@ -100,6 +105,8 @@ namespace TrackingBusSystem.Presentation.Controllers
             }
             return BadRequest(result.Error);
         }
+
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteStudent(int id)
         {

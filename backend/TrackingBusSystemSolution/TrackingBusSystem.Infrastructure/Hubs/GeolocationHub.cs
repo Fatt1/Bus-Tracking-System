@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -11,6 +12,7 @@ using TrackingBusSystem.Infrastructure.Data;
 
 namespace TrackingBusSystem.Infrastructure.Hubs
 {
+    [Authorize]
     public class GeolocationHub : Hub
     {
         private readonly IMediator _mediator;

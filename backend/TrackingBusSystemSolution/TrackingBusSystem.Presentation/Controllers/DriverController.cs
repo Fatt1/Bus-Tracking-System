@@ -25,6 +25,7 @@ namespace TrackingBusSystem.Presentation.Controllers
         {
             _mediator = mediator;
         }
+        [Authorize(Roles = ("Admin"))]
         [HttpPost("create")]
         public async Task<IActionResult> CreateDriver([FromBody] CreateDriverCommand request)
         {
@@ -36,7 +37,20 @@ namespace TrackingBusSystem.Presentation.Controllers
             return BadRequest(result.Error);
         }
 
+        [Authorize(Roles = "Driver")]
+        [HttpPost("complete-drip")]
+        public async Task<IActionResult> CompleteDrip([FromBody] CompleteTripCommand request)
+        {
+            var result = await _mediator.Send(request);
+            if (!result.IsSuccess)
+            {
+                return BadRequest(result.Error);
+            }
+            return Ok();
+        }
 
+
+        [Authorize]
         [HttpGet("all")]
         public async Task<IActionResult> GetAllDrivers([FromQuery] GetAllDriverQuery request)
         {
@@ -48,6 +62,7 @@ namespace TrackingBusSystem.Presentation.Controllers
             return Ok(result.Value);
         }
 
+        [Authorize]
         [HttpGet("dropdown")]
         public async Task<IActionResult> GetAllDriverListSimple([FromQuery] GetAllDriverDropdownQuery request)
         {
@@ -59,6 +74,7 @@ namespace TrackingBusSystem.Presentation.Controllers
             return Ok(result.Value);
         }
 
+        [Authorize]
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetDriverById(int id)
         {
@@ -71,7 +87,17 @@ namespace TrackingBusSystem.Presentation.Controllers
 
         }
 
-        [Authorize]
+        [Authorize(Roles = "Driver")]
+        [HttpGet("pickup-student-today")]
+        public async Task<IActionResult> GetPickupScheduleByDriverId()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
+            var result = await _mediator.Send(new GetPickupScheduleDriver(userId));
+            if (result.IsSuccess) return Ok(result.Value);
+            return BadRequest(result.Error);
+        }
+
+        [Authorize(Roles = "Driver")]
         [HttpGet("schedule-today")]
         public async Task<IActionResult> GetScheduleToday()
         {
@@ -84,6 +110,17 @@ namespace TrackingBusSystem.Presentation.Controllers
             return Ok(result.Value);
         }
 
+        [Authorize]
+        [HttpGet("no-pagination")]
+        public async Task<IActionResult> GetAllDriversWithoutPagination()
+        {
+            var result = await _mediator.Send(new GetAllDriverWithoutPaginationQuery());
+            if (result.IsSuccess) return Ok(result.Value);
+            return BadRequest(result.Error);
+        }
+
+
+        [Authorize(Roles = ("Admin, Driver"))]
         [HttpPut("{id:int}")]
         public async Task<IActionResult> UpdateDriver(int id, [FromBody] UpdateDriverByIdCommand request)
         {
@@ -99,6 +136,7 @@ namespace TrackingBusSystem.Presentation.Controllers
             }
             return NoContent();
         }
+        [Authorize(Roles = ("Admin"))]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteDriver(int id)
         {
@@ -110,33 +148,8 @@ namespace TrackingBusSystem.Presentation.Controllers
             return NoContent();
         }
 
-        [Authorize(Roles = "Driver")]
-        [HttpGet("/pickup-student-today")]
-        public async Task<IActionResult> GetPickupScheduleByDriverId()
-        {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
-            var result = await _mediator.Send(new GetPickupScheduleDriver(userId));
-            if (result.IsSuccess) return Ok(result.Value);
-            return BadRequest(result.Error);
-        }
 
-        [HttpGet("no-pagination")]
-        public async Task<IActionResult> GetAllDriversWithoutPagination()
-        {
-            var result = await _mediator.Send(new GetAllDriverWithoutPaginationQuery());
-            if (result.IsSuccess) return Ok(result.Value);
-            return BadRequest(result.Error);
-        }
 
-        [HttpPost("complete-drip")]
-        public async Task<IActionResult> CompleteDrip([FromBody] CompleteTripCommand request)
-        {
-            var result = await _mediator.Send(request);
-            if (!result.IsSuccess)
-            {
-                return BadRequest(result.Error);
-            }
-            return Ok();
-        }
+
     }
 }
