@@ -418,38 +418,99 @@ const DriverHomePage = () => {
     }
   };
 
-  // Logic kiểm tra nút nào được bật
-  const checkButtonState = () => {
-    if (!scheduleData) return { morning: false, afternoon: false };
+  // Logic kiểm tra trạng thái và nút
+  const getTripStatus = () => {
+    if (!scheduleData) {
+      return {
+        pickupStatus: "waiting",
+        dropoffStatus: "waiting",
+        pickupText: "Đang chờ",
+        dropoffText: "Đang chờ",
+        morningActive: false,
+        afternoonActive: false,
+      };
+    }
 
-    // Kiểm tra xem các chuyến đã hoàn thành chưa
+    // Kiểm tra xem các chuyến đã hoàn thành chưa từ localStorage
     const pickupCompleted = isPickupTripCompleted();
     const dropoffCompleted = isDropoffTripCompleted();
 
-    console.log("🔍 checkButtonState:");
+    console.log("🔍 getTripStatus:");
     console.log("  - Schedule status:", scheduleData.status);
     console.log("  - Pickup completed:", pickupCompleted);
     console.log("  - Dropoff completed:", dropoffCompleted);
+    console.log("  - isDrivingPickup:", isDrivingPickup);
+    console.log("  - isDrivingDropoff:", isDrivingDropoff);
+
+    // Xác định trạng thái chuyến đi (sáng)
+    let pickupStatus, pickupText;
+    if (pickupCompleted) {
+      pickupStatus = "completed";
+      pickupText = "Đã hoàn thành";
+    } else if (isDrivingPickup) {
+      pickupStatus = "in-progress";
+      pickupText = "Đang thực hiện";
+    } else if (scheduleData.status === 2) {
+      pickupStatus = "completed";
+      pickupText = "Đã hoàn thành";
+    } else {
+      pickupStatus = "ready";
+      pickupText = "Sẵn sàng khởi hành";
+    }
+
+    // Xác định trạng thái chuyến về (chiều)
+    let dropoffStatus, dropoffText;
+    if (dropoffCompleted) {
+      dropoffStatus = "completed";
+      dropoffText = "Đã hoàn thành";
+    } else if (isDrivingDropoff) {
+      dropoffStatus = "in-progress";
+      dropoffText = "Đang thực hiện";
+    } else if (scheduleData.status === 2) {
+      dropoffStatus = "completed";
+      dropoffText = "Đã hoàn thành";
+    } else if (!pickupCompleted) {
+      dropoffStatus = "waiting";
+      dropoffText = "Đang chờ";
+    } else {
+      dropoffStatus = "ready";
+      dropoffText = "Sẵn sàng khởi hành";
+    }
 
     // Chuyến sáng active nếu:
     // - Chưa hoàn thành chuyến đi
+    // - Chưa đang lái
     // - Schedule status !== 2 (Completed)
-    const morningActive = !pickupCompleted && scheduleData.status !== 2;
+    const morningActive =
+      !pickupCompleted && !isDrivingPickup && scheduleData.status !== 2;
 
     // Chuyến chiều active nếu:
     // - Đã hoàn thành chuyến đi sáng
     // - CHƯA hoàn thành chuyến về
+    // - Chưa đang lái
     // - Schedule status !== 2 (Completed)
     const afternoonActive =
-      pickupCompleted && !dropoffCompleted && scheduleData.status !== 2;
+      pickupCompleted &&
+      !dropoffCompleted &&
+      !isDrivingDropoff &&
+      scheduleData.status !== 2;
 
+    console.log("  - Pickup status:", pickupStatus, "-", pickupText);
+    console.log("  - Dropoff status:", dropoffStatus, "-", dropoffText);
     console.log("  - Morning button active:", morningActive);
     console.log("  - Afternoon button active:", afternoonActive);
 
-    return { morning: morningActive, afternoon: afternoonActive };
+    return {
+      pickupStatus,
+      dropoffStatus,
+      pickupText,
+      dropoffText,
+      morningActive,
+      afternoonActive,
+    };
   };
 
-  const buttonState = checkButtonState();
+  const tripStatus = getTripStatus();
 
   return (
     <div className="driver-page-container">
@@ -546,19 +607,9 @@ const DriverHomePage = () => {
                       <p>
                         Trạng thái:{" "}
                         <span
-                          className={
-                            buttonState.morning
-                              ? "status-upcoming"
-                              : scheduleData.status === 2
-                              ? "status-completed"
-                              : "status-waiting"
-                          }
+                          className={`status-${tripStatus.pickupStatus}`}
                         >
-                          {buttonState.morning
-                            ? "Sẵn sàng khởi hành"
-                            : scheduleData.status === 2
-                            ? "Đã hoàn thành"
-                            : "Đang chờ"}
+                          {tripStatus.pickupText}
                         </span>
                       </p>
                       <p>
@@ -567,9 +618,9 @@ const DriverHomePage = () => {
                     </div>
                     <button
                       className={`start-trip-btn ${
-                        buttonState.morning ? "active-btn" : "disabled-btn"
+                        tripStatus.morningActive ? "active-btn" : "disabled-btn"
                       }`}
-                      disabled={!buttonState.morning || isDrivingPickup}
+                      disabled={!tripStatus.morningActive || isDrivingPickup}
                       onClick={() => {
                         console.log("🚀 PICKUP TRIP STARTED");
                         console.log(
@@ -612,19 +663,9 @@ const DriverHomePage = () => {
                       <p>
                         Trạng thái:{" "}
                         <span
-                          className={
-                            buttonState.afternoon
-                              ? "status-upcoming"
-                              : scheduleData.status === 2
-                              ? "status-completed"
-                              : "status-waiting"
-                          }
+                          className={`status-${tripStatus.dropoffStatus}`}
                         >
-                          {buttonState.afternoon
-                            ? "Sẵn sàng khởi hành"
-                            : scheduleData.status === 2
-                            ? "Đã hoàn thành"
-                            : "Đang chờ"}
+                          {tripStatus.dropoffText}
                         </span>
                       </p>
                       <p>
@@ -634,9 +675,9 @@ const DriverHomePage = () => {
                     </div>
                     <button
                       className={`start-trip-btn ${
-                        buttonState.afternoon ? "active-btn" : "disabled-btn"
+                        tripStatus.afternoonActive ? "active-btn" : "disabled-btn"
                       }`}
-                      disabled={!buttonState.afternoon || isDrivingDropoff}
+                      disabled={!tripStatus.afternoonActive || isDrivingDropoff}
                       onClick={() => {
                         console.log("🚀 DROPOFF TRIP STARTED");
                         console.log(

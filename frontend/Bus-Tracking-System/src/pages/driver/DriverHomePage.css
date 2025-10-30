@@ -614,3 +614,18 @@ body {
   color: #27ae60;
   font-weight: 600;
 }
+
+.status-in-progress {
+  color: #3498db;
+  font-weight: 600;
+}
+
+.status-ready {
+  color: #f39c12;
+  font-weight: 600;
+}
+
+.status-waiting {
+  color: #7f8c8d;
+  font-weight: 500;
+}
