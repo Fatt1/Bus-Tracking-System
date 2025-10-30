@@ -46,8 +46,8 @@ namespace TrackingBusSystem.Presentation.Controllers
         /// <summary>
         /// Lấy chi tiết thông báo và tự động đánh dấu đã đọc (nếu chưa đọc)
         /// </summary>
-        [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetNotificationDetail(int id)
+        [HttpGet("receive/{id:int}")]
+        public async Task<IActionResult> GetReceiveNotificationDetail(int id)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -59,43 +59,20 @@ namespace TrackingBusSystem.Presentation.Controllers
             }
 
             // Bước 2: Lấy chi tiết thông báo
-            var detailResult = await _meditor.Send(new GetNotificationDetailQuery(id, userId!));
+            var detailResult = await _meditor.Send(new GetReceiveNotificationDetailQuery(id, userId!));
             if (detailResult.IsFailure)
             {
                 return NotFound(detailResult.Error);
             }
 
             // Trả về kèm thông tin đã update hay chưa
-            return Ok(new
-            {
-                notification = detailResult.Value,
-                wasUpdated = updateResult.Value // true = vừa mới đánh dấu đã đọc, false = đã đọc từ trước
-            });
-        }
-
-        /// <summary>
-        /// Chỉ update IsRead mà không lấy chi tiết (tùy chọn)
-        /// </summary>
-        [HttpPatch("{id:int}/mark-as-read")]
-        public async Task<IActionResult> MarkAsRead(int id)
-        {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var result = await _meditor.Send(new UpdateReadStatusNotificationCommand(id, userId!));
-
-            if (result.IsFailure)
-            {
-                return NotFound(result.Error);
-            }
-
-            return Ok(new
-            {
-                message = result.Value ? "Đã đánh dấu đã đọc" : "Thông báo đã được đọc trước đó",
-                wasUpdated = result.Value
-            });
+            return Ok(detailResult.Value);
         }
 
 
-        [HttpDelete("sent-noti/{id:int}")]
+
+
+        [HttpDelete("sent/{id:int}")]
         public async Task<IActionResult> DeleteSentNotification(int id)
         {
             var result = await _meditor.Send(new DeleteSentNotificationCommand(id));
@@ -106,7 +83,7 @@ namespace TrackingBusSystem.Presentation.Controllers
             return Ok();
         }
 
-        [HttpDelete("receive-noti/{id:int}")]
+        [HttpDelete("receive/{id:int}")]
         public async Task<IActionResult> DeleteReceiveNotification(int id)
         {
             var result = await _meditor.Send(new DeleteReceiveNotificationCommand(id));
