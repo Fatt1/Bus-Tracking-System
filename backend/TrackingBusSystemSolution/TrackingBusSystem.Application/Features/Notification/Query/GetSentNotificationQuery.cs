@@ -19,7 +19,7 @@ namespace TrackingBusSystem.Application.Features.Notification.Query
         }
         public async Task<Result<List<GetSentNotificationsDTO>>> Handle(GetSentNotificationQuery request, CancellationToken cancellationToken)
         {
-            var sentNotifications = await _dbContext.Announcements.Where(a => a.SenderUserId == request.UserId).Select(a => new GetSentNotificationsDTO
+            var sentNotifications = await _dbContext.Announcements.Where(a => a.SenderUserId == request.UserId && a.IsDeleted == false).Select(a => new GetSentNotificationsDTO
             {
                 Message = a.Message,
                 SendAt = a.SendAt,
