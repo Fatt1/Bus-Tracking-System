@@ -3,7 +3,7 @@ import axios from "axios";
 import ParentSidebar from "../../components/parent/ParentSidebar";
 import ParentHeader from "../../components/parent/ParentHeader";
 import MapComponent from "../../components/MapComponent";
-import { FaBus, FaSpinner, FaMapMarkedAlt } from "react-icons/fa";
+import { FaBus, FaSpinner, FaMapMarkedAlt, FaRoute } from "react-icons/fa";
 import "./ParentTrackingMapPage.css";
 
 // Axios instance
@@ -13,8 +13,7 @@ const api = axios.create({
 });
 
 const ParentTrackingMapPage = () => {
-  const [busLocation, setBusLocation] = useState(null);
-  const [routeData, setRouteData] = useState(null);
+  const [busLocationData, setBusLocationData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -26,32 +25,44 @@ const ParentTrackingMapPage = () => {
   // Fetch bus location today
   useEffect(() => {
     const fetchBusLocation = async () => {
+      console.log("🚌 [ParentMap] Fetching bus location...");
       setIsLoading(true);
       setError(null);
       try {
         const response = await api.get("/api/v1/student/bus-location-today");
-        console.log("Bus location response:", response.data);
+        console.log("🚌 [ParentMap] API Response:", response.data);
 
         if (typeof response.data === "string") {
-          // No bus location today
-          setBusLocation(null);
-          setRouteData(null);
+          // No bus location today (backend trả về string message)
+          console.log("⚠️ [ParentMap] No schedule today");
+          setBusLocationData(null);
         } else {
-          setBusLocation(response.data);
+          // Có data - validate structure
+          const data = response.data;
 
-          // If response contains route information, set it
-          if (response.data.route && response.data.route.stopPoints) {
-            setRouteData({
-              id: response.data.busId,
-              stopPoints: response.data.route.stopPoints,
-            });
+          // Check if we have required data
+          if (!data.busId || !data.routeDTO || !data.routeDTO.stopPoints) {
+            console.error("❌ [ParentMap] Invalid data structure:", data);
+            setError("Dữ liệu vị trí xe không hợp lệ.");
+            setBusLocationData(null);
+          } else {
+            console.log("✅ [ParentMap] Valid bus location data received");
+            console.log("   - Bus ID:", data.busId);
+            console.log("   - Bus Name:", data.busName);
+            console.log("   - Route:", data.routeDTO.routeName);
+            console.log("   - Stop Points:", data.routeDTO.stopPoints.length);
+
+            setBusLocationData(data);
           }
         }
       } catch (err) {
-        console.error("Error fetching bus location:", err);
+        console.error("❌ [ParentMap] Error fetching bus location:", err);
+        if (err.response) {
+          console.error("   - Status:", err.response.status);
+          console.error("   - Data:", err.response.data);
+        }
         setError("Không thể tải vị trí xe buýt. Vui lòng thử lại.");
-        setBusLocation(null);
-        setRouteData(null);
+        setBusLocationData(null);
       } finally {
         setIsLoading(false);
       }
@@ -72,12 +83,18 @@ const ParentTrackingMapPage = () => {
             <h2 className="tracking-page-title">
               <FaBus /> Theo dõi vị trí xe buýt
             </h2>
-            {busLocation && (
+            {busLocationData && (
               <div className="bus-info-badge">
                 <FaBus />
                 <span>
-                  Xe: <strong>{busLocation.busName || "N/A"}</strong>
+                  Xe: <strong>{busLocationData.busName || "N/A"}</strong>
                 </span>
+                {busLocationData.routeDTO && (
+                  <span className="route-badge">
+                    <FaRoute />
+                    {busLocationData.routeDTO.routeName}
+                  </span>
+                )}
               </div>
             )}
           </div>
@@ -88,25 +105,21 @@ const ParentTrackingMapPage = () => {
             </div>
           ) : error ? (
             <div className="tracking-error">{error}</div>
-          ) : !busLocation ? (
+          ) : !busLocationData ? (
             <div className="tracking-no-data">
               <FaMapMarkedAlt size={50} />
               <p>Không có thông tin vị trí xe buýt cho hôm nay.</p>
+              <p className="tracking-no-data-hint">
+                Con bạn chưa có lịch trình đi học hôm nay.
+              </p>
             </div>
           ) : (
             <div className="tracking-map-container">
-              {routeData ? (
-                <MapComponent
-                  selectedRoute={routeData}
-                  listenOnly={true}
-                  specificBusId={busLocation.busId}
-                />
-              ) : (
-                <div className="tracking-map-placeholder">
-                  <FaMapMarkedAlt size={50} />
-                  <p>Đang chờ dữ liệu lộ trình...</p>
-                </div>
-              )}
+              <MapComponent
+                selectedRoute={busLocationData.routeDTO}
+                listenOnly={true}
+                specificBusId={busLocationData.busId}
+              />
             </div>
           )}
         </main>
