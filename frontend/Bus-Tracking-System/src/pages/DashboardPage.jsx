@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../utils/api"; // Import api instance với withCredentials
 import { useNavigate } from "react-router-dom";
 import { getAuthRoles, clearAuth } from "../utils/auth";
 import "./DashboardPage.css"; // Sẽ cập nhật file này ở bước 3
@@ -58,9 +58,12 @@ const DashboardPage = () => {
     const getRoutes = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get(
-          "https://localhost:7229/api/v1/route/all?PageNumber=1&PageSize=100"
-        );
+        const response = await api.get("/api/v1/route/all", {
+          params: {
+            PageNumber: 1,
+            PageSize: 100,
+          },
+        });
         console.log("Fetched routes:", response.data);
         const routesData = response.data.items || [];
         setAllRoutes(routesData);
@@ -70,7 +73,10 @@ const DashboardPage = () => {
         }
       } catch (error) {
         console.error("Lỗi khi tải các tuyến đường:", error);
-        alert("Không thể tải dữ liệu tuyến đường.");
+        const errorMsg = error.response?.status === 401 
+          ? "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."
+          : "Không thể tải dữ liệu tuyến đường.";
+        alert(errorMsg);
         setAllRoutes([]);
       } finally {
         setIsLoading(false);
@@ -120,9 +126,7 @@ const DashboardPage = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post("https://localhost:7229/api/v1/auth/logout", null, {
-        withCredentials: true,
-      });
+      await api.post("/api/v1/auth/logout");
     } catch {
       // ignore errors on logout request
     } finally {

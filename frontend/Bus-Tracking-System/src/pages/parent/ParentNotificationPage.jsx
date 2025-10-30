@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../../utils/api";
 import ParentSidebar from "../../components/parent/ParentSidebar";
 import ParentHeader from "../../components/parent/ParentHeader";
 import { FiClock, FiUser } from "react-icons/fi";
@@ -7,12 +7,6 @@ import { FaSpinner, FaBell } from "react-icons/fa";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import "./ParentNotificationPage.css";
-
-// Axios instance
-const api = axios.create({
-  baseURL: "https://localhost:7229",
-  withCredentials: true,
-});
 
 const ParentNotificationPage = () => {
   const [notifications, setNotifications] = useState([]);

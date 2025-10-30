@@ -1,16 +1,10 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../../utils/api";
 import ParentSidebar from "../../components/parent/ParentSidebar";
 import ParentHeader from "../../components/parent/ParentHeader";
 import MapComponent from "../../components/MapComponent";
 import { FaBus, FaSpinner, FaMapMarkedAlt, FaRoute } from "react-icons/fa";
 import "./ParentTrackingMapPage.css";
-
-// Axios instance
-const api = axios.create({
-  baseURL: "https://localhost:7229",
-  withCredentials: true,
-});
 
 const ParentTrackingMapPage = () => {
   const [busLocationData, setBusLocationData] = useState(null);

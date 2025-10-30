@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../../utils/api";
 import ParentSidebar from "../../components/parent/ParentSidebar";
 import ParentHeader from "../../components/parent/ParentHeader";
 import { FiUser, FiCalendar, FiClock, FiMapPin } from "react-icons/fi";
@@ -8,12 +8,6 @@ import { FaBus, FaSpinner } from "react-icons/fa";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import "./ParentHomePage.css";
-
-// Axios instance
-const api = axios.create({
-  baseURL: "https://localhost:7229",
-  withCredentials: true,
-});
 
 const ParentHomePage = () => {
   const navigate = useNavigate();
