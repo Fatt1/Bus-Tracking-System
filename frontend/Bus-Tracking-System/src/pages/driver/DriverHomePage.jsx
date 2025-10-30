@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../../utils/api"; // Import api instance với token support
 import { useNavigate, useLocation } from "react-router-dom";
-import { clearAuth } from "../../utils/auth";
+import { clearAuth, getFullName } from "../../utils/auth";
 import ReportIncidentModal from "../../components/driver/ReportIncidentModal";
 import DriverMapComponent from "../../components/driver/DriverMapComponent";
 import {
@@ -31,12 +31,6 @@ import {
 import { Link } from "react-router-dom";
 import { format } from "date-fns"; // Thêm date-fns
 import { vi } from "date-fns/locale"; // Thêm locale tiếng Việt
-
-// --- Axios instance ---
-const api = axios.create({
-  baseURL: "https://localhost:7229",
-  withCredentials: true,
-});
 
 // --- DỮ LIỆU MẪU CHO TÀI XẾ (SAU NÀY SẼ LẤY TỪ API) ---
 const mockDriverProfile = {
@@ -289,7 +283,7 @@ const DriverHomePage = () => {
   const navigate = useNavigate();
 
   const fullName =
-    (typeof window !== "undefined" && localStorage.getItem("fullName")) ||
+    getFullName() ||
     `${mockDriverProfile.firstName} ${mockDriverProfile.lastName}`;
 
   // Hàm gọi API lấy schedule hôm nay
@@ -394,9 +388,7 @@ const DriverHomePage = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post("https://localhost:7229/api/v1/auth/logout", null, {
-        withCredentials: true,
-      });
+      await api.post("/api/v1/auth/logout");
     } catch {
       // ignore
     } finally {

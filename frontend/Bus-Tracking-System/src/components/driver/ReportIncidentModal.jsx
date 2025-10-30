@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../../utils/api"; // Import api instance với token support
 import {
   FaWrench,
   FaCarCrash,
@@ -9,12 +9,6 @@ import {
   FaSpinner,
 } from "react-icons/fa";
 import "./ReportIncidentModal.css";
-
-// Axios instance
-const api = axios.create({
-  baseURL: "https://localhost:7229",
-  withCredentials: true,
-});
 
 const ReportIncidentModal = ({ isOpen, onClose }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
