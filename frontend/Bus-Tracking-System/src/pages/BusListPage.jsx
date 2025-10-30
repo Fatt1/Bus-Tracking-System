@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../utils/api"; // Import api instance với token support
 import { useNavigate } from "react-router-dom";
 // Bỏ Link vì không còn dùng card nữa
 import "./BusListPage.css"; // CSS riêng cho trang này
@@ -12,12 +12,6 @@ import {
   FaEllipsisH,
   FaExclamationTriangle, // Thêm icon cho modal xóa
 } from "react-icons/fa";
-
-// --- Axios instance with base URL and credentials ---
-const api = axios.create({
-  baseURL: "https://localhost:7229",
-  withCredentials: true,
-});
 
 // --- COMPONENT MODAL THÊM XE BUÝT (Đã cập nhật: Bỏ Tuyến đường) ---
 const AddBusModal = ({ isOpen, onClose, onSave }) => {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios"; // Import axios
+import api from "../utils/api"; // Import api instance với token support
 import "./StudentListPage.css"; // CSS riêng cho trang này
 import "../pages/LayoutTable.css"; // Tái sử dụng CSS layout bảng
 import {
@@ -10,12 +10,6 @@ import {
   FaTimes,
   FaExclamationTriangle,
 } from "react-icons/fa";
-
-// --- Axios instance with base URL and credentials ---
-const api = axios.create({
-  baseURL: "https://localhost:7229",
-  withCredentials: true,
-});
 
 // --- Dữ liệu tĩnh cho dropdown Lớp (Vì API không cung cấp) ---
 const availableClasses = [

@@ -1,18 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import axios from "axios"; // Import axios
+import api from "../utils/api"; // Import api instance với token support
 import "./ScheduleAddEditPageNew.css"; // Sẽ tạo ở bước 5
 import { format, parseISO } from "date-fns";
 import { vi } from "date-fns/locale";
 import { FaSpinner } from "react-icons/fa"; // Icon loading
 
-// --- Axios instance with credentials ---
-const api = axios.create({
-  baseURL: "https://localhost:7229",
-  withCredentials: true,
-});
-
-// Thêm request interceptor để log mọi request
+// Thêm request interceptor để log mọi request (đã có trong utils/api.js)
 api.interceptors.request.use(
   (config) => {
     console.log("=== AXIOS REQUEST ===");
