@@ -86,7 +86,7 @@ namespace TrackingBusSystem.Presentation.Controllers
         }
 
 
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         [HttpGet("{id:int}/cheking-history")]
         public async Task<IActionResult> GetScheduleByIdWithCheckingHistory(int id, [FromQuery] TripDirection direction)
         {
