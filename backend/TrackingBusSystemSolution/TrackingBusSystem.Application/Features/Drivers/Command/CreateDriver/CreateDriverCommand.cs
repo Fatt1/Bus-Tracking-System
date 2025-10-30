@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
 using TrackingBusSystem.Application.Abstractions.CQRS.Command;
 using TrackingBusSystem.Application.Features.Drivers.DTOs;
 using TrackingBusSystem.Domain.Entities;
@@ -10,18 +11,26 @@ namespace TrackingBusSystem.Application.Features.Drivers.Command.CreateDriver
 {
     public record CreateDriverCommand : ICommand<CreateDriverDTO>
     {
-
+        [Required]
         public string FirstName { get; init; } = string.Empty;
+        [Required]
         public string LastName { get; init; } = string.Empty;
+
+        [Required]
         public string IDCard { get; init; } = string.Empty;
+        [Phone]
         public string PhoneNumber { get; init; } = string.Empty;
+        [Required]
         public string Address { get; init; } = string.Empty;
+        [Required]
         public DateOnly DateOfBirth { get; init; }
+        [Required]
         public Gender Sex { get; init; }
 
         //Tài khoản 
-
+        [Required]
         public string UserName { get; init; } = string.Empty;
+        [Required]
         public string Password { get; init; } = string.Empty;
     }
 

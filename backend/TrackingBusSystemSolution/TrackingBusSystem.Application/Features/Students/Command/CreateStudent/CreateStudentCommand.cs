@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
 using TrackingBusSystem.Application.Abstractions.CQRS.Command;
 using TrackingBusSystem.Application.Features.Students.DTOs;
 using TrackingBusSystem.Domain.Entities;
@@ -12,18 +13,31 @@ namespace TrackingBusSystem.Application.Features.Students.Command.CreateStudent
     public class CreateStudentCommand : ICommand<CreateStudentDTO>
     {
         // Thông tin học sinh
+        [Required]
         public string FirstName { get; set; } = string.Empty;
+        [Required]
         public string LastName { get; set; } = string.Empty;
+        [Required]
         public string Class { get; set; } = string.Empty;
+        [Required]
         public Gender Sex { get; set; }
+        [Required]
         public string Address { get; set; } = string.Empty;
+        [Required]
+
         public int PointId { get; set; }
+        [Required]
         public string ParentName { get; set; } = string.Empty;
+        [Required]
         public DateOnly DateOfBirth { get; set; }
+        [Required]
+        [Phone]
         public string ParentPhoneNumber { get; set; } = string.Empty;
 
         // Thông tin tài khoản
+        [Required]
         public string UserName { get; set; } = string.Empty;
+        [Required]
         public string Password { get; set; } = string.Empty;
 
     }

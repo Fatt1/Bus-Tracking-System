@@ -29,6 +29,7 @@ namespace TrackingBusSystem.Application.Features.Students.Command.UpdateStudent
         [Required]
         public DateOnly DateOfBirth { get; set; }
         [Required]
+        [Phone]
         public string ParentPhoneNumber { get; set; } = string.Empty;
     }
 
