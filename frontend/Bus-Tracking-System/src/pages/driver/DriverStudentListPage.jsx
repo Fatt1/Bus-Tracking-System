@@ -288,9 +288,9 @@ const DriverStudentListPage = () => {
             (!savedDropoff || savedDropoff.length === 0))
         ) {
           console.log(
-            "🌐 Fetching students from API: GET /pickup-student-today"
+            "🌐 Fetching students from API: GET /api/v1/driver/pickup-student-today"
           );
-          const response = await api.get("/pickup-student-today");
+          const response = await api.get("/api/v1/driver/pickup-student-today");
           console.log("📥 API Response:", response.data);
 
           // Map PickupScheduleDriverDTO to UI format
