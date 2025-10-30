@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../../utils/api";
 import { clearAuth } from "../../utils/auth";
 import { FiUser } from "react-icons/fi";
 import "./ParentHeader.css";
@@ -13,9 +13,7 @@ const ParentHeader = ({
 
   const handleLogout = async () => {
     try {
-      await axios.post("https://localhost:7229/api/v1/auth/logout", null, {
-        withCredentials: true,
-      });
+      await api.post("/api/v1/auth/logout");
     } catch (error) {
       console.error("Logout error:", error);
     } finally {

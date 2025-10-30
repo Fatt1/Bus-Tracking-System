@@ -73,9 +73,10 @@ const DashboardPage = () => {
         }
       } catch (error) {
         console.error("Lỗi khi tải các tuyến đường:", error);
-        const errorMsg = error.response?.status === 401 
-          ? "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."
-          : "Không thể tải dữ liệu tuyến đường.";
+        const errorMsg =
+          error.response?.status === 401
+            ? "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."
+            : "Không thể tải dữ liệu tuyến đường.";
         alert(errorMsg);
         setAllRoutes([]);
       } finally {

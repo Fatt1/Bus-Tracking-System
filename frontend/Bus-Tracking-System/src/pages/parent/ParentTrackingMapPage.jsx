@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import api from "../../utils/api";
+import { getFullName } from "../../utils/auth";
 import ParentSidebar from "../../components/parent/ParentSidebar";
 import ParentHeader from "../../components/parent/ParentHeader";
 import MapComponent from "../../components/MapComponent";
@@ -11,10 +12,8 @@ const ParentTrackingMapPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Get parent name from localStorage
-  const parentName =
-    (typeof window !== "undefined" && localStorage.getItem("fullName")) ||
-    "Phụ Huynh";
+  // Get parent name from sessionStorage
+  const parentName = getFullName() || "Phụ Huynh";
 
   // Fetch bus location today
   useEffect(() => {

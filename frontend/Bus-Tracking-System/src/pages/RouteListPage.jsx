@@ -155,12 +155,13 @@ const RouteListPage = () => {
     } catch (error) {
       console.error("Lỗi khi tải danh sách tuyến đường:", error);
       setRoutes([]);
-      
+
       // Hiển thị lỗi chi tiết hơn
-      const errorMsg = error.response?.status === 401 
-        ? "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."
-        : `Không thể tải danh sách tuyến đường. Vui lòng kiểm tra backend và thử lại.\nLỗi: ${error.message}`;
-      
+      const errorMsg =
+        error.response?.status === 401
+          ? "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."
+          : `Không thể tải danh sách tuyến đường. Vui lòng kiểm tra backend và thử lại.\nLỗi: ${error.message}`;
+
       alert(errorMsg);
     } finally {
       setIsLoading(false);
@@ -183,7 +184,9 @@ const RouteListPage = () => {
     setModalStudents([]); // Xóa danh sách cũ
 
     try {
-      console.log(`Calling student list API: /api/v1/route/${route.id}/students`);
+      console.log(
+        `Calling student list API: /api/v1/route/${route.id}/students`
+      );
       const response = await api.get(`/api/v1/route/${route.id}/students`);
       console.log(
         `API response (students for route ${route.id}):`,
@@ -197,11 +200,12 @@ const RouteListPage = () => {
         error
       );
       setModalStudents([]);
-      
-      const errorMsg = error.response?.status === 401 
-        ? "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."
-        : `Không thể tải danh sách học sinh. Vui lòng thử lại.\nLỗi: ${error.message}`;
-      
+
+      const errorMsg =
+        error.response?.status === 401
+          ? "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."
+          : `Không thể tải danh sách học sinh. Vui lòng thử lại.\nLỗi: ${error.message}`;
+
       alert(errorMsg);
     } finally {
       setIsModalLoading(false); // Kết thúc loading cho modal

@@ -37,11 +37,12 @@ const LoginPage = () => {
       const payloadObj = decodeJwt(token);
       const roles = extractRoles(payloadObj);
 
-      // Lưu thông tin cơ bản để guard routes (cookie HttpOnly lưu token cho API)
+      // Lưu thông tin vào sessionStorage (mỗi tab độc lập)
       setAuthInfo({
         roles,
         fullName: data.fullName || data.FullName,
         userName: data.userName || data.UserName,
+        token, // Lưu token để gửi trong Authorization header
       });
 
       // Điều hướng theo role

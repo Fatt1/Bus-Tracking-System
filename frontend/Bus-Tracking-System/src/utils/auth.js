@@ -54,11 +54,16 @@ export function extractRoles(payload) {
   return [];
 }
 
-export function setAuthInfo({ roles = [], fullName, userName }) {
+// =========================
+// AUTH INFO MANAGEMENT (sessionStorage - mỗi tab độc lập)
+// =========================
+
+export function setAuthInfo({ roles = [], fullName, userName, token }) {
   try {
-    localStorage.setItem("authRoles", JSON.stringify(roles));
-    if (fullName) localStorage.setItem("fullName", fullName);
-    if (userName) localStorage.setItem("userName", userName);
+    sessionStorage.setItem("authRoles", JSON.stringify(roles));
+    if (fullName) sessionStorage.setItem("fullName", fullName);
+    if (userName) sessionStorage.setItem("userName", userName);
+    if (token) sessionStorage.setItem("authToken", token); // Lưu token vào sessionStorage
   } catch {
     // noop
     void 0;
@@ -67,10 +72,34 @@ export function setAuthInfo({ roles = [], fullName, userName }) {
 
 export function getAuthRoles() {
   try {
-    const raw = localStorage.getItem("authRoles");
+    const raw = sessionStorage.getItem("authRoles");
     return raw ? JSON.parse(raw) : [];
   } catch {
     return [];
+  }
+}
+
+export function getAuthToken() {
+  try {
+    return sessionStorage.getItem("authToken");
+  } catch {
+    return null;
+  }
+}
+
+export function getFullName() {
+  try {
+    return sessionStorage.getItem("fullName");
+  } catch {
+    return null;
+  }
+}
+
+export function getUserName() {
+  try {
+    return sessionStorage.getItem("userName");
+  } catch {
+    return null;
   }
 }
 
@@ -81,9 +110,10 @@ export function hasRole(target) {
 
 export function clearAuth() {
   try {
-    localStorage.removeItem("authRoles");
-    localStorage.removeItem("fullName");
-    localStorage.removeItem("userName");
+    sessionStorage.removeItem("authRoles");
+    sessionStorage.removeItem("fullName");
+    sessionStorage.removeItem("userName");
+    sessionStorage.removeItem("authToken");
   } catch {
     // noop
     void 0;
