@@ -14,7 +14,7 @@ namespace TrackingBusSystem.Presentation.Controllers
         {
             this.mediator = mediator;
         }
-        [Authorize(Roles = ("Admin"))]
+        [Authorize]
         [HttpGet("all")]
         public async Task<IActionResult> GetAllUsers()
         {
