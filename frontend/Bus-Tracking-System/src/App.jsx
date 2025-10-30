@@ -24,6 +24,8 @@ import RequireRole from "./components/RequireRole";
 import TripHistoryPage from "./pages/ScheduleHistoryPage";
 import DriverStudentListPage from "./pages/driver/DriverStudentListPage";
 import ParentHomePage from "./pages/parent/ParentHomePage";
+import ParentNotificationPage from "./pages/parent/ParentNotificationPage";
+import ParentTrackingMapPage from "./pages/parent/ParentTrackingMapPage";
 
 function App() {
   // Xóa useEffect gọi API ở đây, nó nên nằm trong component cần dữ liệu (DashboardPage)
@@ -40,7 +42,6 @@ function App() {
     <Routes>
       {/* Route không có Sidebar Admin (ví dụ Login, Trang tài xế) */}
       <Route path="/login" element={<LoginPage />} />
-      <Route path="/parenthome" element={<ParentHomePage />} />
 
       {/* 2. TRANG TÀI XẾ - CHỈ DÀNH CHO ROLE Driver */}
       <Route
@@ -72,6 +73,32 @@ function App() {
         element={
           <RequireRole roles={["Driver"]}>
             <DriverStudentListPage />
+          </RequireRole>
+        }
+      />
+
+      {/* 3. TRANG PHỤ HUYNH - CHỈ DÀNH CHO ROLE Parent */}
+      <Route
+        path="/parent/home"
+        element={
+          <RequireRole roles={["Parent"]}>
+            <ParentHomePage />
+          </RequireRole>
+        }
+      />
+      <Route
+        path="/parent/notifications"
+        element={
+          <RequireRole roles={["Parent"]}>
+            <ParentNotificationPage />
+          </RequireRole>
+        }
+      />
+      <Route
+        path="/parent/map"
+        element={
+          <RequireRole roles={["Parent"]}>
+            <ParentTrackingMapPage />
           </RequireRole>
         }
       />

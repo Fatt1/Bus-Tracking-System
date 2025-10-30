@@ -1,107 +1,164 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import ParentSidebar from "../../components/parent/ParentSidebar";
+import ParentHeader from "../../components/parent/ParentHeader";
+import { FiUser, FiCalendar, FiClock, FiMapPin } from "react-icons/fi";
+import { FaBus, FaSpinner } from "react-icons/fa";
+import { format } from "date-fns";
+import { vi } from "date-fns/locale";
 import "./ParentHomePage.css";
-import {
-  FiHome,
-  FiMapPin,
-  FiAlertTriangle,
-  FiBell,
-  FiUser,
-} from "react-icons/fi";
+
+// Axios instance
+const api = axios.create({
+  baseURL: "https://localhost:7229",
+  withCredentials: true,
+});
 
 const ParentHomePage = () => {
+  const navigate = useNavigate();
+  const [scheduleData, setScheduleData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Get parent name from localStorage
+  const parentName =
+    (typeof window !== "undefined" && localStorage.getItem("fullName")) ||
+    "Phụ Huynh";
+
+  // Fetch schedule today
+  useEffect(() => {
+    const fetchScheduleToday = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const response = await api.get("/api/v1/student/schedule-today");
+        console.log("Parent schedule response:", response.data);
+
+        if (typeof response.data === "string") {
+          // No schedule today
+          setScheduleData(null);
+        } else {
+          setScheduleData(response.data);
+        }
+      } catch (err) {
+        console.error("Error fetching schedule:", err);
+        setError("Không thể tải lịch trình. Vui lòng thử lại.");
+        setScheduleData(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchScheduleToday();
+  }, []);
+
+  // Format time from "HH:mm:ss" to "HH:mm"
+  const formatTime = (timeString) => {
+    if (!timeString) return "--:--";
+    return timeString.substring(0, 5);
+  };
+
+  // Format date
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    try {
+      const [year, month, day] = dateString.split("-");
+      const date = new Date(year, month - 1, day);
+      return format(date, "EEEE, 'Ngày' dd 'tháng' MM 'năm' yyyy", {
+        locale: vi,
+      });
+    } catch {
+      return dateString;
+    }
+  };
+
+  // Handle track bus button
+  const handleTrackBus = () => {
+    navigate("/parent/map");
+  };
+
   return (
-    <div className="parent-home-container">
-      {/* Sidebar */}
-      <aside className="sidebar">
-        <div className="sidebar-header">
-          <h3>36 36 BUS BUS</h3>
-        </div>
-        <nav className="sidebar-nav">
-          <ul>
-            <li className="active">
-              <FiHome />
-              <span>Trang chủ</span>
-            </li>
-            <li>
-              <FiMapPin />
-              <span>Vị trí xe</span>
-            </li>
-            <li>
-              <FiAlertTriangle />
-              <span>Báo cáo sự cố</span>
-            </li>
-            <li>
-              <FiBell />
-              <span>Thông báo</span>
-            </li>
-          </ul>
-        </nav>
-      </aside>
+    <div className="parent-page-container">
+      <ParentSidebar />
 
-      {/* Main Content */}
-      <main className="main-content">
-        <header className="main-header">
-          <div className="breadcrumbs">Trang / Trang chủ</div>
-          <div className="header-right">
-            <input
-              type="text"
-              placeholder="Tìm kiếm..."
-              className="search-bar"
-            />
-            <a href="#" className="login-link">
-              Đăng nhập
-            </a>
-          </div>
-        </header>
+      <div className="parent-main-wrapper">
+        <ParentHeader breadcrumbs="Trang / Trang chủ" parentName={parentName} />
 
-        <div className="main-body">
-          <h1 className="welcome-title">CHÀO MỪNG !</h1>
+        <main className="parent-main-content">
+          <h1 className="parent-welcome-title">CHÀO MỪNG!</h1>
 
-          <div className="content-wrapper">
-            {/* Schedule Card */}
-            <div className="schedule-card">
-              <h2>Lịch trình của con hôm nay</h2>
-              <p className="date-subtitle">Thứ 2, Ngày 6 tháng 10 năm 2025</p>
+          {isLoading ? (
+            <div className="parent-loading-message">
+              <FaSpinner className="spinner" /> Đang tải lịch trình...
+            </div>
+          ) : error ? (
+            <div className="parent-error-message">{error}</div>
+          ) : !scheduleData ? (
+            <div className="parent-no-schedule-message">
+              <FiCalendar size={50} />
+              <p>Con bạn không có lịch trình cho hôm nay.</p>
+            </div>
+          ) : (
+            <div className="parent-content-wrapper">
+              {/* Schedule Card */}
+              <div className="parent-schedule-card">
+                <h2>Lịch trình của con hôm nay</h2>
+                <p className="parent-date-subtitle">
+                  {formatDate(scheduleData.scheduleDate)}
+                </p>
 
-              <div className="schedule-details">
-                <div className="trip-info">
-                  <h4>Thông tin chuyến đi</h4>
-                  <p>
-                    <strong>Tuyến:</strong> Nguyễn Hữu Thọ - Khánh Hội
-                  </p>
-                  <p>
-                    <strong>Đón và trả học sinh tại:</strong> Trạm công viên
-                    khánh hội
-                  </p>
+                <div className="parent-schedule-details">
+                  <div className="parent-trip-info">
+                    <h4>
+                      <FiMapPin /> Thông tin chuyến đi
+                    </h4>
+                    <p>
+                      <strong>Tuyến:</strong>{" "}
+                      {scheduleData.routeName || "N/A"}
+                    </p>
+                    <p>
+                      <strong>Đón và trả học sinh tại:</strong>{" "}
+                      {scheduleData.stopPointName || "N/A"}
+                    </p>
+                  </div>
+
+                  <div className="parent-driver-info">
+                    <h4>
+                      <FiClock /> Thông tin tài xế và thời gian
+                    </h4>
+                    <p>
+                      <strong>Tài xế:</strong>{" "}
+                      {scheduleData.driverName || "N/A"}
+                    </p>
+                    <p>
+                      <strong>Xe:</strong> {scheduleData.busName || "N/A"}
+                    </p>
+                    <p>
+                      <strong>Đi:</strong>{" "}
+                      {formatTime(scheduleData.pickupTime)}
+                    </p>
+                    <p>
+                      <strong>Về:</strong>{" "}
+                      {formatTime(scheduleData.dropOffTime)}
+                    </p>
+                  </div>
                 </div>
-                <div className="driver-info">
-                  <h4>Thông tin tài xế và thời gian</h4>
-                  <p>
-                    <strong>Tài xế:</strong> A. Văn
-                  </p>
-                  <p>
-                    <strong>Xe:</strong> Bus-001
-                  </p>
-                  <p>
-                    <strong>Đi:</strong> 06:30
-                  </p>
-                  <p>
-                    <strong>Về:</strong> 16:00
-                  </p>
-                </div>
+
+                <button className="parent-track-button" onClick={handleTrackBus}>
+                  <FaBus /> Theo dõi vị trí xe buýt
+                </button>
               </div>
 
-              <button className="track-button">Theo dõi vị trí xe buýt</button>
+              {/* Profile Info */}
+              <div className="parent-profile-info">
+                <FiUser className="parent-profile-icon" />
+                <p className="parent-profile-name">Phụ huynh: {parentName}</p>
+              </div>
             </div>
-
-            {/* Profile Info */}
-            <div className="profile-info">
-              <FiUser className="profile-icon" />
-              <p className="profile-name">Phụ huynh: Phan Việt Huy</p>
-            </div>
-          </div>
-        </div>
-      </main>
+          )}
+        </main>
+      </div>
     </div>
   );
 };
