@@ -36,16 +36,22 @@ function App() {
     console.log("   - Manager exists:", !!BusSimulationManager);
     console.log("   - Manager.state:", BusSimulationManager?.state);
     console.log("   - isRunning:", BusSimulationManager?.isRunning);
-    
+
     // BusSimulationManager tự động resume trong constructor nếu có state
     // Không cần gọi resumeSimulation() ở đây nữa
-    if (BusSimulationManager && BusSimulationManager.state && BusSimulationManager.state.busId) {
-      console.log("✅ App.jsx: BusSimulationManager has state, should be running");
+    if (
+      BusSimulationManager &&
+      BusSimulationManager.state &&
+      BusSimulationManager.state.busId
+    ) {
+      console.log(
+        "✅ App.jsx: BusSimulationManager has state, should be running"
+      );
     } else {
       console.log("⭕ App.jsx: No simulation state to resume");
     }
   }, []);
-  
+
   const loadCart = async () => {
     const response = await axios.get(
       "https://localhost:7229/api/v1/bus/dropdown"

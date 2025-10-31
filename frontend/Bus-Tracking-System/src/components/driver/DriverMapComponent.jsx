@@ -9,7 +9,8 @@ import * as signalR from "@microsoft/signalr";
 // --- Icon marker mặc định ---
 const DefaultIcon = L.icon({
   iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
-  iconRetinaUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png",
+  iconRetinaUrl:
+    "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png",
   shadowUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png",
   iconSize: [25, 41],
   iconAnchor: [12, 41],
@@ -59,8 +60,9 @@ const BusMarkerListener = ({ busId }) => {
       const lng = data.Lng || data.lng;
       const receivedBusId = data.BusId || data.busId;
 
-      if (lat === undefined || lng === undefined || receivedBusId === undefined) return;
-      
+      if (lat === undefined || lng === undefined || receivedBusId === undefined)
+        return;
+
       // Chỉ hiển thị xe bus của mình
       if (receivedBusId !== busId) return;
 
@@ -84,9 +86,13 @@ const BusMarkerListener = ({ busId }) => {
         hubConnection
           .invoke("JoinBusGroup", busId)
           .then(() => console.log(`🚌 DriverMap: Joined Bus-${busId} group`))
-          .catch((err) => console.error("DriverMap: Error joining group: ", err));
+          .catch((err) =>
+            console.error("DriverMap: Error joining group: ", err)
+          );
       })
-      .catch((err) => console.error("DriverMap: SignalR connection error: ", err));
+      .catch((err) =>
+        console.error("DriverMap: SignalR connection error: ", err)
+      );
 
     // Hàm dọn dẹp
     return () => {
@@ -203,11 +209,7 @@ const RouteLayer = ({ route, tripType }) => {
  * Note: Logic gửi vị trí xe bus đã được chuyển sang BusSimulationManager chạy nền.
  * Component này chỉ hiển thị tuyến đường, các điểm dừng, và marker xe bus (nhận từ SignalR).
  */
-const DriverMapComponent = ({
-  busId,
-  route,
-  tripType = "pickup",
-}) => {
+const DriverMapComponent = ({ busId, route, tripType = "pickup" }) => {
   const initialPosition = [10.7769, 106.6954]; // Sài Gòn
 
   return (
@@ -223,7 +225,7 @@ const DriverMapComponent = ({
 
       {/* Vẽ đường đi và điểm dừng */}
       <RouteLayer route={route} tripType={tripType} />
-      
+
       {/* Lắng nghe và hiển thị marker xe bus */}
       {busId && <BusMarkerListener busId={busId} />}
     </MapContainer>

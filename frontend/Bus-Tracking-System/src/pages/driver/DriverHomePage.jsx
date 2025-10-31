@@ -709,7 +709,10 @@ const DriverHomePage = () => {
                       disabled={!tripStatus.morningActive || isDrivingPickup}
                       onClick={() => {
                         console.log("🚀 PICKUP TRIP STARTED");
-                        console.log("  - Schedule ID:", scheduleData.scheduleId);
+                        console.log(
+                          "  - Schedule ID:",
+                          scheduleData.scheduleId
+                        );
                         console.log("  - Saving schedule ID to localStorage");
                         saveCurrentScheduleId(scheduleData.scheduleId);
                         setIsDrivingPickup(true);
@@ -720,8 +723,13 @@ const DriverHomePage = () => {
                           route: scheduleData.routeDTO,
                           tripType: "pickup",
                         });
-                        console.log("  - BusSimulationManager started (pickup)");
-                        console.log("  - localStorage after start:", localStorage);
+                        console.log(
+                          "  - BusSimulationManager started (pickup)"
+                        );
+                        console.log(
+                          "  - localStorage after start:",
+                          localStorage
+                        );
                       }}
                     >
                       {isDrivingPickup ? "Đang chạy..." : "Bắt đầu chuyến đi"}
@@ -762,7 +770,10 @@ const DriverHomePage = () => {
                       disabled={!tripStatus.afternoonActive || isDrivingDropoff}
                       onClick={() => {
                         console.log("🚀 DROPOFF TRIP STARTED");
-                        console.log("  - Schedule ID:", scheduleData.scheduleId);
+                        console.log(
+                          "  - Schedule ID:",
+                          scheduleData.scheduleId
+                        );
                         console.log("  - Saving schedule ID to localStorage");
                         saveCurrentScheduleId(scheduleData.scheduleId);
                         setIsDrivingDropoff(true);
@@ -773,8 +784,13 @@ const DriverHomePage = () => {
                           route: scheduleData.routeDTO,
                           tripType: "dropoff",
                         });
-                        console.log("  - BusSimulationManager started (dropoff)");
-                        console.log("  - localStorage after start:", localStorage);
+                        console.log(
+                          "  - BusSimulationManager started (dropoff)"
+                        );
+                        console.log(
+                          "  - localStorage after start:",
+                          localStorage
+                        );
                       }}
                     >
                       {isDrivingDropoff ? "Đang chạy..." : "Bắt đầu chuyến về"}
