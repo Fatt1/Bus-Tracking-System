@@ -108,22 +108,22 @@ export function getCurrentUserId() {
     const token = getAuthToken();
     if (!token) return null;
     const payload = decodeJwt(token);
-    
+
     // Backend uses ClaimTypes.NameIdentifier which serializes to this long URL
     // Try multiple possible claim keys
     const possibleKeys = [
       "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier",
       "nameid",
       "sub",
-      "nameidentifier"
+      "nameidentifier",
     ];
-    
+
     for (const key of possibleKeys) {
       if (payload[key]) {
         return payload[key];
       }
     }
-    
+
     // Debug: log all claims to see what's available
     console.log("JWT Payload (debugging userId):", payload);
     return null;
