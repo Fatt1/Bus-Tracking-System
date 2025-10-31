@@ -26,18 +26,11 @@ const ReportIncidentModal = ({ isOpen, onClose }) => {
     console.log("=== Fetching admin users ===");
     setLoadingAdmins(true);
     try {
-      const response = await api.get("/api/v1/user/all");
-      console.log("All users response:", response.data);
-
-      // Filter users có role "Admin"
-      const admins = response.data.filter((user) =>
-        user.roles.includes("Admin")
-      );
-      console.log("Admin users:", admins);
-      setAdminUsers(admins);
+      const response = await api.get("/api/v1/user/admin");
+      console.log("Admin users response:", response.data);
+      setAdminUsers(response.data);
     } catch (err) {
       console.error("Lỗi khi tải danh sách admin:", err);
-      // Nếu lỗi, thử gửi cho tất cả users (fallback)
       setAdminUsers([]);
     } finally {
       setLoadingAdmins(false);
