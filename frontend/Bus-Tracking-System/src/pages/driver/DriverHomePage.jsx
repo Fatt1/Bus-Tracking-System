@@ -280,11 +280,45 @@ const DriverHomePage = () => {
   const [isDrivingPickup, setIsDrivingPickup] = useState(false); // Đang lái chuyến đi
   const [isDrivingDropoff, setIsDrivingDropoff] = useState(false); // Đang lái chuyến về
 
+  // ⚠️ NEW: States để lưu completion status từ database history
+  const [pickupHistoryExists, setPickupHistoryExists] = useState(false); // Có history pickup không
+  const [dropoffHistoryExists, setDropoffHistoryExists] = useState(false); // Có history dropoff không
+
   const navigate = useNavigate();
 
   const fullName =
     getFullName() ||
     `${mockDriverProfile.firstName} ${mockDriverProfile.lastName}`;
+
+  // ⚠️ NEW: Hàm check xem chuyến đi có history không
+  const checkTripHistory = async (scheduleId, direction) => {
+    try {
+      console.log(
+        `🔍 Checking history for schedule ${scheduleId}, direction: ${direction}`
+      );
+      const response = await api.get(
+        `/api/v1/schedule/${scheduleId}/cheking-history?direction=${direction}`
+      );
+
+      // Nếu có StudentCheckingHistories → chuyến đi đã hoàn thành
+      const hasHistory =
+        response.data &&
+        response.data.studentCheckingHistories &&
+        response.data.studentCheckingHistories.length > 0;
+
+      console.log(
+        `  ${direction === 1 ? "Pickup" : "Dropoff"} history exists:`,
+        hasHistory,
+        `(${response.data?.studentCheckingHistories?.length || 0} records)`
+      );
+
+      return hasHistory;
+    } catch (err) {
+      console.error(`Error checking history for direction ${direction}:`, err);
+      // Nếu lỗi 404 hoặc không có data → không có history
+      return false;
+    }
+  };
 
   // Hàm gọi API lấy schedule hôm nay
   const fetchScheduleToday = async () => {
@@ -299,16 +333,36 @@ const DriverHomePage = () => {
       if (typeof response.data === "string") {
         console.log("No schedule today");
         setScheduleData(null);
+        setPickupHistoryExists(false);
+        setDropoffHistoryExists(false);
       } else {
         // Có schedule
         console.log("✅ Schedule loaded:", response.data.scheduleId);
         setScheduleData(response.data);
+
+        // ⚠️ CRITICAL: Check history cho cả 2 chuyến
+        const scheduleId = response.data.scheduleId;
+
+        // Check pickup history (Outbound = 1)
+        const hasPickupHistory = await checkTripHistory(scheduleId, 1);
+        setPickupHistoryExists(hasPickupHistory);
+
+        // Check dropoff history (Inbound = 2)
+        const hasDropoffHistory = await checkTripHistory(scheduleId, 2);
+        setDropoffHistoryExists(hasDropoffHistory);
+
+        console.log("📊 History check results:");
+        console.log("  - Pickup completed (from DB):", hasPickupHistory);
+        console.log("  - Dropoff completed (from DB):", hasDropoffHistory);
+
         // ❌ KHÔNG save scheduleId ở đây - chỉ save khi driver bấm "Bắt đầu chuyến đi"
       }
     } catch (err) {
       console.error("Lỗi khi tải lịch trình hôm nay:", err);
       setError("Không thể tải lịch trình. Vui lòng thử lại.");
       setScheduleData(null);
+      setPickupHistoryExists(false);
+      setDropoffHistoryExists(false);
     } finally {
       setIsLoading(false);
     }
@@ -317,13 +371,8 @@ const DriverHomePage = () => {
   // useEffect để fetch data khi component mount
   useEffect(() => {
     console.log("=== DriverHomePage mounted ===");
-
-    // Fetch schedule first
-    const loadScheduleAndSyncState = async () => {
-      await fetchScheduleToday();
-    };
-
-    loadScheduleAndSyncState();
+    fetchScheduleToday();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Chỉ chạy 1 lần khi mount
 
   // useEffect riêng để sync state SAU KHI có scheduleData
@@ -334,6 +383,34 @@ const DriverHomePage = () => {
     }
 
     console.log("=== Syncing trip state with localStorage ===");
+    console.log("📊 Database history status:");
+    console.log("  - Pickup history exists:", pickupHistoryExists);
+    console.log("  - Dropoff history exists:", dropoffHistoryExists);
+
+    // ⚠️ CRITICAL: Nếu CẢ 2 chuyến đều có history → Schedule hoàn toàn completed
+    // → CLEAR tất cả state, KHÔNG CHO phép resume
+    if (pickupHistoryExists && dropoffHistoryExists) {
+      console.log(
+        "✅ Both trips completed (history exists) - clearing all trip state và map localStorage"
+      );
+      resetAllTripState();
+      setIsDrivingPickup(false);
+      setIsDrivingDropoff(false);
+
+      // CRITICAL: Clear localStorage của map component để không resume trip
+      const pickupProgressKey = `busRouteProgress_${scheduleData.busId}_pickup`;
+      const pickupCoordsKey = `busRouteCoords_${scheduleData.busId}_pickup`;
+      const dropoffProgressKey = `busRouteProgress_${scheduleData.busId}_dropoff`;
+      const dropoffCoordsKey = `busRouteCoords_${scheduleData.busId}_dropoff`;
+
+      localStorage.removeItem(pickupProgressKey);
+      localStorage.removeItem(pickupCoordsKey);
+      localStorage.removeItem(dropoffProgressKey);
+      localStorage.removeItem(dropoffCoordsKey);
+
+      console.log("🧹 Cleared all localStorage for completed schedule");
+      return;
+    }
 
     // Lấy scheduleId từ localStorage
     const savedScheduleId = getCurrentScheduleId();
@@ -366,25 +443,24 @@ const DriverHomePage = () => {
       return;
     }
 
-    // Schedule ID match → sync state từ localStorage
+    // Schedule ID match → sync state từ localStorage (nếu chưa có history)
     const tripType = getCurrentTripType();
     console.log("📍 Current trip type from localStorage:", tripType);
-    console.log("📍 Pickup completed:", isPickupTripCompleted());
 
-    if (tripType === TRIP_TYPE.PICKUP) {
-      console.log("✅ Syncing state: isDrivingPickup = true");
+    if (tripType === TRIP_TYPE.PICKUP && !pickupHistoryExists) {
+      console.log("✅ Syncing state: isDrivingPickup = true (no history yet)");
       setIsDrivingPickup(true);
       setIsDrivingDropoff(false);
-    } else if (tripType === TRIP_TYPE.DROPOFF) {
-      console.log("✅ Syncing state: isDrivingDropoff = true");
+    } else if (tripType === TRIP_TYPE.DROPOFF && !dropoffHistoryExists) {
+      console.log("✅ Syncing state: isDrivingDropoff = true (no history yet)");
       setIsDrivingPickup(false);
       setIsDrivingDropoff(true);
     } else {
-      console.log("⭕ No active trip");
+      console.log("⭕ No active trip or trip already has history");
       setIsDrivingPickup(false);
       setIsDrivingDropoff(false);
     }
-  }, [scheduleData]); // Chạy khi scheduleData thay đổi
+  }, [scheduleData, pickupHistoryExists, dropoffHistoryExists]); // Chạy khi có thay đổi
 
   const handleLogout = async () => {
     try {
@@ -431,69 +507,80 @@ const DriverHomePage = () => {
       };
     }
 
-    // Kiểm tra xem các chuyến đã hoàn thành chưa từ localStorage
-    const pickupCompleted = isPickupTripCompleted();
-    const dropoffCompleted = isDropoffTripCompleted();
-
     console.log("🔍 getTripStatus:");
-    console.log("  - Schedule status:", scheduleData.status);
-    console.log("  - Pickup completed:", pickupCompleted);
-    console.log("  - Dropoff completed:", dropoffCompleted);
+    console.log("  - Pickup history exists (DB):", pickupHistoryExists);
+    console.log("  - Dropoff history exists (DB):", dropoffHistoryExists);
     console.log("  - isDrivingPickup:", isDrivingPickup);
     console.log("  - isDrivingDropoff:", isDrivingDropoff);
 
+    // Kiểm tra localStorage (chỉ dùng khi database không có history)
+    const pickupCompletedLocal = isPickupTripCompleted();
+    const dropoffCompletedLocal = isDropoffTripCompleted();
+    console.log("  - Pickup completed (localStorage):", pickupCompletedLocal);
+    console.log("  - Dropoff completed (localStorage):", dropoffCompletedLocal);
+
+    // ⚠️ CRITICAL: Ưu tiên check DATABASE HISTORY trước
     // Xác định trạng thái chuyến đi (sáng)
     let pickupStatus, pickupText;
-    if (pickupCompleted) {
+    if (pickupHistoryExists) {
+      // Database có history → Đã hoàn thành (không thể chạy lại)
+      pickupStatus = "completed";
+      pickupText = "Đã hoàn thành";
+    } else if (pickupCompletedLocal) {
+      // LocalStorage có flag completed (trong session hiện tại)
       pickupStatus = "completed";
       pickupText = "Đã hoàn thành";
     } else if (isDrivingPickup) {
+      // Đang lái
       pickupStatus = "in-progress";
       pickupText = "Đang thực hiện";
-    } else if (scheduleData.status === 2) {
-      pickupStatus = "completed";
-      pickupText = "Đã hoàn thành";
     } else {
+      // Chưa bắt đầu
       pickupStatus = "ready";
       pickupText = "Sẵn sàng khởi hành";
     }
 
     // Xác định trạng thái chuyến về (chiều)
     let dropoffStatus, dropoffText;
-    if (dropoffCompleted) {
+    if (dropoffHistoryExists) {
+      // Database có history → Đã hoàn thành (không thể chạy lại)
+      dropoffStatus = "completed";
+      dropoffText = "Đã hoàn thành";
+    } else if (dropoffCompletedLocal) {
+      // LocalStorage có flag completed (trong session hiện tại)
       dropoffStatus = "completed";
       dropoffText = "Đã hoàn thành";
     } else if (isDrivingDropoff) {
+      // Đang lái
       dropoffStatus = "in-progress";
       dropoffText = "Đang thực hiện";
-    } else if (scheduleData.status === 2) {
-      dropoffStatus = "completed";
-      dropoffText = "Đã hoàn thành";
-    } else if (!pickupCompleted) {
+    } else if (!pickupHistoryExists && !pickupCompletedLocal) {
+      // Chưa hoàn thành chuyến đi → chuyến về phải đợi
       dropoffStatus = "waiting";
       dropoffText = "Đang chờ";
     } else {
+      // Chuyến đi đã xong → sẵn sàng chạy chuyến về
       dropoffStatus = "ready";
       dropoffText = "Sẵn sàng khởi hành";
     }
 
-    // Chuyến sáng active nếu:
-    // - Chưa hoàn thành chuyến đi
+    // ⚠️ Chuyến sáng active nếu:
+    // - Database KHÔNG có pickup history
+    // - LocalStorage KHÔNG có pickup completed
     // - Chưa đang lái
-    // - Schedule status !== 2 (Completed)
     const morningActive =
-      !pickupCompleted && !isDrivingPickup && scheduleData.status !== 2;
+      !pickupHistoryExists && !pickupCompletedLocal && !isDrivingPickup;
 
-    // Chuyến chiều active nếu:
-    // - Đã hoàn thành chuyến đi sáng
-    // - CHƯA hoàn thành chuyến về
+    // ⚠️ Chuyến chiều active nếu:
+    // - Database KHÔNG có dropoff history
+    // - LocalStorage KHÔNG có dropoff completed
     // - Chưa đang lái
-    // - Schedule status !== 2 (Completed)
+    // - ĐÃ hoàn thành chuyến đi (database có pickup history HOẶC localStorage có pickup completed)
     const afternoonActive =
-      pickupCompleted &&
-      !dropoffCompleted &&
+      !dropoffHistoryExists &&
+      !dropoffCompletedLocal &&
       !isDrivingDropoff &&
-      scheduleData.status !== 2;
+      (pickupHistoryExists || pickupCompletedLocal);
 
     console.log("  - Pickup status:", pickupStatus, "-", pickupText);
     console.log("  - Dropoff status:", dropoffStatus, "-", dropoffText);
@@ -606,9 +693,7 @@ const DriverHomePage = () => {
                       <h3>Chuyến đi</h3>
                       <p>
                         Trạng thái:{" "}
-                        <span
-                          className={`status-${tripStatus.pickupStatus}`}
-                        >
+                        <span className={`status-${tripStatus.pickupStatus}`}>
                           {tripStatus.pickupText}
                         </span>
                       </p>
@@ -662,9 +747,7 @@ const DriverHomePage = () => {
                       <h3>Chuyến về</h3>
                       <p>
                         Trạng thái:{" "}
-                        <span
-                          className={`status-${tripStatus.dropoffStatus}`}
-                        >
+                        <span className={`status-${tripStatus.dropoffStatus}`}>
                           {tripStatus.dropoffText}
                         </span>
                       </p>
@@ -675,7 +758,9 @@ const DriverHomePage = () => {
                     </div>
                     <button
                       className={`start-trip-btn ${
-                        tripStatus.afternoonActive ? "active-btn" : "disabled-btn"
+                        tripStatus.afternoonActive
+                          ? "active-btn"
+                          : "disabled-btn"
                       }`}
                       disabled={!tripStatus.afternoonActive || isDrivingDropoff}
                       onClick={() => {
@@ -719,7 +804,12 @@ const DriverHomePage = () => {
                           })
                         ),
                       }}
-                      isDriving={isDrivingPickup || isDrivingDropoff}
+                      isDriving={
+                        // ⚠️ CRITICAL: Nếu CẢ 2 chuyến đều có history → KHÔNG cho phép driving
+                        pickupHistoryExists && dropoffHistoryExists
+                          ? false
+                          : isDrivingPickup || isDrivingDropoff
+                      }
                       tripType={
                         isDrivingPickup
                           ? "pickup"
