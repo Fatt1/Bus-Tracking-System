@@ -15,6 +15,7 @@ import {
   getCurrentScheduleId,
   resetAllTripState,
 } from "../../utils/tripStateManager";
+import BusSimulationManager from "../../utils/BusSimulationManager";
 import "./DriverHomePage.css";
 import {
   FaHome,
@@ -708,23 +709,19 @@ const DriverHomePage = () => {
                       disabled={!tripStatus.morningActive || isDrivingPickup}
                       onClick={() => {
                         console.log("🚀 PICKUP TRIP STARTED");
-                        console.log(
-                          "  - Schedule ID:",
-                          scheduleData.scheduleId
-                        );
+                        console.log("  - Schedule ID:", scheduleData.scheduleId);
                         console.log("  - Saving schedule ID to localStorage");
-
-                        // CRITICAL: Save schedule ID FIRST
                         saveCurrentScheduleId(scheduleData.scheduleId);
-
-                        console.log("  - Setting isDrivingPickup = true");
-                        console.log("  - Calling startPickupTrip()");
                         setIsDrivingPickup(true);
                         startPickupTrip();
-                        console.log(
-                          "  - localStorage after start:",
-                          localStorage
-                        );
+                        // Khởi động BusSimulationManager FE chạy nền
+                        BusSimulationManager.startSimulation({
+                          busId: scheduleData.busId,
+                          route: scheduleData.routeDTO,
+                          tripType: "pickup",
+                        });
+                        console.log("  - BusSimulationManager started (pickup)");
+                        console.log("  - localStorage after start:", localStorage);
                       }}
                     >
                       {isDrivingPickup ? "Đang chạy..." : "Bắt đầu chuyến đi"}
@@ -765,23 +762,19 @@ const DriverHomePage = () => {
                       disabled={!tripStatus.afternoonActive || isDrivingDropoff}
                       onClick={() => {
                         console.log("🚀 DROPOFF TRIP STARTED");
-                        console.log(
-                          "  - Schedule ID:",
-                          scheduleData.scheduleId
-                        );
+                        console.log("  - Schedule ID:", scheduleData.scheduleId);
                         console.log("  - Saving schedule ID to localStorage");
-
-                        // CRITICAL: Save schedule ID FIRST (should already be saved, but ensure)
                         saveCurrentScheduleId(scheduleData.scheduleId);
-
-                        console.log("  - Setting isDrivingDropoff = true");
-                        console.log("  - Calling startDropoffTrip()");
                         setIsDrivingDropoff(true);
                         startDropoffTrip();
-                        console.log(
-                          "  - localStorage after start:",
-                          localStorage
-                        );
+                        // Khởi động BusSimulationManager FE chạy nền
+                        BusSimulationManager.startSimulation({
+                          busId: scheduleData.busId,
+                          route: scheduleData.routeDTO,
+                          tripType: "dropoff",
+                        });
+                        console.log("  - BusSimulationManager started (dropoff)");
+                        console.log("  - localStorage after start:", localStorage);
                       }}
                     >
                       {isDrivingDropoff ? "Đang chạy..." : "Bắt đầu chuyến về"}
@@ -804,12 +797,6 @@ const DriverHomePage = () => {
                           })
                         ),
                       }}
-                      isDriving={
-                        // ⚠️ CRITICAL: Nếu CẢ 2 chuyến đều có history → KHÔNG cho phép driving
-                        pickupHistoryExists && dropoffHistoryExists
-                          ? false
-                          : isDrivingPickup || isDrivingDropoff
-                      }
                       tripType={
                         isDrivingPickup
                           ? "pickup"
