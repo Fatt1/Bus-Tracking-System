@@ -11,11 +11,11 @@ import {
   FaPlus,
   FaExclamationTriangle,
   FaSpinner,
-  FaUsers,
   FaUserTie,
   FaUserFriends,
 } from "react-icons/fa";
 import { format } from "date-fns"; // Để format thời gian
+import { getCurrentUserId } from "../utils/auth"; // Import để lấy userId hiện tại
 
 // --- API BASE URL ---
 const API_BASE = "https://localhost:7229/api/v1";
@@ -44,7 +44,7 @@ const CreateNotificationModal = ({
 }) => {
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
-  const [recipientType, setRecipientType] = useState("all");
+  const [recipientType, setRecipientType] = useState("driver");
   // 3. Đổi state thành Set để lưu nhiều ID
   const [selectedDriverIds, setSelectedDriverIds] = useState(new Set());
   const [selectedParentIds, setSelectedParentIds] = useState(new Set()); // Thêm state cho phụ huynh
@@ -54,7 +54,7 @@ const CreateNotificationModal = ({
     if (isOpen) {
       setTitle("");
       setMessage("");
-      setRecipientType("all");
+      setRecipientType("driver");
       setSelectedDriverIds(new Set()); // Reset thành Set rỗng
       setSelectedParentIds(new Set()); // Reset thành Set rỗng
       setSendToSelf(false);
@@ -68,10 +68,7 @@ const CreateNotificationModal = ({
     let recipientsInfo = { type: recipientType, ids: [] };
     let recipientDisplay = "";
 
-    if (recipientType === "all") {
-      recipientsInfo.ids = ["all"]; // API có thể chỉ cần 'all'
-      recipientDisplay = "Tất cả";
-    } else if (recipientType === "driver") {
+    if (recipientType === "driver") {
       if (selectedDriverIds.size === 0) {
         alert("Vui lòng chọn ít nhất một tài xế.");
         return;
@@ -138,20 +135,6 @@ const CreateNotificationModal = ({
           <div className="form-group recipient-group">
             <label>Người nhận</label>
             <div className="recipient-options">
-              <label className={recipientType === "all" ? "selected" : ""}>
-                <input
-                  type="radio"
-                  name="recipientType"
-                  value="all"
-                  checked={recipientType === "all"}
-                  onChange={() => {
-                    setRecipientType("all");
-                    setSelectedDriverIds(new Set());
-                    setSelectedParentIds(new Set());
-                  }}
-                />{" "}
-                <FaUsers /> Tất cả
-              </label>
               <label className={recipientType === "driver" ? "selected" : ""}>
                 <input
                   type="radio"
@@ -168,8 +151,6 @@ const CreateNotificationModal = ({
               <label
                 className={`${recipientType === "parent" ? "selected" : ""}`}
               >
-                {" "}
-                {/* Bỏ disabled */}
                 <input
                   type="radio"
                   name="recipientType"
@@ -321,7 +302,11 @@ const NotificationPage = () => {
         api.get("/notificaton/received-notifications"),
       ]);
 
+      console.log("Sent notifications response:", sentRes.data);
+      console.log("Received notifications response:", receivedRes.data);
+
       // Transform backend data to match UI structure
+      // Backend sent: { sentNotificationId, title, message, sendAt, recipientUsers: [{recipientUserId, recipientUserName}] }
       const sent = (sentRes.data || []).map((n) => ({
         id: `sent_${n.sentNotificationId}`,
         type: "sent",
@@ -336,8 +321,9 @@ const NotificationPage = () => {
         timestamp: format(new Date(n.sendAt), "dd/MM/yyyy - hh:mm a"),
       }));
 
+      // Backend received: { receivedNotifcationId (typo in backend), title, message, sendAt, isRead, senderUserId, senderUserName }
       const received = (receivedRes.data || []).map((n) => ({
-        id: `inbox_${n.receivedNotifcationId}`,
+        id: `inbox_${n.receivedNotifcationId}`, // Note: typo in backend property name
         type: "inbox",
         sender: n.senderUserName || "Unknown",
         subject: n.title,
@@ -345,6 +331,9 @@ const NotificationPage = () => {
         timestamp: format(new Date(n.sendAt), "dd/MM/yyyy - hh:mm a"),
         isRead: n.isRead,
       }));
+
+      console.log("Transformed sent notifications:", sent);
+      console.log("Transformed received notifications:", received);
 
       setSentNotifications(sent);
       setInboxNotifications(received);
@@ -365,18 +354,38 @@ const NotificationPage = () => {
         api.get("/student/no-pagination"),
       ]);
 
+      console.log("Drivers response:", driversRes.data);
+      console.log("Students response:", studentsRes.data);
+
+      // Get current user's userId to filter them out from recipient lists
+      const currentUserId = getCurrentUserId();
+      console.log("Current user ID (will be filtered from lists):", currentUserId);
+
       // Transform drivers: backend returns { id (int), fullName, userId (string) }
-      // MultiSelectDropdown expects { id, name }, and we'll store userId separately
-      const driverList = (driversRes.data || []).map((d) => ({
-        id: d.userId, // Use userId as the id for selection
+      // MultiSelectDropdown expects { id, name }, we use userId as id for sending to backend
+      let driverList = (driversRes.data || []).map((d) => ({
+        id: d.userId, // IMPORTANT: Use userId (string) as the id for selection
         name: d.fullName,
       }));
 
+      // Filter out current user from driver list (if they have driver role)
+      if (currentUserId) {
+        driverList = driverList.filter(d => d.id !== currentUserId);
+      }
+
       // Transform students (parents): { studentId (int), fullName, userId (string), class }
-      const parentList = (studentsRes.data || []).map((s) => ({
-        id: s.userId, // Use userId as the id
+      let parentList = (studentsRes.data || []).map((s) => ({
+        id: s.userId, // IMPORTANT: Use userId (string) as the id
         name: `${s.fullName} (${s.class})`,
       }));
+
+      // Filter out current user from parent list (if they have parent/student role)
+      if (currentUserId) {
+        parentList = parentList.filter(p => p.id !== currentUserId);
+      }
+
+      console.log("Transformed drivers (excluding current user):", driverList);
+      console.log("Transformed parents (excluding current user):", parentList);
 
       setDrivers(driverList);
       setParents(parentList);
@@ -427,50 +436,81 @@ const NotificationPage = () => {
     }
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (!itemToDelete) return;
-    let idsToDelete = itemToDelete.id
-      ? [itemToDelete.id]
-      : Array.from(selectedIds);
-    console.log(`Confirming delete notifications with IDs:`, idsToDelete);
-    if (activeTab === "sent") {
-      setSentNotifications((prev) =>
-        prev.filter((n) => !idsToDelete.includes(n.id))
-      );
-    } else {
-      setInboxNotifications((prev) =>
-        prev.filter((n) => !idsToDelete.includes(n.id))
-      );
+    
+    try {
+      const api = createAPI();
+      let idsToDelete = itemToDelete.id
+        ? [itemToDelete.id]
+        : Array.from(selectedIds);
+      
+      console.log(`Confirming delete notifications with IDs:`, idsToDelete);
+      
+      // Parse IDs to extract real notification IDs (format: "sent_123" or "inbox_456")
+      const deletePromises = idsToDelete.map(async (fullId) => {
+        const parts = fullId.split('_');
+        const type = parts[0]; // "sent" or "inbox"
+        const id = parseInt(parts[1]); // real notification ID
+        
+        if (type === "sent") {
+          return api.delete(`/notificaton/sent/${id}`);
+        } else if (type === "inbox") {
+          return api.delete(`/notificaton/receive/${id}`);
+        }
+      });
+      
+      await Promise.all(deletePromises);
+      
+      // Refresh notification list after deletion
+      await fetchNotifications();
+      
+      setSelectedIds(new Set());
+      setItemToDelete(null);
+      alert(`Đã xóa ${itemToDelete.count} thông báo thành công!`);
+    } catch (error) {
+      console.error("Failed to delete notifications:", error);
+      alert("Không thể xóa thông báo. Vui lòng thử lại.");
+      setItemToDelete(null);
     }
-    setSelectedIds(new Set());
-    setItemToDelete(null);
-    alert(`Đã xóa ${itemToDelete.count} thông báo (mock data)!`);
   };
 
   const handleSendNotification = async (notificationData) => {
     try {
       const api = createAPI();
 
-      // Build list of user IDs to send to
+      // Build list of user IDs to send to - Backend expects List<string> of userIds
       let toUserIds = [];
-      if (notificationData.recipientsInfo.type === "all") {
-        // Backend should handle "all" or we send all driver + parent userIds
-        // For simplicity, backend might accept an empty array or special flag
-        // Check backend implementation - if it needs explicit IDs, gather all
-        toUserIds = []; // Backend may treat empty as "all" or we send merged list
-      } else if (notificationData.recipientsInfo.type === "driver") {
+      
+      if (notificationData.recipientsInfo.type === "driver") {
         toUserIds = notificationData.recipientsInfo.ids; // Already userId strings
       } else if (notificationData.recipientsInfo.type === "parent") {
         toUserIds = notificationData.recipientsInfo.ids;
       }
 
+      // IMPORTANT: Get current user's userId and filter it out from recipients
+      // Backend will reject if sender is in the recipient list
+      const currentUserId = getCurrentUserId();
+      
+      // Filter out current user from recipient list (prevent self-send)
+      if (currentUserId) {
+        const senderIdStr = String(currentUserId).trim();
+        toUserIds = toUserIds.filter(id => String(id).trim() !== senderIdStr);
+      }
+
+      // Validate we have recipients after filtering
+      if (!toUserIds || toUserIds.length === 0) {
+        alert("Không có người nhận hợp lệ. Bạn không thể gửi tin nhắn cho chính mình.");
+        return;
+      }
+
       const payload = {
-        toUserIds,
+        toUserIds: toUserIds,
         title: notificationData.title,
         message: notificationData.message,
-        notificationType: 0, // 0 = Info, adjust as needed
+        notificationType: 0, // 0 = Info, 1 = Warning, 2 = Error
       };
-
+      
       await api.post("/notificaton/send", payload);
 
       // Refresh notification list
@@ -484,7 +524,25 @@ const NotificationPage = () => {
       alert("Đã gửi thông báo thành công!");
     } catch (error) {
       console.error("Failed to send notification:", error);
-      alert("Không thể gửi thông báo. Vui lòng thử lại.");
+      console.error("Error response data:", error.response?.data);
+      console.error("Error response status:", error.response?.status);
+      
+      // Backend returns Error object with { code, message }
+      let errorMsg = "Không thể gửi thông báo. Vui lòng thử lại.";
+      if (error.response?.data) {
+        const data = error.response.data;
+        if (typeof data === 'string') {
+          errorMsg = data;
+        } else if (data.message) {
+          // Backend Error object
+          errorMsg = `${data.code || 'Error'}: ${data.message}`;
+        } else if (data.title) {
+          errorMsg = data.title;
+        }
+      }
+      
+      console.error("Final error message:", errorMsg);
+      alert(`Lỗi: ${errorMsg}`);
     }
   };
 

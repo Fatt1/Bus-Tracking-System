@@ -28,6 +28,7 @@ namespace TrackingBusSystem.Presentation.Controllers
         public async Task<IActionResult> SendNotification([FromBody] SendNotificationRequest request)
         {
             var fromUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            
             var notification = new NotificationDto
             {
                 Title = request.Title,

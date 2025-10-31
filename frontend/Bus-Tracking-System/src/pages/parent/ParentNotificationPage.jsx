@@ -25,10 +25,21 @@ const ParentNotificationPage = () => {
       setIsLoading(true);
       setError(null);
       try {
-        // TODO: Replace with actual API endpoint
-        const response = await api.get("/api/v1/notification/my-notifications");
+        const response = await api.get("/api/v1/notificaton/received-notifications");
         console.log("Notifications response:", response.data);
-        setNotifications(response.data || []);
+        
+        // Map backend DTO to frontend format
+        const mappedNotifications = (response.data || []).map(notif => ({
+          id: notif.receivedNotifcationId,
+          title: notif.title,
+          message: notif.message,
+          isRead: notif.isRead,
+          createdAt: notif.sendAt,
+          senderName: notif.senderUserName,
+          senderUserId: notif.senderUserId
+        }));
+        
+        setNotifications(mappedNotifications);
       } catch (err) {
         console.error("Error fetching notifications:", err);
         setError("Không thể tải thông báo. Vui lòng thử lại.");

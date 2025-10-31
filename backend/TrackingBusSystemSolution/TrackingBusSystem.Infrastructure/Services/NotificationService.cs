@@ -24,6 +24,8 @@ namespace TrackingBusSystem.Infrastructure.Services
             {
                 return Result.Failure(new Error("Notification.EmptyToUserIds", "The list  userIds is empty"));
             }
+            
+            // Prevent sender from being a recipient
             if (toUserIds.Contains(fromUserId))
             {
                 return Result.Failure(new Error("Notification.InvalidUserIds", "The sender cannot be a recipient"));
