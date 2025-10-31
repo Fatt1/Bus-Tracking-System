@@ -14,5 +14,6 @@ namespace TrackingBusSystem.Application.Abstractions.Common.Interfaces
         public DbSet<Student> Students { get; }
         public DbSet<UserAnnouncement> UserAnnouncements { get; }
         public DbSet<Announcement> Announcements { get; }
+        public DbSet<AppUser> AppUsers { get; }
     }
 }

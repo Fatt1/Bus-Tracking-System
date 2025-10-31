@@ -1,9 +1,7 @@
 ﻿using MediatR;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using TrackingBusSystem.Application.Features.Authentication;
 using TrackingBusSystem.Domain.Entities;
-using TrackingBusSystem.Shared.Constants;
 
 namespace TrackingBusSystem.Presentation.Controllers
 {
@@ -11,11 +9,11 @@ namespace TrackingBusSystem.Presentation.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly UserManager<AppUser> _userManager;
+
         private readonly IMediator _mediator;
-        public AuthController(IMediator mediator, UserManager<AppUser> userManager)
+        public AuthController(IMediator mediator)
         {
-            _userManager = userManager;
+
             _mediator = mediator;
         }
         [HttpPost("login")]
@@ -34,9 +32,6 @@ namespace TrackingBusSystem.Presentation.Controllers
                 Secure = true,
                 SameSite = SameSiteMode.None,
                 Expires = DateTimeOffset.UtcNow.AddDays(7),
-
-
-
             };
             Response.Cookies.Append("access_token", result.Value.Token, cookieOptions);
             return Ok(result.Value);
@@ -52,34 +47,11 @@ namespace TrackingBusSystem.Presentation.Controllers
                 Secure = true,
                 SameSite = SameSiteMode.None,
                 Path = "/"
-
             };
 
             // Phương thức Delete sẽ tự động đặt ngày hết hạn
             Response.Cookies.Delete("access_token", cookieOptions);
             return Ok(new { Message = "Logged out successfully" });
         }
-        [HttpPost("create-admin")]
-        public async Task<IActionResult> CreateAdmin()
-        {
-            var user = new AppUser
-            {
-                UserName = "admin123",
-                PhoneNumber = "0123456789",
-                FirstName = "Admin",
-                LastName = "User",
-            };
-            var result = await _userManager.CreateAsync(user, "admin123");
-            if (result.Succeeded)
-            {
-                await _userManager.AddToRoleAsync(user, Roles.Admin.ToString());
-                return Ok("Admin user created successfully.");
-            }
-            else
-            {
-                return BadRequest(result.Errors);
-            }
-        }
-
     }
 }
