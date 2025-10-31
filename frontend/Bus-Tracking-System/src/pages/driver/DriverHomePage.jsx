@@ -246,17 +246,21 @@ const DriverHeader = ({
       <div className="breadcrumbs">
         <span>Trang</span> / <span>Trang chủ</span>
         {/* SignalR Connection Status Indicator */}
-        <span 
+        <span
           style={{
-            marginLeft: '10px',
-            display: 'inline-block',
-            width: '10px',
-            height: '10px',
-            borderRadius: '50%',
-            backgroundColor: isSignalRConnected ? '#4caf50' : '#f44336',
-            animation: isSignalRConnected ? 'none' : 'blink 1s infinite',
+            marginLeft: "10px",
+            display: "inline-block",
+            width: "10px",
+            height: "10px",
+            borderRadius: "50%",
+            backgroundColor: isSignalRConnected ? "#4caf50" : "#f44336",
+            animation: isSignalRConnected ? "none" : "blink 1s infinite",
           }}
-          title={isSignalRConnected ? 'SignalR Connected ✓' : 'SignalR Disconnected ✗'}
+          title={
+            isSignalRConnected
+              ? "SignalR Connected ✓"
+              : "SignalR Disconnected ✗"
+          }
         />
       </div>
       <div className="driver-header-actions">
@@ -264,7 +268,10 @@ const DriverHeader = ({
           <FaExclamationTriangle />
           <span>Báo cáo sự cố</span>
         </button>
-        <div className="notification-bell-wrapper" onClick={onNotificationClick}>
+        <div
+          className="notification-bell-wrapper"
+          onClick={onNotificationClick}
+        >
           <FaBell size={24} className="notification-bell-icon" />
           {unreadCount > 0 && (
             <span className="notification-badge">{unreadCount}</span>

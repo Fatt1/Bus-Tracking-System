@@ -74,7 +74,9 @@ const ReportIncidentModal = ({ isOpen, onClose }) => {
       const currentUserId = getCurrentUserId();
       if (currentUserId) {
         const senderIdStr = String(currentUserId).trim();
-        adminUserIds = adminUserIds.filter(id => String(id).trim() !== senderIdStr);
+        adminUserIds = adminUserIds.filter(
+          (id) => String(id).trim() !== senderIdStr
+        );
         console.log("Filtered admin IDs (excluding sender):", adminUserIds);
       }
 
@@ -90,7 +92,7 @@ const ReportIncidentModal = ({ isOpen, onClose }) => {
       await api.post("/api/v1/notificaton/send", payload);
 
       console.log("✅ Report sent successfully! Marking as recently sent...");
-      
+
       // Mark this notification as recently sent to avoid showing toast to sender
       markAsRecentlySent("Báo cáo sự cố", message);
 

@@ -259,7 +259,8 @@ const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, count }) => {
 
 // --- COMPONENT CHÍNH CỦA TRANG ---
 const NotificationPage = () => {
-  const { unreadCount, refreshUnreadCount, markAsRecentlySent } = useNotification(); // Get unread count from context
+  const { unreadCount, refreshUnreadCount, markAsRecentlySent } =
+    useNotification(); // Get unread count from context
   const [activeTab, setActiveTab] = useState("sent");
   const [sentNotifications, setSentNotifications] = useState([]);
   const [inboxNotifications, setInboxNotifications] = useState([]);
@@ -352,7 +353,10 @@ const NotificationPage = () => {
 
       // Get current user's userId to filter them out from recipient lists
       const currentUserId = getCurrentUserId();
-      console.log("Current user ID (will be filtered from lists):", currentUserId);
+      console.log(
+        "Current user ID (will be filtered from lists):",
+        currentUserId
+      );
 
       // Transform drivers: backend returns { id (int), fullName, userId (string) }
       // MultiSelectDropdown expects { id, name }, we use userId as id for sending to backend
@@ -363,7 +367,7 @@ const NotificationPage = () => {
 
       // Filter out current user from driver list (if they have driver role)
       if (currentUserId) {
-        driverList = driverList.filter(d => d.id !== currentUserId);
+        driverList = driverList.filter((d) => d.id !== currentUserId);
       }
 
       // Transform students (parents): { studentId (int), fullName, userId (string), class }
@@ -374,7 +378,7 @@ const NotificationPage = () => {
 
       // Filter out current user from parent list (if they have parent/student role)
       if (currentUserId) {
-        parentList = parentList.filter(p => p.id !== currentUserId);
+        parentList = parentList.filter((p) => p.id !== currentUserId);
       }
 
       console.log("Transformed drivers (excluding current user):", driverList);
@@ -469,10 +473,9 @@ const NotificationPage = () => {
 
   const handleSendNotification = async (notificationData) => {
     try {
-
       // Build list of user IDs to send to - Backend expects List<string> of userIds
       let toUserIds = [];
-      
+
       if (notificationData.recipientsInfo.type === "driver") {
         toUserIds = notificationData.recipientsInfo.ids; // Already userId strings
       } else if (notificationData.recipientsInfo.type === "parent") {
@@ -482,16 +485,18 @@ const NotificationPage = () => {
       // IMPORTANT: Get current user's userId and filter it out from recipients
       // Backend will reject if sender is in the recipient list
       const currentUserId = getCurrentUserId();
-      
+
       // Filter out current user from recipient list (prevent self-send)
       if (currentUserId) {
         const senderIdStr = String(currentUserId).trim();
-        toUserIds = toUserIds.filter(id => String(id).trim() !== senderIdStr);
+        toUserIds = toUserIds.filter((id) => String(id).trim() !== senderIdStr);
       }
 
       // Validate we have recipients after filtering
       if (!toUserIds || toUserIds.length === 0) {
-        alert("Không có người nhận hợp lệ. Bạn không thể gửi tin nhắn cho chính mình.");
+        alert(
+          "Không có người nhận hợp lệ. Bạn không thể gửi tin nhắn cho chính mình."
+        );
         return;
       }
 
@@ -501,11 +506,11 @@ const NotificationPage = () => {
         message: notificationData.message,
         notificationType: 0, // 0 = Info, 1 = Warning, 2 = Error
       };
-      
+
       console.log("🚀 Sending notification to:", toUserIds);
       console.log("📦 Full payload:", payload);
-      
-  await api.post("/api/v1/notificaton/send", payload);
+
+      await api.post("/api/v1/notificaton/send", payload);
 
       // Mark this notification as recently sent to avoid showing toast to sender
       markAsRecentlySent(notificationData.title, notificationData.message);

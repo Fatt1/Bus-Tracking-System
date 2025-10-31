@@ -32,7 +32,10 @@ const ParentHeader = ({
     <header className="parent-header">
       <div className="parent-breadcrumbs">{breadcrumbs}</div>
       <div className="parent-header-right">
-        <div className="notification-bell-wrapper" onClick={handleNotificationClick}>
+        <div
+          className="notification-bell-wrapper"
+          onClick={handleNotificationClick}
+        >
           <FiBell size={24} className="notification-bell-icon" />
           {unreadCount > 0 && (
             <span className="notification-badge">{unreadCount}</span>

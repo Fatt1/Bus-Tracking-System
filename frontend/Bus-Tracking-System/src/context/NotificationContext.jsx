@@ -1,4 +1,11 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+} from "react";
 import * as signalR from "@microsoft/signalr";
 import { getAuthToken, getCurrentUserId } from "../utils/auth";
 import axios from "axios";
@@ -142,7 +149,8 @@ export const NotificationProvider = ({ children }) => {
       addToast({
         title,
         message,
-        type: notification.NotificationType || notification.notificationType || 0,
+        type:
+          notification.NotificationType || notification.notificationType || 0,
       });
 
       // Increment unread count
@@ -181,10 +189,18 @@ export const NotificationProvider = ({ children }) => {
       .start()
       .then(() => {
         const userId = getCurrentUserId();
-        console.log("✅ SignalR connected successfully! Connection ID:", connection.connectionId);
+        console.log(
+          "✅ SignalR connected successfully! Connection ID:",
+          connection.connectionId
+        );
         console.log("📍 Current User ID:", userId);
-        console.log("🔑 JWT Token (first 50 chars):", getAuthToken()?.substring(0, 50) + "...");
-        console.log("⚠️ IMPORTANT: Backend will send notifications to this userId. Make sure it matches!");
+        console.log(
+          "🔑 JWT Token (first 50 chars):",
+          getAuthToken()?.substring(0, 50) + "..."
+        );
+        console.log(
+          "⚠️ IMPORTANT: Backend will send notifications to this userId. Make sure it matches!"
+        );
         setIsSignalRConnected(true);
         connectionRef.current = connection;
         // Fetch initial unread count
@@ -216,7 +232,9 @@ export const NotificationProvider = ({ children }) => {
         clearTimeout(reconnectTimeoutRef.current);
       }
       if (connection) {
-        connection.stop().catch((err) => console.error("Error stopping SignalR:", err));
+        connection
+          .stop()
+          .catch((err) => console.error("Error stopping SignalR:", err));
       }
     };
   }, [setupSignalRConnection]);
@@ -278,17 +296,17 @@ export const NotificationProvider = ({ children }) => {
   const markAsRecentlySent = useCallback((title, message) => {
     const notificationKey = `${title}|${message}`;
     const currentUserId = getCurrentUserId();
-    
+
     console.log("🚫 Marking as recently sent:", notificationKey);
     console.log("👤 Current User ID:", currentUserId);
-    
+
     // Add to array with timestamp and userId
     recentlySentRef.current.push({
       key: notificationKey,
       timestamp: Date.now(),
-      userId: currentUserId // Store sender's userId
+      userId: currentUserId, // Store sender's userId
     });
-    
+
     console.log("📝 Recently sent list updated:", recentlySentRef.current);
   }, []);
 
@@ -302,5 +320,9 @@ export const NotificationProvider = ({ children }) => {
     isSignalRConnected, // Export connection status
   };
 
-  return <NotificationContext.Provider value={value}>{children}</NotificationContext.Provider>;
+  return (
+    <NotificationContext.Provider value={value}>
+      {children}
+    </NotificationContext.Provider>
+  );
 };
