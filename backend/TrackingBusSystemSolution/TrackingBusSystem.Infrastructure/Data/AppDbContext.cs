@@ -29,6 +29,7 @@ namespace TrackingBusSystem.Infrastructure.Data
         public virtual DbSet<StudentCheckingHistory> StudentCheckingHistories => Set<StudentCheckingHistory>();
 
         public virtual DbSet<UserAnnouncement> UserAnnouncements => Set<UserAnnouncement>();
+        public virtual DbSet<AppUser> AppUsers => Set<AppUser>();
 
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

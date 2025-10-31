@@ -1,12 +1,13 @@
 
 using TrackingBusSystem.Application.Dependency_Injection;
+using TrackingBusSystem.Infrastructure.Data;
 using TrackingBusSystem.Infrastructure.Dependency_Injection;
 
 namespace TrackingBusSystem.Presentation
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +36,25 @@ namespace TrackingBusSystem.Presentation
                 });
             });
             var app = builder.Build();
+
+            // ===== TỰ ĐỘNG CHẠY MIGRATION VÀ SEED DATA =====
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                try
+                {
+                    await DatabaseInitializer.InitializeAsync(services);
+                }
+                catch (Exception ex)
+                {
+                    var logger = services.GetRequiredService<ILogger<Program>>();
+                    logger.LogError(ex, "❌ Lỗi khi khởi tạo database");
+
+                }
+            }
+
+
+
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())

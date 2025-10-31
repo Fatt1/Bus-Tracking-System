@@ -14,11 +14,12 @@ namespace TrackingBusSystem.Presentation.Controllers
         {
             this.mediator = mediator;
         }
+
+        [HttpGet("admin")]
         [Authorize]
-        [HttpGet("all")]
-        public async Task<IActionResult> GetAllUsers()
+        public async Task<IActionResult> GetAdminUsers()
         {
-            var result = await mediator.Send(new GetAllUsersQuery());
+            var result = await mediator.Send(new GetAdminUserQuery());
             if (result.IsSuccess)
             {
                 return Ok(result.Value);

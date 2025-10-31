@@ -90,18 +90,14 @@ namespace TrackingBusSystem.Presentation.Controllers
         [HttpGet("{id:int}/cheking-history")]
         public async Task<IActionResult> GetScheduleByIdWithCheckingHistory(int id, [FromQuery] TripDirection direction)
         {
-
-
             var result = await _mediator.Send(new GetScheduleByIdWithHistoryQuery(id, direction));
 
             if (result.IsSuccess)
             {
-
                 return Ok(result.Value);
             }
             else
             {
-
                 return NotFound(result.Error);
             }
         }
