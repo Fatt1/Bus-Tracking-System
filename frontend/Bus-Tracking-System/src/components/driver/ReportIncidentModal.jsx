@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import api from "../../utils/api"; // Import api instance với token support
+import { getCurrentUserId } from "../../utils/auth"; // Import để lấy current user ID
+import { useNotification } from "../../context/NotificationContext"; // Import để mark as recently sent
 import {
   FaWrench,
   FaCarCrash,
@@ -14,6 +16,7 @@ const ReportIncidentModal = ({ isOpen, onClose }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [adminUsers, setAdminUsers] = useState([]);
   const [loadingAdmins, setLoadingAdmins] = useState(false);
+  const { markAsRecentlySent } = useNotification(); // Get function to mark notification
 
   // Fetch admin users khi modal mở
   useEffect(() => {
@@ -65,7 +68,15 @@ const ReportIncidentModal = ({ isOpen, onClose }) => {
 
     try {
       // Lấy tất cả userId của admin
-      const adminUserIds = adminUsers.map((admin) => admin.userId);
+      let adminUserIds = adminUsers.map((admin) => admin.userId);
+
+      // Loại trừ chính bản thân (nếu current user là admin)
+      const currentUserId = getCurrentUserId();
+      if (currentUserId) {
+        const senderIdStr = String(currentUserId).trim();
+        adminUserIds = adminUserIds.filter(id => String(id).trim() !== senderIdStr);
+        console.log("Filtered admin IDs (excluding sender):", adminUserIds);
+      }
 
       const payload = {
         toUserIds: adminUserIds,
@@ -77,6 +88,11 @@ const ReportIncidentModal = ({ isOpen, onClose }) => {
       console.log("Sending payload:", payload);
 
       await api.post("/api/v1/notificaton/send", payload);
+
+      console.log("✅ Report sent successfully! Marking as recently sent...");
+      
+      // Mark this notification as recently sent to avoid showing toast to sender
+      markAsRecentlySent("Báo cáo sự cố", message);
 
       console.log("Report sent successfully!");
       alert("Đã gửi báo cáo sự cố thành công!");

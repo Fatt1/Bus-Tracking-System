@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import api from "../../utils/api"; // Import api instance với token support
 import { clearAuth, getFullName } from "../../utils/auth";
+import { useNotification } from "../../context/NotificationContext";
 import ReportIncidentModal from "../../components/driver/ReportIncidentModal";
 import "./DriverNotificationPage.css"; // Sẽ tạo ở bước 2
 import {
@@ -75,6 +76,7 @@ const DriverHeader = ({
   onReportIncident,
   driverName = "Phan Viết Huy",
   onLogout,
+  unreadCount = 0,
 }) => {
   // Component này cũng cần state và logic để mở Profile Modal
   // Tạm thời chỉ là giao diện
@@ -88,6 +90,12 @@ const DriverHeader = ({
           <FaExclamationTriangle />
           <span>Báo cáo sự cố</span>
         </button>
+        <div className="notification-bell-wrapper">
+          <FaBell size={24} className="notification-bell-icon" />
+          {unreadCount > 0 && (
+            <span className="notification-badge">{unreadCount}</span>
+          )}
+        </div>
         <input
           type="text"
           placeholder="Tìm kiếm..."
@@ -141,6 +149,7 @@ const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, count }) => {
 
 // --- COMPONENT CHÍNH TRANG THÔNG BÁO ---
 const DriverNotificationPage = () => {
+  const { unreadCount, refreshUnreadCount } = useNotification();
   const [activeTab, setActiveTab] = useState("inbox"); // 'sent' hoặc 'inbox' (Bắt đầu bằng Thư đến)
   const [sentNotifications, setSentNotifications] = useState([]);
   const [inboxNotifications, setInboxNotifications] = useState([]);
@@ -186,6 +195,8 @@ const DriverNotificationPage = () => {
       setError("Không thể tải thông báo. Vui lòng thử lại.");
     } finally {
       setIsLoading(false);
+      // Refresh unread count after fetching notifications
+      refreshUnreadCount();
     }
   };
 
@@ -303,6 +314,7 @@ const DriverNotificationPage = () => {
             onReportIncident={() => setIsIncidentModalOpen(true)}
             driverName={fullName}
             onLogout={handleLogout}
+            unreadCount={unreadCount}
           />
 
           <main className="driver-main-content">

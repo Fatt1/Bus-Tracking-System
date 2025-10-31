@@ -2,7 +2,8 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../utils/api";
 import { clearAuth } from "../../utils/auth";
-import { FiUser } from "react-icons/fi";
+import { FiUser, FiBell } from "react-icons/fi";
+import { useNotification } from "../../context/NotificationContext";
 import "./ParentHeader.css";
 
 const ParentHeader = ({
@@ -10,6 +11,7 @@ const ParentHeader = ({
   parentName = "Phụ Huynh",
 }) => {
   const navigate = useNavigate();
+  const { unreadCount } = useNotification();
 
   const handleLogout = async () => {
     try {
@@ -22,10 +24,20 @@ const ParentHeader = ({
     }
   };
 
+  const handleNotificationClick = () => {
+    navigate("/parent/notifications");
+  };
+
   return (
     <header className="parent-header">
       <div className="parent-breadcrumbs">{breadcrumbs}</div>
       <div className="parent-header-right">
+        <div className="notification-bell-wrapper" onClick={handleNotificationClick}>
+          <FiBell size={24} className="notification-bell-icon" />
+          {unreadCount > 0 && (
+            <span className="notification-badge">{unreadCount}</span>
+          )}
+        </div>
         <input
           type="text"
           placeholder="Tìm kiếm..."

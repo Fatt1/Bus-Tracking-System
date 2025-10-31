@@ -63,7 +63,15 @@ export function setAuthInfo({ roles = [], fullName, userName, token }) {
     sessionStorage.setItem("authRoles", JSON.stringify(roles));
     if (fullName) sessionStorage.setItem("fullName", fullName);
     if (userName) sessionStorage.setItem("userName", userName);
-    if (token) sessionStorage.setItem("authToken", token); // Lưu token vào sessionStorage
+    if (token) {
+      sessionStorage.setItem("authToken", token); // Lưu token vào sessionStorage
+      // Thông báo cho toàn app biết đã đăng nhập (để khởi tạo SignalR, v.v.)
+      try {
+        window.dispatchEvent(new Event("auth:login"));
+      } catch {
+        // noop
+      }
+    }
   } catch {
     // noop
     void 0;
@@ -144,6 +152,11 @@ export function clearAuth() {
     sessionStorage.removeItem("fullName");
     sessionStorage.removeItem("userName");
     sessionStorage.removeItem("authToken");
+    try {
+      window.dispatchEvent(new Event("auth:logout"));
+    } catch {
+      // noop
+    }
   } catch {
     // noop
     void 0;

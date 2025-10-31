@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../utils/api";
 import "./NotificationPage.css"; // CSS riêng
 import "../pages/LayoutTable.css"; // Tái sử dụng CSS chung nếu cần (cho modal confirm)
 import MultiSelectDropdown from ".//MultiSelectDropdown"; // <-- 1. IMPORT COMPONENT MỚI
@@ -14,21 +14,12 @@ import {
   FaUserTie,
   FaUserFriends,
 } from "react-icons/fa";
+import { FiBell } from "react-icons/fi";
 import { format } from "date-fns"; // Để format thời gian
 import { getCurrentUserId } from "../utils/auth"; // Import để lấy userId hiện tại
+import { useNotification } from "../context/NotificationContext"; // Import notification context
 
-// --- API BASE URL ---
-const API_BASE = "https://localhost:7229/api/v1";
-
-// Helper function to create axios instance with credentials
-const createAPI = () =>
-  axios.create({
-    baseURL: API_BASE,
-    withCredentials: true,
-    headers: { "Content-Type": "application/json" },
-  });
-
-// --- END API SETUP ---
+// Using shared axios instance (../utils/api) which automatically adds Authorization header from session token
 
 // --- DEMO DATA (REMOVED, will fetch from backend) ---
 // --- END DEMO DATA ---
@@ -268,6 +259,7 @@ const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, count }) => {
 
 // --- COMPONENT CHÍNH CỦA TRANG ---
 const NotificationPage = () => {
+  const { unreadCount, refreshUnreadCount, markAsRecentlySent } = useNotification(); // Get unread count from context
   const [activeTab, setActiveTab] = useState("sent");
   const [sentNotifications, setSentNotifications] = useState([]);
   const [inboxNotifications, setInboxNotifications] = useState([]);
@@ -296,10 +288,9 @@ const NotificationPage = () => {
   const fetchNotifications = async () => {
     setIsLoadingNotifications(true);
     try {
-      const api = createAPI();
       const [sentRes, receivedRes] = await Promise.all([
-        api.get("/notificaton/sent-notifications"),
-        api.get("/notificaton/received-notifications"),
+        api.get("/api/v1/notificaton/sent-notifications"),
+        api.get("/api/v1/notificaton/received-notifications"),
       ]);
 
       console.log("Sent notifications response:", sentRes.data);
@@ -337,6 +328,9 @@ const NotificationPage = () => {
 
       setSentNotifications(sent);
       setInboxNotifications(received);
+
+      // Refresh unread count in context
+      refreshUnreadCount();
     } catch (error) {
       console.error("Failed to fetch notifications:", error);
       alert("Không thể tải danh sách thông báo.");
@@ -348,10 +342,9 @@ const NotificationPage = () => {
   const fetchRecipients = async () => {
     setIsLoadingRecipients(true);
     try {
-      const api = createAPI();
       const [driversRes, studentsRes] = await Promise.all([
-        api.get("/driver/no-pagination"),
-        api.get("/student/no-pagination"),
+        api.get("/api/v1/driver/no-pagination"),
+        api.get("/api/v1/student/no-pagination"),
       ]);
 
       console.log("Drivers response:", driversRes.data);
@@ -438,33 +431,32 @@ const NotificationPage = () => {
 
   const handleConfirmDelete = async () => {
     if (!itemToDelete) return;
-    
+
     try {
-      const api = createAPI();
       let idsToDelete = itemToDelete.id
         ? [itemToDelete.id]
         : Array.from(selectedIds);
-      
+
       console.log(`Confirming delete notifications with IDs:`, idsToDelete);
-      
+
       // Parse IDs to extract real notification IDs (format: "sent_123" or "inbox_456")
       const deletePromises = idsToDelete.map(async (fullId) => {
-        const parts = fullId.split('_');
+        const parts = fullId.split("_");
         const type = parts[0]; // "sent" or "inbox"
         const id = parseInt(parts[1]); // real notification ID
-        
+
         if (type === "sent") {
-          return api.delete(`/notificaton/sent/${id}`);
+          return api.delete(`/api/v1/notificaton/sent/${id}`);
         } else if (type === "inbox") {
-          return api.delete(`/notificaton/receive/${id}`);
+          return api.delete(`/api/v1/notificaton/receive/${id}`);
         }
       });
-      
+
       await Promise.all(deletePromises);
-      
+
       // Refresh notification list after deletion
       await fetchNotifications();
-      
+
       setSelectedIds(new Set());
       setItemToDelete(null);
       alert(`Đã xóa ${itemToDelete.count} thông báo thành công!`);
@@ -477,7 +469,6 @@ const NotificationPage = () => {
 
   const handleSendNotification = async (notificationData) => {
     try {
-      const api = createAPI();
 
       // Build list of user IDs to send to - Backend expects List<string> of userIds
       let toUserIds = [];
@@ -511,7 +502,13 @@ const NotificationPage = () => {
         notificationType: 0, // 0 = Info, 1 = Warning, 2 = Error
       };
       
-      await api.post("/notificaton/send", payload);
+      console.log("🚀 Sending notification to:", toUserIds);
+      console.log("📦 Full payload:", payload);
+      
+  await api.post("/api/v1/notificaton/send", payload);
+
+      // Mark this notification as recently sent to avoid showing toast to sender
+      markAsRecentlySent(notificationData.title, notificationData.message);
 
       // Refresh notification list
       await fetchNotifications();
@@ -526,21 +523,21 @@ const NotificationPage = () => {
       console.error("Failed to send notification:", error);
       console.error("Error response data:", error.response?.data);
       console.error("Error response status:", error.response?.status);
-      
+
       // Backend returns Error object with { code, message }
       let errorMsg = "Không thể gửi thông báo. Vui lòng thử lại.";
       if (error.response?.data) {
         const data = error.response.data;
-        if (typeof data === 'string') {
+        if (typeof data === "string") {
           errorMsg = data;
         } else if (data.message) {
           // Backend Error object
-          errorMsg = `${data.code || 'Error'}: ${data.message}`;
+          errorMsg = `${data.code || "Error"}: ${data.message}`;
         } else if (data.title) {
           errorMsg = data.title;
         }
       }
-      
+
       console.error("Final error message:", errorMsg);
       alert(`Lỗi: ${errorMsg}`);
     }
@@ -575,6 +572,12 @@ const NotificationPage = () => {
             <span>Trang</span> / <span>Thông báo</span>
           </div>
           <div className="header-actions">
+            <div className="notification-bell-wrapper">
+              <FiBell size={24} className="notification-bell-icon" />
+              {unreadCount > 0 && (
+                <span className="notification-badge">{unreadCount}</span>
+              )}
+            </div>
             <input
               type="text"
               placeholder="Tìm kiếm thông báo..."

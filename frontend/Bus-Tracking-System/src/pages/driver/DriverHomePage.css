@@ -3,6 +3,12 @@
 /* --- Font & Biến màu --- */
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
 
+/* --- Keyframes for blinking animation --- */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
 :root {
   --driver-bg: #f4f7fa;
   --driver-sidebar-bg: #ffffff;
@@ -137,6 +143,43 @@ body {
   border: 1px solid var(--driver-border-color);
   border-radius: 6px;
   min-width: 250px;
+}
+
+/* Bell notification icon with badge */
+.notification-bell-wrapper {
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.notification-bell-wrapper:hover {
+  background-color: #f0f0f0;
+}
+
+.notification-bell-icon {
+  color: #555;
+}
+
+.notification-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: #e74c3c;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: bold;
+  border: 2px solid white;
 }
 
 .driver-user-info {

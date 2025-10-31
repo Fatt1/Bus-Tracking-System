@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import api from "../../utils/api"; // Import api instance với token support
 import { useNavigate, useLocation } from "react-router-dom";
 import { clearAuth, getFullName } from "../../utils/auth";
+import { useNotification } from "../../context/NotificationContext";
 import ReportIncidentModal from "../../components/driver/ReportIncidentModal";
 import DriverMapComponent from "../../components/driver/DriverMapComponent";
 import {
@@ -230,23 +231,45 @@ const DriverSidebar = () => {
   );
 };
 
-// --- COMPONENT HEADER CỦA TÀI XẾ (Cập nhật: Thêm onProfileClick) ---
+// --- COMPONENT HEADER CỦA TÀI XẾ (Cập nhật: Thêm onProfileClick + Bell Icon) ---
 const DriverHeader = ({
   onReportIncident,
   onProfileClick,
   onLogout,
   driverName = "Phan Viết Huy",
+  unreadCount = 0,
+  onNotificationClick,
+  isSignalRConnected = false,
 }) => {
   return (
     <header className="driver-header">
       <div className="breadcrumbs">
         <span>Trang</span> / <span>Trang chủ</span>
+        {/* SignalR Connection Status Indicator */}
+        <span 
+          style={{
+            marginLeft: '10px',
+            display: 'inline-block',
+            width: '10px',
+            height: '10px',
+            borderRadius: '50%',
+            backgroundColor: isSignalRConnected ? '#4caf50' : '#f44336',
+            animation: isSignalRConnected ? 'none' : 'blink 1s infinite',
+          }}
+          title={isSignalRConnected ? 'SignalR Connected ✓' : 'SignalR Disconnected ✗'}
+        />
       </div>
       <div className="driver-header-actions">
         <button className="report-incident-btn" onClick={onReportIncident}>
           <FaExclamationTriangle />
           <span>Báo cáo sự cố</span>
         </button>
+        <div className="notification-bell-wrapper" onClick={onNotificationClick}>
+          <FaBell size={24} className="notification-bell-icon" />
+          {unreadCount > 0 && (
+            <span className="notification-badge">{unreadCount}</span>
+          )}
+        </div>
         <input
           type="text"
           placeholder="Tìm kiếm..."
@@ -271,6 +294,7 @@ const DriverHeader = ({
 
 // --- COMPONENT CHÍNH TRANG CHỦ TÀI XẾ (Cập nhật: Kết nối API) ---
 const DriverHomePage = () => {
+  const { unreadCount, isSignalRConnected } = useNotification();
   const [isIncidentModalOpen, setIsIncidentModalOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [scheduleData, setScheduleData] = useState(null); // State lưu schedule từ API
@@ -625,6 +649,9 @@ const DriverHomePage = () => {
           onProfileClick={() => setIsProfileModalOpen(true)} // <-- Thêm prop
           onLogout={handleLogout}
           driverName={fullName}
+          unreadCount={unreadCount}
+          onNotificationClick={() => navigate("/driver/notifications")}
+          isSignalRConnected={isSignalRConnected}
         />
 
         <main className="driver-main-content">
