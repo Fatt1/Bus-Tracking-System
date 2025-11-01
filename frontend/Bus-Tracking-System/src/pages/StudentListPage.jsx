@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import api from "../utils/api"; // Import api instance với token support
 import "./StudentListPage.css"; // CSS riêng cho trang này
 import "../pages/LayoutTable.css"; // Tái sử dụng CSS layout bảng
@@ -25,6 +26,8 @@ const availableClasses = [
 
 // --- COMPONENT MODAL THÊM/SỬA HỌC SINH ---
 const StudentModal = ({ mode, studentData, isOpen, onClose, onSave }) => {
+  const { t } = useTranslation();
+  
   // State cho form data
   const [formData, setFormData] = useState({});
   // State cho dropdown động
@@ -233,10 +236,10 @@ const StudentModal = ({ mode, studentData, isOpen, onClose, onSave }) => {
   const isReadOnly = mode === "view"; // Chỉ đọc khi xem
   const title =
     mode === "add"
-      ? "Thêm học sinh"
+      ? t('student.addStudent')
       : mode === "view"
-      ? "Chi tiết học sinh"
-      : "Chỉnh sửa thông tin học sinh";
+      ? t('student.studentDetail')
+      : t('student.editInfo');
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
@@ -288,15 +291,15 @@ const StudentModal = ({ mode, studentData, isOpen, onClose, onSave }) => {
         </div>
         {/* Hiển thị loading khi đang tải routes */}
         {isLoadingRoutes && mode !== "view" ? (
-          <div className="modal-loading">Đang tải dữ liệu tuyến đường...</div>
+          <div className="modal-loading">{t('student.loadingRoutes')}</div>
         ) : (
           <form onSubmit={handleSubmit} className="modal-form student-form">
             {/* Cột 1: Thông tin học sinh */}
             <div className="form-section">
-              <h5>Thông Tin Chi Tiết học sinh</h5>
+              <h5>{t('student.detailInfo')}</h5>
               <div className="form-row">
                 <div className="form-group">
-                  <label htmlFor="firstName">Họ & Tên lót</label>
+                  <label htmlFor="firstName">{t('student.firstName')}</label>
                   <input
                     type="text"
                     id="firstName"
@@ -308,7 +311,7 @@ const StudentModal = ({ mode, studentData, isOpen, onClose, onSave }) => {
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="lastName">Tên</label>
+                  <label htmlFor="lastName">{t('student.lastName')}</label>
                   <input
                     type="text"
                     id="lastName"
@@ -322,7 +325,7 @@ const StudentModal = ({ mode, studentData, isOpen, onClose, onSave }) => {
               </div>
               <div className="form-row">
                 <div className="form-group">
-                  <label htmlFor="class">Lớp</label>
+                  <label htmlFor="class">{t('student.class')}</label>
                   <select
                     id="class"
                     name="class"
@@ -339,7 +342,7 @@ const StudentModal = ({ mode, studentData, isOpen, onClose, onSave }) => {
                   </select>
                 </div>
                 <div className="form-group">
-                  <label>Giới tính</label>
+                  <label>{t('student.gender')}</label>
                   <div className="gender-options">
                     <label>
                       <input
@@ -350,7 +353,7 @@ const StudentModal = ({ mode, studentData, isOpen, onClose, onSave }) => {
                         onChange={handleChange}
                         disabled={isReadOnly}
                       />{" "}
-                      Nam
+                      {t('common.male')}
                     </label>
                     <label>
                       <input
@@ -361,13 +364,13 @@ const StudentModal = ({ mode, studentData, isOpen, onClose, onSave }) => {
                         onChange={handleChange}
                         disabled={isReadOnly}
                       />{" "}
-                      Nữ
+                      {t('common.female')}
                     </label>
                   </div>
                 </div>
               </div>
               <div className="form-group">
-                <label htmlFor="dateOfBirth">Ngày sinh</label>
+                <label htmlFor="dateOfBirth">{t('student.dateOfBirth')}</label>
                 <input
                   type="date"
                   id="dateOfBirth"
@@ -379,7 +382,7 @@ const StudentModal = ({ mode, studentData, isOpen, onClose, onSave }) => {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="address">Địa chỉ thường trú</label>
+                <label htmlFor="address">{t('student.address')}</label>
                 <input
                   type="text"
                   id="address"
@@ -391,7 +394,7 @@ const StudentModal = ({ mode, studentData, isOpen, onClose, onSave }) => {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="routeId">Tuyến đường</label>
+                <label htmlFor="routeId">{t('student.route')}</label>
                 <select
                   id="routeId"
                   name="routeId"
@@ -401,7 +404,7 @@ const StudentModal = ({ mode, studentData, isOpen, onClose, onSave }) => {
                   required
                 >
                   <option value="" disabled>
-                    -- {isLoadingRoutes ? "Đang tải..." : "Chọn tuyến đường"} --
+                    -- {isLoadingRoutes ? t('common.loading') : t('student.selectRoute')} --
                   </option>
                   {allRoutes.map((route) => (
                     <option key={route.id} value={route.id}>
@@ -411,7 +414,7 @@ const StudentModal = ({ mode, studentData, isOpen, onClose, onSave }) => {
                 </select>
               </div>
               <div className="form-group">
-                <label htmlFor="pointId">Điểm đón</label>
+                <label htmlFor="pointId">{t('student.pickupPoint')}</label>
                 <select
                   id="pointId"
                   name="pointId"
@@ -428,9 +431,9 @@ const StudentModal = ({ mode, studentData, isOpen, onClose, onSave }) => {
                     --{" "}
                     {formData.routeId
                       ? availablePickupPoints.length > 0
-                        ? "Chọn điểm đón"
-                        : "Tuyến chưa có điểm đón"
-                      : "Vui lòng chọn tuyến"}{" "}
+                        ? t('student.selectPickupPoint')
+                        : t('student.noPickupPoint')
+                      : t('student.selectRoutePlease')}{" "}
                     --
                   </option>
                   {/* Map qua availablePickupPoints */}
@@ -445,9 +448,9 @@ const StudentModal = ({ mode, studentData, isOpen, onClose, onSave }) => {
 
             {/* Cột 2: Thông tin phụ huynh */}
             <div className="form-section">
-              <h5>Tài khoản phụ huynh</h5>
+              <h5>{t('student.parentAccount')}</h5>
               <div className="form-group">
-                <label htmlFor="parentName">Họ tên phụ huynh</label>
+                <label htmlFor="parentName">{t('student.parentName')}</label>
                 <input
                   type="text"
                   id="parentName"
@@ -460,7 +463,7 @@ const StudentModal = ({ mode, studentData, isOpen, onClose, onSave }) => {
               </div>
               <div className="form-group">
                 <label htmlFor="parentPhoneNumber">
-                  Số điện thoại phụ huynh
+                  {t('student.parentPhone')}
                 </label>
                 <input
                   type="tel"
@@ -473,7 +476,7 @@ const StudentModal = ({ mode, studentData, isOpen, onClose, onSave }) => {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="accountUsername">Tài khoản</label>
+                <label htmlFor="accountUsername">{t('student.username')}</label>
                 <input
                   type="text"
                   id="accountUsername"
@@ -481,11 +484,11 @@ const StudentModal = ({ mode, studentData, isOpen, onClose, onSave }) => {
                   value={accountUsername} // Hiển thị state tài khoản
                   readOnly // Luôn chỉ đọc
                   disabled // Không cho sửa
-                  placeholder="Tự động tạo từ SĐT"
+                  placeholder={t('student.autoFromPhone')}
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="parentPassword">Mật khẩu</label>
+                <label htmlFor="parentPassword">{t('student.password')}</label>
                 <input
                   type="text"
                   id="parentPassword"
@@ -493,7 +496,7 @@ const StudentModal = ({ mode, studentData, isOpen, onClose, onSave }) => {
                   value={parentPassword} // Hiển thị state mật khẩu
                   readOnly // Luôn chỉ đọc
                   disabled // Không cho sửa
-                  placeholder="Ngày sinh học sinh. Ví dụ 09122005"
+                  placeholder={t('student.autoFromDOB')}
                 />
               </div>
             </div>
@@ -505,11 +508,11 @@ const StudentModal = ({ mode, studentData, isOpen, onClose, onSave }) => {
                 className="action-btn-form cancel-btn"
                 onClick={onClose}
               >
-                {mode === "view" ? "Đóng" : "Hủy"}
+                {mode === "view" ? t('common.close') : t('common.cancel')}
               </button>
               {!isReadOnly && (
                 <button type="submit" className="action-btn-form confirm-btn">
-                  Xác Nhận
+                  {t('common.confirm')}
                 </button>
               )}
             </div>
@@ -522,6 +525,8 @@ const StudentModal = ({ mode, studentData, isOpen, onClose, onSave }) => {
 
 // --- COMPONENT MODAL XÁC NHẬN XÓA ---
 const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, studentName }) => {
+  const { t } = useTranslation();
+  
   if (!isOpen) return null;
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -531,21 +536,20 @@ const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, studentName }) => {
       >
         <div className="modal-header">
           <FaExclamationTriangle size={40} color="#e74c3c" />
-          <h4>Xác nhận xóa</h4>
+          <h4>{t('student.confirmDelete')}</h4>
         </div>
         <p className="confirm-text">
-          Bạn có chắc chắn muốn xóa học sinh <strong>{studentName}</strong>{" "}
-          không? Hành động này không thể hoàn tác.
+          {t('student.deleteMessage', { name: studentName })} {t('student.cannotUndo')}
         </p>
         <div className="confirm-actions">
           <button className="confirm-btn cancel-btn" onClick={onClose}>
-            Hủy
+            {t('common.cancel')}
           </button>
           <button
             className="confirm-btn delete-confirm-btn"
             onClick={onConfirm}
           >
-            Xóa
+            {t('common.delete')}
           </button>
         </div>
       </div>
@@ -572,7 +576,7 @@ const StudentRow = ({ student, onEdit, onDelete, onView }) => (
         {/* Nút Xem chi tiết */}
         <button
           className="action-btn-student more-btn"
-          title="Xem chi tiết"
+          title={useTranslation().t('student.viewDetail')}
           onClick={() => onView(student)}
         >
           <FaEllipsisH />
@@ -580,7 +584,7 @@ const StudentRow = ({ student, onEdit, onDelete, onView }) => (
         {/* Nút Xóa */}
         <button
           className="action-btn-student delete-btn"
-          title="Xóa"
+          title={useTranslation().t('common.delete')}
           onClick={() => onDelete(student)}
         >
           <FaMinusCircle />
@@ -588,7 +592,7 @@ const StudentRow = ({ student, onEdit, onDelete, onView }) => (
         {/* Nút Sửa */}
         <button
           className="action-btn-student edit-btn"
-          title="Sửa"
+          title={useTranslation().t('common.edit')}
           onClick={() => onEdit(student)}
         >
           <FaPen />
@@ -643,6 +647,8 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
 
 // --- COMPONENT CHÍNH CỦA TRANG ---
 const StudentListPage = () => {
+  const { t } = useTranslation();
+  
   const [students, setStudents] = useState([]); // State chứa danh sách học sinh trang hiện tại
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
@@ -709,12 +715,12 @@ const StudentListPage = () => {
         console.log("Calling POST API:", payload);
         const response = await api.post("/api/v1/student/create", payload);
         if (response.status === 200 || response.status === 201) {
-          alert("Thêm học sinh thành công!");
+          alert(t('student.addSuccess'));
           // Fetch lại trang đầu tiên
           if (currentPage !== 1) setCurrentPage(1);
           else fetchStudentsFromApi(1);
         } else {
-          alert(`Thêm học sinh thất bại. Status: ${response.status}`);
+          alert(`${t('student.addFailed')} Status: ${response.status}`);
         }
       } catch (error) {
         console.error("Lỗi khi thêm học sinh:", error);
@@ -724,7 +730,7 @@ const StudentListPage = () => {
           error.response?.data?.title || // Lỗi chung từ ProblemDetails
           error.response?.data || // Các lỗi khác từ data
           error.message; // Lỗi mạng hoặc lỗi khác
-        alert(`Lỗi khi thêm học sinh: ${errorMsg}`);
+        alert(`${t('student.addFailed')}: ${errorMsg}`);
       }
     } else if (mode === "edit") {
       try {
@@ -733,10 +739,10 @@ const StudentListPage = () => {
         const putPayload = { ...payload, id: id };
         const response = await api.put(`/api/v1/student/${id}`, putPayload);
         if (response.status === 200 || response.status === 204) {
-          alert("Cập nhật thông tin học sinh thành công!");
+          alert(t('student.updateSuccess'));
           fetchStudentsFromApi(currentPage); // Fetch lại trang hiện tại
         } else {
-          alert(`Cập nhật thất bại. Status: ${response.status}`);
+          alert(`${t('student.updateFailed')} Status: ${response.status}`);
         }
       } catch (error) {
         console.error(`Lỗi khi cập nhật học sinh ID ${id}:`, error);
@@ -746,7 +752,7 @@ const StudentListPage = () => {
           error.response?.data?.title ||
           error.response?.data ||
           error.message;
-        alert(`Lỗi khi cập nhật: ${errorMsg}`);
+        alert(`${t('student.updateFailed')}: ${errorMsg}`);
       }
     }
     // Chỉ đóng modal nếu API thành công (tùy chọn)
@@ -766,7 +772,7 @@ const StudentListPage = () => {
     try {
       const response = await api.delete(`/api/v1/student/${id}`);
       if (response.status === 200 || response.status === 204) {
-        alert(`Đã xóa học sinh "${fullName}" thành công!`);
+        alert(t('student.deleteSuccess', { name: fullName }));
         // Fetch lại dữ liệu sau khi xóa
         // Kiểm tra xem trang hiện tại còn item không
         if (students.length === 1 && currentPage > 1) {
@@ -780,14 +786,14 @@ const StudentListPage = () => {
           );
         }
       } else {
-        alert(`Xóa thất bại. Status: ${response.status}`);
+        alert(`${t('student.deleteFailed')} Status: ${response.status}`);
       }
     } catch (error) {
       console.error(`Lỗi khi xóa học sinh ID ${id}:`, error);
       // Hiển thị lỗi cụ thể từ backend nếu có
       const errorMsg =
         error.response?.data?.title || error.response?.data || error.message;
-      alert(`Lỗi khi xóa: ${errorMsg}`);
+      alert(`${t('student.deleteFailed')}: ${errorMsg}`);
     } finally {
       handleCloseModal(); // Luôn đóng modal sau khi xử lý
     }
@@ -812,22 +818,21 @@ const StudentListPage = () => {
       <main className="main-content-area">
         <header className="page-header">
           <div className="breadcrumbs">
-            <span>Trang</span> / <span>Quản lý học sinh</span> /{" "}
-            <span>Danh sách học sinh</span>
+            {t('student.breadcrumb')}
           </div>
           <div className="header-actions">
             <input
               type="text"
-              placeholder="Tìm kiếm..."
+              placeholder={t('common.search')}
               className="search-input"
             />
-            <button className="user-button">Đăng nhập</button>
+            <button className="user-button">{t('common.login')}</button>
           </div>
         </header>
 
         <div className="page-content">
           <div className="content-header">
-            <h2>Danh sách học sinh</h2>
+            <h2>{t('student.title')}</h2>
             <div className="header-controls">
               <button
                 onClick={handleOpenAddModal}
@@ -839,20 +844,20 @@ const StudentListPage = () => {
           </div>
 
           {isLoading ? (
-            <div className="loading-message">Đang tải dữ liệu...</div>
+            <div className="loading-message">{t('common.loading')}</div>
           ) : (
             <>
               <div className="table-container">
                 <table>
                   <thead>
                     <tr>
-                      <th>STT</th>
-                      <th>Tên học sinh</th>
-                      <th>Lớp</th>
-                      <th>Địa chỉ</th>
-                      <th>Phụ huynh</th>
-                      <th>Số điện thoại</th>
-                      <th>Thao tác</th>
+                      <th>{t('common.stt')}</th>
+                      <th>{t('student.fullName')}</th>
+                      <th>{t('student.class')}</th>
+                      <th>{t('common.address')}</th>
+                      <th>{t('student.parentName')}</th>
+                      <th>{t('student.parentPhone')}</th>
+                      <th>{t('common.action')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -869,7 +874,7 @@ const StudentListPage = () => {
                     ) : (
                       <tr>
                         <td colSpan="7" style={{ textAlign: "center" }}>
-                          Không có dữ liệu học sinh.
+                          {t('student.noData')}
                         </td>
                       </tr>
                     )}

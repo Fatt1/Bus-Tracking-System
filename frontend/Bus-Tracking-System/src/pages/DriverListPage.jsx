@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import api from "../utils/api"; // Import api instance với token support
 import "./DriverListPage.css";
 import "../pages/LayoutTable.css";
@@ -15,6 +16,7 @@ import {
 
 // --- COMPONENT MODAL THÊM/XEM/SỬA TÀI XẾ (Layout 2 cột) ---
 const DriverModal = ({ mode, driverId, isOpen, onClose, onSave }) => {
+  const { t } = useTranslation();
   // Nhận driverId thay vì driver object
   const [formData, setFormData] = useState({});
   const [accountUsername, setAccountUsername] = useState("");
@@ -131,10 +133,10 @@ const DriverModal = ({ mode, driverId, isOpen, onClose, onSave }) => {
   const isReadOnly = mode === "view"; // Chỉ đọc khi xem
   const title =
     mode === "add"
-      ? "Thêm tài xế"
+      ? t('driver.addDriver')
       : mode === "edit"
-      ? "Sửa thông tin tài xế"
-      : "Xem thông tin tài xế";
+      ? t('driver.editInfo')
+      : t('driver.viewInfo');
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
@@ -195,10 +197,10 @@ const DriverModal = ({ mode, driverId, isOpen, onClose, onSave }) => {
           <form onSubmit={handleSubmit} className="modal-form driver-form">
             {/* Cột 1: Thông tin chi tiết */}
             <div className="form-section">
-              <h5>Thông Tin Chi Tiết Tài Xế</h5>
+              <h5>{t('driver.detailInfo')}</h5>
               <div className="form-row">
                 <div className="form-group">
-                  <label htmlFor="firstName">Họ</label>
+                  <label htmlFor="firstName">{t('driver.firstName')}</label>
                   <input
                     type="text"
                     id="firstName"
@@ -210,7 +212,7 @@ const DriverModal = ({ mode, driverId, isOpen, onClose, onSave }) => {
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="lastName">Tên</label>
+                  <label htmlFor="lastName">{t('driver.lastName')}</label>
                   <input
                     type="text"
                     id="lastName"
@@ -226,12 +228,12 @@ const DriverModal = ({ mode, driverId, isOpen, onClose, onSave }) => {
                 {/* Chỉ hiển thị Xe buýt phụ trách khi Xem hoặc Sửa */}
                 {(mode === "view" || mode === "edit") && (
                   <div className="form-group">
-                    <label htmlFor="assignedBus">Xe buýt phụ trách</label>
+                    <label htmlFor="assignedBus">{t('driver.assignedBus')}</label>
                     <input
                       type="text"
                       id="assignedBus"
                       name="assignedBus"
-                      value={formData.assignedBus || "Chưa được phân công"}
+                      value={formData.assignedBus || t('bus.notAssigned')}
                       readOnly // Luôn chỉ đọc
                       disabled
                     />
@@ -243,7 +245,7 @@ const DriverModal = ({ mode, driverId, isOpen, onClose, onSave }) => {
                 )}
 
                 <div className="form-group">
-                  <label>Giới tính</label>
+                  <label>{t('driver.gender')}</label>
                   <div className="gender-options">
                     <label>
                       {/* Value là 0 cho Nam */}
@@ -255,7 +257,7 @@ const DriverModal = ({ mode, driverId, isOpen, onClose, onSave }) => {
                         onChange={handleChange}
                         disabled={isReadOnly}
                       />{" "}
-                      Nam
+                      {t('common.male')}
                     </label>
                     <label>
                       {/* Value là 1 cho Nữ */}
@@ -267,13 +269,13 @@ const DriverModal = ({ mode, driverId, isOpen, onClose, onSave }) => {
                         onChange={handleChange}
                         disabled={isReadOnly}
                       />{" "}
-                      Nữ
+                      {t('common.female')}
                     </label>
                   </div>
                 </div>
               </div>
               <div className="form-group">
-                <label htmlFor="phoneNumber">Số điện thoại</label>
+                <label htmlFor="phoneNumber">{t('driver.phoneNumber')}</label>
                 <input
                   type="tel"
                   id="phoneNumber"
@@ -285,7 +287,7 @@ const DriverModal = ({ mode, driverId, isOpen, onClose, onSave }) => {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="dateOfBirth">Ngày sinh</label>
+                <label htmlFor="dateOfBirth">{t('driver.dateOfBirth')}</label>
                 <input
                   type="date"
                   id="dateOfBirth"
@@ -297,7 +299,7 @@ const DriverModal = ({ mode, driverId, isOpen, onClose, onSave }) => {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="idCard">Căn cước công dân</label>
+                <label htmlFor="idCard">{t('driver.idCard')}</label>
                 <input
                   type="text"
                   id="idCard"
@@ -309,7 +311,7 @@ const DriverModal = ({ mode, driverId, isOpen, onClose, onSave }) => {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="address">Địa chỉ thường trú</label>
+                <label htmlFor="address">{t('driver.address')}</label>
                 <input
                   type="text"
                   id="address"
@@ -324,9 +326,9 @@ const DriverModal = ({ mode, driverId, isOpen, onClose, onSave }) => {
 
             {/* Cột 2: Tài khoản */}
             <div className="form-section">
-              <h5>Tài khoản tài xế</h5>
+              <h5>{t('driver.accountInfo')}</h5>
               <div className="form-group">
-                <label htmlFor="accountUsername">Tài khoản</label>
+                <label htmlFor="accountUsername">{t('driver.username')}</label>
                 <input
                   type="text"
                   id="accountUsername"
@@ -334,11 +336,11 @@ const DriverModal = ({ mode, driverId, isOpen, onClose, onSave }) => {
                   value={accountUsername} // Hiển thị state tài khoản
                   readOnly // Luôn chỉ đọc
                   disabled // Không cho sửa
-                  placeholder="Tự động tạo từ SĐT"
+                  placeholder={t('driver.autoFromPhone')}
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="accountPassword">Mật khẩu</label>
+                <label htmlFor="accountPassword">{t('driver.password')}</label>
                 <input
                   type="text"
                   id="accountPassword"
@@ -346,7 +348,7 @@ const DriverModal = ({ mode, driverId, isOpen, onClose, onSave }) => {
                   value={accountPassword}
                   readOnly
                   disabled
-                  placeholder="Ngày sinh dạng DDMMYYYY"
+                  placeholder={t('driver.autoFromDOB')}
                 />
               </div>
             </div>
@@ -358,11 +360,11 @@ const DriverModal = ({ mode, driverId, isOpen, onClose, onSave }) => {
                 className="action-btn-form cancel-btn"
                 onClick={onClose}
               >
-                {mode === "view" ? "Đóng" : "Hủy"}
+                {mode === "view" ? t('common.close') : t('common.cancel')}
               </button>
               {!isReadOnly && (
                 <button type="submit" className="action-btn-form confirm-btn">
-                  Xác Nhận
+                  {t('common.confirm')}
                 </button>
               )}
             </div>
@@ -375,6 +377,7 @@ const DriverModal = ({ mode, driverId, isOpen, onClose, onSave }) => {
 
 // --- COMPONENT MODAL XÁC NHẬN XÓA ---
 const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, driverName }) => {
+  const { t } = useTranslation();
   if (!isOpen) return null;
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -384,21 +387,20 @@ const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, driverName }) => {
       >
         <div className="modal-header">
           <FaExclamationTriangle size={40} color="#e74c3c" />
-          <h4>Xác nhận xóa</h4>
+          <h4>{t('driver.confirmDelete')}</h4>
         </div>
         <p className="confirm-text">
-          Bạn có chắc chắn muốn xóa tài xế <strong>{driverName}</strong> không?
-          Hành động này không thể hoàn tác.
+          {t('driver.deleteMessage')} <strong>{driverName}</strong> {t('driver.cannotUndo')}
         </p>
         <div className="confirm-actions">
           <button className="confirm-btn cancel-btn" onClick={onClose}>
-            Hủy
+            {t('common.cancel')}
           </button>
           <button
             className="confirm-btn delete-confirm-btn"
             onClick={onConfirm} // Gọi hàm xác nhận xóa từ props
           >
-            Xóa
+            {t('common.delete')}
           </button>
         </div>
       </div>
@@ -408,6 +410,8 @@ const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, driverName }) => {
 
 // --- COMPONENT 1 DÒNG TRONG BẢNG (Map dữ liệu từ API GET /all) ---
 const DriverRow = ({ driver, onView, onEdit, onDelete }) => {
+  const { t } = useTranslation();
+  
   // API GET all trả về status là DriverStatus enum:
   // 1 = Available (Đang làm việc)
   // 2 = Absence (Vắng mặt)
@@ -415,13 +419,13 @@ const DriverRow = ({ driver, onView, onEdit, onDelete }) => {
   const getStatusText = (status) => {
     switch (status) {
       case 1:
-        return "Đang làm việc";
+        return t('driver.statusWorking');
       case 2:
-        return "Vắng mặt";
+        return t('driver.statusAbsent');
       case 3:
-        return "Bị đình chỉ";
+        return t('driver.statusSuspended');
       default:
-        return "Chưa rõ";
+        return t('driver.statusUnknown');
     }
   };
 
@@ -436,14 +440,14 @@ const DriverRow = ({ driver, onView, onEdit, onDelete }) => {
       {/* API GET all có status */}
       <td>{getStatusText(driver.status)}</td>
       {/* API GET all có assignmentRouteName */}
-      <td>{driver.assignmentRouteName || "Chưa phân công"}</td>
+      <td>{driver.assignmentRouteName || t('driver.notAssigned')}</td>
       {/* Căn giữa ô thao tác */}
       <td className="cell-center">
         <div className="action-buttons">
           {/* Nút Xem (Xanh dương) - Truyền ID */}
           <button
             className="action-btn-driver view-btn"
-            title="Xem thông tin"
+            title={t('driver.viewInfo')}
             onClick={() => onView(driver.id)}
           >
             <FaFileAlt />
@@ -451,7 +455,7 @@ const DriverRow = ({ driver, onView, onEdit, onDelete }) => {
           {/* Nút Xóa (Đỏ) - Truyền ID và tên để hiển thị confirm */}
           <button
             className="action-btn-driver delete-btn"
-            title="Xóa"
+            title={t('common.delete')}
             onClick={() => onDelete({ id: driver.id, name: driver.fullName })}
           >
             <FaMinusCircle />
@@ -459,7 +463,7 @@ const DriverRow = ({ driver, onView, onEdit, onDelete }) => {
           {/* Nút Sửa (Vàng) - Truyền ID */}
           <button
             className="action-btn-driver edit-btn"
-            title="Sửa"
+            title={t('common.edit')}
             onClick={() => onEdit(driver.id)}
           >
             <FaPen />
@@ -515,6 +519,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
 
 // --- COMPONENT CHÍNH CỦA TRANG ---
 const DriverListPage = () => {
+  const { t } = useTranslation();
   // State chứa danh sách tài xế CHO TRANG HIỆN TẠI (từ API)
   const [drivers, setDrivers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -707,22 +712,21 @@ const DriverListPage = () => {
       <main className="main-content-area">
         <header className="page-header">
           <div className="breadcrumbs">
-            <span>Trang</span> / <span>Quản lý tài xế</span> /{" "}
-            <span>Danh sách tài xế</span>
+            {t('driver.breadcrumb')}
           </div>
           <div className="header-actions">
             <input
               type="text"
-              placeholder="Tìm kiếm..."
+              placeholder={t('common.search')}
               className="search-input"
             />
-            <button className="user-button">Đăng nhập</button>
+            <button className="user-button">{t('common.login')}</button>
           </div>
         </header>
 
         <div className="page-content">
           <div className="content-header">
-            <h2>Danh sách tài xế</h2>
+            <h2>{t('driver.title')}</h2>
             <div className="header-controls">
               <button
                 onClick={handleOpenAddModal}
@@ -734,19 +738,19 @@ const DriverListPage = () => {
           </div>
 
           {isLoading ? (
-            <div className="loading-message">Đang tải dữ liệu...</div>
+            <div className="loading-message">{t('driver.loadingInfo')}</div>
           ) : (
             <>
               <div className="table-container">
                 <table>
                   <thead>
                     <tr>
-                      <th>STT</th>
-                      <th>Tên tài xế</th>
-                      <th>Số điện thoại</th>
-                      <th>Trạng thái</th>
-                      <th>Phân công (Hôm nay)</th>
-                      <th>Thao tác</th>
+                      <th>{t('common.stt')}</th>
+                      <th>{t('driver.fullName')}</th>
+                      <th>{t('driver.phoneNumber')}</th>
+                      <th>{t('common.status')}</th>
+                      <th>{t('driver.assignmentToday')}</th>
+                      <th>{t('common.action')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -764,7 +768,7 @@ const DriverListPage = () => {
                     ) : (
                       <tr>
                         <td colSpan="6" style={{ textAlign: "center" }}>
-                          Không có dữ liệu tài xế.
+                          {t('driver.noData')}
                         </td>
                       </tr>
                     )}

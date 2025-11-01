@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import api from "../utils/api"; // Import api instance với withCredentials
 import "./RouteListPage.css"; // CSS riêng cho trang này
 import "../pages/LayoutTable.css"; // Tái sử dụng CSS layout bảng
@@ -12,6 +13,8 @@ const StudentListModal = ({
   students,
   isLoading,
 }) => {
+  const { t } = useTranslation();
+  
   if (!isOpen) return null;
 
   return (
@@ -25,20 +28,20 @@ const StudentListModal = ({
         </button>
         <div className="modal-header">
           {/* <h3>36 36 BUS BUS</h3> */} {/* Bỏ bớt nếu muốn giống hình */}
-          <h4>Danh sách học sinh tuyến: {routeName}</h4>
+          <h4>{t('route.studentList')}: {routeName}</h4>
         </div>
         <div className="student-list-table-container">
           {isLoading ? (
             <div className="modal-loading">
-              <FaSpinner className="spinner" /> Đang tải danh sách...
+              <FaSpinner className="spinner" /> {t('route.loadingStudents')}
             </div>
           ) : (
             <table>
               <thead>
                 <tr>
-                  <th>STT</th>
-                  <th>Tên học sinh</th>
-                  <th>Điểm đón</th>
+                  <th>{t('common.stt')}</th>
+                  <th>{t('route.studentName')}</th>
+                  <th>{t('route.pickupPoint')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -56,7 +59,7 @@ const StudentListModal = ({
                 ) : (
                   <tr>
                     <td colSpan="3" style={{ textAlign: "center" }}>
-                      Không có học sinh nào trên tuyến này.
+                      {t('route.noStudents')}
                     </td>
                   </tr>
                 )}
@@ -74,7 +77,7 @@ const StudentListModal = ({
             className="action-btn-form cancel-btn"
             onClick={onClose}
           >
-            Đóng
+            {t('common.close')}
           </button>
         </div>
       </div>
@@ -84,10 +87,12 @@ const StudentListModal = ({
 
 // Component 1 dòng trong bảng (Đã cập nhật theo yêu cầu API)
 const RouteRow = ({ route, onViewStudents }) => {
+  const { t } = useTranslation();
+  
   // Hàm xử lý mảng stopPoints thành chuỗi
   const formatStopPoints = (stopPoints) => {
     if (!Array.isArray(stopPoints) || stopPoints.length === 0) {
-      return "Chưa có trạm dừng";
+      return t('route.noStopPoints');
     }
     // Sắp xếp theo sequenceOrder trước khi join (đề phòng API trả về không theo thứ tự)
     return stopPoints
@@ -114,13 +119,13 @@ const RouteRow = ({ route, onViewStudents }) => {
             className="view-students-btn"
             onClick={() => onViewStudents(route)} // Truyền cả object route
           >
-            Xem danh sách
+            {t('route.viewList')}
           </button>
         )}
       </td>
       {/* Cột Bản đồ */}
       <td className="cell-center">
-        <button className="map-btn" title="Xem bản đồ (chưa hoạt động)">
+        <button className="map-btn" title={t('route.viewMap')}>
           <FaMapMarkerAlt />
         </button>
       </td>
@@ -130,6 +135,8 @@ const RouteRow = ({ route, onViewStudents }) => {
 
 // Component chính của trang (Đã cập nhật state và logic)
 const RouteListPage = () => {
+  const { t } = useTranslation();
+  
   const [routes, setRoutes] = useState([]); // State lưu danh sách tuyến đường
   const [isLoading, setIsLoading] = useState(true);
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
@@ -233,22 +240,21 @@ const RouteListPage = () => {
       <main className="main-content-area">
         <header className="page-header">
           <div className="breadcrumbs">
-            <span>Trang</span> / <span>Quản lý xe buýt</span> /{" "}
-            <span>Danh sách tuyến đường</span>
+            {t('route.breadcrumb')}
           </div>
           <div className="header-actions">
             <input
               type="text"
-              placeholder="Tìm kiếm..."
+              placeholder={t('common.search')}
               className="search-input"
             />
-            <button className="user-button">Đăng nhập</button>
+            <button className="user-button">{t('common.login')}</button>
           </div>
         </header>
 
         <div className="page-content">
           <div className="content-header">
-            <h2>Danh sách tuyến đường</h2>
+            <h2>{t('route.title')}</h2>
             {/* <div className="header-controls">
              
               <button
@@ -262,18 +268,18 @@ const RouteListPage = () => {
 
           {isLoading ? (
             <div className="loading-message">
-              Đang tải danh sách tuyến đường...
+              {t('route.loadingRoutes')}
             </div>
           ) : (
             <div className="table-container">
               <table>
                 <thead>
                   <tr>
-                    <th>STT</th>
-                    <th>Tên tuyến đường</th>
-                    <th>Các trạm</th>
-                    <th>Số học sinh</th>
-                    <th>Bản đồ</th>
+                    <th>{t('common.stt')}</th>
+                    <th>{t('route.routeName')}</th>
+                    <th>{t('route.stopPoints')}</th>
+                    <th>{t('route.studentCount')}</th>
+                    <th>{t('route.map')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -288,7 +294,7 @@ const RouteListPage = () => {
                   ) : (
                     <tr>
                       <td colSpan="5" style={{ textAlign: "center" }}>
-                        Không có dữ liệu tuyến đường.
+                        {t('route.noData')}
                       </td>
                     </tr>
                   )}

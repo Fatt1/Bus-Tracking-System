@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useParams, useLocation, Link } from "react-router-dom";
 import api from "../utils/api"; // Import api instance với token support
 import "./ScheduleHistoryPage.css"; // Sẽ tạo ở bước 2
@@ -9,11 +10,13 @@ import { vi } from "date-fns/locale";
 
 // Component Bảng học sinh
 const StudentTable = ({ students, isLoading }) => {
+  const { t } = useTranslation();
+  
   if (isLoading) {
     return (
       <div className="table-container student-history-table">
         <div className="loading-message">
-          <FaSpinner className="spinner" /> Đang tải danh sách học sinh...
+          <FaSpinner className="spinner" /> {t('scheduleHistory.loadingStudents')}
         </div>
       </div>
     );
@@ -24,10 +27,10 @@ const StudentTable = ({ students, isLoading }) => {
       <table>
         <thead>
           <tr>
-            <th>STT</th>
-            <th>Tên học sinh</th>
-            <th>Địa điểm đón/trả</th>
-            <th>Trạng thái</th>
+            <th>{t('common.stt')}</th>
+            <th>{t('scheduleHistory.studentName')}</th>
+            <th>{t('scheduleHistory.pickupPoint')}</th>
+            <th>{t('common.status')}</th>
           </tr>
         </thead>
         <tbody>
@@ -40,8 +43,8 @@ const StudentTable = ({ students, isLoading }) => {
                 return "status-default"; // Mặc định
               };
               const getStatusText = (status) => {
-                if (status === "PickedUp") return "Đã đón";
-                if (status === "Absent") return "Vắng";
+                if (status === "PickedUp") return t('scheduleHistory.pickedUp');
+                if (status === "Absent") return t('scheduleHistory.absent');
                 return status; // Trả về nguyên nếu không match
               };
 
@@ -65,7 +68,7 @@ const StudentTable = ({ students, isLoading }) => {
           ) : (
             <tr>
               <td colSpan="4" style={{ textAlign: "center" }}>
-                Không có học sinh cho chuyến này.
+                {t('scheduleHistory.noStudents')}
               </td>
             </tr>
           )}
@@ -77,6 +80,7 @@ const StudentTable = ({ students, isLoading }) => {
 
 // --- Component chính của trang ---
 const TripHistoryPage = () => {
+  const { t } = useTranslation();
   const { tripId } = useParams(); // Lấy schedule ID từ URL
   const location = useLocation(); // Lấy state từ navigation
   const [scheduleData, setScheduleData] = useState(null); // Dữ liệu schedule từ API
@@ -137,7 +141,7 @@ const TripHistoryPage = () => {
     return (
       <main className="main-content-area">
         <div className="loading-message">
-          <FaSpinner className="spinner" /> Đang tải dữ liệu...
+          <FaSpinner className="spinner" /> {t('common.loading')}
         </div>
       </main>
     );
@@ -156,9 +160,9 @@ const TripHistoryPage = () => {
       <header className="page-header">
         <div className="breadcrumbs">
           <Link to="/schedule-trips" className="back-link">
-            <FaAngleLeft /> Danh sách chuyến đi
+            <FaAngleLeft /> {t('scheduleHistory.backToList')}
           </Link>
-          / <span>Lịch sử chuyến đi</span>
+          / <span>{t('scheduleHistory.tripHistory')}</span>
         </div>
         {/* Header actions (nếu cần) */}
       </header>
@@ -166,7 +170,7 @@ const TripHistoryPage = () => {
       <div className="page-content trip-history-page">
         {/* Tiêu đề trang */}
         <div className="history-header">
-          <h2>{routeNameFromState || "Tuyến đường"}</h2>
+          <h2>{routeNameFromState || t('route.routeName')}</h2>
           <span className="history-date">{formattedDate}</span>
         </div>
 
@@ -174,7 +178,7 @@ const TripHistoryPage = () => {
         <form className="history-form-container">
           <div className="history-form-row">
             <div className="form-group readonly-group">
-              <label>Giờ đi</label>
+              <label>{t('scheduleHistory.departureTime')}</label>
               <div className="input-with-icon">
                 <input
                   type="text"
@@ -188,7 +192,7 @@ const TripHistoryPage = () => {
               </div>
             </div>
             <div className="form-group readonly-group">
-              <label>Giờ về</label>
+              <label>{t('scheduleHistory.returnTime')}</label>
               <div className="input-with-icon">
                 <input
                   type="text"
@@ -204,7 +208,7 @@ const TripHistoryPage = () => {
           </div>
           <div className="history-form-row">
             <div className="form-group readonly-group">
-              <label>Tài xế</label>
+              <label>{t('scheduleHistory.driver')}</label>
               <div className="input-with-icon">
                 <input
                   type="text"
@@ -214,7 +218,7 @@ const TripHistoryPage = () => {
               </div>
             </div>
             <div className="form-group readonly-group">
-              <label>Xe buýt</label>
+              <label>{t('scheduleHistory.bus')}</label>
               <div className="input-with-icon">
                 <input
                   type="text"
@@ -229,16 +233,16 @@ const TripHistoryPage = () => {
         {/* Phần danh sách học sinh */}
         <div className="student-list-section">
           <div className="student-list-header">
-            <h4>Lịch sử đưa/đón học sinh</h4>
+            <h4>{t('scheduleHistory.studentHistory')}</h4>
             <div className="form-group">
-              <label htmlFor="tripType">Loại</label>
+              <label htmlFor="tripType">{t('scheduleHistory.type')}</label>
               <select
                 id="tripType"
                 value={tripType}
                 onChange={(e) => setTripType(parseInt(e.target.value))}
               >
-                <option value={1}>Đưa đi</option>
-                <option value={2}>Đón về</option>
+                <option value={1}>{t('scheduleHistory.outbound')}</option>
+                <option value={2}>{t('scheduleHistory.inbound')}</option>
               </select>
             </div>
           </div>

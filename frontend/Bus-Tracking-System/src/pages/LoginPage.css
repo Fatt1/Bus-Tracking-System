@@ -39,14 +39,17 @@
 }
 
 .login-header {
-  position: absolute; /* Đặt header ở trên cùng */
+  position: absolute;
   top: 20px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 2; /* Đảm bảo header nằm trên lớp phủ */
+  z-index: 2;
   color: var(--text-light);
   font-size: 1.8rem;
   font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 20px; /* Space between logo and language switcher */
 }
 
 .login-card-wrapper {

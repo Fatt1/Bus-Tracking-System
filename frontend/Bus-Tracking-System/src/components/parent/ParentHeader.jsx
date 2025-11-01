@@ -4,12 +4,15 @@ import api from "../../utils/api";
 import { clearAuth } from "../../utils/auth";
 import { FiUser, FiBell } from "react-icons/fi";
 import { useNotification } from "../../context/NotificationContext";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "../LanguageSwitcher";
 import "./ParentHeader.css";
 
 const ParentHeader = ({
   breadcrumbs = "Trang / Trang chủ",
   parentName = "Phụ Huynh",
 }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { unreadCount } = useNotification();
 
@@ -43,15 +46,16 @@ const ParentHeader = ({
         </div>
         <input
           type="text"
-          placeholder="Tìm kiếm..."
+          placeholder={t('common.search')}
           className="parent-search-bar"
         />
+        <LanguageSwitcher />
         <div className="parent-user-info">
           <FiUser className="user-icon" />
           <span>{parentName}</span>
         </div>
         <button className="parent-logout-btn" onClick={handleLogout}>
-          Đăng xuất
+          {t('common.logout')}
         </button>
       </div>
     </header>

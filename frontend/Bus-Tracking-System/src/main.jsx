@@ -5,6 +5,7 @@ import "./index.css";
 import App from "./App.jsx";
 import { NotificationProvider } from "./context/NotificationContext";
 import ToastContainer from "./components/ToastContainer";
+import "./i18n"; // Import i18n configuration
 
 createRoot(document.getElementById("root")).render(
   // <StrictMode>

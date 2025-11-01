@@ -1,17 +1,20 @@
 // src/pages/LoginPage.jsx
 
 import React, { useState } from "react";
-import "./LoginPage.css"; // Sẽ tạo file này ở bước tiếp theo
-import { FaEye, FaEyeSlash, FaExclamationTriangle } from "react-icons/fa"; // Cần cài react-icons
+import "./LoginPage.css";
+import { FaEye, FaEyeSlash, FaExclamationTriangle } from "react-icons/fa";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { decodeJwt, extractRoles, setAuthInfo } from "../utils/auth";
+import { useTranslation } from "react-i18next"; // Import i18n
+import LanguageSwitcher from "../components/LanguageSwitcher"; // Import Language Switcher
 
 const LoginPage = () => {
+  const { t } = useTranslation(); // i18n hook
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // State để ẩn/hiện mật khẩu
-  const [error, setError] = useState(""); // State để hiển thị lỗi
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -66,12 +69,11 @@ const LoginPage = () => {
     <div className="login-page-container">
       <div className="login-header">
         <h3>36 36 BUS BUS</h3>
+        <LanguageSwitcher />
       </div>
       <div className="login-card-wrapper">
         <div className="login-card">
           <div className="login-card-left">
-            {/* Ảnh trang trí bên trái */}
-            {/* Lưu ý: Đường dẫn ảnh cần đúng với vị trí bạn lưu */}
             <img
               src="/src/assets/login-image.jpg"
               alt="Bus Illustration"
@@ -80,7 +82,7 @@ const LoginPage = () => {
           </div>
           <div className="login-card-right">
             <form onSubmit={handleLogin} className="login-form">
-              <h2>ĐĂNG NHẬP</h2>
+              <h2>{t('login.title').toUpperCase()}</h2>
 
               {error && (
                 <div className="login-error-message">
@@ -90,26 +92,26 @@ const LoginPage = () => {
               )}
 
               <div className="form-group">
-                <label htmlFor="email">TÊN ĐĂNG NHẬP</label>
+                <label htmlFor="email">{t('login.email').toUpperCase()}</label>
                 <input
                   type="text"
                   id="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Nhập tên đăng nhập"
+                  placeholder={t('login.email')}
                   required
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="password">MẬT KHẨU</label>
+                <label htmlFor="password">{t('login.password').toUpperCase()}</label>
                 <div className="password-input-wrapper">
                   <input
                     type={showPassword ? "text" : "password"}
                     id="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Nhập mật khẩu của bạn"
+                    placeholder={t('login.password')}
                     required
                   />
                   <span
@@ -119,12 +121,10 @@ const LoginPage = () => {
                     {showPassword ? <FaEyeSlash /> : <FaEye />}
                   </span>
                 </div>
-                {/* <span className="password-hint">Vui lòng điền lộ mục này</span> */}{" "}
-                {/* Nếu muốn hiển thị hint */}
               </div>
 
               <button type="submit" className="login-button" disabled={loading}>
-                {loading ? "Đang đăng nhập..." : "ĐĂNG NHẬP"}
+                {loading ? t('common.loading') : t('login.loginButton').toUpperCase()}
               </button>
             </form>
           </div>
