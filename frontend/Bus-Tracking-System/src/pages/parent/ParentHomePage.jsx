@@ -61,9 +61,11 @@ const ParentHomePage = () => {
       const [year, month, day] = dateString.split("-");
       const date = new Date(year, month - 1, day);
       const locale = i18n.language === "vi" ? vi : enUS;
-      
+
       if (i18n.language === "vi") {
-        return format(date, "EEEE, 'Ngày' dd 'tháng' MM 'năm' yyyy", { locale });
+        return format(date, "EEEE, 'Ngày' dd 'tháng' MM 'năm' yyyy", {
+          locale,
+        });
       } else {
         return format(date, "EEEE, MMMM dd, yyyy", { locale });
       }
@@ -92,7 +94,8 @@ const ParentHomePage = () => {
 
           {isLoading ? (
             <div className="parent-loading-message">
-              <FaSpinner className="spinner" /> {t("parent.home.loadingSchedule")}
+              <FaSpinner className="spinner" />{" "}
+              {t("parent.home.loadingSchedule")}
             </div>
           ) : error ? (
             <div className="parent-error-message">{error}</div>

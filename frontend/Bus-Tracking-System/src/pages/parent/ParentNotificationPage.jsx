@@ -27,20 +27,22 @@ const ParentNotificationPage = () => {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await api.get("/api/v1/notificaton/received-notifications");
+        const response = await api.get(
+          "/api/v1/notificaton/received-notifications"
+        );
         console.log("Notifications response:", response.data);
-        
+
         // Map backend DTO to frontend format
-        const mappedNotifications = (response.data || []).map(notif => ({
+        const mappedNotifications = (response.data || []).map((notif) => ({
           id: notif.receivedNotifcationId,
           title: notif.title,
           message: notif.message,
           isRead: notif.isRead,
           createdAt: notif.sendAt,
           senderName: notif.senderUserName,
-          senderUserId: notif.senderUserId
+          senderUserId: notif.senderUserId,
         }));
-        
+
         setNotifications(mappedNotifications);
       } catch (err) {
         console.error("Error fetching notifications:", err);
@@ -83,7 +85,10 @@ const ParentNotificationPage = () => {
       <ParentSidebar />
 
       <div className="parent-main-wrapper">
-        <ParentHeader breadcrumbs={t("parent.notifications.breadcrumb")} parentName={parentName} />
+        <ParentHeader
+          breadcrumbs={t("parent.notifications.breadcrumb")}
+          parentName={parentName}
+        />
 
         <main className="parent-notification-content">
           <div className="notification-page-header">
@@ -127,7 +132,8 @@ const ParentNotificationPage = () => {
           <div className="notification-list-container">
             {isLoading ? (
               <div className="notification-loading">
-                <FaSpinner className="spinner" /> {t("parent.notifications.loading")}
+                <FaSpinner className="spinner" />{" "}
+                {t("parent.notifications.loading")}
               </div>
             ) : error ? (
               <div className="notification-error">{error}</div>
@@ -139,9 +145,15 @@ const ParentNotificationPage = () => {
             ) : (
               <>
                 <div className="notification-list-header">
-                  <span className="header-content">{t("parent.notifications.headerContent")}</span>
-                  <span className="header-sender">{t("parent.notifications.headerSender")}</span>
-                  <span className="header-time">{t("parent.notifications.headerTime")}</span>
+                  <span className="header-content">
+                    {t("parent.notifications.headerContent")}
+                  </span>
+                  <span className="header-sender">
+                    {t("parent.notifications.headerSender")}
+                  </span>
+                  <span className="header-time">
+                    {t("parent.notifications.headerTime")}
+                  </span>
                 </div>
 
                 <div className="notification-list-body">
@@ -162,7 +174,10 @@ const ParentNotificationPage = () => {
                       </div>
                       <div className="notification-item-sender">
                         <FiUser />
-                        <span>{notif.senderName || t("parent.notifications.systemSender")}</span>
+                        <span>
+                          {notif.senderName ||
+                            t("parent.notifications.systemSender")}
+                        </span>
                       </div>
                       <div className="notification-item-time">
                         <FiClock />

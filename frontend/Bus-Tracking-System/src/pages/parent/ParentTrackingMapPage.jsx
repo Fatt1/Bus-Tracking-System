@@ -31,45 +31,49 @@ const ParentTrackingMapPage = () => {
           // No bus location today (backend trả về string message)
           console.log("⚠️ [ParentMap] No schedule today");
           setBusLocationData(null);
+        } else {
+          // Có data - validate structure
+          const data = response.data;
+
+          // Check if we have required data
+          if (!data.busId || !data.routeDTO || !data.routeDTO.stopPoints) {
+            console.error("❌ [ParentMap] Invalid data structure:", data);
+            setError(t("parent.tracking.invalidData"));
+            setBusLocationData(null);
           } else {
-            // Có data - validate structure
-            const data = response.data;
+            console.log("✅ [ParentMap] Valid bus location data received");
+            console.log("   - Bus ID:", data.busId);
+            console.log("   - Bus Name:", data.busName);
+            console.log("   - Route:", data.routeDTO.routeName);
+            console.log("   - Stop Points:", data.routeDTO.stopPoints.length);
 
-            // Check if we have required data
-            if (!data.busId || !data.routeDTO || !data.routeDTO.stopPoints) {
-              console.error("❌ [ParentMap] Invalid data structure:", data);
-              setError(t("parent.tracking.invalidData"));
-              setBusLocationData(null);
-            } else {
-              console.log("✅ [ParentMap] Valid bus location data received");
-              console.log("   - Bus ID:", data.busId);
-              console.log("   - Bus Name:", data.busName);
-              console.log("   - Route:", data.routeDTO.routeName);
-              console.log("   - Stop Points:", data.routeDTO.stopPoints.length);
-
-              setBusLocationData(data);
-            }
+            setBusLocationData(data);
           }
-        } catch (err) {
-          console.error("❌ [ParentMap] Error fetching bus location:", err);
-          if (err.response) {
-            console.error("   - Status:", err.response.status);
-            console.error("   - Data:", err.response.data);
-          }
-          setError(t("parent.tracking.error"));
-          setBusLocationData(null);
-        } finally {
-          setIsLoading(false);
         }
-      };
+      } catch (err) {
+        console.error("❌ [ParentMap] Error fetching bus location:", err);
+        if (err.response) {
+          console.error("   - Status:", err.response.status);
+          console.error("   - Data:", err.response.data);
+        }
+        setError(t("parent.tracking.error"));
+        setBusLocationData(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-      fetchBusLocation();
-    }, [t]);  return (
+    fetchBusLocation();
+  }, [t]);
+  return (
     <div className="parent-tracking-page-container">
       <ParentSidebar />
 
       <div className="parent-main-wrapper">
-        <ParentHeader breadcrumbs={t("parent.tracking.breadcrumb")} parentName={parentName} />
+        <ParentHeader
+          breadcrumbs={t("parent.tracking.breadcrumb")}
+          parentName={parentName}
+        />
 
         <main className="parent-tracking-content">
           <div className="tracking-page-header">
@@ -80,7 +84,8 @@ const ParentTrackingMapPage = () => {
               <div className="bus-info-badge">
                 <FaBus />
                 <span>
-                  {t("parent.tracking.bus")}: <strong>{busLocationData.busName || "N/A"}</strong>
+                  {t("parent.tracking.bus")}:{" "}
+                  <strong>{busLocationData.busName || "N/A"}</strong>
                 </span>
                 {busLocationData.routeDTO && (
                   <span className="route-badge">
