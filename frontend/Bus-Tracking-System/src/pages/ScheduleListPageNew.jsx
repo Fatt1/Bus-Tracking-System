@@ -43,20 +43,20 @@ const ScheduleDetailModal = ({
   onViewHistory, // Thêm prop này
 }) => {
   const { t } = useTranslation();
-  
+
   if (!isOpen || !schedule) return null;
 
   // Hàm chuyển đổi status number sang text
   const getStatusText = (status) => {
     switch (status) {
       case 0:
-        return t('schedule.statusInactive'); // InActive
+        return t("schedule.statusInactive"); // InActive
       case 1:
-        return t('schedule.statusActive'); // Active
+        return t("schedule.statusActive"); // Active
       case 2:
-        return t('schedule.statusCompleted'); // Completed
+        return t("schedule.statusCompleted"); // Completed
       default:
-        return t('schedule.statusUnknown');
+        return t("schedule.statusUnknown");
     }
   };
 
@@ -78,12 +78,12 @@ const ScheduleDetailModal = ({
         <button className="modal-close-btn" onClick={onClose}>
           <FaTimes />
         </button>
-        <h4>{t('schedule.scheduleDetail')}</h4>
+        <h4>{t("schedule.scheduleDetail")}</h4>
         <p>
-          <strong>{t('schedule.route')}:</strong> {routeName}
+          <strong>{t("schedule.route")}:</strong> {routeName}
         </p>
         <p>
-          <strong>{t('schedule.date')}:</strong>{" "}
+          <strong>{t("schedule.date")}:</strong>{" "}
           {schedule.scheduleDate
             ? format(parseISO(schedule.scheduleDate), "EEEE, dd/MM/yyyy", {
                 locale: vi,
@@ -91,21 +91,23 @@ const ScheduleDetailModal = ({
             : "N/A"}
         </p>
         <p>
-          <strong>{t('schedule.pickupTime')}:</strong>{" "}
+          <strong>{t("schedule.pickupTime")}:</strong>{" "}
           {schedule.pickupTime?.substring(0, 5) || "N/A"}
         </p>
         <p>
-          <strong>{t('schedule.dropOffTime')}:</strong>{" "}
+          <strong>{t("schedule.dropOffTime")}:</strong>{" "}
           {schedule.dropOffTime?.substring(0, 5) || "N/A"}
         </p>
         <p>
-          <strong>{t('schedule.driver')}:</strong> {schedule.driverName || "N/A"}
+          <strong>{t("schedule.driver")}:</strong>{" "}
+          {schedule.driverName || "N/A"}
         </p>
         <p>
-          <strong>{t('schedule.bus')}:</strong> {schedule.busName || "N/A"}
+          <strong>{t("schedule.bus")}:</strong> {schedule.busName || "N/A"}
         </p>
         <p>
-          <strong>{t('common.status')}:</strong> {getStatusText(schedule.status)}
+          <strong>{t("common.status")}:</strong>{" "}
+          {getStatusText(schedule.status)}
         </p>
         <div className="modal-actions">
           {/* Nút Xem lịch sử - Chỉ hiển thị khi ngày <= hôm nay */}
@@ -113,9 +115,9 @@ const ScheduleDetailModal = ({
             <button
               className="delete-schedule-btn view-history-btn"
               onClick={() => onViewHistory(schedule)}
-              title={t('schedule.viewHistoryTooltip')}
+              title={t("schedule.viewHistoryTooltip")}
             >
-              {t('schedule.viewHistory')}
+              {t("schedule.viewHistory")}
             </button>
           )}
           {/* Nút sửa và xóa chỉ hoạt động khi có ID */}
@@ -125,18 +127,18 @@ const ScheduleDetailModal = ({
             disabled={!schedule.id}
             title={
               schedule.status !== 0
-                ? t('schedule.editOnlyInactive')
-                : t('common.edit')
+                ? t("schedule.editOnlyInactive")
+                : t("common.edit")
             }
           >
-            <FaPen /> {t('common.edit')}
+            <FaPen /> {t("common.edit")}
           </button>
           <button
             className="delete-schedule-btn"
             onClick={() => onDelete(schedule.id)}
             disabled={!schedule.id}
           >
-            <FaTrashAlt /> {t('common.delete')}
+            <FaTrashAlt /> {t("common.delete")}
           </button>
         </div>
       </div>
@@ -153,7 +155,7 @@ const ScheduleEditModal = ({
   onSaved,
 }) => {
   const { t } = useTranslation();
-  
+
   const [pickupTime, setPickupTime] = useState("");
   const [dropOffTime, setDropOffTime] = useState("");
   const [selectedDriverId, setSelectedDriverId] = useState("");
@@ -333,13 +335,13 @@ const ScheduleEditModal = ({
         <button className="modal-close-btn" onClick={onClose}>
           <FaTimes />
         </button>
-        <h4>{t('schedule.editSchedule')}</h4>
+        <h4>{t("schedule.editSchedule")}</h4>
         <form onSubmit={handleSave} className="modal-form">
           <p>
-            <strong>{t('schedule.route')}:</strong> {routeName}
+            <strong>{t("schedule.route")}:</strong> {routeName}
           </p>
           <p>
-            <strong>{t('schedule.date')}:</strong>{" "}
+            <strong>{t("schedule.date")}:</strong>{" "}
             {schedule.scheduleDate
               ? format(parseISO(schedule.scheduleDate), "EEEE, dd/MM/yyyy", {
                   locale: vi,
@@ -348,7 +350,7 @@ const ScheduleEditModal = ({
           </p>
           <div className="form-row">
             <div className="form-group">
-              <label>{t('schedule.pickupTime')}</label>
+              <label>{t("schedule.pickupTime")}</label>
               <input
                 type="time"
                 value={pickupTime}
@@ -358,7 +360,7 @@ const ScheduleEditModal = ({
               />
             </div>
             <div className="form-group">
-              <label>{t('schedule.dropOffTime')}</label>
+              <label>{t("schedule.dropOffTime")}</label>
               <input
                 type="time"
                 value={dropOffTime}
@@ -371,12 +373,13 @@ const ScheduleEditModal = ({
 
           {isLoadingDropdowns ? (
             <div className="loading-message">
-              <FaSpinner className="spinner" /> {t('schedule.loadingDriversBuses')}
+              <FaSpinner className="spinner" />{" "}
+              {t("schedule.loadingDriversBuses")}
             </div>
           ) : (
             <div className="form-row">
               <div className="form-group">
-                <label>{t('schedule.driver')}</label>
+                <label>{t("schedule.driver")}</label>
                 <select
                   value={selectedDriverId}
                   onChange={(e) => setSelectedDriverId(e.target.value)}
@@ -384,7 +387,7 @@ const ScheduleEditModal = ({
                   required
                 >
                   <option value="" disabled>
-                    {t('schedule.selectDriver')}
+                    {t("schedule.selectDriver")}
                   </option>
                   {drivers.map((d) => (
                     <option
@@ -396,14 +399,14 @@ const ScheduleEditModal = ({
                     >
                       {d.driverName}{" "}
                       {!d.canClickable && d.id !== Number(currentDriverId)
-                        ? t('schedule.alreadyScheduled')
+                        ? t("schedule.alreadyScheduled")
                         : ""}
                     </option>
                   ))}
                 </select>
               </div>
               <div className="form-group">
-                <label>{t('schedule.bus')}</label>
+                <label>{t("schedule.bus")}</label>
                 <select
                   value={selectedBusId}
                   onChange={(e) => setSelectedBusId(e.target.value)}
@@ -411,7 +414,7 @@ const ScheduleEditModal = ({
                   required
                 >
                   <option value="" disabled>
-                    {t('schedule.selectBus')}
+                    {t("schedule.selectBus")}
                   </option>
                   {buses.map((b) => (
                     <option
@@ -423,7 +426,7 @@ const ScheduleEditModal = ({
                     >
                       {b.busName}{" "}
                       {!b.canClickable && b.id !== Number(currentBusId)
-                        ? t('schedule.alreadyScheduled')
+                        ? t("schedule.alreadyScheduled")
                         : ""}
                     </option>
                   ))}
@@ -433,15 +436,15 @@ const ScheduleEditModal = ({
           )}
 
           <div className="form-group">
-            <label>{t('common.status')}</label>
+            <label>{t("common.status")}</label>
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
               disabled={!isEditable}
             >
-              <option value={0}>{t('schedule.statusInactive')}</option>
-              <option value={1}>{t('schedule.statusActive')}</option>
-              <option value={2}>{t('schedule.statusCompleted')}</option>
+              <option value={0}>{t("schedule.statusInactive")}</option>
+              <option value={1}>{t("schedule.statusActive")}</option>
+              <option value={2}>{t("schedule.statusCompleted")}</option>
             </select>
           </div>
 
@@ -451,19 +454,19 @@ const ScheduleEditModal = ({
               className="delete-schedule-btn"
               onClick={onClose}
             >
-              {t('common.cancel')}
+              {t("common.cancel")}
             </button>
             <button
               type="submit"
               className="delete-schedule-btn"
               disabled={!isEditable}
             >
-              {t('common.save')}
+              {t("common.save")}
             </button>
           </div>
           {!isEditable && (
             <small style={{ color: "#e67e22" }}>
-              {t('schedule.editOnlyInactive')}
+              {t("schedule.editOnlyInactive")}
             </small>
           )}
         </form>
@@ -475,7 +478,7 @@ const ScheduleEditModal = ({
 // --- COMPONENT MODAL XÁC NHẬN XÓA ---
 const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, scheduleInfo }) => {
   const { t } = useTranslation();
-  
+
   if (!isOpen) return null;
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -485,26 +488,28 @@ const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, scheduleInfo }) => {
       >
         <div className="modal-header">
           <FaExclamationTriangle size={30} color="#e74c3c" />
-          <h4>{t('schedule.confirmDelete')}</h4>
+          <h4>{t("schedule.confirmDelete")}</h4>
         </div>
         <p className="confirm-text">
           {" "}
           {/* Sửa lại class */}
-          {t('schedule.deleteMessage', {
+          {t("schedule.deleteMessage", {
             route: scheduleInfo?.routeName,
-            date: scheduleInfo?.date ? format(parseISO(scheduleInfo.date), "dd/MM/yyyy") : "",
-            time: scheduleInfo?.time
+            date: scheduleInfo?.date
+              ? format(parseISO(scheduleInfo.date), "dd/MM/yyyy")
+              : "",
+            time: scheduleInfo?.time,
           })}
         </p>
         <div className="confirm-actions">
           <button className="confirm-btn cancel-btn" onClick={onClose}>
-            {t('common.cancel')}
+            {t("common.cancel")}
           </button>
           <button
             className="confirm-btn delete-confirm-btn"
             onClick={onConfirm}
           >
-            {t('common.delete')}
+            {t("common.delete")}
           </button>
         </div>
       </div>
@@ -764,7 +769,7 @@ const ScheduleListPageNew = () => {
             fetchSchedules(currentDate);
           }}
         >
-          {t('schedule.retry')}
+          {t("schedule.retry")}
         </button>
       </div>
     );
@@ -807,9 +812,7 @@ const ScheduleListPageNew = () => {
 
       <main className="main-content-area schedule-calendar-page">
         <header className="page-header">
-          <div className="breadcrumbs">
-            {t('schedule.breadcrumb')}
-          </div>
+          <div className="breadcrumbs">{t("schedule.breadcrumb")}</div>
           {/* Có thể thêm nút Tìm kiếm,... ở đây nếu cần */}
         </header>
 
@@ -818,26 +821,26 @@ const ScheduleListPageNew = () => {
             <button
               onClick={goToPrevWeek}
               className="nav-button"
-              title={t('schedule.prevWeek')}
+              title={t("schedule.prevWeek")}
             >
               <FaChevronLeft />
             </button>
             <h2>
-              {t('schedule.week')} {format(currentWeekStart, "dd/MM")} -{" "}
+              {t("schedule.week")} {format(currentWeekStart, "dd/MM")} -{" "}
               {format(currentWeekEnd, "dd/MM/yyyy")}
             </h2>
             {/* Nút về tuần hiện tại */}
             <button
               onClick={goToCurrentWeek}
               className="nav-button today-button"
-              title={t('schedule.currentWeek')}
+              title={t("schedule.currentWeek")}
             >
               <FaCalendarDay /> {/* Icon khác */}
             </button>
             <button
               onClick={goToNextWeek}
               className="nav-button"
-              title={t('schedule.nextWeek')}
+              title={t("schedule.nextWeek")}
             >
               <FaChevronRight />
             </button>
@@ -845,7 +848,7 @@ const ScheduleListPageNew = () => {
 
           {showMainLoading && schedules.length === 0 && routes.length === 0 ? ( // Chỉ hiển thị loading lớn khi chưa có dữ liệu gì
             <div className="loading-message">
-              <FaSpinner className="spinner" /> {t('common.loading')}
+              <FaSpinner className="spinner" /> {t("common.loading")}
             </div>
           ) : (
             <div className="calendar-grid-container">
@@ -856,12 +859,16 @@ const ScheduleListPageNew = () => {
                       {isLoadingRoutes ? (
                         <FaSpinner className="spinner" />
                       ) : (
-                        t('schedule.route')
+                        t("schedule.route")
                       )}
                     </th>
                     {daysInWeek.map((day) => (
                       <th key={day.toISOString()} className="day-header-cell">
-                        <div>{format(day, "EEEE", { locale: i18n.language === 'vi' ? vi : enUS })}</div>
+                        <div>
+                          {format(day, "EEEE", {
+                            locale: i18n.language === "vi" ? vi : enUS,
+                          })}
+                        </div>
                         <div>{format(day, "dd/MM")}</div>
                       </th>
                     ))}
@@ -871,7 +878,7 @@ const ScheduleListPageNew = () => {
                   {routes.length === 0 && !isLoadingRoutes ? (
                     <tr>
                       <td colSpan={8} className="no-routes-message">
-                        {t('route.noData')}
+                        {t("route.noData")}
                       </td>
                     </tr>
                   ) : (

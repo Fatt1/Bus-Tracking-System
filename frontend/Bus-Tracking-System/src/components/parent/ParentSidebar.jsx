@@ -19,13 +19,13 @@ const ParentSidebar = () => {
           <li className={activePage === "/parent/home" ? "active" : ""}>
             <Link to="/parent/home">
               <FiHome />
-              <span>{t('parent.sidebar.home')}</span>
+              <span>{t("parent.sidebar.home")}</span>
             </Link>
           </li>
           <li className={activePage === "/parent/map" ? "active" : ""}>
             <Link to="/parent/map">
               <FiMapPin />
-              <span>{t('parent.sidebar.tracking')}</span>
+              <span>{t("parent.sidebar.tracking")}</span>
             </Link>
           </li>
           <li
@@ -33,7 +33,7 @@ const ParentSidebar = () => {
           >
             <Link to="/parent/notifications">
               <FiBell />
-              <span>{t('parent.sidebar.notifications')}</span>
+              <span>{t("parent.sidebar.notifications")}</span>
             </Link>
           </li>
         </ul>

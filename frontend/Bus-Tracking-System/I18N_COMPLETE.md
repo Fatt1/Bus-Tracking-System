@@ -5,6 +5,7 @@
 ### ✅ Đã hoàn thành 100%:
 
 #### **1. Cấu hình cơ bản**
+
 - [x] Cài đặt packages (i18next, react-i18next, i18next-browser-languagedetector)
 - [x] Tạo file `src/i18n.js`
 - [x] Tạo `src/locales/vi/translation.json` (Tiếng Việt đầy đủ)
@@ -12,17 +13,20 @@
 - [x] Import i18n vào `src/main.jsx`
 
 #### **2. Component Language Switcher**
+
 - [x] `src/components/LanguageSwitcher.jsx`
 - [x] `src/components/LanguageSwitcher.css`
 - [x] Nút VI/EN với cờ quốc gia
 - [x] Lưu ngôn ngữ vào localStorage
 
 #### **3. Admin Pages & Components**
+
 - [x] `src/pages/DashboardPage.jsx` - Trang chủ admin
 - [x] `src/components/SideBar.jsx` - Sidebar admin
 - [x] `src/components/Layout.jsx` - Layout wrapper
 
 #### **4. Driver Pages & Components**
+
 - [x] `src/pages/driver/DriverHomePage.jsx` - Trang chủ tài xế (HOÀN CHỈNH)
   - [x] DriverSidebar component (inline)
   - [x] DriverHeader component (inline)
@@ -33,11 +37,13 @@
   - [x] All UI labels
 
 #### **5. Parent Pages & Components**
+
 - [x] `src/pages/parent/ParentHomePage.jsx` - Trang chủ phụ huynh
 - [x] `src/components/parent/ParentSidebar.jsx` - Sidebar phụ huynh
 - [x] `src/components/parent/ParentHeader.jsx` - Header phụ huynh với Language Switcher
 
 #### **6. Login & Auth**
+
 - [x] `src/pages/LoginPage.jsx` - Trang đăng nhập
 - [x] `src/pages/LoginPage.css` - Updated CSS cho Language Switcher
 
@@ -48,17 +54,20 @@
 ### **Test ngay:**
 
 1. **Chạy app:**
+
 ```bash
 cd frontend/Bus-Tracking-System
 npm run dev
 ```
 
 2. **Mở trình duyệt:**
+
    - Mở `http://localhost:5173/login`
    - Click nút **VI** hoặc **EN** ở góc trên bên phải
    - Tất cả text sẽ đổi NGAY LẬP TỨC!
 
 3. **Login với các role khác nhau:**
+
    - **Admin**: Thấy Dashboard với sidebar admin
    - **Driver**: Thấy Driver Home với sidebar tài xế
    - **Parent**: Thấy Parent Home với sidebar phụ huynh
@@ -73,11 +82,13 @@ npm run dev
 ## 🎯 Các tính năng chính:
 
 ### ✅ **Global State Management**
+
 - Khi đổi ngôn ngữ ở bất kỳ đâu → TẤT CẢ component tự động re-render
 - Không cần prop drilling
 - Không cần context riêng
 
 ### ✅ **Persistent Language**
+
 - Ngôn ngữ lưu trong `localStorage` với key `language`
 - Không mất khi reload page
 - Không mất khi đóng/mở tab
@@ -86,12 +97,14 @@ npm run dev
 ### ✅ **Complete Translation Coverage**
 
 #### **Admin:**
+
 - Dashboard breadcrumb, search, buttons
 - Sidebar menu items
 - Route cards, simulation controls
 - Map placeholders
 
 #### **Driver:**
+
 - Home page greeting, schedule info
 - Trip cards (Pickup/Dropoff)
 - Status labels (Waiting, Ready, In Progress, Completed)
@@ -100,6 +113,7 @@ npm run dev
 - Sidebar menu
 
 #### **Parent:**
+
 - Home page welcome message
 - Schedule information
 - Trip details
@@ -107,6 +121,7 @@ npm run dev
 - Header, Sidebar menu
 
 #### **Login:**
+
 - Title, labels, placeholders
 - Buttons, error messages
 
@@ -128,7 +143,7 @@ npm run dev
   },
   "driver": {
     "sidebar": { "home", "schedule", "students", ... },
-    "home": { 
+    "home": {
       "welcome", "scheduleToday", "pickupTrip", "dropoffTrip",
       "waiting", "ready", "inProgress", "completed", ...
     }
@@ -147,6 +162,7 @@ npm run dev
 ## 🔧 Nếu cần thêm text mới:
 
 1. **Thêm vào translation files:**
+
 ```json
 // src/locales/vi/translation.json
 {
@@ -168,10 +184,11 @@ npm run dev
 ```
 
 2. **Sử dụng trong component:**
+
 ```jsx
 const MyComponent = () => {
   const { t } = useTranslation();
-  return <div>{t('driver.home.newKey')}</div>;
+  return <div>{t("driver.home.newKey")}</div>;
 };
 ```
 
@@ -180,6 +197,7 @@ const MyComponent = () => {
 ## 📁 Files đã được chỉnh sửa:
 
 ### **Created:**
+
 - `src/i18n.js`
 - `src/locales/vi/translation.json`
 - `src/locales/en/translation.json`
@@ -188,6 +206,7 @@ const MyComponent = () => {
 - `I18N_IMPLEMENTATION_GUIDE.md` (hướng dẫn)
 
 ### **Modified:**
+
 - `src/main.jsx` (import i18n)
 - `src/pages/DashboardPage.jsx` (Admin)
 - `src/components/SideBar.jsx` (Admin)
@@ -203,6 +222,7 @@ const MyComponent = () => {
 ## 🎨 UI/UX:
 
 ### **Language Switcher Design:**
+
 - 🇻🇳 **VI** | 🇬🇧 **EN** buttons
 - Highlight active language
 - Smooth transition
@@ -210,6 +230,7 @@ const MyComponent = () => {
 - Positioned in header (visible on all pages)
 
 ### **No Page Reload:**
+
 - Instant language switch
 - No loading spinner
 - All text updates immediately
@@ -231,6 +252,7 @@ const MyComponent = () => {
 ## 🚀 Ready to use!
 
 Bạn có thể:
+
 1. ✅ Test ngay bằng cách chạy `npm run dev`
 2. ✅ Đổi ngôn ngữ ở bất kỳ trang nào
 3. ✅ Ngôn ngữ được lưu và sync giữa các trang

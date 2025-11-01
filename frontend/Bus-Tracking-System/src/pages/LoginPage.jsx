@@ -82,7 +82,7 @@ const LoginPage = () => {
           </div>
           <div className="login-card-right">
             <form onSubmit={handleLogin} className="login-form">
-              <h2>{t('login.title').toUpperCase()}</h2>
+              <h2>{t("login.title").toUpperCase()}</h2>
 
               {error && (
                 <div className="login-error-message">
@@ -92,26 +92,28 @@ const LoginPage = () => {
               )}
 
               <div className="form-group">
-                <label htmlFor="email">{t('login.email').toUpperCase()}</label>
+                <label htmlFor="email">{t("login.email").toUpperCase()}</label>
                 <input
                   type="text"
                   id="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder={t('login.email')}
+                  placeholder={t("login.email")}
                   required
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="password">{t('login.password').toUpperCase()}</label>
+                <label htmlFor="password">
+                  {t("login.password").toUpperCase()}
+                </label>
                 <div className="password-input-wrapper">
                   <input
                     type={showPassword ? "text" : "password"}
                     id="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder={t('login.password')}
+                    placeholder={t("login.password")}
                     required
                   />
                   <span
@@ -124,7 +126,9 @@ const LoginPage = () => {
               </div>
 
               <button type="submit" className="login-button" disabled={loading}>
-                {loading ? t('common.loading') : t('login.loginButton').toUpperCase()}
+                {loading
+                  ? t("common.loading")
+                  : t("login.loginButton").toUpperCase()}
               </button>
             </form>
           </div>

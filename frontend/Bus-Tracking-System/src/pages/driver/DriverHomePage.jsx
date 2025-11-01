@@ -193,12 +193,12 @@ const DriverSidebar = ({ t }) => {
         <ul>
           <li className={activePage === "/driver/home" ? "active" : ""}>
             <Link to="/driver/home">
-              <FaHome /> {t('driver.sidebar.home')}
+              <FaHome /> {t("driver.sidebar.home")}
             </Link>
           </li>
           <li className={activePage === "/driver/schedule" ? "active" : ""}>
             <Link to="/driver/schedule">
-              <FaTasks /> {t('driver.sidebar.schedule')}
+              <FaTasks /> {t("driver.sidebar.schedule")}
             </Link>
           </li>
           <li
@@ -207,7 +207,7 @@ const DriverSidebar = ({ t }) => {
             }
           >
             <Link to="/driver/students">
-              <FaUserCheck /> {t('driver.sidebar.students')}
+              <FaUserCheck /> {t("driver.sidebar.students")}
             </Link>
           </li>
           <li
@@ -216,7 +216,7 @@ const DriverSidebar = ({ t }) => {
             }
           >
             <Link to="/driver/notifications">
-              <FaBell /> {t('driver.sidebar.notifications')}
+              <FaBell /> {t("driver.sidebar.notifications")}
             </Link>
           </li>
         </ul>
@@ -239,7 +239,7 @@ const DriverHeader = ({
   return (
     <header className="driver-header">
       <div className="breadcrumbs">
-        <span>{t('common.page')}</span> / <span>{t('common.home')}</span>
+        <span>{t("common.page")}</span> / <span>{t("common.home")}</span>
         {/* SignalR Connection Status Indicator */}
         <span
           style={{
@@ -261,7 +261,7 @@ const DriverHeader = ({
       <div className="driver-header-actions">
         <button className="report-incident-btn" onClick={onReportIncident}>
           <FaExclamationTriangle />
-          <span>{t('driver.home.reportIncident')}</span>
+          <span>{t("driver.home.reportIncident")}</span>
         </button>
         <div
           className="notification-bell-wrapper"
@@ -274,7 +274,7 @@ const DriverHeader = ({
         </div>
         <input
           type="text"
-          placeholder={t('common.search')}
+          placeholder={t("common.search")}
           className="driver-search-input"
         />
         <LanguageSwitcher />
@@ -287,7 +287,7 @@ const DriverHeader = ({
           <span>{driverName}</span>
         </div>
         <button className="driver-logout-btn" onClick={onLogout}>
-          {t('common.logout')}
+          {t("common.logout")}
         </button>
       </div>
     </header>
@@ -551,35 +551,35 @@ const DriverHomePage = () => {
     let pickupStatus, pickupText;
     if (pickupHistoryExists) {
       pickupStatus = "completed";
-      pickupText = t('driver.home.completed');
+      pickupText = t("driver.home.completed");
     } else if (pickupCompletedLocal) {
       pickupStatus = "completed";
-      pickupText = t('driver.home.completed');
+      pickupText = t("driver.home.completed");
     } else if (isDrivingPickup) {
       pickupStatus = "in-progress";
-      pickupText = t('driver.home.inProgress');
+      pickupText = t("driver.home.inProgress");
     } else {
       pickupStatus = "ready";
-      pickupText = t('driver.home.ready');
+      pickupText = t("driver.home.ready");
     }
 
     // Xác định trạng thái chuyến về (chiều)
     let dropoffStatus, dropoffText;
     if (dropoffHistoryExists) {
       dropoffStatus = "completed";
-      dropoffText = t('driver.home.completed');
+      dropoffText = t("driver.home.completed");
     } else if (dropoffCompletedLocal) {
       dropoffStatus = "completed";
-      dropoffText = t('driver.home.completed');
+      dropoffText = t("driver.home.completed");
     } else if (isDrivingDropoff) {
       dropoffStatus = "in-progress";
-      dropoffText = t('driver.home.inProgress');
+      dropoffText = t("driver.home.inProgress");
     } else if (!pickupHistoryExists && !pickupCompletedLocal) {
       dropoffStatus = "waiting";
-      dropoffText = t('driver.home.waiting');
+      dropoffText = t("driver.home.waiting");
     } else {
       dropoffStatus = "ready";
-      dropoffText = t('driver.home.ready');
+      dropoffText = t("driver.home.ready");
     }
 
     // ⚠️ Chuyến sáng active nếu:
@@ -651,14 +651,15 @@ const DriverHomePage = () => {
         <main className="driver-main-content">
           {isLoading ? (
             <div className="loading-message">
-              <FaSpinner className="spinner" /> {t('driver.home.loadingSchedule')}
+              <FaSpinner className="spinner" />{" "}
+              {t("driver.home.loadingSchedule")}
             </div>
           ) : error ? (
             <div className="error-message">{error}</div>
           ) : !scheduleData ? (
             <div className="no-schedule-message">
               <FaCalendarAlt size={50} />
-              <p>{t('driver.home.noSchedule')}</p>
+              <p>{t("driver.home.noSchedule")}</p>
             </div>
           ) : (
             <>
@@ -666,28 +667,31 @@ const DriverHomePage = () => {
                 <div className="driver-info-card">
                   <img src={mockDriverProfile.avatarUrl} alt="Driver Avatar" />
                   <div className="driver-details">
-                    <p>{t('driver.home.driver')}:</p>
+                    <p>{t("driver.home.driver")}:</p>
                     <h3>{fullName}</h3>
                     <span>
-                      {t('driver.home.bus')}:{" "}
+                      {t("driver.home.bus")}:{" "}
                       <strong>{scheduleData.busName || "N/A"}</strong>
                     </span>
                   </div>
                 </div>
                 <div className="driver-greeting-card">
                   <p>
-                    {t('driver.home.goodMorning')}, <strong>{fullName}</strong>! {t('driver.home.todaySchedule')}{" "}
-                    <strong>2 {t('driver.home.trips')}</strong> {t('driver.home.onRoute')}{" "}
+                    {t("driver.home.goodMorning")}, <strong>{fullName}</strong>!{" "}
+                    {t("driver.home.todaySchedule")}{" "}
+                    <strong>2 {t("driver.home.trips")}</strong>{" "}
+                    {t("driver.home.onRoute")}{" "}
                     <strong>{scheduleData.routeDTO?.routeName || "N/A"}</strong>{" "}
-                    {t('driver.home.startAt')}{" "}
-                    <strong>{formatTime(scheduleData.pickupTime)}</strong>. {t('driver.home.safeTrip')}
+                    {t("driver.home.startAt")}{" "}
+                    <strong>{formatTime(scheduleData.pickupTime)}</strong>.{" "}
+                    {t("driver.home.safeTrip")}
                   </p>
                 </div>
               </section>
 
               <section className="driver-schedule-section">
                 <div className="schedule-list">
-                  <h4>{t('driver.home.scheduleToday')}</h4>
+                  <h4>{t("driver.home.scheduleToday")}</h4>
                   <p className="schedule-date">
                     {formatDate(scheduleData.scheduleDate)}
                   </p>
@@ -698,22 +702,29 @@ const DriverHomePage = () => {
                       <FaBus size={24} />
                     </div>
                     <div className="schedule-card-info">
-                      <h4>{scheduleData.routeDTO?.routeName || t('driver.home.route')}</h4>
-                      <p>{t('driver.home.bus')}: {scheduleData.busName}</p>
+                      <h4>
+                        {scheduleData.routeDTO?.routeName ||
+                          t("driver.home.route")}
+                      </h4>
+                      <p>
+                        {t("driver.home.bus")}: {scheduleData.busName}
+                      </p>
                       <span>
-                        {t('driver.home.departure')}: {formatTime(scheduleData.pickupTime)}
+                        {t("driver.home.departure")}:{" "}
+                        {formatTime(scheduleData.pickupTime)}
                       </span>
                     </div>
                     <div className="schedule-card-details">
-                      <h3>{t('driver.home.pickupTrip')}</h3>
+                      <h3>{t("driver.home.pickupTrip")}</h3>
                       <p>
-                        {t('driver.home.status')}:{" "}
+                        {t("driver.home.status")}:{" "}
                         <span className={`status-${tripStatus.pickupStatus}`}>
                           {tripStatus.pickupText}
                         </span>
                       </p>
                       <p>
-                        {t('driver.home.studentsToPickup')}: {scheduleData.totalStudents || 0}
+                        {t("driver.home.studentsToPickup")}:{" "}
+                        {scheduleData.totalStudents || 0}
                       </p>
                     </div>
                     <button
@@ -745,7 +756,9 @@ const DriverHomePage = () => {
                         );
                       }}
                     >
-                      {isDrivingPickup ? t('driver.home.running') : t('driver.home.startPickup')}
+                      {isDrivingPickup
+                        ? t("driver.home.running")
+                        : t("driver.home.startPickup")}
                     </button>
                   </div>
 
@@ -755,22 +768,28 @@ const DriverHomePage = () => {
                       <FaBus size={24} />
                     </div>
                     <div className="schedule-card-info">
-                      <h4>{scheduleData.routeDTO?.routeName || t('driver.home.route')}</h4>
-                      <p>{t('driver.home.bus')}: {scheduleData.busName}</p>
+                      <h4>
+                        {scheduleData.routeDTO?.routeName ||
+                          t("driver.home.route")}
+                      </h4>
+                      <p>
+                        {t("driver.home.bus")}: {scheduleData.busName}
+                      </p>
                       <span>
-                        {t('driver.home.departure')}: {formatTime(scheduleData.dropOffTime)}
+                        {t("driver.home.departure")}:{" "}
+                        {formatTime(scheduleData.dropOffTime)}
                       </span>
                     </div>
                     <div className="schedule-card-details">
-                      <h3>{t('driver.home.dropoffTrip')}</h3>
+                      <h3>{t("driver.home.dropoffTrip")}</h3>
                       <p>
-                        {t('driver.home.status')}:{" "}
+                        {t("driver.home.status")}:{" "}
                         <span className={`status-${tripStatus.dropoffStatus}`}>
                           {tripStatus.dropoffText}
                         </span>
                       </p>
                       <p>
-                        {t('driver.home.studentsToDropoff')}:{" "}
+                        {t("driver.home.studentsToDropoff")}:{" "}
                         {scheduleData.totalStudents || 0}
                       </p>
                     </div>
@@ -805,7 +824,9 @@ const DriverHomePage = () => {
                         );
                       }}
                     >
-                      {isDrivingDropoff ? t('driver.home.running') : t('driver.home.startDropoff')}
+                      {isDrivingDropoff
+                        ? t("driver.home.running")
+                        : t("driver.home.startDropoff")}
                     </button>
                   </div>
                 </div>
@@ -836,7 +857,7 @@ const DriverHomePage = () => {
                   ) : (
                     <div className="driver-map-placeholder">
                       <FaMapMarkedAlt size={50} />
-                      <span>{t('driver.home.noRouteData')}</span>
+                      <span>{t("driver.home.noRouteData")}</span>
                     </div>
                   )}
                 </div>

@@ -13,7 +13,7 @@ import { useTranslation } from "react-i18next";
 
 export function SideBar() {
   const { t } = useTranslation();
-  
+
   return (
     <aside className="sidebar">
       <div className="sidebar-header">
@@ -23,37 +23,37 @@ export function SideBar() {
         <ul>
           <li>
             <NavLink to="/" end>
-              <FaHome /> {t('admin.sidebar.dashboard')}
+              <FaHome /> {t("admin.sidebar.dashboard")}
             </NavLink>
           </li>
           <li>
             <NavLink to="/bus">
-              <FaBus /> {t('admin.sidebar.buses')}
+              <FaBus /> {t("admin.sidebar.buses")}
             </NavLink>
           </li>
           <li>
             <NavLink to="/drivers">
-              <FaUserTie /> {t('admin.sidebar.drivers')}
+              <FaUserTie /> {t("admin.sidebar.drivers")}
             </NavLink>
           </li>
           <li>
             <NavLink to="/routes">
-              <FaRoute /> {t('admin.sidebar.routes')}
+              <FaRoute /> {t("admin.sidebar.routes")}
             </NavLink>
           </li>
           <li>
             <NavLink to="/schedule">
-              <FaRoute /> {t('admin.sidebar.schedules')}
+              <FaRoute /> {t("admin.sidebar.schedules")}
             </NavLink>
           </li>
           <li>
             <NavLink to="/students">
-              <FaUserGraduate /> {t('admin.sidebar.students')}
+              <FaUserGraduate /> {t("admin.sidebar.students")}
             </NavLink>
           </li>
           <li>
             <NavLink to="/notification">
-              <FaCommentDots /> {t('admin.sidebar.notifications')}
+              <FaCommentDots /> {t("admin.sidebar.notifications")}
             </NavLink>
           </li>
         </ul>

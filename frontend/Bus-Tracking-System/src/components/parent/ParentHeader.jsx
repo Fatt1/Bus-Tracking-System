@@ -46,7 +46,7 @@ const ParentHeader = ({
         </div>
         <input
           type="text"
-          placeholder={t('common.search')}
+          placeholder={t("common.search")}
           className="parent-search-bar"
         />
         <LanguageSwitcher />
@@ -55,7 +55,7 @@ const ParentHeader = ({
           <span>{parentName}</span>
         </div>
         <button className="parent-logout-btn" onClick={handleLogout}>
-          {t('common.logout')}
+          {t("common.logout")}
         </button>
       </div>
     </header>

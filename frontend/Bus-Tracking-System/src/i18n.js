@@ -1,18 +1,18 @@
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import LanguageDetector from 'i18next-browser-languagedetector';
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+import LanguageDetector from "i18next-browser-languagedetector";
 
 // Import các file translation
-import translationVI from './locales/vi/translation.json';
-import translationEN from './locales/en/translation.json';
+import translationVI from "./locales/vi/translation.json";
+import translationEN from "./locales/en/translation.json";
 
 const resources = {
   vi: {
-    translation: translationVI
+    translation: translationVI,
   },
   en: {
-    translation: translationEN
-  }
+    translation: translationEN,
+  },
 };
 
 i18n
@@ -20,16 +20,16 @@ i18n
   .use(initReactI18next) // Kết nối với React
   .init({
     resources,
-    fallbackLng: 'vi', // Ngôn ngữ mặc định
-    lng: localStorage.getItem('language') || 'vi', // Lấy từ localStorage hoặc dùng 'vi'
+    fallbackLng: "vi", // Ngôn ngữ mặc định
+    lng: localStorage.getItem("language") || "vi", // Lấy từ localStorage hoặc dùng 'vi'
     debug: false,
     interpolation: {
-      escapeValue: false // React đã tự động escape
+      escapeValue: false, // React đã tự động escape
     },
     detection: {
-      order: ['localStorage', 'navigator'], // Ưu tiên localStorage
-      caches: ['localStorage']
-    }
+      order: ["localStorage", "navigator"], // Ưu tiên localStorage
+      caches: ["localStorage"],
+    },
   });
 
 export default i18n;

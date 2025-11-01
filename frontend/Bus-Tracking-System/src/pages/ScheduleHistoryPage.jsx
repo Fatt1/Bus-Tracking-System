@@ -11,12 +11,13 @@ import { vi } from "date-fns/locale";
 // Component Bảng học sinh
 const StudentTable = ({ students, isLoading }) => {
   const { t } = useTranslation();
-  
+
   if (isLoading) {
     return (
       <div className="table-container student-history-table">
         <div className="loading-message">
-          <FaSpinner className="spinner" /> {t('scheduleHistory.loadingStudents')}
+          <FaSpinner className="spinner" />{" "}
+          {t("scheduleHistory.loadingStudents")}
         </div>
       </div>
     );
@@ -27,10 +28,10 @@ const StudentTable = ({ students, isLoading }) => {
       <table>
         <thead>
           <tr>
-            <th>{t('common.stt')}</th>
-            <th>{t('scheduleHistory.studentName')}</th>
-            <th>{t('scheduleHistory.pickupPoint')}</th>
-            <th>{t('common.status')}</th>
+            <th>{t("common.stt")}</th>
+            <th>{t("scheduleHistory.studentName")}</th>
+            <th>{t("scheduleHistory.pickupPoint")}</th>
+            <th>{t("common.status")}</th>
           </tr>
         </thead>
         <tbody>
@@ -43,8 +44,8 @@ const StudentTable = ({ students, isLoading }) => {
                 return "status-default"; // Mặc định
               };
               const getStatusText = (status) => {
-                if (status === "PickedUp") return t('scheduleHistory.pickedUp');
-                if (status === "Absent") return t('scheduleHistory.absent');
+                if (status === "PickedUp") return t("scheduleHistory.pickedUp");
+                if (status === "Absent") return t("scheduleHistory.absent");
                 return status; // Trả về nguyên nếu không match
               };
 
@@ -68,7 +69,7 @@ const StudentTable = ({ students, isLoading }) => {
           ) : (
             <tr>
               <td colSpan="4" style={{ textAlign: "center" }}>
-                {t('scheduleHistory.noStudents')}
+                {t("scheduleHistory.noStudents")}
               </td>
             </tr>
           )}
@@ -141,7 +142,7 @@ const TripHistoryPage = () => {
     return (
       <main className="main-content-area">
         <div className="loading-message">
-          <FaSpinner className="spinner" /> {t('common.loading')}
+          <FaSpinner className="spinner" /> {t("common.loading")}
         </div>
       </main>
     );
@@ -160,9 +161,9 @@ const TripHistoryPage = () => {
       <header className="page-header">
         <div className="breadcrumbs">
           <Link to="/schedule-trips" className="back-link">
-            <FaAngleLeft /> {t('scheduleHistory.backToList')}
+            <FaAngleLeft /> {t("scheduleHistory.backToList")}
           </Link>
-          / <span>{t('scheduleHistory.tripHistory')}</span>
+          / <span>{t("scheduleHistory.tripHistory")}</span>
         </div>
         {/* Header actions (nếu cần) */}
       </header>
@@ -170,7 +171,7 @@ const TripHistoryPage = () => {
       <div className="page-content trip-history-page">
         {/* Tiêu đề trang */}
         <div className="history-header">
-          <h2>{routeNameFromState || t('route.routeName')}</h2>
+          <h2>{routeNameFromState || t("route.routeName")}</h2>
           <span className="history-date">{formattedDate}</span>
         </div>
 
@@ -178,7 +179,7 @@ const TripHistoryPage = () => {
         <form className="history-form-container">
           <div className="history-form-row">
             <div className="form-group readonly-group">
-              <label>{t('scheduleHistory.departureTime')}</label>
+              <label>{t("scheduleHistory.departureTime")}</label>
               <div className="input-with-icon">
                 <input
                   type="text"
@@ -192,7 +193,7 @@ const TripHistoryPage = () => {
               </div>
             </div>
             <div className="form-group readonly-group">
-              <label>{t('scheduleHistory.returnTime')}</label>
+              <label>{t("scheduleHistory.returnTime")}</label>
               <div className="input-with-icon">
                 <input
                   type="text"
@@ -208,7 +209,7 @@ const TripHistoryPage = () => {
           </div>
           <div className="history-form-row">
             <div className="form-group readonly-group">
-              <label>{t('scheduleHistory.driver')}</label>
+              <label>{t("scheduleHistory.driver")}</label>
               <div className="input-with-icon">
                 <input
                   type="text"
@@ -218,7 +219,7 @@ const TripHistoryPage = () => {
               </div>
             </div>
             <div className="form-group readonly-group">
-              <label>{t('scheduleHistory.bus')}</label>
+              <label>{t("scheduleHistory.bus")}</label>
               <div className="input-with-icon">
                 <input
                   type="text"
@@ -233,16 +234,16 @@ const TripHistoryPage = () => {
         {/* Phần danh sách học sinh */}
         <div className="student-list-section">
           <div className="student-list-header">
-            <h4>{t('scheduleHistory.studentHistory')}</h4>
+            <h4>{t("scheduleHistory.studentHistory")}</h4>
             <div className="form-group">
-              <label htmlFor="tripType">{t('scheduleHistory.type')}</label>
+              <label htmlFor="tripType">{t("scheduleHistory.type")}</label>
               <select
                 id="tripType"
                 value={tripType}
                 onChange={(e) => setTripType(parseInt(e.target.value))}
               >
-                <option value={1}>{t('scheduleHistory.outbound')}</option>
-                <option value={2}>{t('scheduleHistory.inbound')}</option>
+                <option value={1}>{t("scheduleHistory.outbound")}</option>
+                <option value={2}>{t("scheduleHistory.inbound")}</option>
               </select>
             </div>
           </div>

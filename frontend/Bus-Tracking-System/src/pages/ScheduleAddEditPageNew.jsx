@@ -306,32 +306,32 @@ const ScheduleAddEditPageNew = () => {
     <main className="main-content-area add-schedule-form-page">
       <header className="page-header">
         <div className="breadcrumbs">
-          <span>{t('common.page')}</span> /{" "}
+          <span>{t("common.page")}</span> /{" "}
           <span
             onClick={() => navigate("/schedule")}
             style={{ cursor: "pointer", color: "#0a2e5d" }}
           >
-            {t('admin.sidebar.schedules')}
+            {t("admin.sidebar.schedules")}
           </span>{" "}
-          / <span>{t('schedule.addSchedule')}</span>
+          / <span>{t("schedule.addSchedule")}</span>
         </div>
       </header>
 
       <div className="page-content">
-        <h2>{t('schedule.addSchedule')}</h2>
+        <h2>{t("schedule.addSchedule")}</h2>
         <form onSubmit={handleSave} className="add-schedule-form">
           <div className="form-group readonly-group">
-            <label>{t('schedule.route')}</label>
+            <label>{t("schedule.route")}</label>
             <input type="text" value={routeName || "N/A"} readOnly disabled />
           </div>
           <div className="form-group readonly-group">
-            <label>{t('schedule.date')}</label>
+            <label>{t("schedule.date")}</label>
             <input type="text" value={formattedDate} readOnly disabled />
           </div>
 
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="pickupTime">{t('schedule.pickupTime')}</label>
+              <label htmlFor="pickupTime">{t("schedule.pickupTime")}</label>
               <input
                 type="time"
                 id="pickupTime"
@@ -342,7 +342,7 @@ const ScheduleAddEditPageNew = () => {
               />
             </div>
             <div className="form-group">
-              <label htmlFor="dropOffTime">{t('schedule.dropOffTime')}</label>
+              <label htmlFor="dropOffTime">{t("schedule.dropOffTime")}</label>
               <input
                 type="time"
                 id="dropOffTime"
@@ -356,12 +356,13 @@ const ScheduleAddEditPageNew = () => {
 
           {isLoadingDropdowns ? (
             <div className="loading-message">
-              <FaSpinner className="spinner" /> {t('schedule.loadingDriversBuses')}
+              <FaSpinner className="spinner" />{" "}
+              {t("schedule.loadingDriversBuses")}
             </div>
           ) : (
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="driverId">{t('schedule.driver')}</label>
+                <label htmlFor="driverId">{t("schedule.driver")}</label>
                 <select
                   id="driverId"
                   value={selectedDriverId}
@@ -369,7 +370,7 @@ const ScheduleAddEditPageNew = () => {
                   required
                 >
                   <option value="" disabled>
-                    {t('schedule.selectDriver')}
+                    {t("schedule.selectDriver")}
                   </option>
                   {drivers.map((driver) => (
                     <option
@@ -382,7 +383,7 @@ const ScheduleAddEditPageNew = () => {
                       }}
                     >
                       {driver.driverName}{" "}
-                      {!driver.canClickable && t('schedule.alreadyScheduled')}
+                      {!driver.canClickable && t("schedule.alreadyScheduled")}
                     </option>
                   ))}
                 </select>
@@ -395,12 +396,12 @@ const ScheduleAddEditPageNew = () => {
                         display: "block",
                       }}
                     >
-                      ⚠️ {t('schedule.allDriversScheduled')}
+                      ⚠️ {t("schedule.allDriversScheduled")}
                     </small>
                   )}
               </div>
               <div className="form-group">
-                <label htmlFor="busId">{t('schedule.bus')}</label>
+                <label htmlFor="busId">{t("schedule.bus")}</label>
                 <select
                   id="busId"
                   value={selectedBusId}
@@ -408,7 +409,7 @@ const ScheduleAddEditPageNew = () => {
                   required
                 >
                   <option value="" disabled>
-                    {t('schedule.selectBus')}
+                    {t("schedule.selectBus")}
                   </option>
                   {buses.map((bus) => (
                     <option
@@ -420,7 +421,8 @@ const ScheduleAddEditPageNew = () => {
                         fontStyle: bus.canClickable ? "normal" : "italic",
                       }}
                     >
-                      {bus.busName} {!bus.canClickable && t('schedule.alreadyScheduled')}
+                      {bus.busName}{" "}
+                      {!bus.canClickable && t("schedule.alreadyScheduled")}
                     </option>
                   ))}
                 </select>
@@ -432,7 +434,7 @@ const ScheduleAddEditPageNew = () => {
                       display: "block",
                     }}
                   >
-                    ⚠️ {t('schedule.allBusesScheduled')}
+                    ⚠️ {t("schedule.allBusesScheduled")}
                   </small>
                 )}
               </div>
@@ -445,14 +447,14 @@ const ScheduleAddEditPageNew = () => {
               className="action-btn-form cancel-btn"
               onClick={handleCancel}
             >
-              {t('common.cancel')}
+              {t("common.cancel")}
             </button>
             <button
               type="submit"
               className="action-btn-form confirm-btn"
               disabled={isLoadingDropdowns}
             >
-              {t('common.save')}
+              {t("common.save")}
             </button>
           </div>
         </form>

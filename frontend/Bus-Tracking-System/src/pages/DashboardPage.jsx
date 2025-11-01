@@ -24,7 +24,7 @@ const RouteCard = ({ route, onClick, isSelected, t }) => (
       <div className="route-card-icon">
         <FaBus size={24} />
       </div>
-      <h4>{route.routeName || t('admin.dashboard.routeName')}</h4>
+      <h4>{route.routeName || t("admin.dashboard.routeName")}</h4>
     </div>
     <div className="route-card-bottom">
       <p>
@@ -32,7 +32,7 @@ const RouteCard = ({ route, onClick, isSelected, t }) => (
           ? `${route.stopPoints[0].pointName} - ${
               route.stopPoints[route.stopPoints.length - 1].pointName
             }`
-          : t('admin.dashboard.noStops')}
+          : t("admin.dashboard.noStops")}
       </p>
     </div>
   </div>
@@ -144,24 +144,24 @@ const DashboardPage = () => {
       <div className="main-content-top-wrapper">
         <header className="main-header">
           <div className="breadcrumbs">
-            <span>{t('common.page')}</span> / <span>{t('common.home')}</span>
+            <span>{t("common.page")}</span> / <span>{t("common.home")}</span>
           </div>
           <div className="header-actions">
             <div className="search-bar">
               <FaSearch className="search-icon" />
-              <input type="text" placeholder={t('common.search')} />
+              <input type="text" placeholder={t("common.search")} />
             </div>
             <LanguageSwitcher />
             {roles && roles.length > 0 ? (
               <button className="login-button" onClick={handleLogout}>
-                {t('common.logout')}
+                {t("common.logout")}
               </button>
             ) : (
               <button
                 className="login-button"
                 onClick={() => navigate("/login")}
               >
-                {t('common.login')}
+                {t("common.login")}
               </button>
             )}
           </div>
@@ -182,7 +182,7 @@ const DashboardPage = () => {
                 <p
                   style={{ color: "white", width: "100%", textAlign: "center" }}
                 >
-                  {t('admin.dashboard.loadingRoutes')}
+                  {t("admin.dashboard.loadingRoutes")}
                 </p>
               ) : displayedRoutes.length > 0 ? (
                 displayedRoutes.map((route, index) => (
@@ -198,7 +198,7 @@ const DashboardPage = () => {
                 <p
                   style={{ color: "white", width: "100%", textAlign: "center" }}
                 >
-                  {t('admin.dashboard.noRoutes')}
+                  {t("admin.dashboard.noRoutes")}
                 </p>
               )}
             </div>
@@ -221,8 +221,10 @@ const DashboardPage = () => {
         >
           <FaPlayCircle />
           {isAnimationTriggered
-            ? t('admin.dashboard.running')
-            : `${t('admin.dashboard.startSimulation')} ${selectedRoute ? selectedRoute.id : ""}`}
+            ? t("admin.dashboard.running")
+            : `${t("admin.dashboard.startSimulation")} ${
+                selectedRoute ? selectedRoute.id : ""
+              }`}
         </button>
       </div>
 
@@ -236,8 +238,8 @@ const DashboardPage = () => {
         ) : (
           <div className="map-placeholder">
             {isLoading
-              ? t('admin.dashboard.loadingMap')
-              : t('admin.dashboard.noRouteData')}
+              ? t("admin.dashboard.loadingMap")
+              : t("admin.dashboard.noRouteData")}
           </div>
         )}
       </section>

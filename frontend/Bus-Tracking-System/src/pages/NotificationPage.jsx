@@ -35,7 +35,7 @@ const CreateNotificationModal = ({
   isLoadingRecipients,
 }) => {
   const { t } = useTranslation();
-  
+
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
   const [recipientType, setRecipientType] = useState("driver");
@@ -99,35 +99,35 @@ const CreateNotificationModal = ({
           <FaTimes />
         </button>
         <div className="modal-header">
-          <h4>{t('notification.createNotification')}</h4>
+          <h4>{t("notification.createNotification")}</h4>
         </div>
         <form onSubmit={handleSend} className="modal-form notification-form">
-          <h5>{t('notification.notificationMethod')}</h5>
+          <h5>{t("notification.notificationMethod")}</h5>
           <div className="form-group">
-            <label htmlFor="title">{t('notification.title')}</label>
+            <label htmlFor="title">{t("notification.title")}</label>
             <input
               type="text"
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder={t('notification.titlePlaceholder')}
+              placeholder={t("notification.titlePlaceholder")}
               required
             />
           </div>
           <div className="form-group">
-            <label htmlFor="message">{t('notification.message')}</label>
+            <label htmlFor="message">{t("notification.message")}</label>
             <textarea
               id="message"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder={t('notification.messagePlaceholder')}
+              placeholder={t("notification.messagePlaceholder")}
               rows="5"
               required
             ></textarea>
           </div>
 
           <div className="form-group recipient-group">
-            <label>{t('notification.recipient')}</label>
+            <label>{t("notification.recipient")}</label>
             <div className="recipient-options">
               <label className={recipientType === "driver" ? "selected" : ""}>
                 <input
@@ -140,7 +140,7 @@ const CreateNotificationModal = ({
                     setSelectedParentIds(new Set());
                   }}
                 />{" "}
-                <FaUserTie /> {t('notification.driver')}
+                <FaUserTie /> {t("notification.driver")}
               </label>
               <label
                 className={`${recipientType === "parent" ? "selected" : ""}`}
@@ -155,7 +155,7 @@ const CreateNotificationModal = ({
                     setSelectedDriverIds(new Set());
                   }}
                 />{" "}
-                <FaUserFriends /> {t('notification.parent')}
+                <FaUserFriends /> {t("notification.parent")}
               </label>
             </div>
             {/* 4. Sử dụng MultiSelectDropdown cho Tài xế */}
@@ -163,15 +163,15 @@ const CreateNotificationModal = ({
               <div className="multi-select-container">
                 {isLoadingRecipients ? (
                   <div className="loading-drivers">
-                    <FaSpinner className="spinner" /> {t('common.loading')}
+                    <FaSpinner className="spinner" /> {t("common.loading")}
                   </div>
                 ) : (
                   <MultiSelectDropdown
                     options={drivers}
                     selectedIds={selectedDriverIds}
                     onChange={setSelectedDriverIds} // Truyền hàm cập nhật Set ID
-                    placeholder={t('notification.selectDriver')}
-                    itemTypeLabel={t('notification.driverLabel')}
+                    placeholder={t("notification.selectDriver")}
+                    itemTypeLabel={t("notification.driverLabel")}
                   />
                 )}
               </div>
@@ -181,15 +181,15 @@ const CreateNotificationModal = ({
               <div className="multi-select-container">
                 {isLoadingRecipients ? (
                   <div className="loading-drivers">
-                    <FaSpinner className="spinner" /> {t('common.loading')}
+                    <FaSpinner className="spinner" /> {t("common.loading")}
                   </div>
                 ) : (
                   <MultiSelectDropdown
                     options={parents}
                     selectedIds={selectedParentIds}
                     onChange={setSelectedParentIds}
-                    placeholder={t('notification.selectParent')}
-                    itemTypeLabel={t('notification.parentLabel')}
+                    placeholder={t("notification.selectParent")}
+                    itemTypeLabel={t("notification.parentLabel")}
                   />
                 )}
               </div>
@@ -203,7 +203,7 @@ const CreateNotificationModal = ({
                 checked={sendToSelf}
                 onChange={(e) => setSendToSelf(e.target.checked)}
               />{" "}
-              {t('notification.sendToSelf')}
+              {t("notification.sendToSelf")}
             </label>
           </div>
 
@@ -213,10 +213,10 @@ const CreateNotificationModal = ({
               className="action-btn-form cancel-btn"
               onClick={onClose}
             >
-              {t('common.cancel')}
+              {t("common.cancel")}
             </button>
             <button type="submit" className="action-btn-form confirm-btn">
-              {t('common.confirm')}
+              {t("common.confirm")}
             </button>
           </div>
         </form>
@@ -228,7 +228,7 @@ const CreateNotificationModal = ({
 // --- COMPONENT MODAL XÁC NHẬN XÓA (Giữ nguyên) ---
 const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, count }) => {
   const { t } = useTranslation();
-  
+
   // ... (Giữ nguyên)
   if (!isOpen) return null;
   return (
@@ -239,23 +239,27 @@ const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, count }) => {
       >
         <div className="modal-header">
           <FaExclamationTriangle size={40} color="#e74c3c" />
-          <h4>{t('notification.confirmDelete')}</h4>
+          <h4>{t("notification.confirmDelete")}</h4>
         </div>
         <p className="confirm-text">
-          {t('notification.deleteMessage', { 
+          {t("notification.deleteMessage", {
             count: count,
-            item: count === 1 ? t('notification.thisNotification') : t('notification.selectedNotifications', { count })
-          })} {t('notification.cannotUndo')}
+            item:
+              count === 1
+                ? t("notification.thisNotification")
+                : t("notification.selectedNotifications", { count }),
+          })}{" "}
+          {t("notification.cannotUndo")}
         </p>
         <div className="confirm-actions">
           <button className="confirm-btn cancel-btn" onClick={onClose}>
-            {t('common.cancel')}
+            {t("common.cancel")}
           </button>
           <button
             className="confirm-btn delete-confirm-btn"
             onClick={onConfirm} // Gọi hàm xác nhận xóa từ props
           >
-            {t('common.delete')}
+            {t("common.delete")}
           </button>
         </div>
       </div>
@@ -580,9 +584,7 @@ const NotificationPage = () => {
       />
       <main className="main-content-area">
         <header className="page-header">
-          <div className="breadcrumbs">
-            {t('notification.breadcrumb')}
-          </div>
+          <div className="breadcrumbs">{t("notification.breadcrumb")}</div>
           <div className="header-actions">
             <div className="notification-bell-wrapper">
               <FiBell size={24} className="notification-bell-icon" />
@@ -592,30 +594,32 @@ const NotificationPage = () => {
             </div>
             <input
               type="text"
-              placeholder={t('notification.searchPlaceholder')}
+              placeholder={t("notification.searchPlaceholder")}
               className="search-input"
             />
-            <button className="user-button">{t('common.login')}</button>
+            <button className="user-button">{t("common.login")}</button>
           </div>
         </header>
         <div className="page-content notification-page">
           <div className="content-header notification-header">
-            <h2>{t('notification.title')}</h2>
+            <h2>{t("notification.title")}</h2>
             <div className="header-controls notification-controls">
               {selectedIds.size > 0 && (
                 <button
                   onClick={() => handleDeleteRequest(null)}
                   className="control-btn bulk-delete-btn"
-                  title={t('notification.deleteSelected', { count: selectedIds.size })}
+                  title={t("notification.deleteSelected", {
+                    count: selectedIds.size,
+                  })}
                 >
-                  <FaTrashAlt /> {t('common.delete')} ({selectedIds.size})
+                  <FaTrashAlt /> {t("common.delete")} ({selectedIds.size})
                 </button>
               )}
               <button
                 onClick={() => setIsCreateModalOpen(true)}
                 className="control-btn create-notification-btn"
               >
-                {t('notification.createNotification')}
+                {t("notification.createNotification")}
               </button>
             </div>
           </div>
@@ -626,7 +630,7 @@ const NotificationPage = () => {
               }`}
               onClick={() => changeTab("sent")}
             >
-              <FaPaperPlane /> {t('notification.sent')}
+              <FaPaperPlane /> {t("notification.sent")}
             </button>
             <button
               className={`notification-tab-btn ${
@@ -634,7 +638,7 @@ const NotificationPage = () => {
               }`}
               onClick={() => changeTab("inbox")}
             >
-              <FaInbox /> {t('notification.inbox')}
+              <FaInbox /> {t("notification.inbox")}
             </button>
           </div>
           <div className="notification-list-container">
@@ -647,21 +651,36 @@ const NotificationPage = () => {
                   onChange={handleSelectAll}
                   disabled={notificationsToShow.length === 0}
                 />
-                <label htmlFor="select-all">{t('notification.selectAll')}</label>
+                <label htmlFor="select-all">
+                  {t("notification.selectAll")}
+                </label>
               </div>
               <select
                 className="filter-dropdown"
-                defaultValue={activeTab === "sent" ? t('notification.to') : t('notification.from')}
+                defaultValue={
+                  activeTab === "sent"
+                    ? t("notification.to")
+                    : t("notification.from")
+                }
               >
-                <option value={activeTab === "sent" ? t('notification.to') : t('notification.from')}>
-                  {activeTab === "sent" ? t('notification.to') : t('notification.from')}
+                <option
+                  value={
+                    activeTab === "sent"
+                      ? t("notification.to")
+                      : t("notification.from")
+                  }
+                >
+                  {activeTab === "sent"
+                    ? t("notification.to")
+                    : t("notification.from")}
                 </option>
               </select>
             </div>
             <ul className="notification-list">
               {isLoadingNotifications ? (
                 <li className="no-notifications">
-                  <FaSpinner className="spinner" /> {t('notification.loadingNotifications')}
+                  <FaSpinner className="spinner" />{" "}
+                  {t("notification.loadingNotifications")}
                 </li>
               ) : notificationsToShow.length > 0 ? (
                 notificationsToShow.map((noti) => (
@@ -709,8 +728,11 @@ const NotificationPage = () => {
                 ))
               ) : (
                 <li className="no-notifications">
-                  {t('notification.noNotifications', {
-                    box: activeTab === "sent" ? t('notification.sentBox') : t('notification.inboxBox')
+                  {t("notification.noNotifications", {
+                    box:
+                      activeTab === "sent"
+                        ? t("notification.sentBox")
+                        : t("notification.inboxBox"),
                   })}
                 </li>
               )}

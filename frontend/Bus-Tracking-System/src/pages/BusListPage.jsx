@@ -44,11 +44,11 @@ const AddBusModal = ({ isOpen, onClose, onSave }) => {
         </button>
         <div className="modal-header">
           <h3>36 36 BUS BUS</h3>
-          <h4>{t('bus.addBus')}</h4>
+          <h4>{t("bus.addBus")}</h4>
         </div>
         <form onSubmit={handleSubmit} className="modal-form bus-modal-form">
           <div className="form-group">
-            <label htmlFor="busName">{t('bus.busName')}</label>
+            <label htmlFor="busName">{t("bus.busName")}</label>
             <input
               type="text"
               id="busName"
@@ -58,7 +58,7 @@ const AddBusModal = ({ isOpen, onClose, onSave }) => {
             />
           </div>
           <div className="form-group">
-            <label htmlFor="plateNumber">{t('bus.plateNumber')}</label>
+            <label htmlFor="plateNumber">{t("bus.plateNumber")}</label>
             <input
               type="text"
               id="plateNumber"
@@ -69,7 +69,7 @@ const AddBusModal = ({ isOpen, onClose, onSave }) => {
           </div>
           {/* Bỏ trường chọn Tuyến đường */}
           <button type="submit" className="modal-submit-btn">
-            {t('common.confirm')}
+            {t("common.confirm")}
           </button>
         </form>
       </div>
@@ -90,20 +90,21 @@ const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, busName }) => {
       >
         <div className="modal-header">
           <FaExclamationTriangle size={40} color="#e74c3c" />
-          <h4>{t('bus.confirmDelete')}</h4>
+          <h4>{t("bus.confirmDelete")}</h4>
         </div>
         <p className="confirm-text">
-          {t('bus.deleteMessage')} <strong>{busName}</strong> {t('bus.cannotUndo')}
+          {t("bus.deleteMessage")} <strong>{busName}</strong>{" "}
+          {t("bus.cannotUndo")}
         </p>
         <div className="confirm-actions">
           <button className="confirm-btn cancel-btn" onClick={onClose}>
-            {t('common.cancel')}
+            {t("common.cancel")}
           </button>
           <button
             className="confirm-btn delete-confirm-btn"
             onClick={onConfirm} // Gọi hàm xác nhận xóa từ props
           >
-            {t('common.delete')}
+            {t("common.delete")}
           </button>
         </div>
       </div>
@@ -128,18 +129,18 @@ const BusRow = ({ bus, onEdit, onDelete, onViewDetails }) => {
       <td>{bus.plateNumber || "N/A"}</td>
       <td style={{ textAlign: "center" }}>
         <span className={`status-badge ${getStatusClass(bus.status)}`}>
-          {Number(bus.status) === 1 ? t('bus.active') : t('bus.maintenance')}
+          {Number(bus.status) === 1 ? t("bus.active") : t("bus.maintenance")}
         </span>
       </td>
       {/* API /all trả về driverName */}
-      <td>{bus.driverName || t('bus.notAssigned')}</td>
+      <td>{bus.driverName || t("bus.notAssigned")}</td>
       {/* API /all trả về routeName */}
-      <td>{bus.routeName || t('bus.notAssigned')}</td>
+      <td>{bus.routeName || t("bus.notAssigned")}</td>
       <td className="cell-center">
         <div className="action-buttons">
           <button
             className="action-btn-student more-btn"
-            title={t('common.detail')}
+            title={t("common.detail")}
             onClick={() => onViewDetails(bus)}
           >
             <FaEllipsisH />
@@ -147,14 +148,14 @@ const BusRow = ({ bus, onEdit, onDelete, onViewDetails }) => {
           {/* Gọi hàm onDelete khi nhấn nút xóa */}
           <button
             className="action-btn-student delete-btn"
-            title={t('common.delete')}
+            title={t("common.delete")}
             onClick={() => onDelete(bus)}
           >
             <FaMinusCircle />
           </button>
           <button
             className="action-btn-student edit-btn"
-            title={t('common.edit')}
+            title={t("common.edit")}
             onClick={() => onEdit(bus)}
           >
             <FaPen />
@@ -239,11 +240,11 @@ const EditBusModal = ({ isOpen, onClose, onSave, bus }) => {
         </button>
         <div className="modal-header">
           <h3>36 36 BUS BUS</h3>
-          <h4>{t('bus.editBus')}</h4>
+          <h4>{t("bus.editBus")}</h4>
         </div>
         <form onSubmit={handleSubmit} className="modal-form bus-modal-form">
           <div className="form-group">
-            <label htmlFor="busName_edit">{t('bus.busName')}</label>
+            <label htmlFor="busName_edit">{t("bus.busName")}</label>
             <input
               type="text"
               id="busName_edit"
@@ -253,7 +254,7 @@ const EditBusModal = ({ isOpen, onClose, onSave, bus }) => {
             />
           </div>
           <div className="form-group">
-            <label htmlFor="plateNumber_edit">{t('bus.plateNumber')}</label>
+            <label htmlFor="plateNumber_edit">{t("bus.plateNumber")}</label>
             <input
               type="text"
               id="plateNumber_edit"
@@ -263,18 +264,18 @@ const EditBusModal = ({ isOpen, onClose, onSave, bus }) => {
             />
           </div>
           <div className="form-group">
-            <label htmlFor="status_edit">{t('bus.technicalStatus')}</label>
+            <label htmlFor="status_edit">{t("bus.technicalStatus")}</label>
             <select
               id="status_edit"
               value={status}
               onChange={(e) => setStatus(e.target.value)}
             >
-              <option value={1}>{t('bus.active')}</option>
-              <option value={2}>{t('bus.maintenance')}</option>
+              <option value={1}>{t("bus.active")}</option>
+              <option value={2}>{t("bus.maintenance")}</option>
             </select>
           </div>
           <button type="submit" className="modal-submit-btn">
-            {t('common.save')}
+            {t("common.save")}
           </button>
         </form>
       </div>
@@ -334,7 +335,7 @@ const BusListPage = () => {
       const response = await api.post("/api/v1/bus/create", newBusData);
       console.log("handleSaveBus: API POST response:", response);
       if (response.status === 201 || response.status === 200) {
-        alert(t('bus.addSuccess'));
+        alert(t("bus.addSuccess"));
         console.log(
           "handleSaveBus: Fetching data again after successful POST..."
         );
@@ -344,7 +345,7 @@ const BusListPage = () => {
           fetchBusesFromApi(1);
         }
       } else {
-        alert(`${t('bus.addSuccess')} Status code: ${response.status}`);
+        alert(`${t("bus.addSuccess")} Status code: ${response.status}`);
       }
     } catch (error) {
       console.error("handleSaveBus: Lỗi khi thêm xe buýt mới qua API:", error);
@@ -376,10 +377,10 @@ const BusListPage = () => {
       });
       console.log("API PUT response:", response);
       if (response.status === 204 || response.status === 200) {
-        alert(t('bus.updateSuccess'));
+        alert(t("bus.updateSuccess"));
         fetchBusesFromApi(currentPage);
       } else {
-        alert(`${t('bus.updateSuccess')} Status code: ${response.status}`);
+        alert(`${t("bus.updateSuccess")} Status code: ${response.status}`);
       }
     } catch (error) {
       console.error("Lỗi khi cập nhật xe buýt:", error);
@@ -417,7 +418,9 @@ const BusListPage = () => {
       // API DELETE thường trả về 200 OK hoặc 204 No Content khi thành công
       if (response.status === 200 || response.status === 204) {
         alert(
-          `${t('bus.deleteSuccess')} ${busToDelete.busName || busToDelete.id} ${t('bus.addSuccess').split('!')[0]}!`
+          `${t("bus.deleteSuccess")} ${busToDelete.busName || busToDelete.id} ${
+            t("bus.addSuccess").split("!")[0]
+          }!`
         );
         // Sau khi xóa thành công, fetch lại dữ liệu cho trang hiện tại
         // Hoặc xử lý logic chuyển trang nếu trang hiện tại rỗng
@@ -491,22 +494,20 @@ const BusListPage = () => {
 
       <main className="main-content-area">
         <header className="page-header">
-          <div className="breadcrumbs">
-            {t('bus.breadcrumb')}
-          </div>
+          <div className="breadcrumbs">{t("bus.breadcrumb")}</div>
           <div className="header-actions">
             <input
               type="text"
-              placeholder={t('common.search')}
+              placeholder={t("common.search")}
               className="search-input"
             />
-            <button className="user-button">{t('common.login')}</button>
+            <button className="user-button">{t("common.login")}</button>
           </div>
         </header>
 
         <div className="page-content">
           <div className="content-header">
-            <h2>{t('bus.title')}</h2>
+            <h2>{t("bus.title")}</h2>
             <div className="header-controls">
               <button
                 onClick={() => setIsAddModalOpen(true)}
@@ -518,7 +519,7 @@ const BusListPage = () => {
           </div>
 
           {isLoading ? (
-            <div className="loading-message">{t('bus.loadingData')}</div>
+            <div className="loading-message">{t("bus.loadingData")}</div>
           ) : (
             <>
               {/* CONTAINER BẢNG */}
@@ -526,13 +527,13 @@ const BusListPage = () => {
                 <table>
                   <thead>
                     <tr>
-                      <th>{t('common.stt')}</th>
-                      <th>{t('bus.busName')}</th>
-                      <th>{t('bus.plateNumber')}</th>
-                      <th>{t('bus.technicalStatus')}</th>
-                      <th>{t('bus.driver')}</th>
-                      <th>{t('bus.route')}</th>
-                      <th>{t('common.action')}</th>
+                      <th>{t("common.stt")}</th>
+                      <th>{t("bus.busName")}</th>
+                      <th>{t("bus.plateNumber")}</th>
+                      <th>{t("bus.technicalStatus")}</th>
+                      <th>{t("bus.driver")}</th>
+                      <th>{t("bus.route")}</th>
+                      <th>{t("common.action")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -550,7 +551,7 @@ const BusListPage = () => {
                     ) : (
                       <tr>
                         <td colSpan="7" style={{ textAlign: "center" }}>
-                          {t('bus.noData')}
+                          {t("bus.noData")}
                         </td>
                       </tr>
                     )}
