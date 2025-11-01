@@ -104,7 +104,8 @@ const ReportIncidentModal = ({ isOpen, onClose }) => {
     } catch (err) {
       console.error("Lỗi khi gửi báo cáo:", err);
       alert(
-        t("driverApp.incident.error") + "\n" +
+        t("driverApp.incident.error") +
+          "\n" +
           (err.response?.data?.message || err.message)
       );
     } finally {

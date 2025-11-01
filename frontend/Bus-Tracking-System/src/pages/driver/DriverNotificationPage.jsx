@@ -84,7 +84,8 @@ const DriverHeader = ({
   return (
     <header className="driver-header">
       <div className="breadcrumbs">
-        <span>{t("driverApp.header.page")}</span> / <span>{t("driverApp.notifications.breadcrumb")}</span>
+        <span>{t("driverApp.header.page")}</span> /{" "}
+        <span>{t("driverApp.notifications.breadcrumb")}</span>
       </div>
       <div className="driver-header-actions">
         <button className="report-incident-btn" onClick={onReportIncident}>
@@ -102,7 +103,10 @@ const DriverHeader = ({
           placeholder={t("driverApp.header.searchPlaceholder")}
           className="driver-search-input"
         />
-        <div className="driver-user-info" title={t("driverApp.header.viewProfile")}>
+        <div
+          className="driver-user-info"
+          title={t("driverApp.header.viewProfile")}
+        >
           <img src="https://i.pravatar.cc/40?u=driver1" alt="Avatar" />
           <span>{driverName}</span>
         </div>
@@ -129,10 +133,12 @@ const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, count }) => {
           <h4>{t("driverApp.notifications.confirmDelete")}</h4>
         </div>
         <p className="confirm-text">
-          {count === 1 
+          {count === 1
             ? t("driverApp.notifications.confirmDeleteMessage")
-            : t("driverApp.notifications.confirmDeleteMultiple").replace("{count}", count)
-          }
+            : t("driverApp.notifications.confirmDeleteMultiple").replace(
+                "{count}",
+                count
+              )}
         </p>
         <div className="confirm-actions">
           <button className="confirm-btn cancel-btn" onClick={onClose}>
@@ -276,7 +282,12 @@ const DriverNotificationPage = () => {
 
     setSelectedIds(new Set());
     setItemToDelete(null);
-    alert(t("driverApp.notifications.deleteSuccess").replace("{count}", itemToDelete.count));
+    alert(
+      t("driverApp.notifications.deleteSuccess").replace(
+        "{count}",
+        itemToDelete.count
+      )
+    );
   };
 
   const changeTab = (tabName) => {
@@ -327,7 +338,10 @@ const DriverNotificationPage = () => {
               {/* Thanh tìm kiếm (Giống hình) */}
               <div className="notification-search-bar">
                 <FaSearch className="search-icon" />
-                <input type="text" placeholder={t("driverApp.notifications.searchPlaceholder")} />
+                <input
+                  type="text"
+                  placeholder={t("driverApp.notifications.searchPlaceholder")}
+                />
               </div>
 
               {/* Tabs */}
@@ -354,9 +368,16 @@ const DriverNotificationPage = () => {
                   <button
                     onClick={() => handleDeleteRequest(null)}
                     className="control-btn bulk-delete-btn"
-                    title={t("driverApp.notifications.deleteCount").replace("{count}", selectedIds.size)}
+                    title={t("driverApp.notifications.deleteCount").replace(
+                      "{count}",
+                      selectedIds.size
+                    )}
                   >
-                    <FaTrashAlt /> {t("driverApp.notifications.deleteCount").replace("{count}", selectedIds.size)}
+                    <FaTrashAlt />{" "}
+                    {t("driverApp.notifications.deleteCount").replace(
+                      "{count}",
+                      selectedIds.size
+                    )}
                   </button>
                 )}
               </div>
@@ -386,14 +407,28 @@ const DriverNotificationPage = () => {
                           onChange={handleSelectAll}
                           disabled={notificationsToShow.length === 0}
                         />
-                        <label htmlFor="select-all">{t("driverApp.notifications.selectAll")}</label>
+                        <label htmlFor="select-all">
+                          {t("driverApp.notifications.selectAll")}
+                        </label>
                       </div>
                       <select
                         className="filter-dropdown"
-                        defaultValue={activeTab === "sent" ? t("driverApp.notifications.to") : t("driverApp.notifications.from")}
+                        defaultValue={
+                          activeTab === "sent"
+                            ? t("driverApp.notifications.to")
+                            : t("driverApp.notifications.from")
+                        }
                       >
-                        <option value={activeTab === "sent" ? t("driverApp.notifications.to") : t("driverApp.notifications.from")}>
-                          {activeTab === "sent" ? t("driverApp.notifications.to") : t("driverApp.notifications.from")}
+                        <option
+                          value={
+                            activeTab === "sent"
+                              ? t("driverApp.notifications.to")
+                              : t("driverApp.notifications.from")
+                          }
+                        >
+                          {activeTab === "sent"
+                            ? t("driverApp.notifications.to")
+                            : t("driverApp.notifications.from")}
                         </option>
                       </select>
                     </div>
@@ -468,10 +503,9 @@ const DriverNotificationPage = () => {
                         })
                       ) : (
                         <li className="no-notifications">
-                          {activeTab === "sent" 
-                            ? t("driverApp.notifications.noSent") 
-                            : t("driverApp.notifications.noInbox")
-                          }
+                          {activeTab === "sent"
+                            ? t("driverApp.notifications.noSent")
+                            : t("driverApp.notifications.noInbox")}
                         </li>
                       )}
                     </ul>

@@ -88,7 +88,8 @@ const DriverHeader = ({
   return (
     <header className="driver-header">
       <div className="breadcrumbs">
-        <span>{t("driverApp.header.page")}</span> / <span>{t("driverApp.schedule.breadcrumb")}</span>
+        <span>{t("driverApp.header.page")}</span> /{" "}
+        <span>{t("driverApp.schedule.breadcrumb")}</span>
       </div>
       <div className="driver-header-actions">
         <button className="report-incident-btn" onClick={onReportIncident}>
@@ -100,7 +101,10 @@ const DriverHeader = ({
           placeholder={t("driverApp.header.searchPlaceholder")}
           className="driver-search-input"
         />
-        <div className="driver-user-info" title={t("driverApp.header.viewProfile")}>
+        <div
+          className="driver-user-info"
+          title={t("driverApp.header.viewProfile")}
+        >
           <img src="https://i.pravatar.cc/40?u=driver1" alt="Avatar" />
           <span>{driverName}</span>
         </div>
@@ -233,7 +237,9 @@ const DriverSchedulePage = () => {
               <button onClick={goToPrevWeek} className="week-nav-btn">
                 <FaChevronLeft />
               </button>
-              <span>{t("driverApp.schedule.week")} {weekNumber}</span>
+              <span>
+                {t("driverApp.schedule.week")} {weekNumber}
+              </span>
               <button onClick={goToNextWeek} className="week-nav-btn">
                 <FaChevronRight />
               </button>
@@ -269,7 +275,10 @@ const DriverSchedulePage = () => {
                     <th>{t("driverApp.schedule.trip")}</th>
                     {daysInWeek.map((day) => (
                       <th key={day.toISOString()}>
-                        {format(day, "EEEE", { locale: i18n.language === 'vi' ? vi : enUS })} {/* Thứ */}
+                        {format(day, "EEEE", {
+                          locale: i18n.language === "vi" ? vi : enUS,
+                        })}{" "}
+                        {/* Thứ */}
                         <div>{format(day, "dd/MM")}</div> {/* Ngày */}
                       </th>
                     ))}
@@ -278,7 +287,9 @@ const DriverSchedulePage = () => {
                 <tbody>
                   {/* Hàng Chuyến đi (Sáng - pickupTime) */}
                   <tr>
-                    <td className="trip-type-header">{t("driverApp.schedule.dropOff")}</td>
+                    <td className="trip-type-header">
+                      {t("driverApp.schedule.dropOff")}
+                    </td>
                     {daysInWeek.map((day) => {
                       const schedulesForDay = getScheduleForDay(day);
                       // Lấy schedule có pickupTime (chuyến sáng)
@@ -308,7 +319,9 @@ const DriverSchedulePage = () => {
                   </tr>
                   {/* Hàng Chuyến về (Chiều - dropOffTime) */}
                   <tr>
-                    <td className="trip-type-header">{t("driverApp.schedule.pickUp")}</td>
+                    <td className="trip-type-header">
+                      {t("driverApp.schedule.pickUp")}
+                    </td>
                     {daysInWeek.map((day) => {
                       const schedulesForDay = getScheduleForDay(day);
                       // Lấy schedule có dropOffTime (chuyến chiều)

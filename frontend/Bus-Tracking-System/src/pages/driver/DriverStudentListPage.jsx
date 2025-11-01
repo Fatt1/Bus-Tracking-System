@@ -192,7 +192,8 @@ const DriverHeader = ({ onReportIncident, driverName = "Phan Viết Huy" }) => {
   return (
     <header className="driver-header">
       <div className="breadcrumbs">
-        <span>{t("driverApp.header.page")}</span> / <span>{t("driverApp.students.breadcrumb")}</span>
+        <span>{t("driverApp.header.page")}</span> /{" "}
+        <span>{t("driverApp.students.breadcrumb")}</span>
       </div>
       <div className="driver-header-actions">
         <button className="report-incident-btn" onClick={onReportIncident}>
@@ -204,7 +205,10 @@ const DriverHeader = ({ onReportIncident, driverName = "Phan Viết Huy" }) => {
           placeholder={t("driverApp.header.searchPlaceholder")}
           className="driver-search-input"
         />
-        <div className="driver-user-info" title={t("driverApp.header.viewProfile")}>
+        <div
+          className="driver-user-info"
+          title={t("driverApp.header.viewProfile")}
+        >
           <img src="https://i.pravatar.cc/40?u=driver1" alt="Avatar" />
           <span>{driverName}</span>
         </div>
@@ -227,7 +231,7 @@ const DriverStudentListPage = () => {
 
   const [currentDate] = useState(new Date()); // Lấy ngày hiện tại
   const [isIncidentModalOpen, setIsIncidentModalOpen] = useState(false); // Modal báo cáo
-  
+
   // Get status options with translations
   const statusOptions = getStatusOptions(t);
 

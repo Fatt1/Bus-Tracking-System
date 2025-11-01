@@ -86,7 +86,9 @@ const DriverProfileModal = ({ isOpen, onClose, driver }) => {
             <section className="profile-section">
               <h4>{t("driverApp.profile.title")}</h4>
               <div className="form-group">
-                <label htmlFor="fullName">{t("driverApp.profile.fullName")}</label>
+                <label htmlFor="fullName">
+                  {t("driverApp.profile.fullName")}
+                </label>
                 <input
                   type="text"
                   id="fullName"
@@ -96,7 +98,9 @@ const DriverProfileModal = ({ isOpen, onClose, driver }) => {
               </div>
               <div className="form-row">
                 <div className="form-group">
-                  <label htmlFor="birthDate">{t("driverApp.profile.dateOfBirth")}</label>
+                  <label htmlFor="birthDate">
+                    {t("driverApp.profile.dateOfBirth")}
+                  </label>
                   {/* Hiển thị ngày sinh đã format, input date hơi xấu */}
                   <div className="date-input-with-icon">
                     <input
@@ -140,9 +144,14 @@ const DriverProfileModal = ({ isOpen, onClose, driver }) => {
             </section>
 
             <section className="profile-section">
-              <h4>{t("driverApp.profile.phoneNumber")} & {t("driverApp.profile.address")}</h4>
+              <h4>
+                {t("driverApp.profile.phoneNumber")} &{" "}
+                {t("driverApp.profile.address")}
+              </h4>
               <div className="form-group">
-                <label htmlFor="phone">{t("driverApp.profile.phoneNumber")}</label>
+                <label htmlFor="phone">
+                  {t("driverApp.profile.phoneNumber")}
+                </label>
                 <input type="text" id="phone" value={driver.phone} readOnly />
               </div>
               <div className="form-group">
@@ -150,7 +159,9 @@ const DriverProfileModal = ({ isOpen, onClose, driver }) => {
                 <input type="text" id="email" value={driver.email} readOnly />
               </div>
               <div className="form-group">
-                <label htmlFor="address">{t("driverApp.profile.address")}</label>
+                <label htmlFor="address">
+                  {t("driverApp.profile.address")}
+                </label>
                 <input
                   type="text"
                   id="address"
@@ -240,7 +251,8 @@ const DriverHeader = ({
   return (
     <header className="driver-header">
       <div className="breadcrumbs">
-        <span>{t("driverApp.header.page")}</span> / <span>{t("driverApp.home.breadcrumb")}</span>
+        <span>{t("driverApp.header.page")}</span> /{" "}
+        <span>{t("driverApp.home.breadcrumb")}</span>
         {/* SignalR Connection Status Indicator */}
         <span
           style={{
@@ -680,8 +692,8 @@ const DriverHomePage = () => {
                   <p>
                     {t("driverApp.home.greeting")}, <strong>{fullName}</strong>!{" "}
                     {t("driverApp.home.todaySchedule")}{" "}
-                    <strong>{scheduleData.routeDTO?.routeName || "N/A"}</strong>.{" "}
-                    {t("driverApp.home.haveASafeTrip")}
+                    <strong>{scheduleData.routeDTO?.routeName || "N/A"}</strong>
+                    . {t("driverApp.home.haveASafeTrip")}
                   </p>
                 </div>
               </section>
@@ -699,9 +711,7 @@ const DriverHomePage = () => {
                       <FaBus size={24} />
                     </div>
                     <div className="schedule-card-info">
-                      <h4>
-                        {scheduleData.routeDTO?.routeName || "N/A"}
-                      </h4>
+                      <h4>{scheduleData.routeDTO?.routeName || "N/A"}</h4>
                       <p>
                         {t("driverApp.home.bus")}: {scheduleData.busName}
                       </p>
@@ -720,7 +730,8 @@ const DriverHomePage = () => {
                       </p>
                       <p>
                         {t("driverApp.home.studentsToPickup")}:{" "}
-                        {scheduleData.totalStudents || 0} {t("driverApp.home.students")}
+                        {scheduleData.totalStudents || 0}{" "}
+                        {t("driverApp.home.students")}
                       </p>
                     </div>
                     <button
@@ -764,9 +775,7 @@ const DriverHomePage = () => {
                       <FaBus size={24} />
                     </div>
                     <div className="schedule-card-info">
-                      <h4>
-                        {scheduleData.routeDTO?.routeName || "N/A"}
-                      </h4>
+                      <h4>{scheduleData.routeDTO?.routeName || "N/A"}</h4>
                       <p>
                         {t("driverApp.home.bus")}: {scheduleData.busName}
                       </p>
@@ -785,7 +794,8 @@ const DriverHomePage = () => {
                       </p>
                       <p>
                         {t("driverApp.home.studentsToPickup")}:{" "}
-                        {scheduleData.totalStudents || 0} {t("driverApp.home.students")}
+                        {scheduleData.totalStudents || 0}{" "}
+                        {t("driverApp.home.students")}
                       </p>
                     </div>
                     <button
