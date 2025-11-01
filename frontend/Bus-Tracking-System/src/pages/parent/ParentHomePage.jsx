@@ -7,12 +7,12 @@ import ParentHeader from "../../components/parent/ParentHeader";
 import { FiUser, FiCalendar, FiClock, FiMapPin } from "react-icons/fi";
 import { FaBus, FaSpinner } from "react-icons/fa";
 import { format } from "date-fns";
-import { vi } from "date-fns/locale";
+import { vi, enUS } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
 import "./ParentHomePage.css";
 
 const ParentHomePage = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [scheduleData, setScheduleData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -38,7 +38,7 @@ const ParentHomePage = () => {
         }
       } catch (err) {
         console.error("Error fetching schedule:", err);
-        setError("Không thể tải lịch trình. Vui lòng thử lại.");
+        setError(t("parent.home.loadingSchedule"));
         setScheduleData(null);
       } finally {
         setIsLoading(false);
@@ -46,7 +46,7 @@ const ParentHomePage = () => {
     };
 
     fetchScheduleToday();
-  }, []);
+  }, [t]);
 
   // Format time from "HH:mm:ss" to "HH:mm"
   const formatTime = (timeString) => {
@@ -54,15 +54,19 @@ const ParentHomePage = () => {
     return timeString.substring(0, 5);
   };
 
-  // Format date
+  // Format date with dynamic locale
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
     try {
       const [year, month, day] = dateString.split("-");
       const date = new Date(year, month - 1, day);
-      return format(date, "EEEE, 'Ngày' dd 'tháng' MM 'năm' yyyy", {
-        locale: vi,
-      });
+      const locale = i18n.language === "vi" ? vi : enUS;
+      
+      if (i18n.language === "vi") {
+        return format(date, "EEEE, 'Ngày' dd 'tháng' MM 'năm' yyyy", { locale });
+      } else {
+        return format(date, "EEEE, MMMM dd, yyyy", { locale });
+      }
     } catch {
       return dateString;
     }
@@ -88,8 +92,7 @@ const ParentHomePage = () => {
 
           {isLoading ? (
             <div className="parent-loading-message">
-              <FaSpinner className="spinner" />{" "}
-              {t("parent.home.loadingSchedule")}
+              <FaSpinner className="spinner" /> {t("parent.home.loadingSchedule")}
             </div>
           ) : error ? (
             <div className="parent-error-message">{error}</div>

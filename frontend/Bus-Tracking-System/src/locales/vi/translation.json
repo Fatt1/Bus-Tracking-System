@@ -422,5 +422,60 @@
       "success": "Đã gửi báo cáo sự cố thành công!",
       "error": "Không thể gửi báo cáo sự cố. Vui lòng thử lại."
     }
+  },
+  "parent": {
+    "sidebar": {
+      "home": "Trang chủ",
+      "tracking": "Theo dõi vị trí",
+      "notifications": "Thông báo"
+    },
+    "header": {
+      "page": "Trang",
+      "notifications": "Thông báo",
+      "search": "Tìm kiếm...",
+      "logout": "Đăng xuất"
+    },
+    "home": {
+      "parent": "Phụ Huynh",
+      "welcome": "Chào mừng bạn đến với hệ thống theo dõi xe buýt",
+      "loadingSchedule": "Đang tải lịch trình...",
+      "noSchedule": "Không có lịch trình hôm nay cho con bạn.",
+      "childSchedule": "Lịch trình của con",
+      "tripInfo": "Thông tin chuyến đi",
+      "route": "Tuyến đường",
+      "pickupDropoff": "Điểm đón/trả",
+      "driverInfo": "Thông tin chuyến đi",
+      "driver": "Tài xế",
+      "bus": "Xe buýt",
+      "pickup": "Giờ đón",
+      "dropoff": "Giờ trả",
+      "trackBus": "Theo dõi vị trí xe"
+    },
+    "tracking": {
+      "breadcrumb": "Trang / Vị trí xe",
+      "title": "Theo dõi vị trí xe buýt",
+      "bus": "Xe",
+      "route": "Tuyến",
+      "loading": "Đang tải vị trí xe buýt...",
+      "error": "Không thể tải vị trí xe buýt. Vui lòng thử lại.",
+      "noData": "Không có thông tin vị trí xe buýt cho hôm nay.",
+      "noScheduleHint": "Con bạn chưa có lịch trình đi học hôm nay.",
+      "invalidData": "Dữ liệu vị trí xe không hợp lệ."
+    },
+    "notifications": {
+      "breadcrumb": "Trang / Thông báo",
+      "title": "Thông báo của bạn",
+      "searchPlaceholder": "Tìm kiếm thông báo...",
+      "tabAll": "Tất cả thông báo",
+      "tabUnread": "Chưa đọc",
+      "loading": "Đang tải thông báo...",
+      "error": "Không thể tải thông báo. Vui lòng thử lại.",
+      "empty": "Không có thông báo nào.",
+      "headerContent": "Nội dung",
+      "headerSender": "Người gửi",
+      "headerTime": "Thời gian",
+      "noContent": "Không có nội dung",
+      "systemSender": "Hệ thống"
+    }
   }
 }

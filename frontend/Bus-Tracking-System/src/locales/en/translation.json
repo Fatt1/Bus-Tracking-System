@@ -414,5 +414,60 @@
       "success": "Incident report sent successfully!",
       "error": "Unable to send incident report. Please try again."
     }
+  },
+  "parent": {
+    "sidebar": {
+      "home": "Home",
+      "tracking": "Track Location",
+      "notifications": "Notifications"
+    },
+    "header": {
+      "page": "Page",
+      "notifications": "Notifications",
+      "search": "Search...",
+      "logout": "Logout"
+    },
+    "home": {
+      "parent": "Parent",
+      "welcome": "Welcome to the Bus Tracking System",
+      "loadingSchedule": "Loading schedule...",
+      "noSchedule": "No schedule today for your child.",
+      "childSchedule": "Your Child's Schedule",
+      "tripInfo": "Trip Information",
+      "route": "Route",
+      "pickupDropoff": "Pickup/Drop-off Point",
+      "driverInfo": "Trip Details",
+      "driver": "Driver",
+      "bus": "Bus",
+      "pickup": "Pickup Time",
+      "dropoff": "Drop-off Time",
+      "trackBus": "Track Bus Location"
+    },
+    "tracking": {
+      "breadcrumb": "Page / Bus Location",
+      "title": "Track Bus Location",
+      "bus": "Bus",
+      "route": "Route",
+      "loading": "Loading bus location...",
+      "error": "Unable to load bus location. Please try again.",
+      "noData": "No bus location information available for today.",
+      "noScheduleHint": "Your child has no schedule today.",
+      "invalidData": "Invalid bus location data."
+    },
+    "notifications": {
+      "breadcrumb": "Page / Notifications",
+      "title": "Your Notifications",
+      "searchPlaceholder": "Search notifications...",
+      "tabAll": "All Notifications",
+      "tabUnread": "Unread",
+      "loading": "Loading notifications...",
+      "error": "Unable to load notifications. Please try again.",
+      "empty": "No notifications.",
+      "headerContent": "Content",
+      "headerSender": "Sender",
+      "headerTime": "Time",
+      "noContent": "No content",
+      "systemSender": "System"
+    }
   }
 }
