@@ -1,0 +1,124 @@
+/* Driver Header Styles */
+.driver-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 24px;
+  background-color: var(--driver-content-bg);
+  border-bottom: 1px solid var(--driver-border-color);
+  flex-shrink: 0;
+}
+
+.driver-header .breadcrumbs {
+  color: var(--driver-text-secondary);
+  font-size: 0.9rem;
+}
+
+.driver-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.report-incident-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #fef2f2;
+  color: var(--driver-red);
+  border: 1px solid #fecaca;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.report-incident-btn:hover {
+  background-color: #feebeb;
+  border-color: #fca5a5;
+}
+
+.driver-search-input {
+  padding: 8px 12px;
+  border: 1px solid var(--driver-border-color);
+  border-radius: 6px;
+  min-width: 250px;
+}
+
+/* Bell notification icon with badge */
+.notification-bell-wrapper {
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.notification-bell-wrapper:hover {
+  background-color: #f0f0f0;
+}
+
+.notification-bell-icon {
+  color: #555;
+}
+
+.notification-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: #e74c3c;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: bold;
+  border: 2px solid white;
+}
+
+.driver-user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.driver-user-info img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.driver-logout-btn {
+  padding: 8px 16px;
+  background-color: var(--driver-primary-blue);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.driver-logout-btn:hover {
+  background-color: var(--driver-secondary-blue);
+}
+
+/* SignalR blink animation */
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}

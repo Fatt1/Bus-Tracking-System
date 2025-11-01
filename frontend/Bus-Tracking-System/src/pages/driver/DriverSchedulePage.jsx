@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import api from "../../utils/api"; // Import api instance với token support
 import { clearAuth, getFullName } from "../../utils/auth";
 import ReportIncidentModal from "../../components/driver/ReportIncidentModal";
+import DriverSidebar from "../../components/driver/DriverSidebar";
+import DriverHeader from "../../components/driver/DriverHeader";
 import "./DriverSchedulePage.css"; // Sẽ tạo ở bước 2
 import {
-  FaHome,
-  FaTasks,
-  FaUserCheck,
-  FaBell,
-  FaExclamationTriangle,
   FaCalendarAlt,
   FaChevronLeft,
   FaChevronRight,
@@ -26,95 +23,6 @@ import {
   getISOWeek,
 } from "date-fns";
 import { vi, enUS } from "date-fns/locale";
-
-// --- COMPONENT SIDEBAR CỦA TÀI XẾ ---
-const DriverSidebar = () => {
-  const { t } = useTranslation();
-  const location = useLocation();
-  const activePage = location.pathname;
-
-  return (
-    <aside className="driver-sidebar">
-      <div className="driver-sidebar-header">
-        <h3>36 36 BUS BUS</h3>
-      </div>
-      <nav className="driver-sidebar-nav">
-        <ul>
-          <li className={activePage === "/driver/home" ? "active" : ""}>
-            <Link to="/driver/home">
-              {" "}
-              <FaHome /> {t("driverApp.sidebar.home")}{" "}
-            </Link>
-          </li>
-          <li className={activePage === "/driver/schedule" ? "active" : ""}>
-            <Link to="/driver/schedule">
-              {" "}
-              <FaTasks /> {t("driverApp.sidebar.schedule")}{" "}
-            </Link>
-          </li>
-          <li
-            className={
-              activePage.startsWith("/driver/students") ? "active" : ""
-            }
-          >
-            <Link to="/driver/students">
-              {" "}
-              <FaUserCheck /> {t("driverApp.sidebar.students")}{" "}
-            </Link>
-          </li>
-          <li
-            className={
-              activePage.startsWith("/driver/notifications") ? "active" : ""
-            }
-          >
-            <Link to="/driver/notifications">
-              {" "}
-              <FaBell /> {t("driverApp.sidebar.notifications")}{" "}
-            </Link>
-          </li>
-        </ul>
-      </nav>
-    </aside>
-  );
-};
-
-// --- COMPONENT HEADER CỦA TÀI XẾ ---
-const DriverHeader = ({
-  onReportIncident,
-  driverName = "Phan Viết Huy",
-  onLogout,
-}) => {
-  const { t } = useTranslation();
-  return (
-    <header className="driver-header">
-      <div className="breadcrumbs">
-        <span>{t("driverApp.header.page")}</span> /{" "}
-        <span>{t("driverApp.schedule.breadcrumb")}</span>
-      </div>
-      <div className="driver-header-actions">
-        <button className="report-incident-btn" onClick={onReportIncident}>
-          <FaExclamationTriangle />
-          <span>{t("driverApp.header.reportIncident")}</span>
-        </button>
-        <input
-          type="text"
-          placeholder={t("driverApp.header.searchPlaceholder")}
-          className="driver-search-input"
-        />
-        <div
-          className="driver-user-info"
-          title={t("driverApp.header.viewProfile")}
-        >
-          <img src="https://i.pravatar.cc/40?u=driver1" alt="Avatar" />
-          <span>{driverName}</span>
-        </div>
-        <button className="driver-logout-btn" onClick={onLogout}>
-          {t("driverApp.header.logout")}
-        </button>
-      </div>
-    </header>
-  );
-};
 
 // --- COMPONENT CHÍNH TRANG LỊCH TRÌNH ---
 const DriverSchedulePage = () => {
@@ -221,6 +129,7 @@ const DriverSchedulePage = () => {
           onReportIncident={() => setIsIncidentModalOpen(true)}
           driverName={fullName}
           onLogout={handleLogout}
+          breadcrumb={t("driverApp.schedule.breadcrumb")}
         />
 
         <main className="driver-main-content">

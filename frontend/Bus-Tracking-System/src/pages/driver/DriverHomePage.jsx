@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import api from "../../utils/api"; // Import api instance với token support
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { clearAuth, getFullName } from "../../utils/auth";
 import { useNotification } from "../../context/NotificationContext";
 import ReportIncidentModal from "../../components/driver/ReportIncidentModal";
 import DriverMapComponent from "../../components/driver/DriverMapComponent";
+import DriverSidebar from "../../components/driver/DriverSidebar";
+import DriverHeader from "../../components/driver/DriverHeader";
 import {
   startPickupTrip,
   startDropoffTrip,
@@ -19,22 +21,15 @@ import {
 import BusSimulationManager from "../../utils/BusSimulationManager";
 import "./DriverHomePage.css";
 import {
-  FaHome,
-  FaTasks,
-  FaUserCheck,
-  FaBell,
-  FaExclamationTriangle,
   FaTimes,
   FaBus,
   FaMapMarkedAlt,
   FaCalendarAlt,
   FaSpinner, // Thêm icon loading
 } from "react-icons/fa";
-import { Link } from "react-router-dom";
 import { format } from "date-fns"; // Thêm date-fns
 import { vi } from "date-fns/locale"; // Thêm locale tiếng Việt
 import { useTranslation } from "react-i18next"; // Import i18n
-import LanguageSwitcher from "../../components/LanguageSwitcher"; // Import Language Switcher
 
 // --- DỮ LIỆU MẪU CHO TÀI XẾ (SAU NÀY SẼ LẤY TỪ API) ---
 const mockDriverProfile = {
@@ -188,122 +183,6 @@ const DriverProfileModal = ({ isOpen, onClose, driver }) => {
         </form>
       </div>
     </div>
-  );
-};
-
-// --- COMPONENT SIDEBAR CỦA TÀI XẾ ---
-const DriverSidebar = ({ t }) => {
-  const location = useLocation();
-  const activePage = location.pathname;
-
-  return (
-    <aside className="driver-sidebar">
-      <div className="driver-sidebar-header">
-        <h3>36 36 BUS BUS</h3>
-      </div>
-      <nav className="driver-sidebar-nav">
-        <ul>
-          <li className={activePage === "/driver/home" ? "active" : ""}>
-            <Link to="/driver/home">
-              <FaHome /> {t("driverApp.sidebar.home")}
-            </Link>
-          </li>
-          <li className={activePage === "/driver/schedule" ? "active" : ""}>
-            <Link to="/driver/schedule">
-              <FaTasks /> {t("driverApp.sidebar.schedule")}
-            </Link>
-          </li>
-          <li
-            className={
-              activePage.startsWith("/driver/students") ? "active" : ""
-            }
-          >
-            <Link to="/driver/students">
-              <FaUserCheck /> {t("driverApp.sidebar.students")}
-            </Link>
-          </li>
-          <li
-            className={
-              activePage.startsWith("/driver/notifications") ? "active" : ""
-            }
-          >
-            <Link to="/driver/notifications">
-              <FaBell /> {t("driverApp.sidebar.notifications")}
-            </Link>
-          </li>
-        </ul>
-      </nav>
-    </aside>
-  );
-};
-
-// --- COMPONENT HEADER CỦA TÀI XẾ ---
-const DriverHeader = ({
-  onReportIncident,
-  onProfileClick,
-  onLogout,
-  driverName = "Phan Viết Huy",
-  unreadCount = 0,
-  onNotificationClick,
-  isSignalRConnected = false,
-  t,
-}) => {
-  return (
-    <header className="driver-header">
-      <div className="breadcrumbs">
-        <span>{t("driverApp.header.page")}</span> /{" "}
-        <span>{t("driverApp.home.breadcrumb")}</span>
-        {/* SignalR Connection Status Indicator */}
-        <span
-          style={{
-            marginLeft: "10px",
-            display: "inline-block",
-            width: "10px",
-            height: "10px",
-            borderRadius: "50%",
-            backgroundColor: isSignalRConnected ? "#4caf50" : "#f44336",
-            animation: isSignalRConnected ? "none" : "blink 1s infinite",
-          }}
-          title={
-            isSignalRConnected
-              ? "SignalR Connected ✓"
-              : "SignalR Disconnected ✗"
-          }
-        />
-      </div>
-      <div className="driver-header-actions">
-        <button className="report-incident-btn" onClick={onReportIncident}>
-          <FaExclamationTriangle />
-          <span>{t("driverApp.header.reportIncident")}</span>
-        </button>
-        <div
-          className="notification-bell-wrapper"
-          onClick={onNotificationClick}
-        >
-          <FaBell size={24} className="notification-bell-icon" />
-          {unreadCount > 0 && (
-            <span className="notification-badge">{unreadCount}</span>
-          )}
-        </div>
-        <input
-          type="text"
-          placeholder={t("driverApp.header.searchPlaceholder")}
-          className="driver-search-input"
-        />
-        <LanguageSwitcher />
-        <div
-          className="driver-user-info"
-          onClick={onProfileClick}
-          title={t("driverApp.header.viewProfile")}
-        >
-          <img src="https://i.pravatar.cc/40?u=driver1" alt="Avatar" />
-          <span>{driverName}</span>
-        </div>
-        <button className="driver-logout-btn" onClick={onLogout}>
-          {t("driverApp.header.logout")}
-        </button>
-      </div>
-    </header>
   );
 };
 
@@ -646,7 +525,7 @@ const DriverHomePage = () => {
       />
 
       {/* Sidebar */}
-      <DriverSidebar t={t} />
+      <DriverSidebar />
 
       {/* Khu vực nội dung chính */}
       <div className="driver-main-wrapper">
@@ -658,7 +537,7 @@ const DriverHomePage = () => {
           unreadCount={unreadCount}
           onNotificationClick={() => navigate("/driver/notifications")}
           isSignalRConnected={isSignalRConnected}
-          t={t}
+          breadcrumb={t("driverApp.home.breadcrumb")}
         />
 
         <main className="driver-main-content">
