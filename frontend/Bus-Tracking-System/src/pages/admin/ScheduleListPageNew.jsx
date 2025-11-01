@@ -30,7 +30,7 @@ import {
 import { vi, enUS } from "date-fns/locale"; // Import Vietnamese and English locale
 
 // --- Import api instance từ utils ---
-import api from "../utils/api";
+import api from "../../utils/api";
 
 // --- COMPONENT MODAL XEM/XÓA/CHỈNH SỬA LỊCH TRÌNH ---
 const ScheduleDetailModal = ({

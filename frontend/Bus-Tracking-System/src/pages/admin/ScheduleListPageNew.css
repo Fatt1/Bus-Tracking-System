@@ -1,7 +1,7 @@
 /* src/pages/ScheduleListPageNew.css */
 
 /* Kế thừa một số style cơ bản nếu cần */
-@import url("./LayoutTable.css"); /* Hoặc PageLayout.css nếu bạn đã đổi tên */
+@import url("../LayoutTable.css"); /* Hoặc PageLayout.css nếu bạn đã đổi tên */
 
 .schedule-calendar-page .page-content {
   /* Có thể cần padding ít hơn để lịch rộng hơn */
@@ -240,7 +240,7 @@
 /* src/pages/ScheduleListPageNew.css */
 
 /* Kế thừa một số style cơ bản nếu cần */
-@import url("./LayoutTable.css"); /* Hoặc PageLayout.css nếu bạn đã đổi tên */
+@import url("../LayoutTable.css"); /* Hoặc PageLayout.css nếu bạn đã đổi tên */
 
 .schedule-calendar-page .page-content {
   padding: 20px;

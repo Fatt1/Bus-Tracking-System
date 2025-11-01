@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import api from "../utils/api";
+import api from "../../utils/api";
 import "./BusDetailPage.css";
-import busImg from "../assets/bus.png";
+import busImg from "../../assets/bus.png";
 import { FaBus, FaAngleLeft } from "react-icons/fa";
-import MapComponent from "../components/MapComponent";
+import MapComponent from "../../components/MapComponent";
 
 // Component chính của trang
 const BusDetailPage = () => {

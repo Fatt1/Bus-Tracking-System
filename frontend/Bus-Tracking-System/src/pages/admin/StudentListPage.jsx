@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import api from "../utils/api"; // Import api instance với token support
+import api from "../../utils/api"; // Import api instance với token support
 import "./StudentListPage.css"; // CSS riêng cho trang này
-import "../pages/LayoutTable.css"; // Tái sử dụng CSS layout bảng
+import "../LayoutTable.css"; // Tái sử dụng CSS layout bảng
 import {
   FaPlus,
   FaPen,

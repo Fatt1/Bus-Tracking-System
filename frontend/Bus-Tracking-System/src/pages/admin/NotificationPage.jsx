@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import api from "../utils/api";
+import api from "../../utils/api";
 import "./NotificationPage.css"; // CSS riêng
-import "../pages/LayoutTable.css"; // Tái sử dụng CSS chung nếu cần (cho modal confirm)
-import MultiSelectDropdown from ".//MultiSelectDropdown"; // <-- 1. IMPORT COMPONENT MỚI
+import "../LayoutTable.css"; // Tái sử dụng CSS chung nếu cần (cho modal confirm)
+import MultiSelectDropdown from "../MultiSelectDropdown"; // <-- 1. IMPORT COMPONENT MỚI
 import {
   FaPaperPlane,
   FaInbox,
@@ -17,8 +17,8 @@ import {
 } from "react-icons/fa";
 import { FiBell } from "react-icons/fi";
 import { format } from "date-fns"; // Để format thời gian
-import { getCurrentUserId } from "../utils/auth"; // Import để lấy userId hiện tại
-import { useNotification } from "../context/NotificationContext"; // Import notification context
+import { getCurrentUserId } from "../../utils/auth"; // Import để lấy userId hiện tại
+import { useNotification } from "../../context/NotificationContext"; // Import notification context
 
 // Using shared axios instance (../utils/api) which automatically adds Authorization header from session token
 

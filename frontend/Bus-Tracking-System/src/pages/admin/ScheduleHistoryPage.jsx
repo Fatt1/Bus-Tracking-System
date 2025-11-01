@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams, useLocation, Link } from "react-router-dom";
-import api from "../utils/api"; // Import api instance với token support
+import api from "../../utils/api"; // Import api instance với token support
 import "./ScheduleHistoryPage.css"; // Sẽ tạo ở bước 2
-import "../pages/LayoutTable.css"; // Tái sử dụng CSS bảng
+import "../LayoutTable.css"; // Tái sử dụng CSS bảng
 import { FaAngleLeft, FaSpinner } from "react-icons/fa";
 import { format, parseISO } from "date-fns";
 import { vi } from "date-fns/locale";

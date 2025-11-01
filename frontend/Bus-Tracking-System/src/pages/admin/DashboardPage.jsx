@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import api from "../utils/api"; // Import api instance với withCredentials
+import api from "../../utils/api"; // Import api instance với withCredentials
 import { useNavigate } from "react-router-dom";
-import { getAuthRoles, clearAuth } from "../utils/auth";
+import { getAuthRoles, clearAuth } from "../../utils/auth";
 import "./DashboardPage.css"; // Sẽ cập nhật file này ở bước 3
 import {
   FaBus,
@@ -10,9 +10,9 @@ import {
   FaChevronRight,
   FaPlayCircle,
 } from "react-icons/fa"; // Thêm FaPlayCircle
-import MapComponent from "../components/MapComponent"; // Đảm bảo đường dẫn đúng
+import MapComponent from "../../components/MapComponent"; // Đảm bảo đường dẫn đúng
 import { useTranslation } from "react-i18next"; // Import i18n hook
-import LanguageSwitcher from "../components/LanguageSwitcher"; // Import Language Switcher
+import LanguageSwitcher from "../../components/LanguageSwitcher"; // Import Language Switcher
 
 // Component nhỏ: Thẻ Tuyến Xe (Thêm onClick và class active)
 const RouteCard = ({ route, onClick, isSelected, t }) => (

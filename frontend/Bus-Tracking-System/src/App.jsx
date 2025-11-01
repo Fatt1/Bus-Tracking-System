@@ -1,32 +1,35 @@
 import { Routes, Route } from "react-router-dom";
-import DashboardPage from "./pages/DashboardPage";
-import LoginPage from "./pages/LoginPage";
-import BusListPage from "./pages/BusListPage";
-import BusDetailPage from "./pages/BusDetailPage";
-import Layout from "./components/Layout"; // <-- 1. IMPORT LAYOUT
-// import ScheduleListPage from "./pages/ScheduleListPageNew";
-// import TripListPage from "./pages/TripListPage";
-// import ScheduleAddEditPage from "./pages/ScheduleAddEditPage";
-import StudentListPage from "./pages/StudentListPage";
-import DriverListPage from "./pages/DriverListPage";
-import RouteListPage from "./pages/RouteListPage";
-
-import ScheduleListPageNew from "./pages/ScheduleListPageNew";
-import ScheduleAddEditPageNew from "./pages/ScheduleAddEditPageNew";
 import { useEffect } from "react";
 import axios from "axios";
-import NotificationPage from "./pages/NotificationPage";
+import React from "react";
 
+// Admin Pages
+import DashboardPage from "./pages/admin/DashboardPage";
+import BusListPage from "./pages/admin/BusListPage";
+import BusDetailPage from "./pages/admin/BusDetailPage";
+import StudentListPage from "./pages/admin/StudentListPage";
+import DriverListPage from "./pages/admin/DriverListPage";
+import RouteListPage from "./pages/admin/RouteListPage";
+import ScheduleListPageNew from "./pages/admin/ScheduleListPageNew";
+import ScheduleAddEditPageNew from "./pages/admin/ScheduleAddEditPageNew";
+import NotificationPage from "./pages/admin/NotificationPage";
+import TripHistoryPage from "./pages/admin/ScheduleHistoryPage";
+
+// Driver Pages
 import DriverHomePage from "./pages/driver/DriverHomePage";
 import DriverSchedulePage from "./pages/driver/DriverSchedulePage";
-import React from "react";
 import DriverNotificationPage from "./pages/driver/DriverNotificationPage";
-import RequireRole from "./components/RequireRole";
-import TripHistoryPage from "./pages/ScheduleHistoryPage";
 import DriverStudentListPage from "./pages/driver/DriverStudentListPage";
+
+// Parent Pages
 import ParentHomePage from "./pages/parent/ParentHomePage";
 import ParentNotificationPage from "./pages/parent/ParentNotificationPage";
 import ParentTrackingMapPage from "./pages/parent/ParentTrackingMapPage";
+
+// Other
+import LoginPage from "./pages/LoginPage";
+import Layout from "./components/Layout";
+import RequireRole from "./components/RequireRole";
 import BusSimulationManager from "./utils/BusSimulationManager";
 
 function App() {

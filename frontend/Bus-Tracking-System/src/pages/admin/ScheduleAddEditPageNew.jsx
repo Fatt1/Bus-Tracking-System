@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
-import api from "../utils/api"; // Import api instance với token support
+import api from "../../utils/api"; // Import api instance với token support
 import "./ScheduleAddEditPageNew.css"; // Sẽ tạo ở bước 5
 import { format, parseISO } from "date-fns";
 import { vi } from "date-fns/locale";

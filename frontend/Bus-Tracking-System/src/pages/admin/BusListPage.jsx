@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import api from "../utils/api"; // Import api instance với token support
+import api from "../../utils/api"; // Import api instance với token support
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 // Bỏ Link vì không còn dùng card nữa
 import "./BusListPage.css"; // CSS riêng cho trang này
-import "../pages/LayoutTable.css"; // Tái sử dụng CSS layout bảng chung
+import "../LayoutTable.css"; // Tái sử dụng CSS layout bảng chung
 import {
   FaPlus,
   FaTimes,

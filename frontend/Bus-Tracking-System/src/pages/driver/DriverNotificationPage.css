@@ -3,7 +3,7 @@
 /* Tái sử dụng toàn bộ style của trang chủ tài xế */
 @import url("./DriverHomePage.css");
 /* Tái sử dụng style modal confirm nếu cần */
-@import url("../DriverListPage.css"); /* Chứa style cho .modal-overlay, .confirm-delete, v.v. */
+@import url("../admin/DriverListPage.css"); /* Chứa style cho .modal-overlay, .confirm-delete, v.v. */
 
 /* Loading và Error states */
 .loading-container,
