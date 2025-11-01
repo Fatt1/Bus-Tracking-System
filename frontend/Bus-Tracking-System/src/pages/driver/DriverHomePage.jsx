@@ -50,6 +50,7 @@ const mockDriverProfile = {
 
 // --- COMPONENT MODAL THÔNG TIN CÁ NHÂN (MỚI) ---
 const DriverProfileModal = ({ isOpen, onClose, driver }) => {
+  const { t } = useTranslation();
   if (!isOpen) return null;
 
   // Giả lập, sau này sẽ là form cho phép chỉnh sửa
@@ -83,9 +84,9 @@ const DriverProfileModal = ({ isOpen, onClose, driver }) => {
           {/* Cột phải: Thông tin chi tiết */}
           <div className="profile-right-column">
             <section className="profile-section">
-              <h4>Thông tin cá nhân</h4>
+              <h4>{t("driverApp.profile.title")}</h4>
               <div className="form-group">
-                <label htmlFor="fullName">Họ tên</label>
+                <label htmlFor="fullName">{t("driverApp.profile.fullName")}</label>
                 <input
                   type="text"
                   id="fullName"
@@ -95,7 +96,7 @@ const DriverProfileModal = ({ isOpen, onClose, driver }) => {
               </div>
               <div className="form-row">
                 <div className="form-group">
-                  <label htmlFor="birthDate">Ngày sinh</label>
+                  <label htmlFor="birthDate">{t("driverApp.profile.dateOfBirth")}</label>
                   {/* Hiển thị ngày sinh đã format, input date hơi xấu */}
                   <div className="date-input-with-icon">
                     <input
@@ -108,7 +109,7 @@ const DriverProfileModal = ({ isOpen, onClose, driver }) => {
                   </div>
                 </div>
                 <div className="form-group">
-                  <label>Giới tính</label>
+                  <label>{t("driverApp.profile.gender")}</label>
                   <div className="gender-options">
                     <label>
                       <input
@@ -118,7 +119,7 @@ const DriverProfileModal = ({ isOpen, onClose, driver }) => {
                         checked={driver.gender === "Nam"}
                         readOnly
                       />{" "}
-                      Nam
+                      {t("common.male")}
                     </label>
                     <label>
                       <input
@@ -128,7 +129,7 @@ const DriverProfileModal = ({ isOpen, onClose, driver }) => {
                         checked={driver.gender === "Nữ"}
                         readOnly
                       />{" "}
-                      Nữ
+                      {t("common.female")}
                     </label>
                     {/* <label>
                                             <input type="radio" name="gender" value="Khác" checked={driver.gender === 'Khác'} readOnly /> Khác
@@ -139,17 +140,17 @@ const DriverProfileModal = ({ isOpen, onClose, driver }) => {
             </section>
 
             <section className="profile-section">
-              <h4>Thông tin liên hệ & địa chỉ</h4>
+              <h4>{t("driverApp.profile.phoneNumber")} & {t("driverApp.profile.address")}</h4>
               <div className="form-group">
-                <label htmlFor="phone">Số điện thoại</label>
+                <label htmlFor="phone">{t("driverApp.profile.phoneNumber")}</label>
                 <input type="text" id="phone" value={driver.phone} readOnly />
               </div>
               <div className="form-group">
-                <label htmlFor="email">Email</label>
+                <label htmlFor="email">{t("driverApp.profile.email")}</label>
                 <input type="text" id="email" value={driver.email} readOnly />
               </div>
               <div className="form-group">
-                <label htmlFor="address">Địa chỉ</label>
+                <label htmlFor="address">{t("driverApp.profile.address")}</label>
                 <input
                   type="text"
                   id="address"
@@ -167,10 +168,10 @@ const DriverProfileModal = ({ isOpen, onClose, driver }) => {
               className="action-btn-form cancel-btn"
               onClick={onClose}
             >
-              Hủy
+              {t("driverApp.profile.cancel")}
             </button>
             <button type="submit" className="action-btn-form confirm-btn">
-              Xác nhận
+              {t("driverApp.profile.confirm")}
             </button>
           </div>
         </form>
@@ -193,12 +194,12 @@ const DriverSidebar = ({ t }) => {
         <ul>
           <li className={activePage === "/driver/home" ? "active" : ""}>
             <Link to="/driver/home">
-              <FaHome /> {t("driver.sidebar.home")}
+              <FaHome /> {t("driverApp.sidebar.home")}
             </Link>
           </li>
           <li className={activePage === "/driver/schedule" ? "active" : ""}>
             <Link to="/driver/schedule">
-              <FaTasks /> {t("driver.sidebar.schedule")}
+              <FaTasks /> {t("driverApp.sidebar.schedule")}
             </Link>
           </li>
           <li
@@ -207,7 +208,7 @@ const DriverSidebar = ({ t }) => {
             }
           >
             <Link to="/driver/students">
-              <FaUserCheck /> {t("driver.sidebar.students")}
+              <FaUserCheck /> {t("driverApp.sidebar.students")}
             </Link>
           </li>
           <li
@@ -216,7 +217,7 @@ const DriverSidebar = ({ t }) => {
             }
           >
             <Link to="/driver/notifications">
-              <FaBell /> {t("driver.sidebar.notifications")}
+              <FaBell /> {t("driverApp.sidebar.notifications")}
             </Link>
           </li>
         </ul>
@@ -239,7 +240,7 @@ const DriverHeader = ({
   return (
     <header className="driver-header">
       <div className="breadcrumbs">
-        <span>{t("common.page")}</span> / <span>{t("common.home")}</span>
+        <span>{t("driverApp.header.page")}</span> / <span>{t("driverApp.home.breadcrumb")}</span>
         {/* SignalR Connection Status Indicator */}
         <span
           style={{
@@ -261,7 +262,7 @@ const DriverHeader = ({
       <div className="driver-header-actions">
         <button className="report-incident-btn" onClick={onReportIncident}>
           <FaExclamationTriangle />
-          <span>{t("driver.home.reportIncident")}</span>
+          <span>{t("driverApp.header.reportIncident")}</span>
         </button>
         <div
           className="notification-bell-wrapper"
@@ -274,20 +275,20 @@ const DriverHeader = ({
         </div>
         <input
           type="text"
-          placeholder={t("common.search")}
+          placeholder={t("driverApp.header.searchPlaceholder")}
           className="driver-search-input"
         />
         <LanguageSwitcher />
         <div
           className="driver-user-info"
           onClick={onProfileClick}
-          title="Xem thông tin cá nhân"
+          title={t("driverApp.header.viewProfile")}
         >
           <img src="https://i.pravatar.cc/40?u=driver1" alt="Avatar" />
           <span>{driverName}</span>
         </div>
         <button className="driver-logout-btn" onClick={onLogout}>
-          {t("common.logout")}
+          {t("driverApp.header.logout")}
         </button>
       </div>
     </header>
@@ -528,8 +529,8 @@ const DriverHomePage = () => {
       return {
         pickupStatus: "waiting",
         dropoffStatus: "waiting",
-        pickupText: "Đang chờ",
-        dropoffText: "Đang chờ",
+        pickupText: t("driverApp.home.statusPending"),
+        dropoffText: t("driverApp.home.statusPending"),
         morningActive: false,
         afternoonActive: false,
       };
@@ -551,35 +552,35 @@ const DriverHomePage = () => {
     let pickupStatus, pickupText;
     if (pickupHistoryExists) {
       pickupStatus = "completed";
-      pickupText = t("driver.home.completed");
+      pickupText = t("driverApp.home.statusCompleted");
     } else if (pickupCompletedLocal) {
       pickupStatus = "completed";
-      pickupText = t("driver.home.completed");
+      pickupText = t("driverApp.home.statusCompleted");
     } else if (isDrivingPickup) {
       pickupStatus = "in-progress";
-      pickupText = t("driver.home.inProgress");
+      pickupText = t("driverApp.home.statusInProgress");
     } else {
       pickupStatus = "ready";
-      pickupText = t("driver.home.ready");
+      pickupText = t("driverApp.home.statusReady");
     }
 
     // Xác định trạng thái chuyến về (chiều)
     let dropoffStatus, dropoffText;
     if (dropoffHistoryExists) {
       dropoffStatus = "completed";
-      dropoffText = t("driver.home.completed");
+      dropoffText = t("driverApp.home.statusCompleted");
     } else if (dropoffCompletedLocal) {
       dropoffStatus = "completed";
-      dropoffText = t("driver.home.completed");
+      dropoffText = t("driverApp.home.statusCompleted");
     } else if (isDrivingDropoff) {
       dropoffStatus = "in-progress";
-      dropoffText = t("driver.home.inProgress");
+      dropoffText = t("driverApp.home.statusInProgress");
     } else if (!pickupHistoryExists && !pickupCompletedLocal) {
       dropoffStatus = "waiting";
-      dropoffText = t("driver.home.waiting");
+      dropoffText = t("driverApp.home.statusPending");
     } else {
       dropoffStatus = "ready";
-      dropoffText = t("driver.home.ready");
+      dropoffText = t("driverApp.home.statusReady");
     }
 
     // ⚠️ Chuyến sáng active nếu:
@@ -659,7 +660,7 @@ const DriverHomePage = () => {
           ) : !scheduleData ? (
             <div className="no-schedule-message">
               <FaCalendarAlt size={50} />
-              <p>{t("driver.home.noSchedule")}</p>
+              <p>{t("driverApp.home.noSchedule")}</p>
             </div>
           ) : (
             <>
@@ -667,31 +668,27 @@ const DriverHomePage = () => {
                 <div className="driver-info-card">
                   <img src={mockDriverProfile.avatarUrl} alt="Driver Avatar" />
                   <div className="driver-details">
-                    <p>{t("driver.home.driver")}:</p>
+                    <p>{t("driverApp.home.driver")}:</p>
                     <h3>{fullName}</h3>
                     <span>
-                      {t("driver.home.bus")}:{" "}
+                      {t("driverApp.home.bus")}:{" "}
                       <strong>{scheduleData.busName || "N/A"}</strong>
                     </span>
                   </div>
                 </div>
                 <div className="driver-greeting-card">
                   <p>
-                    {t("driver.home.goodMorning")}, <strong>{fullName}</strong>!{" "}
-                    {t("driver.home.todaySchedule")}{" "}
-                    <strong>2 {t("driver.home.trips")}</strong>{" "}
-                    {t("driver.home.onRoute")}{" "}
-                    <strong>{scheduleData.routeDTO?.routeName || "N/A"}</strong>{" "}
-                    {t("driver.home.startAt")}{" "}
-                    <strong>{formatTime(scheduleData.pickupTime)}</strong>.{" "}
-                    {t("driver.home.safeTrip")}
+                    {t("driverApp.home.greeting")}, <strong>{fullName}</strong>!{" "}
+                    {t("driverApp.home.todaySchedule")}{" "}
+                    <strong>{scheduleData.routeDTO?.routeName || "N/A"}</strong>.{" "}
+                    {t("driverApp.home.haveASafeTrip")}
                   </p>
                 </div>
               </section>
 
               <section className="driver-schedule-section">
                 <div className="schedule-list">
-                  <h4>{t("driver.home.scheduleToday")}</h4>
+                  <h4>{t("driverApp.home.todaySchedule")}</h4>
                   <p className="schedule-date">
                     {formatDate(scheduleData.scheduleDate)}
                   </p>
@@ -703,28 +700,27 @@ const DriverHomePage = () => {
                     </div>
                     <div className="schedule-card-info">
                       <h4>
-                        {scheduleData.routeDTO?.routeName ||
-                          t("driver.home.route")}
+                        {scheduleData.routeDTO?.routeName || "N/A"}
                       </h4>
                       <p>
-                        {t("driver.home.bus")}: {scheduleData.busName}
+                        {t("driverApp.home.bus")}: {scheduleData.busName}
                       </p>
                       <span>
-                        {t("driver.home.departure")}:{" "}
+                        {t("driverApp.home.departure")}:{" "}
                         {formatTime(scheduleData.pickupTime)}
                       </span>
                     </div>
                     <div className="schedule-card-details">
-                      <h3>{t("driver.home.pickupTrip")}</h3>
+                      <h3>{t("driverApp.home.morningTrip")}</h3>
                       <p>
-                        {t("driver.home.status")}:{" "}
+                        {t("common.status")}:{" "}
                         <span className={`status-${tripStatus.pickupStatus}`}>
                           {tripStatus.pickupText}
                         </span>
                       </p>
                       <p>
-                        {t("driver.home.studentsToPickup")}:{" "}
-                        {scheduleData.totalStudents || 0}
+                        {t("driverApp.home.studentsToPickup")}:{" "}
+                        {scheduleData.totalStudents || 0} {t("driverApp.home.students")}
                       </p>
                     </div>
                     <button
@@ -757,8 +753,8 @@ const DriverHomePage = () => {
                       }}
                     >
                       {isDrivingPickup
-                        ? t("driver.home.running")
-                        : t("driver.home.startPickup")}
+                        ? t("driverApp.home.running")
+                        : t("driverApp.home.startTrip")}
                     </button>
                   </div>
 
@@ -769,28 +765,27 @@ const DriverHomePage = () => {
                     </div>
                     <div className="schedule-card-info">
                       <h4>
-                        {scheduleData.routeDTO?.routeName ||
-                          t("driver.home.route")}
+                        {scheduleData.routeDTO?.routeName || "N/A"}
                       </h4>
                       <p>
-                        {t("driver.home.bus")}: {scheduleData.busName}
+                        {t("driverApp.home.bus")}: {scheduleData.busName}
                       </p>
                       <span>
-                        {t("driver.home.departure")}:{" "}
+                        {t("driverApp.home.departure")}:{" "}
                         {formatTime(scheduleData.dropOffTime)}
                       </span>
                     </div>
                     <div className="schedule-card-details">
-                      <h3>{t("driver.home.dropoffTrip")}</h3>
+                      <h3>{t("driverApp.home.afternoonReturn")}</h3>
                       <p>
-                        {t("driver.home.status")}:{" "}
+                        {t("common.status")}:{" "}
                         <span className={`status-${tripStatus.dropoffStatus}`}>
                           {tripStatus.dropoffText}
                         </span>
                       </p>
                       <p>
-                        {t("driver.home.studentsToDropoff")}:{" "}
-                        {scheduleData.totalStudents || 0}
+                        {t("driverApp.home.studentsToPickup")}:{" "}
+                        {scheduleData.totalStudents || 0} {t("driverApp.home.students")}
                       </p>
                     </div>
                     <button
@@ -825,8 +820,8 @@ const DriverHomePage = () => {
                       }}
                     >
                       {isDrivingDropoff
-                        ? t("driver.home.running")
-                        : t("driver.home.startDropoff")}
+                        ? t("driverApp.home.running")
+                        : t("driverApp.home.startTrip")}
                     </button>
                   </div>
                 </div>
