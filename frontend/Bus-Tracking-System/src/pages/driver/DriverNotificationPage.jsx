@@ -1,16 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import api from "../../utils/api"; // Import api instance với token support
 import { clearAuth, getFullName } from "../../utils/auth";
 import { useNotification } from "../../context/NotificationContext";
 import ReportIncidentModal from "../../components/driver/ReportIncidentModal";
+import DriverSidebar from "../../components/driver/DriverSidebar";
+import DriverHeader from "../../components/driver/DriverHeader";
 import "./DriverNotificationPage.css"; // Sẽ tạo ở bước 2
 import {
-  FaHome,
-  FaTasks,
-  FaUserCheck,
-  FaBell,
-  FaExclamationTriangle,
   FaPaperPlane,
   FaInbox,
   FaTrashAlt,
@@ -21,100 +19,9 @@ import {
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 
-// --- COMPONENT SIDEBAR (Tương tự các trang driver khác) ---
-const DriverSidebar = () => {
-  const location = useLocation();
-  const activePage = location.pathname;
-
-  return (
-    <aside className="driver-sidebar">
-      <div className="driver-sidebar-header">
-        <h3>36 36 BUS BUS</h3>
-      </div>
-      <nav className="driver-sidebar-nav">
-        <ul>
-          <li className={activePage === "/driver/home" ? "active" : ""}>
-            <Link to="/driver/home">
-              {" "}
-              <FaHome /> Trang chủ{" "}
-            </Link>
-          </li>
-          <li className={activePage === "/driver/schedule" ? "active" : ""}>
-            <Link to="/driver/schedule">
-              {" "}
-              <FaTasks /> Lịch trình làm việc{" "}
-            </Link>
-          </li>
-          <li
-            className={
-              activePage.startsWith("/driver/students") ? "active" : ""
-            }
-          >
-            <Link to="/driver/students">
-              {" "}
-              <FaUserCheck /> Học sinh & điểm đón{" "}
-            </Link>
-          </li>
-          <li
-            className={
-              activePage.startsWith("/driver/notifications") ? "active" : ""
-            }
-          >
-            <Link to="/driver/notifications">
-              {" "}
-              <FaBell /> Thông báo{" "}
-            </Link>
-          </li>
-        </ul>
-      </nav>
-    </aside>
-  );
-};
-
-// --- COMPONENT HEADER (Tương tự các trang driver khác) ---
-const DriverHeader = ({
-  onReportIncident,
-  driverName = "Phan Viết Huy",
-  onLogout,
-  unreadCount = 0,
-}) => {
-  // Component này cũng cần state và logic để mở Profile Modal
-  // Tạm thời chỉ là giao diện
-  return (
-    <header className="driver-header">
-      <div className="breadcrumbs">
-        <span>Trang</span> / <span>Thông báo</span>
-      </div>
-      <div className="driver-header-actions">
-        <button className="report-incident-btn" onClick={onReportIncident}>
-          <FaExclamationTriangle />
-          <span>Báo cáo sự cố</span>
-        </button>
-        <div className="notification-bell-wrapper">
-          <FaBell size={24} className="notification-bell-icon" />
-          {unreadCount > 0 && (
-            <span className="notification-badge">{unreadCount}</span>
-          )}
-        </div>
-        <input
-          type="text"
-          placeholder="Tìm kiếm..."
-          className="driver-search-input"
-        />
-        <div className="driver-user-info" title="Xem thông tin cá nhân">
-          <img src="https://i.pravatar.cc/40?u=driver1" alt="Avatar" />
-          <span>{driverName}</span>
-        </div>
-        <button className="driver-logout-btn" onClick={onLogout}>
-          Đăng xuất
-        </button>
-      </div>
-    </header>
-  );
-};
-
 // --- COMPONENT MODAL XÁC NHẬN XÓA ---
 const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, count }) => {
+  const { t } = useTranslation();
   if (!isOpen) return null;
   return (
     <div className="driver-modal-overlay" onClick={onClose}>
@@ -124,22 +31,25 @@ const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, count }) => {
       >
         <div className="modal-header">
           <FaExclamationTriangle size={40} color="#e74c3c" />
-          <h4>Xác nhận xóa</h4>
+          <h4>{t("driverApp.notifications.confirmDelete")}</h4>
         </div>
         <p className="confirm-text">
-          Bạn có chắc chắn muốn xóa{" "}
-          {count === 1 ? "thông báo này" : `${count} thông báo đã chọn`} không?
-          Hành động này không thể hoàn tác.
+          {count === 1
+            ? t("driverApp.notifications.confirmDeleteMessage")
+            : t("driverApp.notifications.confirmDeleteMultiple").replace(
+                "{count}",
+                count
+              )}
         </p>
         <div className="confirm-actions">
           <button className="confirm-btn cancel-btn" onClick={onClose}>
-            Hủy
+            {t("driverApp.notifications.cancel")}
           </button>
           <button
             className="confirm-btn delete-confirm-btn"
             onClick={onConfirm}
           >
-            Xóa
+            {t("driverApp.notifications.confirmButton")}
           </button>
         </div>
       </div>
@@ -149,6 +59,7 @@ const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, count }) => {
 
 // --- COMPONENT CHÍNH TRANG THÔNG BÁO ---
 const DriverNotificationPage = () => {
+  const { t } = useTranslation();
   const { unreadCount, refreshUnreadCount } = useNotification();
   const [activeTab, setActiveTab] = useState("inbox"); // 'sent' hoặc 'inbox' (Bắt đầu bằng Thư đến)
   const [sentNotifications, setSentNotifications] = useState([]);
@@ -192,7 +103,7 @@ const DriverNotificationPage = () => {
       }
     } catch (err) {
       console.error("Lỗi khi tải thông báo:", err);
-      setError("Không thể tải thông báo. Vui lòng thử lại.");
+      setError(t("driverApp.notifications.error"));
     } finally {
       setIsLoading(false);
       // Refresh unread count after fetching notifications
@@ -272,7 +183,12 @@ const DriverNotificationPage = () => {
 
     setSelectedIds(new Set());
     setItemToDelete(null);
-    alert(`Đã xóa ${itemToDelete.count} thông báo (mock data)!`);
+    alert(
+      t("driverApp.notifications.deleteSuccess").replace(
+        "{count}",
+        itemToDelete.count
+      )
+    );
   };
 
   const changeTab = (tabName) => {
@@ -315,6 +231,8 @@ const DriverNotificationPage = () => {
             driverName={fullName}
             onLogout={handleLogout}
             unreadCount={unreadCount}
+            onNotificationClick={() => {}} // Already on notification page
+            breadcrumb={t("driverApp.notifications.breadcrumb")}
           />
 
           <main className="driver-main-content">
@@ -323,7 +241,10 @@ const DriverNotificationPage = () => {
               {/* Thanh tìm kiếm (Giống hình) */}
               <div className="notification-search-bar">
                 <FaSearch className="search-icon" />
-                <input type="text" placeholder="Tìm kiếm..." />
+                <input
+                  type="text"
+                  placeholder={t("driverApp.notifications.searchPlaceholder")}
+                />
               </div>
 
               {/* Tabs */}
@@ -334,7 +255,7 @@ const DriverNotificationPage = () => {
                   }`}
                   onClick={() => changeTab("sent")}
                 >
-                  <FaPaperPlane /> Đã gửi
+                  <FaPaperPlane /> {t("driverApp.notifications.sent")}
                 </button>
                 <button
                   className={`notification-tab-btn ${
@@ -342,7 +263,7 @@ const DriverNotificationPage = () => {
                   }`}
                   onClick={() => changeTab("inbox")}
                 >
-                  <FaInbox /> Thư đến
+                  <FaInbox /> {t("driverApp.notifications.inbox")}
                 </button>
 
                 {/* Nút Xóa hàng loạt */}
@@ -350,9 +271,16 @@ const DriverNotificationPage = () => {
                   <button
                     onClick={() => handleDeleteRequest(null)}
                     className="control-btn bulk-delete-btn"
-                    title={`Xóa ${selectedIds.size} mục đã chọn`}
+                    title={t("driverApp.notifications.deleteCount").replace(
+                      "{count}",
+                      selectedIds.size
+                    )}
                   >
-                    <FaTrashAlt /> Xóa ({selectedIds.size})
+                    <FaTrashAlt />{" "}
+                    {t("driverApp.notifications.deleteCount").replace(
+                      "{count}",
+                      selectedIds.size
+                    )}
                   </button>
                 )}
               </div>
@@ -362,13 +290,13 @@ const DriverNotificationPage = () => {
                 {isLoading ? (
                   <div className="loading-container">
                     <FaSpinner className="spinner" />
-                    <p>Đang tải thông báo...</p>
+                    <p>{t("driverApp.notifications.loading")}</p>
                   </div>
                 ) : error ? (
                   <div className="error-container">
                     <p className="error-message">{error}</p>
                     <button onClick={fetchNotifications} className="retry-btn">
-                      Thử lại
+                      {t("driverApp.notifications.retry")}
                     </button>
                   </div>
                 ) : (
@@ -382,14 +310,28 @@ const DriverNotificationPage = () => {
                           onChange={handleSelectAll}
                           disabled={notificationsToShow.length === 0}
                         />
-                        <label htmlFor="select-all">Chọn tất cả</label>
+                        <label htmlFor="select-all">
+                          {t("driverApp.notifications.selectAll")}
+                        </label>
                       </div>
                       <select
                         className="filter-dropdown"
-                        defaultValue={activeTab === "sent" ? "Đến" : "Từ"}
+                        defaultValue={
+                          activeTab === "sent"
+                            ? t("driverApp.notifications.to")
+                            : t("driverApp.notifications.from")
+                        }
                       >
-                        <option value={activeTab === "sent" ? "Đến" : "Từ"}>
-                          {activeTab === "sent" ? "Đến" : "Từ"}
+                        <option
+                          value={
+                            activeTab === "sent"
+                              ? t("driverApp.notifications.to")
+                              : t("driverApp.notifications.from")
+                          }
+                        >
+                          {activeTab === "sent"
+                            ? t("driverApp.notifications.to")
+                            : t("driverApp.notifications.from")}
                         </option>
                       </select>
                     </div>
@@ -464,8 +406,9 @@ const DriverNotificationPage = () => {
                         })
                       ) : (
                         <li className="no-notifications">
-                          Không có thông báo nào trong{" "}
-                          {activeTab === "sent" ? "hộp thư đi" : "hộp thư đến"}.
+                          {activeTab === "sent"
+                            ? t("driverApp.notifications.noSent")
+                            : t("driverApp.notifications.noInbox")}
                         </li>
                       )}
                     </ul>

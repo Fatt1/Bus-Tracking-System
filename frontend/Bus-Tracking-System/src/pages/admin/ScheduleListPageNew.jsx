@@ -5,6 +5,7 @@ import React, {
   useCallback,
   useRef,
 } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./ScheduleListPageNew.css"; // Sẽ tạo ở bước 3
 import {
@@ -26,10 +27,10 @@ import {
   format,
   parseISO,
 } from "date-fns";
-import { vi } from "date-fns/locale"; // Import Vietnamese locale
+import { vi, enUS } from "date-fns/locale"; // Import Vietnamese and English locale
 
 // --- Import api instance từ utils ---
-import api from "../utils/api";
+import api from "../../utils/api";
 
 // --- COMPONENT MODAL XEM/XÓA/CHỈNH SỬA LỊCH TRÌNH ---
 const ScheduleDetailModal = ({
@@ -41,19 +42,21 @@ const ScheduleDetailModal = ({
   onEdit,
   onViewHistory, // Thêm prop này
 }) => {
+  const { t } = useTranslation();
+
   if (!isOpen || !schedule) return null;
 
   // Hàm chuyển đổi status number sang text
   const getStatusText = (status) => {
     switch (status) {
       case 0:
-        return "Chưa hoạt động"; // InActive
+        return t("schedule.statusInactive"); // InActive
       case 1:
-        return "Đang hoạt động"; // Active
+        return t("schedule.statusActive"); // Active
       case 2:
-        return "Hoàn thành"; // Completed
+        return t("schedule.statusCompleted"); // Completed
       default:
-        return "Không rõ";
+        return t("schedule.statusUnknown");
     }
   };
 
@@ -75,12 +78,12 @@ const ScheduleDetailModal = ({
         <button className="modal-close-btn" onClick={onClose}>
           <FaTimes />
         </button>
-        <h4>Chi tiết lịch trình</h4>
+        <h4>{t("schedule.scheduleDetail")}</h4>
         <p>
-          <strong>Tuyến đường:</strong> {routeName}
+          <strong>{t("schedule.route")}:</strong> {routeName}
         </p>
         <p>
-          <strong>Ngày:</strong>{" "}
+          <strong>{t("schedule.date")}:</strong>{" "}
           {schedule.scheduleDate
             ? format(parseISO(schedule.scheduleDate), "EEEE, dd/MM/yyyy", {
                 locale: vi,
@@ -88,21 +91,23 @@ const ScheduleDetailModal = ({
             : "N/A"}
         </p>
         <p>
-          <strong>Giờ đi:</strong>{" "}
+          <strong>{t("schedule.pickupTime")}:</strong>{" "}
           {schedule.pickupTime?.substring(0, 5) || "N/A"}
         </p>
         <p>
-          <strong>Giờ về:</strong>{" "}
+          <strong>{t("schedule.dropOffTime")}:</strong>{" "}
           {schedule.dropOffTime?.substring(0, 5) || "N/A"}
         </p>
         <p>
-          <strong>Tài xế:</strong> {schedule.driverName || "N/A"}
+          <strong>{t("schedule.driver")}:</strong>{" "}
+          {schedule.driverName || "N/A"}
         </p>
         <p>
-          <strong>Xe buýt:</strong> {schedule.busName || "N/A"}
+          <strong>{t("schedule.bus")}:</strong> {schedule.busName || "N/A"}
         </p>
         <p>
-          <strong>Trạng thái:</strong> {getStatusText(schedule.status)}
+          <strong>{t("common.status")}:</strong>{" "}
+          {getStatusText(schedule.status)}
         </p>
         <div className="modal-actions">
           {/* Nút Xem lịch sử - Chỉ hiển thị khi ngày <= hôm nay */}
@@ -110,9 +115,9 @@ const ScheduleDetailModal = ({
             <button
               className="delete-schedule-btn view-history-btn"
               onClick={() => onViewHistory(schedule)}
-              title="Xem lịch sử đưa/đón học sinh"
+              title={t("schedule.viewHistoryTooltip")}
             >
-              Xem lịch sử
+              {t("schedule.viewHistory")}
             </button>
           )}
           {/* Nút sửa và xóa chỉ hoạt động khi có ID */}
@@ -122,18 +127,18 @@ const ScheduleDetailModal = ({
             disabled={!schedule.id}
             title={
               schedule.status !== 0
-                ? "Chỉ sửa được khi lịch trình ở trạng thái 'Chưa hoạt động'"
-                : "Sửa"
+                ? t("schedule.editOnlyInactive")
+                : t("common.edit")
             }
           >
-            <FaPen /> Sửa
+            <FaPen /> {t("common.edit")}
           </button>
           <button
             className="delete-schedule-btn"
             onClick={() => onDelete(schedule.id)}
             disabled={!schedule.id}
           >
-            <FaTrashAlt /> Xóa
+            <FaTrashAlt /> {t("common.delete")}
           </button>
         </div>
       </div>
@@ -149,6 +154,8 @@ const ScheduleEditModal = ({
   onClose,
   onSaved,
 }) => {
+  const { t } = useTranslation();
+
   const [pickupTime, setPickupTime] = useState("");
   const [dropOffTime, setDropOffTime] = useState("");
   const [selectedDriverId, setSelectedDriverId] = useState("");
@@ -328,13 +335,13 @@ const ScheduleEditModal = ({
         <button className="modal-close-btn" onClick={onClose}>
           <FaTimes />
         </button>
-        <h4>Chỉnh sửa lịch trình</h4>
+        <h4>{t("schedule.editSchedule")}</h4>
         <form onSubmit={handleSave} className="modal-form">
           <p>
-            <strong>Tuyến đường:</strong> {routeName}
+            <strong>{t("schedule.route")}:</strong> {routeName}
           </p>
           <p>
-            <strong>Ngày:</strong>{" "}
+            <strong>{t("schedule.date")}:</strong>{" "}
             {schedule.scheduleDate
               ? format(parseISO(schedule.scheduleDate), "EEEE, dd/MM/yyyy", {
                   locale: vi,
@@ -343,7 +350,7 @@ const ScheduleEditModal = ({
           </p>
           <div className="form-row">
             <div className="form-group">
-              <label>Giờ đi</label>
+              <label>{t("schedule.pickupTime")}</label>
               <input
                 type="time"
                 value={pickupTime}
@@ -353,7 +360,7 @@ const ScheduleEditModal = ({
               />
             </div>
             <div className="form-group">
-              <label>Giờ về</label>
+              <label>{t("schedule.dropOffTime")}</label>
               <input
                 type="time"
                 value={dropOffTime}
@@ -366,12 +373,13 @@ const ScheduleEditModal = ({
 
           {isLoadingDropdowns ? (
             <div className="loading-message">
-              <FaSpinner className="spinner" /> Đang tải tài xế/xe buýt...
+              <FaSpinner className="spinner" />{" "}
+              {t("schedule.loadingDriversBuses")}
             </div>
           ) : (
             <div className="form-row">
               <div className="form-group">
-                <label>Tài xế</label>
+                <label>{t("schedule.driver")}</label>
                 <select
                   value={selectedDriverId}
                   onChange={(e) => setSelectedDriverId(e.target.value)}
@@ -379,7 +387,7 @@ const ScheduleEditModal = ({
                   required
                 >
                   <option value="" disabled>
-                    -- Chọn tài xế --
+                    {t("schedule.selectDriver")}
                   </option>
                   {drivers.map((d) => (
                     <option
@@ -391,14 +399,14 @@ const ScheduleEditModal = ({
                     >
                       {d.driverName}{" "}
                       {!d.canClickable && d.id !== Number(currentDriverId)
-                        ? "(Đã có lịch)"
+                        ? t("schedule.alreadyScheduled")
                         : ""}
                     </option>
                   ))}
                 </select>
               </div>
               <div className="form-group">
-                <label>Xe buýt</label>
+                <label>{t("schedule.bus")}</label>
                 <select
                   value={selectedBusId}
                   onChange={(e) => setSelectedBusId(e.target.value)}
@@ -406,7 +414,7 @@ const ScheduleEditModal = ({
                   required
                 >
                   <option value="" disabled>
-                    -- Chọn xe buýt --
+                    {t("schedule.selectBus")}
                   </option>
                   {buses.map((b) => (
                     <option
@@ -418,7 +426,7 @@ const ScheduleEditModal = ({
                     >
                       {b.busName}{" "}
                       {!b.canClickable && b.id !== Number(currentBusId)
-                        ? "(Đã có lịch)"
+                        ? t("schedule.alreadyScheduled")
                         : ""}
                     </option>
                   ))}
@@ -428,15 +436,15 @@ const ScheduleEditModal = ({
           )}
 
           <div className="form-group">
-            <label>Trạng thái</label>
+            <label>{t("common.status")}</label>
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
               disabled={!isEditable}
             >
-              <option value={0}>Chưa hoạt động</option>
-              <option value={1}>Đang hoạt động</option>
-              <option value={2}>Hoàn thành</option>
+              <option value={0}>{t("schedule.statusInactive")}</option>
+              <option value={1}>{t("schedule.statusActive")}</option>
+              <option value={2}>{t("schedule.statusCompleted")}</option>
             </select>
           </div>
 
@@ -446,19 +454,19 @@ const ScheduleEditModal = ({
               className="delete-schedule-btn"
               onClick={onClose}
             >
-              Hủy
+              {t("common.cancel")}
             </button>
             <button
               type="submit"
               className="delete-schedule-btn"
               disabled={!isEditable}
             >
-              Lưu
+              {t("common.save")}
             </button>
           </div>
           {!isEditable && (
             <small style={{ color: "#e67e22" }}>
-              Chỉ có thể chỉnh sửa khi lịch trình ở trạng thái "Chưa hoạt động".
+              {t("schedule.editOnlyInactive")}
             </small>
           )}
         </form>
@@ -469,6 +477,8 @@ const ScheduleEditModal = ({
 
 // --- COMPONENT MODAL XÁC NHẬN XÓA ---
 const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, scheduleInfo }) => {
+  const { t } = useTranslation();
+
   if (!isOpen) return null;
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -478,29 +488,28 @@ const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, scheduleInfo }) => {
       >
         <div className="modal-header">
           <FaExclamationTriangle size={30} color="#e74c3c" />
-          <h4>Xác nhận xóa</h4>
+          <h4>{t("schedule.confirmDelete")}</h4>
         </div>
         <p className="confirm-text">
           {" "}
           {/* Sửa lại class */}
-          Bạn có chắc muốn xóa lịch trình cho tuyến{" "}
-          <strong>{scheduleInfo?.routeName}</strong> vào ngày{" "}
-          <strong>
-            {scheduleInfo?.date
+          {t("schedule.deleteMessage", {
+            route: scheduleInfo?.routeName,
+            date: scheduleInfo?.date
               ? format(parseISO(scheduleInfo.date), "dd/MM/yyyy")
-              : ""}
-          </strong>{" "}
-          ({scheduleInfo?.time})? {/* Thêm giờ */}
+              : "",
+            time: scheduleInfo?.time,
+          })}
         </p>
         <div className="confirm-actions">
           <button className="confirm-btn cancel-btn" onClick={onClose}>
-            Hủy
+            {t("common.cancel")}
           </button>
           <button
             className="confirm-btn delete-confirm-btn"
             onClick={onConfirm}
           >
-            Xóa
+            {t("common.delete")}
           </button>
         </div>
       </div>
@@ -510,6 +519,7 @@ const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, scheduleInfo }) => {
 
 // --- COMPONENT CHÍNH: LỊCH TRÌNH THEO TUẦN ---
 const ScheduleListPageNew = () => {
+  const { t, i18n } = useTranslation();
   const location = useLocation();
   const [currentDate, setCurrentDate] = useState(new Date()); // Bắt đầu từ ngày hiện tại
   const [schedules, setSchedules] = useState([]); // State lưu lịch trình từ API
@@ -759,7 +769,7 @@ const ScheduleListPageNew = () => {
             fetchSchedules(currentDate);
           }}
         >
-          Thử lại
+          {t("schedule.retry")}
         </button>
       </div>
     );
@@ -802,10 +812,7 @@ const ScheduleListPageNew = () => {
 
       <main className="main-content-area schedule-calendar-page">
         <header className="page-header">
-          <div className="breadcrumbs">
-            <span>Trang</span> / <span>Quản lý lịch trình</span> /{" "}
-            <span>Lịch trình theo tuần</span>
-          </div>
+          <div className="breadcrumbs">{t("schedule.breadcrumb")}</div>
           {/* Có thể thêm nút Tìm kiếm,... ở đây nếu cần */}
         </header>
 
@@ -814,26 +821,26 @@ const ScheduleListPageNew = () => {
             <button
               onClick={goToPrevWeek}
               className="nav-button"
-              title="Tuần trước"
+              title={t("schedule.prevWeek")}
             >
               <FaChevronLeft />
             </button>
             <h2>
-              Tuần {format(currentWeekStart, "dd/MM")} -{" "}
+              {t("schedule.week")} {format(currentWeekStart, "dd/MM")} -{" "}
               {format(currentWeekEnd, "dd/MM/yyyy")}
             </h2>
             {/* Nút về tuần hiện tại */}
             <button
               onClick={goToCurrentWeek}
               className="nav-button today-button"
-              title="Về tuần hiện tại"
+              title={t("schedule.currentWeek")}
             >
               <FaCalendarDay /> {/* Icon khác */}
             </button>
             <button
               onClick={goToNextWeek}
               className="nav-button"
-              title="Tuần sau"
+              title={t("schedule.nextWeek")}
             >
               <FaChevronRight />
             </button>
@@ -841,7 +848,7 @@ const ScheduleListPageNew = () => {
 
           {showMainLoading && schedules.length === 0 && routes.length === 0 ? ( // Chỉ hiển thị loading lớn khi chưa có dữ liệu gì
             <div className="loading-message">
-              <FaSpinner className="spinner" /> Đang tải dữ liệu...
+              <FaSpinner className="spinner" /> {t("common.loading")}
             </div>
           ) : (
             <div className="calendar-grid-container">
@@ -852,12 +859,16 @@ const ScheduleListPageNew = () => {
                       {isLoadingRoutes ? (
                         <FaSpinner className="spinner" />
                       ) : (
-                        "Tuyến đường"
+                        t("schedule.route")
                       )}
                     </th>
                     {daysInWeek.map((day) => (
                       <th key={day.toISOString()} className="day-header-cell">
-                        <div>{format(day, "EEEE", { locale: vi })}</div>
+                        <div>
+                          {format(day, "EEEE", {
+                            locale: i18n.language === "vi" ? vi : enUS,
+                          })}
+                        </div>
                         <div>{format(day, "dd/MM")}</div>
                       </th>
                     ))}
@@ -867,7 +878,7 @@ const ScheduleListPageNew = () => {
                   {routes.length === 0 && !isLoadingRoutes ? (
                     <tr>
                       <td colSpan={8} className="no-routes-message">
-                        Không có dữ liệu tuyến đường.
+                        {t("route.noData")}
                       </td>
                     </tr>
                   ) : (

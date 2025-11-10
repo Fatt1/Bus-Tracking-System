@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
-import api from "../utils/api"; // Import api instance với token support
+import api from "../../utils/api"; // Import api instance với token support
 import "./ScheduleAddEditPageNew.css"; // Sẽ tạo ở bước 5
 import { format, parseISO } from "date-fns";
 import { vi } from "date-fns/locale";
@@ -41,6 +42,7 @@ api.interceptors.response.use(
 );
 
 const ScheduleAddEditPageNew = () => {
+  const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   // Lấy dữ liệu từ state khi navigate
@@ -304,32 +306,32 @@ const ScheduleAddEditPageNew = () => {
     <main className="main-content-area add-schedule-form-page">
       <header className="page-header">
         <div className="breadcrumbs">
-          <span>Trang</span> /{" "}
+          <span>{t("common.page")}</span> /{" "}
           <span
             onClick={() => navigate("/schedule")}
             style={{ cursor: "pointer", color: "#0a2e5d" }}
           >
-            Quản lý lịch trình
+            {t("admin.sidebar.schedules")}
           </span>{" "}
-          / <span>Thêm lịch trình mới</span>
+          / <span>{t("schedule.addSchedule")}</span>
         </div>
       </header>
 
       <div className="page-content">
-        <h2>Thêm lịch trình mới</h2>
+        <h2>{t("schedule.addSchedule")}</h2>
         <form onSubmit={handleSave} className="add-schedule-form">
           <div className="form-group readonly-group">
-            <label>Tuyến đường</label>
+            <label>{t("schedule.route")}</label>
             <input type="text" value={routeName || "N/A"} readOnly disabled />
           </div>
           <div className="form-group readonly-group">
-            <label>Ngày</label>
+            <label>{t("schedule.date")}</label>
             <input type="text" value={formattedDate} readOnly disabled />
           </div>
 
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="pickupTime">Giờ đi</label>
+              <label htmlFor="pickupTime">{t("schedule.pickupTime")}</label>
               <input
                 type="time"
                 id="pickupTime"
@@ -340,7 +342,7 @@ const ScheduleAddEditPageNew = () => {
               />
             </div>
             <div className="form-group">
-              <label htmlFor="dropOffTime">Giờ về</label>
+              <label htmlFor="dropOffTime">{t("schedule.dropOffTime")}</label>
               <input
                 type="time"
                 id="dropOffTime"
@@ -354,12 +356,13 @@ const ScheduleAddEditPageNew = () => {
 
           {isLoadingDropdowns ? (
             <div className="loading-message">
-              <FaSpinner className="spinner" /> Đang tải tài xế/xe buýt...
+              <FaSpinner className="spinner" />{" "}
+              {t("schedule.loadingDriversBuses")}
             </div>
           ) : (
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="driverId">Tài xế</label>
+                <label htmlFor="driverId">{t("schedule.driver")}</label>
                 <select
                   id="driverId"
                   value={selectedDriverId}
@@ -367,7 +370,7 @@ const ScheduleAddEditPageNew = () => {
                   required
                 >
                   <option value="" disabled>
-                    -- Chọn tài xế --
+                    {t("schedule.selectDriver")}
                   </option>
                   {drivers.map((driver) => (
                     <option
@@ -380,7 +383,7 @@ const ScheduleAddEditPageNew = () => {
                       }}
                     >
                       {driver.driverName}{" "}
-                      {!driver.canClickable && "(Đã có lịch)"}
+                      {!driver.canClickable && t("schedule.alreadyScheduled")}
                     </option>
                   ))}
                 </select>
@@ -393,12 +396,12 @@ const ScheduleAddEditPageNew = () => {
                         display: "block",
                       }}
                     >
-                      ⚠️ Tất cả tài xế đều đã có lịch trong ngày này
+                      ⚠️ {t("schedule.allDriversScheduled")}
                     </small>
                   )}
               </div>
               <div className="form-group">
-                <label htmlFor="busId">Xe buýt</label>
+                <label htmlFor="busId">{t("schedule.bus")}</label>
                 <select
                   id="busId"
                   value={selectedBusId}
@@ -406,7 +409,7 @@ const ScheduleAddEditPageNew = () => {
                   required
                 >
                   <option value="" disabled>
-                    -- Chọn xe buýt --
+                    {t("schedule.selectBus")}
                   </option>
                   {buses.map((bus) => (
                     <option
@@ -418,7 +421,8 @@ const ScheduleAddEditPageNew = () => {
                         fontStyle: bus.canClickable ? "normal" : "italic",
                       }}
                     >
-                      {bus.busName} {!bus.canClickable && "(Đã có lịch)"}
+                      {bus.busName}{" "}
+                      {!bus.canClickable && t("schedule.alreadyScheduled")}
                     </option>
                   ))}
                 </select>
@@ -430,7 +434,7 @@ const ScheduleAddEditPageNew = () => {
                       display: "block",
                     }}
                   >
-                    ⚠️ Tất cả xe buýt đều đã có lịch trong ngày này
+                    ⚠️ {t("schedule.allBusesScheduled")}
                   </small>
                 )}
               </div>
@@ -443,14 +447,14 @@ const ScheduleAddEditPageNew = () => {
               className="action-btn-form cancel-btn"
               onClick={handleCancel}
             >
-              Hủy
+              {t("common.cancel")}
             </button>
             <button
               type="submit"
               className="action-btn-form confirm-btn"
               disabled={isLoadingDropdowns}
             >
-              Lưu
+              {t("common.save")}
             </button>
           </div>
         </form>

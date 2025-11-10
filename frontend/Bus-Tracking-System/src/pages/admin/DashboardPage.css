@@ -79,7 +79,7 @@
 
 /* Div mới chứa cả Header và Routes */
 .main-content-top-wrapper {
-  background: url("../assets/N2\ 1.png") no-repeat center center;
+  background: url("../../assets/N2 1.png") no-repeat center center;
   background-size: cover;
   padding-bottom: 30px; /* Thêm padding dưới */
 }

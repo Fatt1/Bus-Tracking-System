@@ -1,9 +1,11 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { FiHome, FiMapPin, FiBell } from "react-icons/fi";
+import { useTranslation } from "react-i18next";
 import "./ParentSidebar.css";
 
 const ParentSidebar = () => {
+  const { t } = useTranslation();
   const location = useLocation();
   const activePage = location.pathname;
 
@@ -17,13 +19,13 @@ const ParentSidebar = () => {
           <li className={activePage === "/parent/home" ? "active" : ""}>
             <Link to="/parent/home">
               <FiHome />
-              <span>Trang chủ</span>
+              <span>{t("parent.sidebar.home")}</span>
             </Link>
           </li>
           <li className={activePage === "/parent/map" ? "active" : ""}>
             <Link to="/parent/map">
               <FiMapPin />
-              <span>Vị trí xe</span>
+              <span>{t("parent.sidebar.tracking")}</span>
             </Link>
           </li>
           <li
@@ -31,7 +33,7 @@ const ParentSidebar = () => {
           >
             <Link to="/parent/notifications">
               <FiBell />
-              <span>Thông báo</span>
+              <span>{t("parent.sidebar.notifications")}</span>
             </Link>
           </li>
         </ul>

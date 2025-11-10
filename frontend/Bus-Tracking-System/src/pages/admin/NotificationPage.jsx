@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import api from "../utils/api";
+import { useTranslation } from "react-i18next";
+import api from "../../utils/api";
 import "./NotificationPage.css"; // CSS riêng
-import "../pages/LayoutTable.css"; // Tái sử dụng CSS chung nếu cần (cho modal confirm)
-import MultiSelectDropdown from ".//MultiSelectDropdown"; // <-- 1. IMPORT COMPONENT MỚI
+import "../LayoutTable.css"; // Tái sử dụng CSS chung nếu cần (cho modal confirm)
+import MultiSelectDropdown from "../MultiSelectDropdown"; // <-- 1. IMPORT COMPONENT MỚI
 import {
   FaPaperPlane,
   FaInbox,
@@ -16,8 +17,8 @@ import {
 } from "react-icons/fa";
 import { FiBell } from "react-icons/fi";
 import { format } from "date-fns"; // Để format thời gian
-import { getCurrentUserId } from "../utils/auth"; // Import để lấy userId hiện tại
-import { useNotification } from "../context/NotificationContext"; // Import notification context
+import { getCurrentUserId } from "../../utils/auth"; // Import để lấy userId hiện tại
+import { useNotification } from "../../context/NotificationContext"; // Import notification context
 
 // Using shared axios instance (../utils/api) which automatically adds Authorization header from session token
 
@@ -33,6 +34,8 @@ const CreateNotificationModal = ({
   parents,
   isLoadingRecipients,
 }) => {
+  const { t } = useTranslation();
+
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
   const [recipientType, setRecipientType] = useState("driver");
@@ -96,35 +99,35 @@ const CreateNotificationModal = ({
           <FaTimes />
         </button>
         <div className="modal-header">
-          <h4>Tạo Thông Báo</h4>
+          <h4>{t("notification.createNotification")}</h4>
         </div>
         <form onSubmit={handleSend} className="modal-form notification-form">
-          <h5>Phương thức thông báo</h5>
+          <h5>{t("notification.notificationMethod")}</h5>
           <div className="form-group">
-            <label htmlFor="title">Tiêu đề</label>
+            <label htmlFor="title">{t("notification.title")}</label>
             <input
               type="text"
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Nhập tiêu đề..."
+              placeholder={t("notification.titlePlaceholder")}
               required
             />
           </div>
           <div className="form-group">
-            <label htmlFor="message">Tin nhắn</label>
+            <label htmlFor="message">{t("notification.message")}</label>
             <textarea
               id="message"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder="Nhập nội dung tin nhắn..."
+              placeholder={t("notification.messagePlaceholder")}
               rows="5"
               required
             ></textarea>
           </div>
 
           <div className="form-group recipient-group">
-            <label>Người nhận</label>
+            <label>{t("notification.recipient")}</label>
             <div className="recipient-options">
               <label className={recipientType === "driver" ? "selected" : ""}>
                 <input
@@ -137,7 +140,7 @@ const CreateNotificationModal = ({
                     setSelectedParentIds(new Set());
                   }}
                 />{" "}
-                <FaUserTie /> Tài xế
+                <FaUserTie /> {t("notification.driver")}
               </label>
               <label
                 className={`${recipientType === "parent" ? "selected" : ""}`}
@@ -152,7 +155,7 @@ const CreateNotificationModal = ({
                     setSelectedDriverIds(new Set());
                   }}
                 />{" "}
-                <FaUserFriends /> Phụ huynh
+                <FaUserFriends /> {t("notification.parent")}
               </label>
             </div>
             {/* 4. Sử dụng MultiSelectDropdown cho Tài xế */}
@@ -160,15 +163,15 @@ const CreateNotificationModal = ({
               <div className="multi-select-container">
                 {isLoadingRecipients ? (
                   <div className="loading-drivers">
-                    <FaSpinner className="spinner" /> Đang tải...
+                    <FaSpinner className="spinner" /> {t("common.loading")}
                   </div>
                 ) : (
                   <MultiSelectDropdown
                     options={drivers}
                     selectedIds={selectedDriverIds}
                     onChange={setSelectedDriverIds} // Truyền hàm cập nhật Set ID
-                    placeholder="-- Chọn tài xế --"
-                    itemTypeLabel="tài xế"
+                    placeholder={t("notification.selectDriver")}
+                    itemTypeLabel={t("notification.driverLabel")}
                   />
                 )}
               </div>
@@ -178,15 +181,15 @@ const CreateNotificationModal = ({
               <div className="multi-select-container">
                 {isLoadingRecipients ? (
                   <div className="loading-drivers">
-                    <FaSpinner className="spinner" /> Đang tải...
+                    <FaSpinner className="spinner" /> {t("common.loading")}
                   </div>
                 ) : (
                   <MultiSelectDropdown
                     options={parents}
                     selectedIds={selectedParentIds}
                     onChange={setSelectedParentIds}
-                    placeholder="-- Chọn phụ huynh --"
-                    itemTypeLabel="phụ huynh"
+                    placeholder={t("notification.selectParent")}
+                    itemTypeLabel={t("notification.parentLabel")}
                   />
                 )}
               </div>
@@ -200,7 +203,7 @@ const CreateNotificationModal = ({
                 checked={sendToSelf}
                 onChange={(e) => setSendToSelf(e.target.checked)}
               />{" "}
-              Gửi tới thông báo của tôi
+              {t("notification.sendToSelf")}
             </label>
           </div>
 
@@ -210,10 +213,10 @@ const CreateNotificationModal = ({
               className="action-btn-form cancel-btn"
               onClick={onClose}
             >
-              Hủy
+              {t("common.cancel")}
             </button>
             <button type="submit" className="action-btn-form confirm-btn">
-              Xác nhận
+              {t("common.confirm")}
             </button>
           </div>
         </form>
@@ -224,6 +227,8 @@ const CreateNotificationModal = ({
 
 // --- COMPONENT MODAL XÁC NHẬN XÓA (Giữ nguyên) ---
 const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, count }) => {
+  const { t } = useTranslation();
+
   // ... (Giữ nguyên)
   if (!isOpen) return null;
   return (
@@ -234,22 +239,27 @@ const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, count }) => {
       >
         <div className="modal-header">
           <FaExclamationTriangle size={40} color="#e74c3c" />
-          <h4>Xác nhận xóa</h4>
+          <h4>{t("notification.confirmDelete")}</h4>
         </div>
         <p className="confirm-text">
-          Bạn có chắc chắn muốn xóa{" "}
-          {count === 1 ? "thông báo này" : `${count} thông báo đã chọn`} không?
-          Hành động này không thể hoàn tác.
+          {t("notification.deleteMessage", {
+            count: count,
+            item:
+              count === 1
+                ? t("notification.thisNotification")
+                : t("notification.selectedNotifications", { count }),
+          })}{" "}
+          {t("notification.cannotUndo")}
         </p>
         <div className="confirm-actions">
           <button className="confirm-btn cancel-btn" onClick={onClose}>
-            Hủy
+            {t("common.cancel")}
           </button>
           <button
             className="confirm-btn delete-confirm-btn"
             onClick={onConfirm} // Gọi hàm xác nhận xóa từ props
           >
-            Xóa
+            {t("common.delete")}
           </button>
         </div>
       </div>
@@ -259,6 +269,7 @@ const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, count }) => {
 
 // --- COMPONENT CHÍNH CỦA TRANG ---
 const NotificationPage = () => {
+  const { t } = useTranslation();
   const { unreadCount, refreshUnreadCount, markAsRecentlySent } =
     useNotification(); // Get unread count from context
   const [activeTab, setActiveTab] = useState("sent");
@@ -573,9 +584,7 @@ const NotificationPage = () => {
       />
       <main className="main-content-area">
         <header className="page-header">
-          <div className="breadcrumbs">
-            <span>Trang</span> / <span>Thông báo</span>
-          </div>
+          <div className="breadcrumbs">{t("notification.breadcrumb")}</div>
           <div className="header-actions">
             <div className="notification-bell-wrapper">
               <FiBell size={24} className="notification-bell-icon" />
@@ -585,30 +594,32 @@ const NotificationPage = () => {
             </div>
             <input
               type="text"
-              placeholder="Tìm kiếm thông báo..."
+              placeholder={t("notification.searchPlaceholder")}
               className="search-input"
             />
-            <button className="user-button">Đăng nhập</button>
+            <button className="user-button">{t("common.login")}</button>
           </div>
         </header>
         <div className="page-content notification-page">
           <div className="content-header notification-header">
-            <h2>Danh sách thông báo</h2>
+            <h2>{t("notification.title")}</h2>
             <div className="header-controls notification-controls">
               {selectedIds.size > 0 && (
                 <button
                   onClick={() => handleDeleteRequest(null)}
                   className="control-btn bulk-delete-btn"
-                  title={`Xóa ${selectedIds.size} mục đã chọn`}
+                  title={t("notification.deleteSelected", {
+                    count: selectedIds.size,
+                  })}
                 >
-                  <FaTrashAlt /> Xóa ({selectedIds.size})
+                  <FaTrashAlt /> {t("common.delete")} ({selectedIds.size})
                 </button>
               )}
               <button
                 onClick={() => setIsCreateModalOpen(true)}
                 className="control-btn create-notification-btn"
               >
-                Tạo thông báo
+                {t("notification.createNotification")}
               </button>
             </div>
           </div>
@@ -619,7 +630,7 @@ const NotificationPage = () => {
               }`}
               onClick={() => changeTab("sent")}
             >
-              <FaPaperPlane /> Đã gửi
+              <FaPaperPlane /> {t("notification.sent")}
             </button>
             <button
               className={`notification-tab-btn ${
@@ -627,7 +638,7 @@ const NotificationPage = () => {
               }`}
               onClick={() => changeTab("inbox")}
             >
-              <FaInbox /> Thư đến
+              <FaInbox /> {t("notification.inbox")}
             </button>
           </div>
           <div className="notification-list-container">
@@ -640,21 +651,36 @@ const NotificationPage = () => {
                   onChange={handleSelectAll}
                   disabled={notificationsToShow.length === 0}
                 />
-                <label htmlFor="select-all">Chọn tất cả</label>
+                <label htmlFor="select-all">
+                  {t("notification.selectAll")}
+                </label>
               </div>
               <select
                 className="filter-dropdown"
-                defaultValue={activeTab === "sent" ? "Đến" : "Từ"}
+                defaultValue={
+                  activeTab === "sent"
+                    ? t("notification.to")
+                    : t("notification.from")
+                }
               >
-                <option value={activeTab === "sent" ? "Đến" : "Từ"}>
-                  {activeTab === "sent" ? "Đến" : "Từ"}
+                <option
+                  value={
+                    activeTab === "sent"
+                      ? t("notification.to")
+                      : t("notification.from")
+                  }
+                >
+                  {activeTab === "sent"
+                    ? t("notification.to")
+                    : t("notification.from")}
                 </option>
               </select>
             </div>
             <ul className="notification-list">
               {isLoadingNotifications ? (
                 <li className="no-notifications">
-                  <FaSpinner className="spinner" /> Đang tải thông báo...
+                  <FaSpinner className="spinner" />{" "}
+                  {t("notification.loadingNotifications")}
                 </li>
               ) : notificationsToShow.length > 0 ? (
                 notificationsToShow.map((noti) => (
@@ -702,8 +728,12 @@ const NotificationPage = () => {
                 ))
               ) : (
                 <li className="no-notifications">
-                  Không có thông báo nào trong{" "}
-                  {activeTab === "sent" ? "hộp thư đi" : "hộp thư đến"}.
+                  {t("notification.noNotifications", {
+                    box:
+                      activeTab === "sent"
+                        ? t("notification.sentBox")
+                        : t("notification.inboxBox"),
+                  })}
                 </li>
               )}
             </ul>

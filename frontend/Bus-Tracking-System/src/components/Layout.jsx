@@ -1,9 +1,9 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
-import { SideBar } from "./SideBar"; // Import Sidebar của bạn
+import { SideBar } from "./admin/SideBar"; // Import Sidebar của admin
 
 // Dùng chung CSS layout từ DashboardPage để không phải viết lại
-import "../pages/DashboardPage.css";
+import "../pages/admin/DashboardPage.css";
 
 const Layout = () => {
   return (

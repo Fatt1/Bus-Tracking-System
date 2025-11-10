@@ -1,7 +1,7 @@
 /* src/pages/TripHistoryPage.css */
 
 /* Kế thừa CSS bảng chung */
-@import url("./LayoutTable.css");
+@import url("../LayoutTable.css");
 
 .trip-history-page {
   max-width: 1000px; /* Giới hạn chiều rộng nội dung */

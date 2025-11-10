@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import api from "../../utils/api"; // Import api instance với token support
 import { getCurrentUserId } from "../../utils/auth"; // Import để lấy current user ID
 import { useNotification } from "../../context/NotificationContext"; // Import để mark as recently sent
@@ -13,6 +14,7 @@ import {
 import "./ReportIncidentModal.css";
 
 const ReportIncidentModal = ({ isOpen, onClose }) => {
+  const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [adminUsers, setAdminUsers] = useState([]);
   const [loadingAdmins, setLoadingAdmins] = useState(false);
@@ -45,12 +47,12 @@ const ReportIncidentModal = ({ isOpen, onClose }) => {
     console.log("Option selected:", option);
 
     if (loadingAdmins) {
-      alert("Đang tải danh sách admin, vui lòng đợi...");
+      alert(t("driverApp.incident.loadingAdmins"));
       return;
     }
 
     if (adminUsers.length === 0) {
-      alert("Không tìm thấy admin để gửi báo cáo. Vui lòng thử lại.");
+      alert(t("driverApp.incident.noAdmins"));
       return;
     }
 
@@ -58,10 +60,10 @@ const ReportIncidentModal = ({ isOpen, onClose }) => {
 
     // Map option sang message
     const messageMap = {
-      technical: "Sự cố kỹ thuật (Hỏng hóc, xịt lốp)",
-      traffic: "Sự cố giao thông (Kẹt xe, tai nạn nhỏ)",
-      medical: "Khẩn cấp y tế (Học sinh bị ốm)",
-      other: "Khác",
+      technical: t("driverApp.incident.technical"),
+      traffic: t("driverApp.incident.traffic"),
+      medical: t("driverApp.incident.medical"),
+      other: t("driverApp.incident.other"),
     };
 
     const message = messageMap[option] || option;
@@ -82,7 +84,7 @@ const ReportIncidentModal = ({ isOpen, onClose }) => {
 
       const payload = {
         toUserIds: adminUserIds,
-        title: "Báo cáo sự cố",
+        title: t("driverApp.incident.title"),
         message: message,
         notificationType: option === "medical" ? 2 : 1, // 2 = Warning (y tế), 1 = Info (các loại khác)
       };
@@ -94,15 +96,16 @@ const ReportIncidentModal = ({ isOpen, onClose }) => {
       console.log("✅ Report sent successfully! Marking as recently sent...");
 
       // Mark this notification as recently sent to avoid showing toast to sender
-      markAsRecentlySent("Báo cáo sự cố", message);
+      markAsRecentlySent(t("driverApp.incident.title"), message);
 
       console.log("Report sent successfully!");
-      alert("Đã gửi báo cáo sự cố thành công!");
+      alert(t("driverApp.incident.success"));
       onClose();
     } catch (err) {
       console.error("Lỗi khi gửi báo cáo:", err);
       alert(
-        "Không thể gửi báo cáo sự cố. Vui lòng thử lại.\n" +
+        t("driverApp.incident.error") +
+          "\n" +
           (err.response?.data?.message || err.message)
       );
     } finally {
@@ -126,17 +129,17 @@ const ReportIncidentModal = ({ isOpen, onClose }) => {
           <FaTimes />
         </button>
 
-        <h3 className="modal-title">Báo cáo sự cố</h3>
+        <h3 className="modal-title">{t("driverApp.incident.title")}</h3>
 
         {loadingAdmins ? (
           <div className="loading-admins">
             <FaSpinner className="spinner" />
-            <p>Đang tải...</p>
+            <p>{t("driverApp.incident.loading")}</p>
           </div>
         ) : isSubmitting ? (
           <div className="submitting-report">
             <FaSpinner className="spinner" />
-            <p>Đang gửi báo cáo...</p>
+            <p>{t("driverApp.incident.sending")}</p>
           </div>
         ) : (
           <div className="incident-options-list">
@@ -145,28 +148,28 @@ const ReportIncidentModal = ({ isOpen, onClose }) => {
               onClick={() => handleOptionClick("technical")}
             >
               <FaWrench size={24} />
-              <span>Sự cố kỹ thuật (Hỏng hóc, xịt lốp)</span>
+              <span>{t("driverApp.incident.technical")}</span>
             </button>
             <button
               className="incident-option"
               onClick={() => handleOptionClick("traffic")}
             >
               <FaCarCrash size={24} />
-              <span>Sự cố giao thông (Kẹt xe, tai nạn nhỏ)</span>
+              <span>{t("driverApp.incident.traffic")}</span>
             </button>
             <button
               className="incident-option"
               onClick={() => handleOptionClick("medical")}
             >
               <FaFirstAid size={24} />
-              <span>Khẩn cấp y tế (Học sinh bị ốm)</span>
+              <span>{t("driverApp.incident.medical")}</span>
             </button>
             <button
               className="incident-option"
               onClick={() => handleOptionClick("other")}
             >
               <FaEllipsisH size={24} />
-              <span>Khác</span>
+              <span>{t("driverApp.incident.other")}</span>
             </button>
           </div>
         )}

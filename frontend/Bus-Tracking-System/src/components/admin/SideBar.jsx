@@ -1,7 +1,6 @@
 import React from "react";
-// 1. Import NavLink thay vì Link/a
 import { NavLink } from "react-router-dom";
-import "./SideBar.css"; // Sẽ tạo file CSS riêng ở bước 3
+import "./SideBar.css";
 import {
   FaHome,
   FaBus,
@@ -10,8 +9,11 @@ import {
   FaUserGraduate,
   FaCommentDots,
 } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 
 export function SideBar() {
+  const { t } = useTranslation();
+
   return (
     <aside className="sidebar">
       <div className="sidebar-header">
@@ -20,41 +22,38 @@ export function SideBar() {
       <nav className="sidebar-nav">
         <ul>
           <li>
-            {/* 2. Dùng NavLink, href đổi thành to */}
-            {/* 'end' đảm bảo link này chỉ active khi URL là "/" */}
             <NavLink to="/" end>
-              <FaHome /> Trang chủ
+              <FaHome /> {t("admin.sidebar.dashboard")}
             </NavLink>
           </li>
           <li>
             <NavLink to="/bus">
-              <FaBus /> Xe buýt
+              <FaBus /> {t("admin.sidebar.buses")}
             </NavLink>
           </li>
           <li>
-            {/* Giả lập các route cho tương lai */}
             <NavLink to="/drivers">
-              <FaUserTie /> Tài xế
+              <FaUserTie /> {t("admin.sidebar.drivers")}
             </NavLink>
           </li>
           <li>
             <NavLink to="/routes">
-              <FaRoute /> Tuyến đường
+              <FaRoute /> {t("admin.sidebar.routes")}
             </NavLink>
           </li>
           <li>
             <NavLink to="/schedule">
-              <FaRoute /> Lịch trình xe schedule
+              <FaRoute /> {t("admin.sidebar.schedules")}
             </NavLink>
           </li>
           <li>
             <NavLink to="/students">
-              <FaUserGraduate /> Học sinh
+              <FaUserGraduate /> {t("admin.sidebar.students")}
             </NavLink>
           </li>
           <li>
             <NavLink to="/notification">
-              <FaCommentDots /> Nhắn tin
+              <FaCommentDots /> {t("admin.sidebar.notifications")}
             </NavLink>
           </li>
         </ul>

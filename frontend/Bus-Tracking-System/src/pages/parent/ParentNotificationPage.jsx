@@ -6,10 +6,12 @@ import ParentHeader from "../../components/parent/ParentHeader";
 import { FiClock, FiUser } from "react-icons/fi";
 import { FaSpinner, FaBell } from "react-icons/fa";
 import { format } from "date-fns";
-import { vi } from "date-fns/locale";
+import { vi, enUS } from "date-fns/locale";
+import { useTranslation } from "react-i18next";
 import "./ParentNotificationPage.css";
 
 const ParentNotificationPage = () => {
+  const { t, i18n } = useTranslation();
   const [notifications, setNotifications] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -17,7 +19,7 @@ const ParentNotificationPage = () => {
   const [activeTab, setActiveTab] = useState("all"); // 'all' or 'unread'
 
   // Get parent name from sessionStorage
-  const parentName = getFullName() || "Phụ Huynh";
+  const parentName = getFullName() || t("parent.home.parent");
 
   // Fetch notifications
   useEffect(() => {
@@ -25,24 +27,26 @@ const ParentNotificationPage = () => {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await api.get("/api/v1/notificaton/received-notifications");
+        const response = await api.get(
+          "/api/v1/notificaton/received-notifications"
+        );
         console.log("Notifications response:", response.data);
-        
+
         // Map backend DTO to frontend format
-        const mappedNotifications = (response.data || []).map(notif => ({
+        const mappedNotifications = (response.data || []).map((notif) => ({
           id: notif.receivedNotifcationId,
           title: notif.title,
           message: notif.message,
           isRead: notif.isRead,
           createdAt: notif.sendAt,
           senderName: notif.senderUserName,
-          senderUserId: notif.senderUserId
+          senderUserId: notif.senderUserId,
         }));
-        
+
         setNotifications(mappedNotifications);
       } catch (err) {
         console.error("Error fetching notifications:", err);
-        setError("Không thể tải thông báo. Vui lòng thử lại.");
+        setError(t("parent.notifications.error"));
         setNotifications([]);
       } finally {
         setIsLoading(false);
@@ -50,14 +54,15 @@ const ParentNotificationPage = () => {
     };
 
     fetchNotifications();
-  }, []);
+  }, [t]);
 
-  // Format date time
+  // Format date time with dynamic locale
   const formatDateTime = (dateTimeString) => {
     if (!dateTimeString) return "N/A";
     try {
       const date = new Date(dateTimeString);
-      return format(date, "dd/MM/yyyy, HH:mm", { locale: vi });
+      const locale = i18n.language === "vi" ? vi : enUS;
+      return format(date, "dd/MM/yyyy, HH:mm", { locale });
     } catch {
       return dateTimeString;
     }
@@ -80,12 +85,15 @@ const ParentNotificationPage = () => {
       <ParentSidebar />
 
       <div className="parent-main-wrapper">
-        <ParentHeader breadcrumbs="Trang / Thông báo" parentName={parentName} />
+        <ParentHeader
+          breadcrumbs={t("parent.notifications.breadcrumb")}
+          parentName={parentName}
+        />
 
         <main className="parent-notification-content">
           <div className="notification-page-header">
             <h2 className="notification-page-title">
-              <FaBell /> Thông báo của bạn
+              <FaBell /> {t("parent.notifications.title")}
             </h2>
           </div>
 
@@ -93,7 +101,7 @@ const ParentNotificationPage = () => {
           <div className="notification-filter-bar">
             <input
               type="text"
-              placeholder="Tìm kiếm thông báo..."
+              placeholder={t("parent.notifications.searchPlaceholder")}
               className="notification-search-input"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -108,7 +116,7 @@ const ParentNotificationPage = () => {
               }`}
               onClick={() => setActiveTab("all")}
             >
-              Tất cả thông báo
+              {t("parent.notifications.tabAll")}
             </button>
             <button
               className={`notification-tab ${
@@ -116,7 +124,7 @@ const ParentNotificationPage = () => {
               }`}
               onClick={() => setActiveTab("unread")}
             >
-              Chưa đọc
+              {t("parent.notifications.tabUnread")}
             </button>
           </div>
 
@@ -124,21 +132,28 @@ const ParentNotificationPage = () => {
           <div className="notification-list-container">
             {isLoading ? (
               <div className="notification-loading">
-                <FaSpinner className="spinner" /> Đang tải thông báo...
+                <FaSpinner className="spinner" />{" "}
+                {t("parent.notifications.loading")}
               </div>
             ) : error ? (
               <div className="notification-error">{error}</div>
             ) : filteredNotifications.length === 0 ? (
               <div className="notification-empty">
                 <FaBell size={50} />
-                <p>Không có thông báo nào.</p>
+                <p>{t("parent.notifications.empty")}</p>
               </div>
             ) : (
               <>
                 <div className="notification-list-header">
-                  <span className="header-content">Nội dung</span>
-                  <span className="header-sender">Người gửi</span>
-                  <span className="header-time">Thời gian</span>
+                  <span className="header-content">
+                    {t("parent.notifications.headerContent")}
+                  </span>
+                  <span className="header-sender">
+                    {t("parent.notifications.headerSender")}
+                  </span>
+                  <span className="header-time">
+                    {t("parent.notifications.headerTime")}
+                  </span>
                 </div>
 
                 <div className="notification-list-body">
@@ -151,7 +166,7 @@ const ParentNotificationPage = () => {
                     >
                       <div className="notification-item-content">
                         <p className="notification-text">
-                          {notif.message || "Không có nội dung"}
+                          {notif.message || t("parent.notifications.noContent")}
                         </p>
                         <span className="notification-time-mobile">
                           <FiClock /> {formatDateTime(notif.createdAt)}
@@ -159,7 +174,10 @@ const ParentNotificationPage = () => {
                       </div>
                       <div className="notification-item-sender">
                         <FiUser />
-                        <span>{notif.senderName || "Hệ thống"}</span>
+                        <span>
+                          {notif.senderName ||
+                            t("parent.notifications.systemSender")}
+                        </span>
                       </div>
                       <div className="notification-item-time">
                         <FiClock />

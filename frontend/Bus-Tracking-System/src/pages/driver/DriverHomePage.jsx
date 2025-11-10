@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import api from "../../utils/api"; // Import api instance với token support
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { clearAuth, getFullName } from "../../utils/auth";
 import { useNotification } from "../../context/NotificationContext";
 import ReportIncidentModal from "../../components/driver/ReportIncidentModal";
 import DriverMapComponent from "../../components/driver/DriverMapComponent";
+import DriverSidebar from "../../components/driver/DriverSidebar";
+import DriverHeader from "../../components/driver/DriverHeader";
 import {
   startPickupTrip,
   startDropoffTrip,
@@ -19,20 +21,15 @@ import {
 import BusSimulationManager from "../../utils/BusSimulationManager";
 import "./DriverHomePage.css";
 import {
-  FaHome,
-  FaTasks,
-  FaUserCheck,
-  FaBell,
-  FaExclamationTriangle,
   FaTimes,
   FaBus,
   FaMapMarkedAlt,
   FaCalendarAlt,
   FaSpinner, // Thêm icon loading
 } from "react-icons/fa";
-import { Link } from "react-router-dom";
 import { format } from "date-fns"; // Thêm date-fns
 import { vi } from "date-fns/locale"; // Thêm locale tiếng Việt
+import { useTranslation } from "react-i18next"; // Import i18n
 
 // --- DỮ LIỆU MẪU CHO TÀI XẾ (SAU NÀY SẼ LẤY TỪ API) ---
 const mockDriverProfile = {
@@ -48,6 +45,7 @@ const mockDriverProfile = {
 
 // --- COMPONENT MODAL THÔNG TIN CÁ NHÂN (MỚI) ---
 const DriverProfileModal = ({ isOpen, onClose, driver }) => {
+  const { t } = useTranslation();
   if (!isOpen) return null;
 
   // Giả lập, sau này sẽ là form cho phép chỉnh sửa
@@ -81,9 +79,11 @@ const DriverProfileModal = ({ isOpen, onClose, driver }) => {
           {/* Cột phải: Thông tin chi tiết */}
           <div className="profile-right-column">
             <section className="profile-section">
-              <h4>Thông tin cá nhân</h4>
+              <h4>{t("driverApp.profile.title")}</h4>
               <div className="form-group">
-                <label htmlFor="fullName">Họ tên</label>
+                <label htmlFor="fullName">
+                  {t("driverApp.profile.fullName")}
+                </label>
                 <input
                   type="text"
                   id="fullName"
@@ -93,7 +93,9 @@ const DriverProfileModal = ({ isOpen, onClose, driver }) => {
               </div>
               <div className="form-row">
                 <div className="form-group">
-                  <label htmlFor="birthDate">Ngày sinh</label>
+                  <label htmlFor="birthDate">
+                    {t("driverApp.profile.dateOfBirth")}
+                  </label>
                   {/* Hiển thị ngày sinh đã format, input date hơi xấu */}
                   <div className="date-input-with-icon">
                     <input
@@ -106,7 +108,7 @@ const DriverProfileModal = ({ isOpen, onClose, driver }) => {
                   </div>
                 </div>
                 <div className="form-group">
-                  <label>Giới tính</label>
+                  <label>{t("driverApp.profile.gender")}</label>
                   <div className="gender-options">
                     <label>
                       <input
@@ -116,7 +118,7 @@ const DriverProfileModal = ({ isOpen, onClose, driver }) => {
                         checked={driver.gender === "Nam"}
                         readOnly
                       />{" "}
-                      Nam
+                      {t("common.male")}
                     </label>
                     <label>
                       <input
@@ -126,7 +128,7 @@ const DriverProfileModal = ({ isOpen, onClose, driver }) => {
                         checked={driver.gender === "Nữ"}
                         readOnly
                       />{" "}
-                      Nữ
+                      {t("common.female")}
                     </label>
                     {/* <label>
                                             <input type="radio" name="gender" value="Khác" checked={driver.gender === 'Khác'} readOnly /> Khác
@@ -137,17 +139,24 @@ const DriverProfileModal = ({ isOpen, onClose, driver }) => {
             </section>
 
             <section className="profile-section">
-              <h4>Thông tin liên hệ & địa chỉ</h4>
+              <h4>
+                {t("driverApp.profile.phoneNumber")} &{" "}
+                {t("driverApp.profile.address")}
+              </h4>
               <div className="form-group">
-                <label htmlFor="phone">Số điện thoại</label>
+                <label htmlFor="phone">
+                  {t("driverApp.profile.phoneNumber")}
+                </label>
                 <input type="text" id="phone" value={driver.phone} readOnly />
               </div>
               <div className="form-group">
-                <label htmlFor="email">Email</label>
+                <label htmlFor="email">{t("driverApp.profile.email")}</label>
                 <input type="text" id="email" value={driver.email} readOnly />
               </div>
               <div className="form-group">
-                <label htmlFor="address">Địa chỉ</label>
+                <label htmlFor="address">
+                  {t("driverApp.profile.address")}
+                </label>
                 <input
                   type="text"
                   id="address"
@@ -165,10 +174,10 @@ const DriverProfileModal = ({ isOpen, onClose, driver }) => {
               className="action-btn-form cancel-btn"
               onClick={onClose}
             >
-              Hủy
+              {t("driverApp.profile.cancel")}
             </button>
             <button type="submit" className="action-btn-form confirm-btn">
-              Xác nhận
+              {t("driverApp.profile.confirm")}
             </button>
           </div>
         </form>
@@ -177,144 +186,23 @@ const DriverProfileModal = ({ isOpen, onClose, driver }) => {
   );
 };
 
-// --- COMPONENT SIDEBAR CỦA TÀI XẾ (Cập nhật: Dùng useLocation) ---
-const DriverSidebar = () => {
-  const location = useLocation();
-  const activePage = location.pathname;
-
-  return (
-    <aside className="driver-sidebar">
-      <div className="driver-sidebar-header">
-        <h3>36 36 BUS BUS</h3>
-      </div>
-      <nav className="driver-sidebar-nav">
-        <ul>
-          <li className={activePage === "/driver/home" ? "active" : ""}>
-            {/* Sửa <a> thành <Link> */}
-            <Link to="/driver/home">
-              {" "}
-              <FaHome /> Trang chủ{" "}
-            </Link>
-          </li>
-          <li className={activePage === "/driver/schedule" ? "active" : ""}>
-            {/* Sửa <a> thành <Link> và thêm path */}
-            <Link to="/driver/schedule">
-              {" "}
-              <FaTasks /> Lịch trình làm việc{" "}
-            </Link>
-          </li>
-          <li
-            className={
-              activePage.startsWith("/driver/students") ? "active" : ""
-            }
-          >
-            {/* Sửa <a> thành <Link> */}
-            <Link to="/driver/students">
-              {" "}
-              <FaUserCheck /> Học sinh & điểm đón{" "}
-            </Link>
-          </li>
-          <li
-            className={
-              activePage.startsWith("/driver/notifications") ? "active" : ""
-            }
-          >
-            {/* Sửa <a> thành <Link> */}
-            <Link to="/driver/notifications">
-              {" "}
-              <FaBell /> Thông báo{" "}
-            </Link>
-          </li>
-        </ul>
-      </nav>
-    </aside>
-  );
-};
-
-// --- COMPONENT HEADER CỦA TÀI XẾ (Cập nhật: Thêm onProfileClick + Bell Icon) ---
-const DriverHeader = ({
-  onReportIncident,
-  onProfileClick,
-  onLogout,
-  driverName = "Phan Viết Huy",
-  unreadCount = 0,
-  onNotificationClick,
-  isSignalRConnected = false,
-}) => {
-  return (
-    <header className="driver-header">
-      <div className="breadcrumbs">
-        <span>Trang</span> / <span>Trang chủ</span>
-        {/* SignalR Connection Status Indicator */}
-        <span
-          style={{
-            marginLeft: "10px",
-            display: "inline-block",
-            width: "10px",
-            height: "10px",
-            borderRadius: "50%",
-            backgroundColor: isSignalRConnected ? "#4caf50" : "#f44336",
-            animation: isSignalRConnected ? "none" : "blink 1s infinite",
-          }}
-          title={
-            isSignalRConnected
-              ? "SignalR Connected ✓"
-              : "SignalR Disconnected ✗"
-          }
-        />
-      </div>
-      <div className="driver-header-actions">
-        <button className="report-incident-btn" onClick={onReportIncident}>
-          <FaExclamationTriangle />
-          <span>Báo cáo sự cố</span>
-        </button>
-        <div
-          className="notification-bell-wrapper"
-          onClick={onNotificationClick}
-        >
-          <FaBell size={24} className="notification-bell-icon" />
-          {unreadCount > 0 && (
-            <span className="notification-badge">{unreadCount}</span>
-          )}
-        </div>
-        <input
-          type="text"
-          placeholder="Tìm kiếm..."
-          className="driver-search-input"
-        />
-        {/* Thêm onClick vào đây */}
-        <div
-          className="driver-user-info"
-          onClick={onProfileClick}
-          title="Xem thông tin cá nhân"
-        >
-          <img src="https://i.pravatar.cc/40?u=driver1" alt="Avatar" />
-          <span>{driverName}</span>
-        </div>
-        <button className="driver-logout-btn" onClick={onLogout}>
-          Đăng xuất
-        </button>
-      </div>
-    </header>
-  );
-};
-
-// --- COMPONENT CHÍNH TRANG CHỦ TÀI XẾ (Cập nhật: Kết nối API) ---
+// --- COMPONENT CHÍNH TRANG CHỦ TÀI XẾ ---
 const DriverHomePage = () => {
+  const { t } = useTranslation();
   const { unreadCount, isSignalRConnected } = useNotification();
   const [isIncidentModalOpen, setIsIncidentModalOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-  const [scheduleData, setScheduleData] = useState(null); // State lưu schedule từ API
-  const [isLoading, setIsLoading] = useState(true); // State loading
-  const [error, setError] = useState(null); // State lỗi
+  const [scheduleData, setScheduleData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // States cho việc lái xe
-  const [isDrivingPickup, setIsDrivingPickup] = useState(false); // Đang lái chuyến đi
-  const [isDrivingDropoff, setIsDrivingDropoff] = useState(false); // Đang lái chuyến về
+  const [isDrivingPickup, setIsDrivingPickup] = useState(false);
+  const [isDrivingDropoff, setIsDrivingDropoff] = useState(false);
 
-  // ⚠️ NEW: States để lưu completion status từ database history
-  const [pickupHistoryExists, setPickupHistoryExists] = useState(false); // Có history pickup không
-  const [dropoffHistoryExists, setDropoffHistoryExists] = useState(false); // Có history dropoff không
+  // States để lưu completion status từ database history
+  const [pickupHistoryExists, setPickupHistoryExists] = useState(false);
+  const [dropoffHistoryExists, setDropoffHistoryExists] = useState(false);
 
   const navigate = useNavigate();
 
@@ -532,8 +420,8 @@ const DriverHomePage = () => {
       return {
         pickupStatus: "waiting",
         dropoffStatus: "waiting",
-        pickupText: "Đang chờ",
-        dropoffText: "Đang chờ",
+        pickupText: t("driverApp.home.statusPending"),
+        dropoffText: t("driverApp.home.statusPending"),
         morningActive: false,
         afternoonActive: false,
       };
@@ -551,49 +439,39 @@ const DriverHomePage = () => {
     console.log("  - Pickup completed (localStorage):", pickupCompletedLocal);
     console.log("  - Dropoff completed (localStorage):", dropoffCompletedLocal);
 
-    // ⚠️ CRITICAL: Ưu tiên check DATABASE HISTORY trước
     // Xác định trạng thái chuyến đi (sáng)
     let pickupStatus, pickupText;
     if (pickupHistoryExists) {
-      // Database có history → Đã hoàn thành (không thể chạy lại)
       pickupStatus = "completed";
-      pickupText = "Đã hoàn thành";
+      pickupText = t("driverApp.home.statusCompleted");
     } else if (pickupCompletedLocal) {
-      // LocalStorage có flag completed (trong session hiện tại)
       pickupStatus = "completed";
-      pickupText = "Đã hoàn thành";
+      pickupText = t("driverApp.home.statusCompleted");
     } else if (isDrivingPickup) {
-      // Đang lái
       pickupStatus = "in-progress";
-      pickupText = "Đang thực hiện";
+      pickupText = t("driverApp.home.statusInProgress");
     } else {
-      // Chưa bắt đầu
       pickupStatus = "ready";
-      pickupText = "Sẵn sàng khởi hành";
+      pickupText = t("driverApp.home.statusReady");
     }
 
     // Xác định trạng thái chuyến về (chiều)
     let dropoffStatus, dropoffText;
     if (dropoffHistoryExists) {
-      // Database có history → Đã hoàn thành (không thể chạy lại)
       dropoffStatus = "completed";
-      dropoffText = "Đã hoàn thành";
+      dropoffText = t("driverApp.home.statusCompleted");
     } else if (dropoffCompletedLocal) {
-      // LocalStorage có flag completed (trong session hiện tại)
       dropoffStatus = "completed";
-      dropoffText = "Đã hoàn thành";
+      dropoffText = t("driverApp.home.statusCompleted");
     } else if (isDrivingDropoff) {
-      // Đang lái
       dropoffStatus = "in-progress";
-      dropoffText = "Đang thực hiện";
+      dropoffText = t("driverApp.home.statusInProgress");
     } else if (!pickupHistoryExists && !pickupCompletedLocal) {
-      // Chưa hoàn thành chuyến đi → chuyến về phải đợi
       dropoffStatus = "waiting";
-      dropoffText = "Đang chờ";
+      dropoffText = t("driverApp.home.statusPending");
     } else {
-      // Chuyến đi đã xong → sẵn sàng chạy chuyến về
       dropoffStatus = "ready";
-      dropoffText = "Sẵn sàng khởi hành";
+      dropoffText = t("driverApp.home.statusReady");
     }
 
     // ⚠️ Chuyến sáng active nếu:
@@ -653,61 +531,55 @@ const DriverHomePage = () => {
       <div className="driver-main-wrapper">
         <DriverHeader
           onReportIncident={() => setIsIncidentModalOpen(true)}
-          onProfileClick={() => setIsProfileModalOpen(true)} // <-- Thêm prop
+          onProfileClick={() => setIsProfileModalOpen(true)}
           onLogout={handleLogout}
           driverName={fullName}
           unreadCount={unreadCount}
           onNotificationClick={() => navigate("/driver/notifications")}
           isSignalRConnected={isSignalRConnected}
+          breadcrumb={t("driverApp.home.breadcrumb")}
         />
 
         <main className="driver-main-content">
-          {/* Hiển thị loading */}
           {isLoading ? (
             <div className="loading-message">
-              <FaSpinner className="spinner" /> Đang tải lịch trình...
+              <FaSpinner className="spinner" />{" "}
+              {t("driver.home.loadingSchedule")}
             </div>
           ) : error ? (
-            // Hiển thị lỗi
             <div className="error-message">{error}</div>
           ) : !scheduleData ? (
-            // Không có lịch trình hôm nay
             <div className="no-schedule-message">
               <FaCalendarAlt size={50} />
-              <p>Bạn không có lịch trình cho hôm nay.</p>
+              <p>{t("driverApp.home.noSchedule")}</p>
             </div>
           ) : (
-            // Có lịch trình - Hiển thị UI
             <>
-              {/* Phần trên: Thông tin tài xế và Lời chào */}
               <section className="driver-welcome-section">
                 <div className="driver-info-card">
                   <img src={mockDriverProfile.avatarUrl} alt="Driver Avatar" />
                   <div className="driver-details">
-                    <p>Tài xế:</p>
+                    <p>{t("driverApp.home.driver")}:</p>
                     <h3>{fullName}</h3>
                     <span>
-                      Xe buýt phụ trách:{" "}
+                      {t("driverApp.home.bus")}:{" "}
                       <strong>{scheduleData.busName || "N/A"}</strong>
                     </span>
                   </div>
                 </div>
                 <div className="driver-greeting-card">
                   <p>
-                    Buổi sáng tốt lành, <strong>{fullName}</strong>! Hôm nay bạn
-                    có <strong>2 chuyến xe</strong> trên tuyến{" "}
-                    <strong>{scheduleData.routeDTO?.routeName || "N/A"}</strong>{" "}
-                    - bắt đầu lúc{" "}
-                    <strong>{formatTime(scheduleData.pickupTime)}</strong>. Chúc
-                    bạn một hành trình an toàn!
+                    {t("driverApp.home.greeting")}, <strong>{fullName}</strong>!{" "}
+                    {t("driverApp.home.todaySchedule")}{" "}
+                    <strong>{scheduleData.routeDTO?.routeName || "N/A"}</strong>
+                    . {t("driverApp.home.haveASafeTrip")}
                   </p>
                 </div>
               </section>
 
-              {/* Phần dưới: Lịch trình và Bản đồ */}
               <section className="driver-schedule-section">
                 <div className="schedule-list">
-                  <h4>Lịch trình hôm nay</h4>
+                  <h4>{t("driverApp.home.todaySchedule")}</h4>
                   <p className="schedule-date">
                     {formatDate(scheduleData.scheduleDate)}
                   </p>
@@ -718,22 +590,27 @@ const DriverHomePage = () => {
                       <FaBus size={24} />
                     </div>
                     <div className="schedule-card-info">
-                      <h4>{scheduleData.routeDTO?.routeName || "Tuyến N/A"}</h4>
-                      <p>Xe buýt: {scheduleData.busName}</p>
+                      <h4>{scheduleData.routeDTO?.routeName || "N/A"}</h4>
+                      <p>
+                        {t("driverApp.home.bus")}: {scheduleData.busName}
+                      </p>
                       <span>
-                        Khởi hành: {formatTime(scheduleData.pickupTime)}
+                        {t("driverApp.home.departure")}:{" "}
+                        {formatTime(scheduleData.pickupTime)}
                       </span>
                     </div>
                     <div className="schedule-card-details">
-                      <h3>Chuyến đi</h3>
+                      <h3>{t("driverApp.home.morningTrip")}</h3>
                       <p>
-                        Trạng thái:{" "}
+                        {t("common.status")}:{" "}
                         <span className={`status-${tripStatus.pickupStatus}`}>
                           {tripStatus.pickupText}
                         </span>
                       </p>
                       <p>
-                        Số học sinh cần đón: {scheduleData.totalStudents || 0}
+                        {t("driverApp.home.studentsToPickup")}:{" "}
+                        {scheduleData.totalStudents || 0}{" "}
+                        {t("driverApp.home.students")}
                       </p>
                     </div>
                     <button
@@ -751,7 +628,6 @@ const DriverHomePage = () => {
                         saveCurrentScheduleId(scheduleData.scheduleId);
                         setIsDrivingPickup(true);
                         startPickupTrip();
-                        // Khởi động BusSimulationManager FE chạy nền
                         BusSimulationManager.startSimulation({
                           busId: scheduleData.busId,
                           route: scheduleData.routeDTO,
@@ -766,7 +642,9 @@ const DriverHomePage = () => {
                         );
                       }}
                     >
-                      {isDrivingPickup ? "Đang chạy..." : "Bắt đầu chuyến đi"}
+                      {isDrivingPickup
+                        ? t("driverApp.home.running")
+                        : t("driverApp.home.startTrip")}
                     </button>
                   </div>
 
@@ -776,23 +654,27 @@ const DriverHomePage = () => {
                       <FaBus size={24} />
                     </div>
                     <div className="schedule-card-info">
-                      <h4>{scheduleData.routeDTO?.routeName || "Tuyến N/A"}</h4>
-                      <p>Xe buýt: {scheduleData.busName}</p>
+                      <h4>{scheduleData.routeDTO?.routeName || "N/A"}</h4>
+                      <p>
+                        {t("driverApp.home.bus")}: {scheduleData.busName}
+                      </p>
                       <span>
-                        Khởi hành: {formatTime(scheduleData.dropOffTime)}
+                        {t("driverApp.home.departure")}:{" "}
+                        {formatTime(scheduleData.dropOffTime)}
                       </span>
                     </div>
                     <div className="schedule-card-details">
-                      <h3>Chuyến về</h3>
+                      <h3>{t("driverApp.home.afternoonReturn")}</h3>
                       <p>
-                        Trạng thái:{" "}
+                        {t("common.status")}:{" "}
                         <span className={`status-${tripStatus.dropoffStatus}`}>
                           {tripStatus.dropoffText}
                         </span>
                       </p>
                       <p>
-                        Số học sinh cần đưa về:{" "}
-                        {scheduleData.totalStudents || 0}
+                        {t("driverApp.home.studentsToPickup")}:{" "}
+                        {scheduleData.totalStudents || 0}{" "}
+                        {t("driverApp.home.students")}
                       </p>
                     </div>
                     <button
@@ -812,7 +694,6 @@ const DriverHomePage = () => {
                         saveCurrentScheduleId(scheduleData.scheduleId);
                         setIsDrivingDropoff(true);
                         startDropoffTrip();
-                        // Khởi động BusSimulationManager FE chạy nền
                         BusSimulationManager.startSimulation({
                           busId: scheduleData.busId,
                           route: scheduleData.routeDTO,
@@ -827,7 +708,9 @@ const DriverHomePage = () => {
                         );
                       }}
                     >
-                      {isDrivingDropoff ? "Đang chạy..." : "Bắt đầu chuyến về"}
+                      {isDrivingDropoff
+                        ? t("driverApp.home.running")
+                        : t("driverApp.home.startTrip")}
                     </button>
                   </div>
                 </div>
@@ -858,7 +741,7 @@ const DriverHomePage = () => {
                   ) : (
                     <div className="driver-map-placeholder">
                       <FaMapMarkedAlt size={50} />
-                      <span>Không có dữ liệu lộ trình để hiển thị</span>
+                      <span>{t("driver.home.noRouteData")}</span>
                     </div>
                   )}
                 </div>

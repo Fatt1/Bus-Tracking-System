@@ -1,0 +1,76 @@
+.language-switcher {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
+}
+
+.lang-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: none;
+  background: transparent;
+  color: #666;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  font-weight: 500;
+  position: relative;
+  overflow: hidden;
+}
+
+.lang-btn .flag {
+  font-size: 20px;
+  filter: grayscale(50%);
+  transition: filter 0.2s ease;
+}
+
+.lang-btn .lang-text {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.lang-btn:hover {
+  background: #f5f5f5;
+  color: #333;
+  transform: translateY(-1px);
+}
+
+.lang-btn:hover .flag {
+  filter: grayscale(0%);
+}
+
+.lang-btn.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  font-weight: 600;
+}
+
+.lang-btn.active .flag {
+  filter: grayscale(0%) brightness(1.1);
+}
+
+.lang-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .lang-btn .lang-text {
+    display: none;
+  }
+
+  .lang-btn {
+    padding: 6px 8px;
+  }
+}

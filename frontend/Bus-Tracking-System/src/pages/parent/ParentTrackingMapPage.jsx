@@ -5,15 +5,17 @@ import ParentSidebar from "../../components/parent/ParentSidebar";
 import ParentHeader from "../../components/parent/ParentHeader";
 import MapComponent from "../../components/MapComponent";
 import { FaBus, FaSpinner, FaMapMarkedAlt, FaRoute } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 import "./ParentTrackingMapPage.css";
 
 const ParentTrackingMapPage = () => {
+  const { t } = useTranslation();
   const [busLocationData, setBusLocationData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
   // Get parent name from sessionStorage
-  const parentName = getFullName() || "Phụ Huynh";
+  const parentName = getFullName() || t("parent.home.parent");
 
   // Fetch bus location today
   useEffect(() => {
@@ -36,7 +38,7 @@ const ParentTrackingMapPage = () => {
           // Check if we have required data
           if (!data.busId || !data.routeDTO || !data.routeDTO.stopPoints) {
             console.error("❌ [ParentMap] Invalid data structure:", data);
-            setError("Dữ liệu vị trí xe không hợp lệ.");
+            setError(t("parent.tracking.invalidData"));
             setBusLocationData(null);
           } else {
             console.log("✅ [ParentMap] Valid bus location data received");
@@ -54,7 +56,7 @@ const ParentTrackingMapPage = () => {
           console.error("   - Status:", err.response.status);
           console.error("   - Data:", err.response.data);
         }
-        setError("Không thể tải vị trí xe buýt. Vui lòng thử lại.");
+        setError(t("parent.tracking.error"));
         setBusLocationData(null);
       } finally {
         setIsLoading(false);
@@ -62,25 +64,28 @@ const ParentTrackingMapPage = () => {
     };
 
     fetchBusLocation();
-  }, []);
-
+  }, [t]);
   return (
     <div className="parent-tracking-page-container">
       <ParentSidebar />
 
       <div className="parent-main-wrapper">
-        <ParentHeader breadcrumbs="Trang / Vị trí xe" parentName={parentName} />
+        <ParentHeader
+          breadcrumbs={t("parent.tracking.breadcrumb")}
+          parentName={parentName}
+        />
 
         <main className="parent-tracking-content">
           <div className="tracking-page-header">
             <h2 className="tracking-page-title">
-              <FaBus /> Theo dõi vị trí xe buýt
+              <FaBus /> {t("parent.tracking.title")}
             </h2>
             {busLocationData && (
               <div className="bus-info-badge">
                 <FaBus />
                 <span>
-                  Xe: <strong>{busLocationData.busName || "N/A"}</strong>
+                  {t("parent.tracking.bus")}:{" "}
+                  <strong>{busLocationData.busName || "N/A"}</strong>
                 </span>
                 {busLocationData.routeDTO && (
                   <span className="route-badge">
@@ -94,16 +99,16 @@ const ParentTrackingMapPage = () => {
 
           {isLoading ? (
             <div className="tracking-loading">
-              <FaSpinner className="spinner" /> Đang tải vị trí xe buýt...
+              <FaSpinner className="spinner" /> {t("parent.tracking.loading")}
             </div>
           ) : error ? (
             <div className="tracking-error">{error}</div>
           ) : !busLocationData ? (
             <div className="tracking-no-data">
               <FaMapMarkedAlt size={50} />
-              <p>Không có thông tin vị trí xe buýt cho hôm nay.</p>
+              <p>{t("parent.tracking.noData")}</p>
               <p className="tracking-no-data-hint">
-                Con bạn chưa có lịch trình đi học hôm nay.
+                {t("parent.tracking.noScheduleHint")}
               </p>
             </div>
           ) : (

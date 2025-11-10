@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import api from "../../utils/api"; // Import api instance với token support
+import DriverSidebar from "../../components/driver/DriverSidebar";
+import DriverHeader from "../../components/driver/DriverHeader";
 import "./DriverHomePage.css"; // Tái sử dụng layout chung
 import "./DriverStudentListPage.css"; // Sẽ tạo ở bước 2
 // import "./CustomStatusDropdown.css"; // Sẽ tạo ở bước 3
@@ -40,29 +42,29 @@ import { format } from "date-fns";
 // import { vi } from "date-fns/locale";
 
 // --- STATUS OPTIONS ---
-// Các lựa chọn trạng thái
-const statusOptions = [
+// Function to get status options with translations
+const getStatusOptions = (t) => [
   {
     value: STUDENT_STATUS_UI.NOT_BOARDED,
-    label: "Chưa lên xe",
+    label: t("driverApp.students.statusNotBoarded"),
     icon: <FaQuestionCircle />,
     color: "#888",
   },
   {
     value: STUDENT_STATUS_UI.PICKED_UP,
-    label: "Đã đón",
+    label: t("driverApp.students.statusPickedUp"),
     icon: <FaCheckCircle />,
     color: "#27ae60",
   },
   {
     value: STUDENT_STATUS_UI.DROPPED_OFF,
-    label: "Đã trả",
+    label: t("driverApp.students.statusDroppedOff"),
     icon: <FaCheckCircle />,
     color: "#3498db",
   },
   {
     value: STUDENT_STATUS_UI.ABSENT,
-    label: "Vắng",
+    label: t("driverApp.students.statusAbsent"),
     icon: <FaTimesCircle />,
     color: "#e74c3c",
   },
@@ -137,83 +139,9 @@ const CustomStatusDropdown = ({
   );
 };
 
-// --- COMPONENT SIDEBAR (CẬP NHẬT ACTIVE) ---
-const DriverSidebar = () => {
-  const location = useLocation();
-  const activePage = location.pathname;
-
-  return (
-    <aside className="driver-sidebar">
-      <div className="driver-sidebar-header">
-        {" "}
-        <h3>36 36 BUS BUS</h3>{" "}
-      </div>
-      <nav className="driver-sidebar-nav">
-        <ul>
-          <li className={activePage === "/driver/home" ? "active" : ""}>
-            <Link to="/driver/home">
-              {" "}
-              <FaHome /> Trang chủ{" "}
-            </Link>
-          </li>
-          <li className={activePage === "/driver/schedule" ? "active" : ""}>
-            <Link to="/driver/schedule">
-              {" "}
-              <FaTasks /> Lịch trình làm việc{" "}
-            </Link>
-          </li>
-          <li className={activePage === "/driver/students" ? "active" : ""}>
-            <Link to="/driver/students">
-              {" "}
-              <FaUserCheck /> Học sinh & điểm đón{" "}
-            </Link>
-          </li>
-          <li
-            className={
-              activePage.startsWith("/driver/notifications") ? "active" : ""
-            }
-          >
-            <Link to="/driver/notifications">
-              {" "}
-              <FaBell /> Thông báo{" "}
-            </Link>
-          </li>
-        </ul>
-      </nav>
-    </aside>
-  );
-};
-
-// --- COMPONENT HEADER (GIỮ NGUYÊN) ---
-const DriverHeader = ({ onReportIncident, driverName = "Phan Viết Huy" }) => {
-  // Component này cũng cần state và logic để mở Profile Modal
-  // Tạm thời chỉ là giao diện
-  return (
-    <header className="driver-header">
-      <div className="breadcrumbs">
-        <span>Trang</span> / <span>Học sinh & điểm đón</span>
-      </div>
-      <div className="driver-header-actions">
-        <button className="report-incident-btn" onClick={onReportIncident}>
-          <FaExclamationTriangle />
-          <span>Báo cáo sự cố</span>
-        </button>
-        <input
-          type="text"
-          placeholder="Tìm kiếm..."
-          className="driver-search-input"
-        />
-        <div className="driver-user-info" title="Xem thông tin cá nhân">
-          <img src="https://i.pravatar.cc/40?u=driver1" alt="Avatar" />
-          <span>{driverName}</span>
-        </div>
-      </div>
-    </header>
-  );
-};
-
 // --- COMPONENT CHÍNH TRANG ĐIỂM DANH ---
 const DriverStudentListPage = () => {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("pickup"); // 'pickup' hoặc 'return'
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -225,6 +153,9 @@ const DriverStudentListPage = () => {
 
   const [currentDate] = useState(new Date()); // Lấy ngày hiện tại
   const [isIncidentModalOpen, setIsIncidentModalOpen] = useState(false); // Modal báo cáo
+
+  // Get status options with translations
+  const statusOptions = getStatusOptions(t);
 
   // ======== FETCH DATA FROM API ========
   useEffect(() => {
@@ -316,13 +247,13 @@ const DriverStudentListPage = () => {
         setLoading(false);
       } catch (err) {
         console.error("❌ Error fetching students:", err);
-        setError("Không thể tải danh sách học sinh. Vui lòng thử lại!");
+        setError(t("driverApp.students.error"));
         setLoading(false);
       }
     };
 
     fetchStudents();
-  }, []);
+  }, [t]);
 
   // Chọn danh sách học sinh dựa trên tab
   const currentStudentList =
@@ -406,22 +337,20 @@ const DriverStudentListPage = () => {
 
     if (isAlreadyCompleted) {
       console.log("❌ Cannot complete: Trip already completed");
-      alert("Chuyến đi này đã được hoàn thành rồi!");
+      alert(t("driverApp.students.alreadyCompleted"));
       return;
     }
 
     if (!canComplete) {
       console.log("❌ Cannot complete: Some students not updated");
-      alert(
-        "Vui lòng cập nhật trạng thái cho tất cả học sinh trước khi hoàn thành!"
-      );
+      alert(t("driverApp.students.updateAllStatus"));
       return;
     }
 
     const confirmMessage =
       activeTab === "pickup"
-        ? "Bạn có chắc chắn muốn hoàn thành chuyến đưa đi không?"
-        : "Bạn có chắc chắn muốn hoàn thành chuyến đón về không?";
+        ? t("driverApp.students.confirmComplete")
+        : t("driverApp.students.confirmCompleteReturn");
 
     const userConfirmed = window.confirm(confirmMessage);
     if (!userConfirmed) {
@@ -436,7 +365,7 @@ const DriverStudentListPage = () => {
 
       if (!scheduleId) {
         console.log("❌ No schedule ID found");
-        alert("Không tìm thấy thông tin lịch trình!");
+        alert(t("driverApp.students.noSchedule"));
         return;
       }
 
@@ -470,7 +399,7 @@ const DriverStudentListPage = () => {
       }
 
       console.log("✅ Trip completed successfully!");
-      alert("Đã hoàn thành chuyến đi thành công!");
+      alert(t("driverApp.students.completeSuccess"));
 
       // Navigate back to home page
       console.log("🔄 Navigating to /driver/home");
@@ -478,7 +407,7 @@ const DriverStudentListPage = () => {
     } catch (err) {
       console.error("❌ Error completing trip:", err);
       console.error("Error details:", err.response?.data);
-      alert("Có lỗi xảy ra khi hoàn thành chuyến đi. Vui lòng thử lại!");
+      alert(t("driverApp.students.completeError"));
     } finally {
       setIsCompletingTrip(false);
     }
@@ -495,7 +424,10 @@ const DriverStudentListPage = () => {
       <div className="driver-page-container">
         <DriverSidebar />
         <div className="driver-main-wrapper">
-          <DriverHeader onReportIncident={() => setIsIncidentModalOpen(true)} />
+          <DriverHeader 
+            onReportIncident={() => setIsIncidentModalOpen(true)}
+            breadcrumb={t("driverApp.students.breadcrumb")}
+          />
 
           <main className="driver-main-content student-attendance-page">
             {/* Loading State */}
@@ -507,7 +439,7 @@ const DriverStudentListPage = () => {
                     fontSize: "2rem",
                   }}
                 />
-                <p>Đang tải danh sách học sinh...</p>
+                <p>{t("driverApp.students.loading")}</p>
               </div>
             )}
 
@@ -522,7 +454,7 @@ const DriverStudentListPage = () => {
               >
                 <p>{error}</p>
                 <button onClick={() => window.location.reload()}>
-                  Thử lại
+                  {t("driverApp.students.retry")}
                 </button>
               </div>
             )}
@@ -533,7 +465,7 @@ const DriverStudentListPage = () => {
                 {/* Header của trang điểm danh */}
                 <div className="student-list-header">
                   <div className="date-picker-group">
-                    <label>Ngày</label>
+                    <label>{t("driverApp.students.date")}</label>
                     <div className="date-input-wrapper">
                       <input
                         type="text"
@@ -551,7 +483,7 @@ const DriverStudentListPage = () => {
                       }`}
                       onClick={() => setActiveTab("pickup")}
                     >
-                      Đưa đi
+                      {t("driverApp.students.tabPickup")}
                     </button>
                     <button
                       className={`tab-btn ${
@@ -559,7 +491,7 @@ const DriverStudentListPage = () => {
                       }`}
                       onClick={() => setActiveTab("return")}
                     >
-                      Đón về
+                      {t("driverApp.students.tabReturn")}
                     </button>
                   </div>
 
@@ -577,11 +509,11 @@ const DriverStudentListPage = () => {
                         <FaSpinner
                           style={{ animation: "spin 1s linear infinite" }}
                         />{" "}
-                        Đang xử lý...
+                        {t("driverApp.students.completing")}
                       </>
                     ) : (
                       <>
-                        <FaCheckCircle /> Hoàn thành chuyến đi
+                        <FaCheckCircle /> {t("driverApp.students.completeTrip")}
                       </>
                     )}
                   </button>
@@ -592,13 +524,13 @@ const DriverStudentListPage = () => {
                   <table className="student-attendance-table">
                     <thead>
                       <tr>
-                        <th>STT</th>
-                        <th>Tên học sinh</th>
-                        <th>Lớp</th>
-                        <th>Địa điểm đón/trả</th>
-                        <th>Phụ huynh</th>
-                        <th>Số điện thoại</th>
-                        <th>Trạng thái</th>
+                        <th>{t("common.stt")}</th>
+                        <th>{t("driverApp.students.studentName")}</th>
+                        <th>{t("driverApp.students.class")}</th>
+                        <th>{t("driverApp.students.pickupPoint")}</th>
+                        <th>{t("driverApp.students.parent")}</th>
+                        <th>{t("driverApp.students.parentPhone")}</th>
+                        <th>{t("driverApp.students.status")}</th>
                       </tr>
                     </thead>
                     <tbody>

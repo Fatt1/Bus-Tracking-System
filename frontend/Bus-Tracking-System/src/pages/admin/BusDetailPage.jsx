@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import api from "../utils/api";
+import { useTranslation } from "react-i18next";
+import api from "../../utils/api";
 import "./BusDetailPage.css";
-import busImg from "../assets/bus.png";
+import busImg from "../../assets/bus.png";
 import { FaBus, FaAngleLeft } from "react-icons/fa";
-import MapComponent from "../components/MapComponent";
+import MapComponent from "../../components/MapComponent";
 
 // Component chính của trang
 const BusDetailPage = () => {
+  const { t } = useTranslation();
   const { busId } = useParams();
   const [bus, setBus] = useState(null);
   const [route, setRoute] = useState(null); // <-- 2. THÊM STATE ĐỂ LƯU THÔNG TIN TUYẾN ĐƯỜNG
@@ -55,7 +57,7 @@ const BusDetailPage = () => {
   if (loading) {
     return (
       <main className="main-content-area">
-        <div className="detail-loading">Đang tải chi tiết xe...</div>
+        <div className="detail-loading">{t("bus.loadingDetail")}</div>
       </main>
     );
   }
@@ -71,7 +73,7 @@ const BusDetailPage = () => {
   if (!bus) {
     return (
       <main className="main-content-area">
-        <div className="detail-error">Không có dữ liệu để hiển thị.</div>
+        <div className="detail-error">{t("common.noData")}</div>
       </main>
     );
   }
@@ -81,36 +83,44 @@ const BusDetailPage = () => {
       <header className="page-header">
         <div className="breadcrumbs">
           <Link to="/bus" className="back-link">
-            <FaAngleLeft /> Danh sách xe buýt
+            <FaAngleLeft /> {t("bus.detailBreadcrumb")}
           </Link>
-          / <span>Chi tiết xe {bus.busName}</span>
+          /{" "}
+          <span>
+            {t("bus.detailTitle")} {bus.busName}
+          </span>
         </div>
         <div className="header-actions">
           <input
             type="text"
-            placeholder="Tìm kiếm..."
+            placeholder={t("common.search")}
             className="search-input"
           />
-          <button className="user-button">Đăng nhập</button>
+          <button className="user-button">{t("common.login")}</button>
         </div>
       </header>
 
       <div className="page-content detail-page-content">
         <div className="bus-detail-card">
           <div className="bus-detail-image">
-            <img src={busImg} alt={`Xe buýt ${bus.busName}`} />
+            <img src={busImg} alt={`${t("bus.vehicle")} ${bus.busName}`} />
           </div>
           <div className="bus-detail-info">
-            <h3>Xe: {`00${bus.id}`.slice(-3)}</h3>
+            <h3>
+              {t("bus.vehicle")} {`00${bus.id}`.slice(-3)}
+            </h3>
             <p>
-              <strong>Biển số xe:</strong> {bus.plateNumber}
+              <strong>{t("bus.plateNumber")}:</strong> {bus.plateNumber}
             </p>
             <p>
-              <strong>Tài xế:</strong> {bus.driverName || "Chưa phân công"}
+              <strong>{t("bus.driver")}:</strong>{" "}
+              {bus.driverName || t("bus.notAssigned")}
             </p>
             <div className="bus-status">
-              <strong>Trạng thái:</strong>{" "}
-              {Number(bus.status) === 1 ? "Đang hoạt động" : "Đang bảo trì"}
+              <strong>{t("bus.technicalStatus")}:</strong>{" "}
+              {Number(bus.status) === 1
+                ? t("bus.active")
+                : t("bus.maintenance")}
               <span
                 className={`status-dot ${
                   Number(bus.status) === 1 ? "active" : "inactive"
@@ -125,7 +135,9 @@ const BusDetailPage = () => {
           <div className="route-info-banner">
             <FaBus className="route-bus-icon" />
             <div className="route-info-text">
-              <h4>Tuyến đường: {route.routeName}</h4>
+              <h4>
+                {t("bus.route")}: {route.routeName}
+              </h4>
             </div>
           </div>
         )}
@@ -141,9 +153,7 @@ const BusDetailPage = () => {
               specificBusId={bus.id} // Chỉ hiển thị xe bus này
             />
           ) : (
-            <div className="map-placeholder-detail">
-              Không có dữ liệu lộ trình để hiển thị bản đồ.
-            </div>
+            <div className="map-placeholder-detail">{t("bus.noRouteData")}</div>
           )}
         </div>
       </div>

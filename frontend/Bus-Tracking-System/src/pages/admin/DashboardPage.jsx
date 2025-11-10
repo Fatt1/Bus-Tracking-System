@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import api from "../utils/api"; // Import api instance với withCredentials
+import api from "../../utils/api"; // Import api instance với withCredentials
 import { useNavigate } from "react-router-dom";
-import { getAuthRoles, clearAuth } from "../utils/auth";
+import { getAuthRoles, clearAuth } from "../../utils/auth";
 import "./DashboardPage.css"; // Sẽ cập nhật file này ở bước 3
 import {
   FaBus,
@@ -10,11 +10,12 @@ import {
   FaChevronRight,
   FaPlayCircle,
 } from "react-icons/fa"; // Thêm FaPlayCircle
-import MapComponent from "../components/MapComponent"; // Đảm bảo đường dẫn đúng
+import MapComponent from "../../components/MapComponent"; // Đảm bảo đường dẫn đúng
+import { useTranslation } from "react-i18next"; // Import i18n hook
+import LanguageSwitcher from "../../components/LanguageSwitcher"; // Import Language Switcher
 
 // Component nhỏ: Thẻ Tuyến Xe (Thêm onClick và class active)
-const RouteCard = ({ route, onClick, isSelected }) => (
-  // Thêm class 'selected' nếu route này đang được chọn
+const RouteCard = ({ route, onClick, isSelected, t }) => (
   <div
     className={`route-card ${isSelected ? "selected" : ""}`}
     onClick={() => onClick(route)}
@@ -23,7 +24,7 @@ const RouteCard = ({ route, onClick, isSelected }) => (
       <div className="route-card-icon">
         <FaBus size={24} />
       </div>
-      <h4>{route.routeName || "Tên Tuyến"}</h4>
+      <h4>{route.routeName || t("admin.dashboard.routeName")}</h4>
     </div>
     <div className="route-card-bottom">
       <p>
@@ -31,7 +32,7 @@ const RouteCard = ({ route, onClick, isSelected }) => (
           ? `${route.stopPoints[0].pointName} - ${
               route.stopPoints[route.stopPoints.length - 1].pointName
             }`
-          : "Chưa có trạm"}
+          : t("admin.dashboard.noStops")}
       </p>
     </div>
   </div>
@@ -39,6 +40,7 @@ const RouteCard = ({ route, onClick, isSelected }) => (
 
 // Component chính của trang Dashboard
 const DashboardPage = () => {
+  const { t } = useTranslation(); // i18n hook
   const [allRoutes, setAllRoutes] = useState([]);
   const [startIndex, setStartIndex] = useState(0);
   const [selectedRoute, setSelectedRoute] = useState(null);
@@ -141,25 +143,25 @@ const DashboardPage = () => {
     <main className="main-content">
       <div className="main-content-top-wrapper">
         <header className="main-header">
-          {/* ... (Giữ nguyên header) ... */}
           <div className="breadcrumbs">
-            <span>Trang</span> / <span>Trang chủ</span>
+            <span>{t("common.page")}</span> / <span>{t("common.home")}</span>
           </div>
           <div className="header-actions">
             <div className="search-bar">
               <FaSearch className="search-icon" />
-              <input type="text" placeholder="Tìm kiếm..." />
+              <input type="text" placeholder={t("common.search")} />
             </div>
+            <LanguageSwitcher />
             {roles && roles.length > 0 ? (
               <button className="login-button" onClick={handleLogout}>
-                Đăng xuất
+                {t("common.logout")}
               </button>
             ) : (
               <button
                 className="login-button"
                 onClick={() => navigate("/login")}
               >
-                Đăng nhập
+                {t("common.login")}
               </button>
             )}
           </div>
@@ -180,7 +182,7 @@ const DashboardPage = () => {
                 <p
                   style={{ color: "white", width: "100%", textAlign: "center" }}
                 >
-                  Đang tải tuyến đường...
+                  {t("admin.dashboard.loadingRoutes")}
                 </p>
               ) : displayedRoutes.length > 0 ? (
                 displayedRoutes.map((route, index) => (
@@ -188,15 +190,15 @@ const DashboardPage = () => {
                     key={route.id + "-" + index}
                     route={route}
                     onClick={handleRouteClick}
-                    // So sánh ID để biết card nào đang được chọn
                     isSelected={selectedRoute && route.id === selectedRoute.id}
+                    t={t}
                   />
                 ))
               ) : (
                 <p
                   style={{ color: "white", width: "100%", textAlign: "center" }}
                 >
-                  Không có tuyến đường nào.
+                  {t("admin.dashboard.noRoutes")}
                 </p>
               )}
             </div>
@@ -211,22 +213,22 @@ const DashboardPage = () => {
         </section>
       </div>
 
-      {/* THÊM NÚT BẮT ĐẦU CHẠY */}
       <div className="map-controls">
         <button
           className="start-animation-btn"
           onClick={handleStartAnimation}
-          disabled={isAnimationTriggered || !selectedRoute} // Vô hiệu hóa khi đang chạy
+          disabled={isAnimationTriggered || !selectedRoute}
         >
           <FaPlayCircle />
           {isAnimationTriggered
-            ? "Đang chạy..."
-            : `Bắt đầu chạy tuyến ${selectedRoute ? selectedRoute.id : ""}`}
+            ? t("admin.dashboard.running")
+            : `${t("admin.dashboard.startSimulation")} ${
+                selectedRoute ? selectedRoute.id : ""
+              }`}
         </button>
       </div>
 
       <section className="map-section">
-        {/* Truyền các props mới xuống MapComponent */}
         {allRoutes.length > 0 ? (
           <MapComponent
             selectedRoute={selectedRoute}
@@ -236,8 +238,8 @@ const DashboardPage = () => {
         ) : (
           <div className="map-placeholder">
             {isLoading
-              ? "Đang tải dữ liệu bản đồ..."
-              : "Không có dữ liệu tuyến đường."}
+              ? t("admin.dashboard.loadingMap")
+              : t("admin.dashboard.noRouteData")}
           </div>
         )}
       </section>

@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import api from "../../utils/api"; // Import api instance với token support
 import { clearAuth, getFullName } from "../../utils/auth";
 import ReportIncidentModal from "../../components/driver/ReportIncidentModal";
+import DriverSidebar from "../../components/driver/DriverSidebar";
+import DriverHeader from "../../components/driver/DriverHeader";
 import "./DriverSchedulePage.css"; // Sẽ tạo ở bước 2
 import {
-  FaHome,
-  FaTasks,
-  FaUserCheck,
-  FaBell,
-  FaExclamationTriangle,
   FaCalendarAlt,
   FaChevronLeft,
   FaChevronRight,
@@ -24,93 +22,11 @@ import {
   eachDayOfInterval,
   getISOWeek,
 } from "date-fns";
-import { vi } from "date-fns/locale"; // Import tiếng Việt
-
-// --- COMPONENT SIDEBAR CỦA TÀI XẾ ---
-const DriverSidebar = () => {
-  const location = useLocation();
-  const activePage = location.pathname;
-
-  return (
-    <aside className="driver-sidebar">
-      <div className="driver-sidebar-header">
-        <h3>36 36 BUS BUS</h3>
-      </div>
-      <nav className="driver-sidebar-nav">
-        <ul>
-          <li className={activePage === "/driver/home" ? "active" : ""}>
-            <Link to="/driver/home">
-              {" "}
-              <FaHome /> Trang chủ{" "}
-            </Link>
-          </li>
-          <li className={activePage === "/driver/schedule" ? "active" : ""}>
-            <Link to="/driver/schedule">
-              {" "}
-              <FaTasks /> Lịch trình làm việc{" "}
-            </Link>
-          </li>
-          <li
-            className={
-              activePage.startsWith("/driver/students") ? "active" : ""
-            }
-          >
-            <Link to="/driver/students">
-              {" "}
-              <FaUserCheck /> Học sinh & điểm đón{" "}
-            </Link>
-          </li>
-          <li
-            className={
-              activePage.startsWith("/driver/notifications") ? "active" : ""
-            }
-          >
-            <Link to="/driver/notifications">
-              {" "}
-              <FaBell /> Thông báo{" "}
-            </Link>
-          </li>
-        </ul>
-      </nav>
-    </aside>
-  );
-};
-
-// --- COMPONENT HEADER CỦA TÀI XẾ ---
-const DriverHeader = ({
-  onReportIncident,
-  driverName = "Phan Viết Huy",
-  onLogout,
-}) => {
-  return (
-    <header className="driver-header">
-      <div className="breadcrumbs">
-        <span>Trang</span> / <span>Lịch trình làm việc</span>
-      </div>
-      <div className="driver-header-actions">
-        <button className="report-incident-btn" onClick={onReportIncident}>
-          <FaExclamationTriangle />
-          <span>Báo cáo sự cố</span>
-        </button>
-        <input
-          type="text"
-          placeholder="Tìm kiếm..."
-          className="driver-search-input"
-        />
-        <div className="driver-user-info" title="Xem thông tin cá nhân">
-          <img src="https://i.pravatar.cc/40?u=driver1" alt="Avatar" />
-          <span>{driverName}</span>
-        </div>
-        <button className="driver-logout-btn" onClick={onLogout}>
-          Đăng xuất
-        </button>
-      </div>
-    </header>
-  );
-};
+import { vi, enUS } from "date-fns/locale";
 
 // --- COMPONENT CHÍNH TRANG LỊCH TRÌNH ---
 const DriverSchedulePage = () => {
+  const { t, i18n } = useTranslation();
   // State để lưu ngày đầu tiên của tuần đang xem
   const [currentDate, setCurrentDate] = useState(new Date());
   const [scheduleData, setScheduleData] = useState([]); // Lưu schedule từ API
@@ -155,7 +71,7 @@ const DriverSchedulePage = () => {
     } catch (err) {
       console.error("Lỗi khi tải lịch trình tuần:", err);
       console.error("Error details:", err.response?.data || err.message);
-      setError("Không thể tải lịch trình. Vui lòng thử lại.");
+      setError(t("driverApp.schedule.error"));
       setScheduleData([]);
     } finally {
       setIsLoading(false);
@@ -213,13 +129,14 @@ const DriverSchedulePage = () => {
           onReportIncident={() => setIsIncidentModalOpen(true)}
           driverName={fullName}
           onLogout={handleLogout}
+          breadcrumb={t("driverApp.schedule.breadcrumb")}
         />
 
         <main className="driver-main-content">
           {/* Header của bảng lịch trình */}
           <div className="driver-schedule-header">
             <div className="date-picker-group">
-              <label>Tháng</label>
+              <label>{t("driverApp.schedule.month")}</label>
               <div className="date-input-wrapper">
                 <input type="text" value={monthYear} readOnly />
                 <FaCalendarAlt className="icon" />
@@ -229,7 +146,9 @@ const DriverSchedulePage = () => {
               <button onClick={goToPrevWeek} className="week-nav-btn">
                 <FaChevronLeft />
               </button>
-              <span>Tuần {weekNumber}</span>
+              <span>
+                {t("driverApp.schedule.week")} {weekNumber}
+              </span>
               <button onClick={goToNextWeek} className="week-nav-btn">
                 <FaChevronRight />
               </button>
@@ -240,7 +159,7 @@ const DriverSchedulePage = () => {
           {isLoading && (
             <div className="loading-container">
               <FaSpinner className="spinner" />
-              <p>Đang tải lịch trình...</p>
+              <p>{t("driverApp.schedule.loading")}</p>
             </div>
           )}
 
@@ -251,7 +170,7 @@ const DriverSchedulePage = () => {
                 onClick={() => fetchScheduleByWeek(currentDate)}
                 className="retry-btn"
               >
-                Thử lại
+                {t("driverApp.schedule.retry")}
               </button>
             </div>
           )}
@@ -262,10 +181,13 @@ const DriverSchedulePage = () => {
               <table className="schedule-table-driver">
                 <thead>
                   <tr>
-                    <th>Chuyến</th>
+                    <th>{t("driverApp.schedule.trip")}</th>
                     {daysInWeek.map((day) => (
                       <th key={day.toISOString()}>
-                        {format(day, "EEEE", { locale: vi })} {/* Thứ */}
+                        {format(day, "EEEE", {
+                          locale: i18n.language === "vi" ? vi : enUS,
+                        })}{" "}
+                        {/* Thứ */}
                         <div>{format(day, "dd/MM")}</div> {/* Ngày */}
                       </th>
                     ))}
@@ -274,7 +196,9 @@ const DriverSchedulePage = () => {
                 <tbody>
                   {/* Hàng Chuyến đi (Sáng - pickupTime) */}
                   <tr>
-                    <td className="trip-type-header">Đưa đi</td>
+                    <td className="trip-type-header">
+                      {t("driverApp.schedule.dropOff")}
+                    </td>
                     {daysInWeek.map((day) => {
                       const schedulesForDay = getScheduleForDay(day);
                       // Lấy schedule có pickupTime (chuyến sáng)
@@ -304,7 +228,9 @@ const DriverSchedulePage = () => {
                   </tr>
                   {/* Hàng Chuyến về (Chiều - dropOffTime) */}
                   <tr>
-                    <td className="trip-type-header">Đón về</td>
+                    <td className="trip-type-header">
+                      {t("driverApp.schedule.pickUp")}
+                    </td>
                     {daysInWeek.map((day) => {
                       const schedulesForDay = getScheduleForDay(day);
                       // Lấy schedule có dropOffTime (chuyến chiều)
