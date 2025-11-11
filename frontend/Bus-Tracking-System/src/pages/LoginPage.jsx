@@ -92,13 +92,13 @@ const LoginPage = () => {
               )}
 
               <div className="form-group">
-                <label htmlFor="email">{t("login.email").toUpperCase()}</label>
+                <label htmlFor="email">{t("login.username").toUpperCase()}</label>
                 <input
                   type="text"
                   id="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder={t("login.email")}
+                  placeholder={t("login.enterUsername")}
                   required
                 />
               </div>
@@ -113,7 +113,7 @@ const LoginPage = () => {
                     id="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder={t("login.password")}
+                    placeholder={t("login.enterPassword")}
                     required
                   />
                   <span
