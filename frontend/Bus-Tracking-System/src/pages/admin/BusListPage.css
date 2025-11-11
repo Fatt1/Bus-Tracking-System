@@ -157,35 +157,22 @@
   background-color: var(--secondary-blue, #1a4a8d);
 }
 
-/* Xóa bỏ style của bus-grid, bus-card */
-.bus-grid,
-.bus-card,
-.bus-card-link,
-.page-banner {
-  /* Các style cũ ở đây đã bị xóa hoặc comment */
-  /* display: none; */ /* Hoặc xóa hẳn các class này khỏi JSX nếu không dùng nữa*/
-  /* Nếu bạn đã xóa các class này khỏi JSX thì không cần dòng display: none; */
-}
-
 /* Đảm bảo bảng không bị tràn nếu màn hình quá hẹp */
 .table-container {
   overflow-x: auto;
 }
 
-/* Căn giữa các cột nếu cần (ngoài Thao tác đã làm trong JSX) */
-/* Ví dụ: Căn giữa cột STT và Trạng thái */
-/* Bạn có thể thêm class cell-center vào JSX hoặc dùng nth-child */
-/*
-.table-container table td:first-child,
-.table-container table td:nth-child(4) {
-    text-align: center;
+/* Căn giữa TẤT CẢ các th và td trong bảng */
+.table-container table th,
+.table-container table td {
+  text-align: center;
+  vertical-align: middle;
 }
-.table-container table th:first-child,
-.table-container table th:nth-child(4) {
-    text-align: center;
+
+/* Đảm bảo action buttons cũng căn giữa */
+.table-container table td .action-buttons {
+  justify-content: center;
 }
-*/
-/* ... CSS cũ của bạn ... */
 
 /* --- Modal xác nhận xóa --- */
 .modal-content.confirm-delete {

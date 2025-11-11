@@ -122,12 +122,12 @@ const BusRow = ({ bus, onEdit, onDelete, onViewDetails }) => {
 
   return (
     <tr>
-      <td style={{ textAlign: "center" }}>{bus.id}</td>
+      <td>{bus.id}</td>
       {/* API /all trả về busName */}
       <td>{bus.busName || `BUS-${String(bus.id).padStart(3, "0")}`}</td>
       {/* API /all trả về plateNumber */}
       <td>{bus.plateNumber || "N/A"}</td>
-      <td style={{ textAlign: "center" }}>
+      <td>
         <span className={`status-badge ${getStatusClass(bus.status)}`}>
           {Number(bus.status) === 1 ? t("bus.active") : t("bus.maintenance")}
         </span>
@@ -136,7 +136,7 @@ const BusRow = ({ bus, onEdit, onDelete, onViewDetails }) => {
       <td>{bus.driverName || t("bus.notAssigned")}</td>
       {/* API /all trả về routeName */}
       <td>{bus.routeName || t("bus.notAssigned")}</td>
-      <td className="cell-center">
+      <td>
         <div className="action-buttons">
           <button
             className="action-btn-student more-btn"
@@ -550,7 +550,7 @@ const BusListPage = () => {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="7" style={{ textAlign: "center" }}>
+                        <td colSpan="7">
                           {t("bus.noData")}
                         </td>
                       </tr>

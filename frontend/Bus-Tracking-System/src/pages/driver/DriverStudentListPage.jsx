@@ -424,7 +424,7 @@ const DriverStudentListPage = () => {
       <div className="driver-page-container">
         <DriverSidebar />
         <div className="driver-main-wrapper">
-          <DriverHeader 
+          <DriverHeader
             onReportIncident={() => setIsIncidentModalOpen(true)}
             breadcrumb={t("driverApp.students.breadcrumb")}
           />

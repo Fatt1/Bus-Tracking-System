@@ -75,7 +75,7 @@ const LoginPage = () => {
         <div className="login-card">
           <div className="login-card-left">
             <img
-              src="/src/assets/login-image.jpg"
+              src="/src/assets/Blakpink-Jisoo-Vogue-France-00 1.png"
               alt="Bus Illustration"
               className="login-illustration"
             />
