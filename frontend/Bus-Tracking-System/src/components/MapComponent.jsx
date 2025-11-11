@@ -5,6 +5,7 @@ import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
 import L from "leaflet";
 import "leaflet-routing-machine";
 import * as signalR from "@microsoft/signalr";
+import { getAuthToken } from "../utils/auth"; // THÊM: Import để lấy token
 
 // --- Fix lỗi icon marker ---
 import iconUrl from "leaflet/dist/images/marker-icon.png";
@@ -169,12 +170,25 @@ const SignalRHandler = ({
   // Effect 1: Quản lý kết nối và Lắng nghe (Receiver)
   useEffect(() => {
     const HUB_URL = "https://localhost:7229/geolocationHub";
+    const token = getAuthToken(); // LẤY TOKEN
+    
+    console.log("🔌 [MapComponent] Setting up SignalR connection...");
+    console.log("   - listenOnly:", listenOnly);
+    console.log("   - specificBusId:", specificBusId);
+    console.log("   - Has token:", !!token);
+
     const hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl(HUB_URL)
+      .withUrl(HUB_URL, {
+        accessTokenFactory: () => token || "", // GỬI TOKEN ĐỂ AUTHENTICATE
+      })
       .withAutomaticReconnect()
+      .configureLogging(signalR.LogLevel.Information) // Thêm logging để debug
       .build();
 
     hubConnectionRef.current = hubConnection;
+    
+    // Store markers locally for cleanup
+    const localMarkers = busMarkersRef.current;
 
     // Lắng nghe sự kiện "ReceiveLocationUpdate"
     hubConnection.on("ReceiveLocationUpdate", (data) => {
@@ -184,8 +198,11 @@ const SignalRHandler = ({
 
       if (lat === undefined || lng === undefined || busId === undefined) return;
 
+      console.log(`📍 [MapComponent] Received location for Bus ${busId}:`, { lat, lng });
+
       // Nếu đang ở chế độ listenOnly và có specificBusId, chỉ xử lý bus đó
       if (listenOnly && specificBusId && busId !== specificBusId) {
+        console.log(`   ⏭️ Skipping Bus ${busId} (only listening to Bus ${specificBusId})`);
         return; // Bỏ qua các bus khác
       }
 
@@ -207,27 +224,43 @@ const SignalRHandler = ({
     hubConnection
       .start()
       .then(() => {
-        console.log("Kết nối SignalR thành công!");
-        hubConnection
-          .invoke("JoinAdminGroup")
-          .then(() => console.log("SignalR: Đã tham gia nhóm 'admin-group'."))
-          .catch((err) =>
-            console.error("SignalR: Lỗi khi tham gia nhóm: ", err)
-          );
+        console.log("✅ [MapComponent] SignalR connected successfully!");
+        
+        // Nếu là listenOnly và có specificBusId → join Bus group (cho Parent)
+        // Nếu không → join Admin group (cho Admin dashboard)
+        if (listenOnly && specificBusId) {
+          console.log(`🚌 [MapComponent] Joining Bus-${specificBusId} group for Parent...`);
+          hubConnection
+            .invoke("JoinBusGroup", specificBusId)
+            .then(() => console.log(`✅ [MapComponent] Joined Bus-${specificBusId} group`))
+            .catch((err) =>
+              console.error(`❌ [MapComponent] Error joining Bus-${specificBusId}:`, err)
+            );
+        } else {
+          console.log("👨‍💼 [MapComponent] Joining admin-group...");
+          hubConnection
+            .invoke("JoinAdminGroup")
+            .then(() => console.log("✅ [MapComponent] Joined admin-group"))
+            .catch((err) =>
+              console.error("❌ [MapComponent] Error joining admin-group:", err)
+            );
+        }
       })
       .catch((err) =>
-        console.error("Lỗi kết nối SignalR (Kiểm tra CORS Backend): ", err)
+        console.error("❌ [MapComponent] SignalR connection error:", err)
       );
 
     // Hàm dọn dẹp
     return () => {
-      console.log("Ngắt kết nối SignalR.");
-      const markersToRemove = busMarkersRef.current;
-      if (hubConnectionRef.current) {
-        hubConnectionRef.current.stop();
+      console.log("🔌 [MapComponent] Disconnecting SignalR...");
+      // Use local variable for cleanup
+      const connectionToStop = hubConnectionRef.current;
+      
+      if (connectionToStop) {
+        connectionToStop.stop();
       }
-      markersToRemove.forEach((marker) => map.removeLayer(marker));
-      markersToRemove.clear();
+      localMarkers.forEach((marker) => map.removeLayer(marker));
+      localMarkers.clear();
     };
   }, [map, listenOnly, specificBusId]);
 

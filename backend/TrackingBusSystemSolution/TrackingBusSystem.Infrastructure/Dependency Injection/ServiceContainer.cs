@@ -73,16 +73,21 @@ namespace TrackingBusSystem.Infrastructure.Dependency_Injection
                     {
                         OnMessageReceived = context =>
                         {
-                            // Ưu tiên Authorization header, sau đó mới lấy từ cookie
-                            // Điều này cho phép mỗi tab có token riêng (sessionStorage)
+                            // 1. Kiểm tra Authorization header (ưu tiên cao nhất)
                             var authHeader = context.Request.Headers["Authorization"].ToString();
                             if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
                             {
                                 context.Token = authHeader.Substring("Bearer ".Length).Trim();
                             }
+                            // 2. Kiểm tra query string (cho SignalR)
+                            else if (context.Request.Query.ContainsKey("access_token"))
+                            {
+                                var accessToken = context.Request.Query["access_token"];
+                                context.Token = accessToken;
+                            }
+                            // 3. Fallback: lấy từ cookie
                             else
                             {
-                                // Fallback: lấy từ cookie nếu không có Authorization header
                                 context.Token = context.Request.Cookies["access_token"] ?? "";
                             }
                             return Task.CompletedTask;

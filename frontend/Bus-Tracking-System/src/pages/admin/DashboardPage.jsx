@@ -48,9 +48,8 @@ const DashboardPage = () => {
   const [roles, setRoles] = useState(getAuthRoles());
   const navigate = useNavigate();
 
-  // --- THÊM STATE MỚI ---
-  // State này sẽ kích hoạt logic gửi data qua SignalR
-  const [isAnimationTriggered, setIsAnimationTriggered] = useState(false);
+  // REMOVED: Admin chỉ xem realtime, không trigger animation
+  // const [isAnimationTriggered, setIsAnimationTriggered] = useState(false);
 
   const routesPerPage = 5;
   const totalRoutes = allRoutes.length;
@@ -108,23 +107,13 @@ const DashboardPage = () => {
   const handleRouteClick = (route) => {
     console.log("Route clicked:", route);
     setSelectedRoute(route);
-    setIsAnimationTriggered(false); // Dừng trigger animation khi chọn route mới
+    // REMOVED: Không cần trigger animation nữa
   };
 
-  // --- HÀM MỚI: KÍCH HOẠT ANIMATION ---
-  const handleStartAnimation = () => {
-    if (!selectedRoute) {
-      alert("Vui lòng chọn một tuyến đường trước.");
-      return;
-    }
-    console.log(`Triggering animation for route ${selectedRoute.id}`);
-    setIsAnimationTriggered(true); // Kích hoạt
-  };
-
-  // Hàm callback khi animation kết thúc
+  // REMOVED: Admin không được phép start simulation
+  // Hàm callback khi animation kết thúc (giữ lại để tránh lỗi, nhưng không dùng)
   const onAnimationFinished = () => {
-    console.log("DashboardPage: Animation finished, resetting trigger.");
-    setIsAnimationTriggered(false);
+    console.log("DashboardPage: Animation finished callback (not used).");
   };
 
   const handleLogout = async () => {
@@ -213,27 +202,15 @@ const DashboardPage = () => {
         </section>
       </div>
 
-      <div className="map-controls">
-        <button
-          className="start-animation-btn"
-          onClick={handleStartAnimation}
-          disabled={isAnimationTriggered || !selectedRoute}
-        >
-          <FaPlayCircle />
-          {isAnimationTriggered
-            ? t("admin.dashboard.running")
-            : `${t("admin.dashboard.startSimulation")} ${
-                selectedRoute ? selectedRoute.id : ""
-              }`}
-        </button>
-      </div>
+      {/* REMOVED: Admin không được phép start simulation, chỉ xem realtime từ driver */}
 
       <section className="map-section">
         {allRoutes.length > 0 ? (
           <MapComponent
             selectedRoute={selectedRoute}
-            isAnimationTriggered={isAnimationTriggered}
+            isAnimationTriggered={false}
             onAnimationFinished={onAnimationFinished}
+            listenOnly={true}
           />
         ) : (
           <div className="map-placeholder">

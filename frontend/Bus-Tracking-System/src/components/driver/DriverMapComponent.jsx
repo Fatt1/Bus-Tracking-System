@@ -5,6 +5,7 @@ import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
 import L from "leaflet";
 import "leaflet-routing-machine";
 import * as signalR from "@microsoft/signalr";
+import { getAuthToken } from "../../utils/auth"; // THÊM: Import để lấy token
 
 // --- Icon marker mặc định ---
 const DefaultIcon = L.icon({
@@ -47,9 +48,17 @@ const BusMarkerListener = ({ busId }) => {
 
   useEffect(() => {
     const HUB_URL = "https://localhost:7229/geolocationHub";
+    const token = getAuthToken(); // LẤY TOKEN
+    
+    console.log("🚌 [DriverMap] Setting up SignalR for busId:", busId);
+    console.log("   - Has token:", !!token);
+    
     const hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl(HUB_URL)
+      .withUrl(HUB_URL, {
+        accessTokenFactory: () => token || "", // GỬI TOKEN
+      })
       .withAutomaticReconnect()
+      .configureLogging(signalR.LogLevel.Information)
       .build();
 
     hubConnectionRef.current = hubConnection;

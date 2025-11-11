@@ -5,6 +5,7 @@
 
 import * as signalR from "@microsoft/signalr";
 import { getRouteCoordinates } from "./routeCoordinatesHelper";
+import { getAuthToken } from "./auth"; // THÊM: Import để lấy token
 
 const STORAGE_KEYS = {
   SIM_STATE: "busSimState", // { busId, route, startedAt, lastIndex, tripType, coordinates }
@@ -223,13 +224,24 @@ class BusSimulationManager {
       this.hubConnection = null;
     }
     const HUB_URL = "https://localhost:7229/geolocationHub";
+    const token = getAuthToken(); // LẤY TOKEN
+    
+    console.log("🔌 [BusSimManager] Connecting to SignalR with token:", !!token);
+    
     this.hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl(HUB_URL)
+      .withUrl(HUB_URL, {
+        accessTokenFactory: () => token || "", // GỬI TOKEN
+      })
       .withAutomaticReconnect()
+      .configureLogging(signalR.LogLevel.Information)
       .build();
+      
     this.hubConnection
       .start()
-      .catch((err) => console.error("BusSimManager SignalR error:", err));
+      .then(() => {
+        console.log("✅ [BusSimManager] SignalR connected successfully");
+      })
+      .catch((err) => console.error("❌ [BusSimManager] SignalR error:", err));
   }
 
   runInterval() {
