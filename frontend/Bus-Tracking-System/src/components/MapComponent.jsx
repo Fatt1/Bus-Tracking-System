@@ -195,15 +195,25 @@ const SignalRHandler = ({
       const lat = data.Lat || data.lat;
       const lng = data.Lng || data.lng;
       const busId = data.BusId || data.busId;
+      const routeId = data.RouteId || data.routeId;
+      const routeName = data.RouteName || data.routeName;
 
       if (lat === undefined || lng === undefined || busId === undefined) return;
 
-      console.log(`📍 [MapComponent] Received location for Bus ${busId}:`, { lat, lng });
+      console.log(`📍 [MapComponent] Received location for Bus ${busId}:`, { 
+        lat, lng, routeId, routeName, selectedRouteId: selectedRoute?.id 
+      });
 
-      // Nếu đang ở chế độ listenOnly và có specificBusId, chỉ xử lý bus đó
+      // Filter 1: Nếu là Parent với specificBusId, chỉ xử lý bus đó
       if (listenOnly && specificBusId && busId !== specificBusId) {
         console.log(`   ⏭️ Skipping Bus ${busId} (only listening to Bus ${specificBusId})`);
-        return; // Bỏ qua các bus khác
+        return;
+      }
+
+      // Filter 2: Nếu là Admin và đã chọn route, chỉ hiển thị bus của route đó
+      if (listenOnly && !specificBusId && selectedRoute && routeId && routeId !== selectedRoute.id) {
+        console.log(`   ⏭️ Skipping Bus ${busId} (Route ${routeId} != Selected Route ${selectedRoute.id})`);
+        return;
       }
 
       const markers = busMarkersRef.current;
@@ -262,7 +272,7 @@ const SignalRHandler = ({
       localMarkers.forEach((marker) => map.removeLayer(marker));
       localMarkers.clear();
     };
-  }, [map, listenOnly, specificBusId]);
+  }, [map, listenOnly, specificBusId, selectedRoute]); // Thêm selectedRoute vào dependencies
 
   // Effect 2: Xử lý Gửi (Sender/Simulator) - CHỈ DÙNG TRONG DASHBOARD
   useEffect(() => {

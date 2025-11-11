@@ -55,7 +55,14 @@ namespace TrackingBusSystem.Infrastructure.Hubs
         public async Task SendLocation(int busId, double lat, double lng)
         {
             var result = await _mediator.Send(new BusLocationUpdateCommand { BusId = busId, Latitude = lat, Longitude = lng });
-            var busLastLocationDto = new BusLastLocationDTO(lat, lng, busId);
+            
+            // Lấy routeId từ schedule hiện tại của bus
+            var schedule = await _context.Schedules
+                .Where(s => s.BusId == busId && s.ScheduleDate == DateOnly.FromDateTime(DateTime.Today))
+                .Select(s => new { s.RouteId, s.Route.RouteName })
+                .FirstOrDefaultAsync();
+            
+            var busLastLocationDto = new BusLastLocationDTO(lat, lng, busId, schedule?.RouteId, schedule?.RouteName);
 
             await Clients.Group(GetBusGroupName(busId)).SendAsync("ReceiveLocationUpdate", busLastLocationDto);
             // 2. Gửi cho nhóm admin
@@ -154,7 +161,9 @@ namespace TrackingBusSystem.Infrastructure.Hubs
         public record BusLastLocationDTO(
             double Lat,
             double Lng,
-            int BusId
+            int BusId,
+            int? RouteId,
+            string? RouteName
         );
     }
 }
