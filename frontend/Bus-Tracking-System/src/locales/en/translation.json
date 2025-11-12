@@ -266,7 +266,9 @@
     "deleteSuccess": "Deleted {count} notifications successfully!",
     "loadingNotifications": "Loading notifications...",
     "selectAtLeast": "Please select at least one",
-    "selected": "{count} selected"
+    "selected": "{count} selected",
+    "detailTitle": "Notification Details",
+    "time": "Time"
   },
   "dashboard": {
     "title": "Home",

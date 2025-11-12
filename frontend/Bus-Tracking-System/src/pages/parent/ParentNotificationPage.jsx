@@ -3,6 +3,7 @@ import api from "../../utils/api";
 import { getFullName } from "../../utils/auth";
 import ParentSidebar from "../../components/parent/ParentSidebar";
 import ParentHeader from "../../components/parent/ParentHeader";
+import NotificationDetailModal from "../../components/NotificationDetailModal";
 import { FiClock, FiUser } from "react-icons/fi";
 import { FaSpinner, FaBell } from "react-icons/fa";
 import { format } from "date-fns";
@@ -17,6 +18,7 @@ const ParentNotificationPage = () => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("all"); // 'all' or 'unread'
+  const [selectedNotification, setSelectedNotification] = useState(null); // For detail modal
 
   // Get parent name from sessionStorage
   const parentName = getFullName() || t("parent.home.parent");
@@ -80,9 +82,39 @@ const ParentNotificationPage = () => {
     return matchesSearch && matchesTab;
   });
 
+  // Handle notification click to open detail modal
+  const handleNotificationClick = (notification) => {
+    setSelectedNotification(notification);
+  };
+
+  // Handle mark as read for parent (simpler - just update local state)
+  const handleMarkAsRead = async (notificationId) => {
+    try {
+      // Call backend API to mark as read
+      await api.put(`/api/v1/notificaton/receive/${notificationId}/mark-as-read`);
+
+      // Update local state
+      setNotifications((prev) =>
+        prev.map((n) =>
+          n.id === notificationId ? { ...n, isRead: true } : n
+        )
+      );
+    } catch (error) {
+      console.error("Failed to mark notification as read:", error);
+    }
+  };
+
   return (
     <div className="parent-notification-page-container">
       <ParentSidebar />
+
+      {/* Modal chi tiết thông báo */}
+      <NotificationDetailModal
+        isOpen={!!selectedNotification}
+        onClose={() => setSelectedNotification(null)}
+        notification={selectedNotification}
+        onMarkAsRead={handleMarkAsRead}
+      />
 
       <div className="parent-main-wrapper">
         <ParentHeader
@@ -157,34 +189,50 @@ const ParentNotificationPage = () => {
                 </div>
 
                 <div className="notification-list-body">
-                  {filteredNotifications.map((notif) => (
-                    <div
-                      key={notif.id}
-                      className={`notification-list-item ${
-                        !notif.isRead ? "unread" : ""
-                      }`}
-                    >
-                      <div className="notification-item-content">
-                        <p className="notification-text">
-                          {notif.message || t("parent.notifications.noContent")}
-                        </p>
-                        <span className="notification-time-mobile">
-                          <FiClock /> {formatDateTime(notif.createdAt)}
-                        </span>
+                  {filteredNotifications.map((notif) => {
+                    // Create notification object for modal
+                    const notificationForModal = {
+                      id: notif.id,
+                      type: "inbox", // Parent only receives notifications
+                      subject: notif.title || t("parent.notifications.noContent"),
+                      message: notif.message || t("parent.notifications.noContent"),
+                      sender: notif.senderName || t("parent.notifications.systemSender"),
+                      recipient: null,
+                      timestamp: formatDateTime(notif.createdAt),
+                      isRead: notif.isRead,
+                    };
+
+                    return (
+                      <div
+                        key={notif.id}
+                        className={`notification-list-item ${
+                          !notif.isRead ? "unread" : ""
+                        }`}
+                        onClick={() => handleNotificationClick(notificationForModal)}
+                        style={{ cursor: "pointer" }}
+                      >
+                        <div className="notification-item-content">
+                          <p className="notification-text">
+                            {notif.message || t("parent.notifications.noContent")}
+                          </p>
+                          <span className="notification-time-mobile">
+                            <FiClock /> {formatDateTime(notif.createdAt)}
+                          </span>
+                        </div>
+                        <div className="notification-item-sender">
+                          <FiUser />
+                          <span>
+                            {notif.senderName ||
+                              t("parent.notifications.systemSender")}
+                          </span>
+                        </div>
+                        <div className="notification-item-time">
+                          <FiClock />
+                          <span>{formatDateTime(notif.createdAt)}</span>
+                        </div>
                       </div>
-                      <div className="notification-item-sender">
-                        <FiUser />
-                        <span>
-                          {notif.senderName ||
-                            t("parent.notifications.systemSender")}
-                        </span>
-                      </div>
-                      <div className="notification-item-time">
-                        <FiClock />
-                        <span>{formatDateTime(notif.createdAt)}</span>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </>
             )}

@@ -274,7 +274,9 @@
     "loading": "Đang tải...",
     "loadingNotifications": "Đang tải thông báo...",
     "selectAtLeast": "Vui lòng chọn ít nhất một",
-    "selected": "{count} đã chọn"
+    "selected": "{count} đã chọn",
+    "detailTitle": "Chi tiết thông báo",
+    "time": "Thời gian"
   },
   "dashboard": {
     "title": "Trang chủ",

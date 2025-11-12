@@ -5,6 +5,7 @@ import api from "../../utils/api"; // Import api instance với token support
 import { clearAuth, getFullName } from "../../utils/auth";
 import { useNotification } from "../../context/NotificationContext";
 import ReportIncidentModal from "../../components/driver/ReportIncidentModal";
+import NotificationDetailModal from "../../components/NotificationDetailModal";
 import DriverSidebar from "../../components/driver/DriverSidebar";
 import DriverHeader from "../../components/driver/DriverHeader";
 import "./DriverNotificationPage.css"; // Sẽ tạo ở bước 2
@@ -69,6 +70,7 @@ const DriverNotificationPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isIncidentModalOpen, setIsIncidentModalOpen] = useState(false);
+  const [selectedNotification, setSelectedNotification] = useState(null); // For detail modal
 
   // Logic modal báo cáo sự cố (từ trang chủ)
   // (Bạn có thể thêm modal báo cáo sự cố sau này)
@@ -198,6 +200,34 @@ const DriverNotificationPage = () => {
     }
   };
 
+  // Handle notification click to open detail modal
+  const handleNotificationClick = (notification) => {
+    setSelectedNotification(notification);
+  };
+
+  // Handle mark as read
+  const handleMarkAsRead = async (notificationId) => {
+    try {
+      // Parse notification ID to get the actual ID
+      const id = parseInt(notificationId);
+      
+      // Call backend API to mark as read
+      await api.put(`/api/v1/notificaton/receive/${id}/mark-as-read`);
+
+      // Update local state
+      setInboxNotifications((prev) =>
+        prev.map((n) =>
+          n.receivedNotifcationId === id ? { ...n, isRead: true } : n
+        )
+      );
+
+      // Refresh unread count
+      refreshUnreadCount();
+    } catch (error) {
+      console.error("Failed to mark notification as read:", error);
+    }
+  };
+
   // Format timestamp
   const formatTimestamp = (isoString) => {
     try {
@@ -214,6 +244,14 @@ const DriverNotificationPage = () => {
       <ReportIncidentModal
         isOpen={isIncidentModalOpen}
         onClose={() => setIsIncidentModalOpen(false)}
+      />
+
+      {/* Modal chi tiết thông báo */}
+      <NotificationDetailModal
+        isOpen={!!selectedNotification}
+        onClose={() => setSelectedNotification(null)}
+        notification={selectedNotification}
+        onMarkAsRead={handleMarkAsRead}
       />
 
       <ConfirmDeleteModal
@@ -353,6 +391,18 @@ const DriverNotificationPage = () => {
                                   .join(", ")
                               : null;
 
+                          // Create notification object for modal
+                          const notificationForModal = {
+                            id: id,
+                            type: activeTab, // "inbox" or "sent"
+                            subject: noti.title,
+                            message: noti.message,
+                            sender: sender,
+                            recipient: recipients,
+                            timestamp: formatTimestamp(noti.sendAt),
+                            isRead: noti.isRead,
+                          };
+
                           return (
                             <li
                               key={id}
@@ -372,7 +422,7 @@ const DriverNotificationPage = () => {
                               />
                               <div
                                 className="notification-clickable-area"
-                                onClick={() => handleSelectItem(id)}
+                                onClick={() => handleNotificationClick(notificationForModal)}
                               >
                                 <div className="notification-content">
                                   <span className="sender-recipient">

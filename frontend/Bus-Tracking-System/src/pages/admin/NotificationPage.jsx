@@ -5,6 +5,7 @@ import "./NotificationPage.css"; // CSS riêng
 import "../LayoutTable.css"; // Tái sử dụng CSS chung nếu cần (cho modal confirm)
 import AdminHeader from "../../components/admin/AdminHeader"; // Import AdminHeader
 import MultiSelectDropdown from "../MultiSelectDropdown"; // <-- 1. IMPORT COMPONENT MỚI
+import NotificationDetailModal from "../../components/NotificationDetailModal"; // Import modal component
 import {
   FaPaperPlane,
   FaInbox,
@@ -278,6 +279,7 @@ const NotificationPage = () => {
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
+  const [selectedNotification, setSelectedNotification] = useState(null); // For detail modal
 
   // Recipients data
   const [drivers, setDrivers] = useState([]);
@@ -567,8 +569,43 @@ const NotificationPage = () => {
     }
   };
 
+  const handleNotificationClick = (notification) => {
+    setSelectedNotification(notification);
+  };
+
+  const handleMarkAsRead = async (notificationId) => {
+    try {
+      // Parse notification ID (format: "inbox_123")
+      const parts = notificationId.split("_");
+      if (parts[0] !== "inbox") return; // Only mark inbox notifications as read
+
+      const id = parseInt(parts[1]);
+      
+      // Call backend API to mark as read
+      await api.put(`/api/v1/notificaton/receive/${id}/mark-as-read`);
+
+      // Update local state
+      setInboxNotifications((prev) =>
+        prev.map((n) =>
+          n.id === notificationId ? { ...n, isRead: true } : n
+        )
+      );
+
+      // Refresh unread count
+      refreshUnreadCount();
+    } catch (error) {
+      console.error("Failed to mark notification as read:", error);
+    }
+  };
+
   return (
     <>
+      <NotificationDetailModal
+        isOpen={!!selectedNotification}
+        onClose={() => setSelectedNotification(null)}
+        notification={selectedNotification}
+        onMarkAsRead={handleMarkAsRead}
+      />
       <CreateNotificationModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
@@ -683,7 +720,7 @@ const NotificationPage = () => {
                     />
                     <div
                       className="notification-clickable-area"
-                      onClick={() => handleSelectItem(noti.id)}
+                      onClick={() => handleNotificationClick(noti)}
                     >
                       <div className="notification-content">
                         <span className="sender-recipient">
