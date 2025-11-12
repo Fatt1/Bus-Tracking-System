@@ -6,6 +6,7 @@ import "./BusDetailPage.css";
 import busImg from "../../assets/bus.png";
 import { FaBus, FaAngleLeft } from "react-icons/fa";
 import MapComponent from "../../components/MapComponent";
+import AdminHeader from "../../components/admin/AdminHeader"; // Import AdminHeader
 
 // Component chính của trang
 const BusDetailPage = () => {
@@ -80,25 +81,19 @@ const BusDetailPage = () => {
 
   return (
     <main className="main-content-area">
-      <header className="page-header">
-        <div className="breadcrumbs">
-          <Link to="/bus" className="back-link">
-            <FaAngleLeft /> {t("bus.detailBreadcrumb")}
-          </Link>
-          /{" "}
-          <span>
-            {t("bus.detailTitle")} {bus.busName}
-          </span>
-        </div>
-        <div className="header-actions">
-          <input
-            type="text"
-            placeholder={t("common.search")}
-            className="search-input"
-          />
-          <button className="user-button">{t("common.login")}</button>
-        </div>
-      </header>
+      <AdminHeader
+        breadcrumbs={
+          <>
+            <Link to="/bus" className="back-link">
+              <FaAngleLeft /> {t("bus.detailBreadcrumb")}
+            </Link>
+            {" / "}
+            <span>
+              {t("bus.detailTitle")} {bus.busName}
+            </span>
+          </>
+        }
+      />
 
       <div className="page-content detail-page-content">
         <div className="bus-detail-card">

@@ -212,43 +212,202 @@
   margin: 0;
 }
 
-/* Responsive */
-@media (max-width: 1024px) {
+/* ===== RESPONSIVE STYLES ===== */
+
+/* Tablet (768px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .parent-main-wrapper {
+    margin-left: 70px;
+  }
+  
+  .parent-main-content {
+    padding: 1.5rem;
+  }
+  
+  .parent-welcome-title {
+    font-size: 2.2rem;
+  }
+  
   .parent-content-wrapper {
     flex-direction: column;
   }
-
+  
   .parent-profile-info {
     width: 100%;
     flex-direction: row;
     justify-content: center;
     gap: 1.5rem;
+    min-width: auto;
   }
-
+  
   .parent-profile-icon {
     font-size: 4rem;
     margin-bottom: 0;
   }
-
-  .parent-schedule-details {
-    grid-template-columns: 1fr;
-  }
 }
 
+/* Mobile (< 768px) */
 @media (max-width: 768px) {
-  .parent-main-wrapper {
-    margin-left: 70px;
+  .parent-page-container {
+    flex-direction: column;
   }
-
+  
+  .parent-main-wrapper {
+    margin-left: 0;
+    width: 100%;
+  }
+  
   .parent-main-content {
     padding: 1rem;
+    min-height: calc(100vh - 60px);
   }
-
+  
   .parent-welcome-title {
-    font-size: 2rem;
+    font-size: 1.75rem;
+    margin: 0.75rem 0 1.5rem 0;
   }
-
+  
+  .parent-loading-message,
+  .parent-error-message,
+  .parent-no-schedule-message {
+    padding: 2rem 1rem;
+    margin: 1rem auto;
+    max-width: 100%;
+  }
+  
+  .parent-content-wrapper {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
   .parent-schedule-card {
     padding: 1.5rem;
   }
+  
+  .parent-schedule-card h2 {
+    font-size: 1.5rem;
+  }
+  
+  .parent-date-subtitle {
+    font-size: 0.9rem;
+  }
+  
+  .parent-schedule-details {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+  
+  .parent-trip-info,
+  .parent-driver-info {
+    padding: 1rem;
+  }
+  
+  .parent-trip-info h4,
+  .parent-driver-info h4 {
+    font-size: 0.95rem;
+  }
+  
+  .parent-trip-info p,
+  .parent-driver-info p {
+    font-size: 0.85rem;
+  }
+  
+  .parent-track-button {
+    padding: 0.875rem 1.75rem;
+    font-size: 0.95rem;
+  }
+  
+  .parent-profile-info {
+    width: 100%;
+    flex-direction: row;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    min-width: auto;
+  }
+  
+  .parent-profile-icon {
+    font-size: 4rem;
+    margin-bottom: 0;
+  }
+  
+  .parent-profile-name {
+    font-size: 1rem;
+  }
 }
+
+/* Very small mobile (< 360px) */
+@media (max-width: 360px) {
+  .parent-main-content {
+    padding: 0.75rem;
+  }
+  
+  .parent-welcome-title {
+    font-size: 1.5rem;
+    margin: 0.5rem 0 1rem 0;
+  }
+  
+  .parent-schedule-card {
+    padding: 1.25rem;
+  }
+  
+  .parent-schedule-card h2 {
+    font-size: 1.3rem;
+  }
+  
+  .parent-trip-info,
+  .parent-driver-info {
+    padding: 0.875rem;
+  }
+  
+  .parent-track-button {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+  }
+  
+  .parent-profile-icon {
+    font-size: 3rem;
+  }
+  
+  .parent-profile-name {
+    font-size: 0.95rem;
+  }
+}
+
+/* Landscape mobile optimization */
+@media (max-width: 768px) and (orientation: landscape) {
+  .parent-main-content {
+    padding: 0.75rem 1rem;
+    min-height: calc(100vh - 50px);
+  }
+  
+  .parent-welcome-title {
+    font-size: 1.5rem;
+    margin: 0.5rem 0 1rem 0;
+  }
+  
+  .parent-content-wrapper {
+    flex-direction: row;
+    gap: 1rem;
+  }
+  
+  .parent-schedule-card {
+    flex: 1;
+  }
+  
+  .parent-profile-info {
+    max-width: 280px;
+    flex-direction: column;
+  }
+  
+  .parent-profile-icon {
+    font-size: 3.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .parent-schedule-details {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+}
+

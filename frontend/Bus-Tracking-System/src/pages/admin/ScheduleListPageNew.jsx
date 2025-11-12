@@ -31,6 +31,7 @@ import { vi, enUS } from "date-fns/locale"; // Import Vietnamese and English loc
 
 // --- Import api instance từ utils ---
 import api from "../../utils/api";
+import AdminHeader from "../../components/admin/AdminHeader"; // Import AdminHeader
 
 // --- COMPONENT MODAL XEM/XÓA/CHỈNH SỬA LỊCH TRÌNH ---
 const ScheduleDetailModal = ({
@@ -811,10 +812,7 @@ const ScheduleListPageNew = () => {
       />
 
       <main className="main-content-area schedule-calendar-page">
-        <header className="page-header">
-          <div className="breadcrumbs">{t("schedule.breadcrumb")}</div>
-          {/* Có thể thêm nút Tìm kiếm,... ở đây nếu cần */}
-        </header>
+        <AdminHeader breadcrumbs={t("schedule.breadcrumb")} />
 
         <div className="page-content">
           <div className="calendar-header">

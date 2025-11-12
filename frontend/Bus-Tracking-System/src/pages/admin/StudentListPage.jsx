@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import api from "../../utils/api"; // Import api instance với token support
 import "./StudentListPage.css"; // CSS riêng cho trang này
 import "../LayoutTable.css"; // Tái sử dụng CSS layout bảng
+import AdminHeader from "../../components/admin/AdminHeader"; // Import AdminHeader
 import {
   FaPlus,
   FaPen,
@@ -820,18 +821,9 @@ const StudentListPage = () => {
         // Truyền tên học sinh để hiển thị
         studentName={studentToDelete?.fullName || ""}
       />
+
       <main className="main-content-area">
-        <header className="page-header">
-          <div className="breadcrumbs">{t("student.breadcrumb")}</div>
-          <div className="header-actions">
-            <input
-              type="text"
-              placeholder={t("common.search")}
-              className="search-input"
-            />
-            <button className="user-button">{t("common.login")}</button>
-          </div>
-        </header>
+        <AdminHeader breadcrumbs={t("student.breadcrumb")} />
 
         <div className="page-content">
           <div className="content-header">

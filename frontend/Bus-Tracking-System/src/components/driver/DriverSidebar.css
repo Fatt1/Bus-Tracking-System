@@ -6,6 +6,26 @@
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
+  transition: all 0.3s ease;
+}
+
+/* Overlay backdrop for mobile sidebar */
+.driver-sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.driver-sidebar-overlay.active {
+  display: block;
+  opacity: 1;
 }
 
 .driver-sidebar-header {
@@ -51,3 +71,96 @@
   background-color: var(--driver-primary-blue);
   color: white;
 }
+
+/* ===== RESPONSIVE STYLES ===== */
+
+/* Tablet: Icon-only sidebar (768px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .driver-sidebar {
+    width: 70px;
+    padding: 0;
+  }
+  
+  .driver-sidebar-header {
+    padding: 15px 5px;
+  }
+  
+  .driver-sidebar-header h3 {
+    font-size: 1rem;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+  }
+  
+  .driver-sidebar-nav {
+    padding: 10px 5px;
+  }
+  
+  .driver-sidebar-nav li a {
+    flex-direction: column;
+    padding: 12px 5px;
+    gap: 5px;
+    font-size: 0.7rem;
+    text-align: center;
+  }
+  
+  .driver-sidebar-nav li a svg {
+    font-size: 1.2rem;
+  }
+  
+  .driver-sidebar-nav li a span {
+    font-size: 0.65rem;
+  }
+}
+
+/* Mobile: Overlay sidebar (< 768px) */
+@media (max-width: 768px) {
+  .driver-sidebar {
+    position: fixed;
+    left: -240px; /* Hide off-screen by default */
+    top: 0;
+    bottom: 0;
+    width: 240px;
+    z-index: var(--z-sidebar-mobile, 1000);
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+    transition: left 0.3s ease;
+  }
+  
+  .driver-sidebar.active {
+    left: 0; /* Slide in when active */
+  }
+  
+  .driver-sidebar-header {
+    padding: 15px 20px;
+  }
+  
+  .driver-sidebar-header h3 {
+    font-size: 1.3rem;
+  }
+  
+  .driver-sidebar-nav {
+    padding: 10px 15px;
+  }
+  
+  .driver-sidebar-nav li a {
+    padding: 14px 15px;
+    font-size: 1rem;
+  }
+}
+
+/* Landscape mode optimization for mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+  .driver-sidebar {
+    width: 200px;
+    left: -200px;
+  }
+  
+  .driver-sidebar.active {
+    left: 0;
+  }
+  
+  .driver-sidebar-nav {
+    overflow-y: auto;
+    max-height: calc(100vh - 80px);
+  }
+}
+

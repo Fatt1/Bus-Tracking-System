@@ -3,7 +3,9 @@ import { useTranslation } from "react-i18next";
 import api from "../../utils/api";
 import "./NotificationPage.css"; // CSS riêng
 import "../LayoutTable.css"; // Tái sử dụng CSS chung nếu cần (cho modal confirm)
+import AdminHeader from "../../components/admin/AdminHeader"; // Import AdminHeader
 import MultiSelectDropdown from "../MultiSelectDropdown"; // <-- 1. IMPORT COMPONENT MỚI
+import NotificationDetailModal from "../../components/NotificationDetailModal"; // Import modal component
 import {
   FaPaperPlane,
   FaInbox,
@@ -15,7 +17,6 @@ import {
   FaUserTie,
   FaUserFriends,
 } from "react-icons/fa";
-import { FiBell } from "react-icons/fi";
 import { format } from "date-fns"; // Để format thời gian
 import { getCurrentUserId } from "../../utils/auth"; // Import để lấy userId hiện tại
 import { useNotification } from "../../context/NotificationContext"; // Import notification context
@@ -270,14 +271,15 @@ const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, count }) => {
 // --- COMPONENT CHÍNH CỦA TRANG ---
 const NotificationPage = () => {
   const { t } = useTranslation();
-  const { unreadCount, refreshUnreadCount, markAsRecentlySent } =
-    useNotification(); // Get unread count from context
+  const { refreshUnreadCount, markAsRecentlySent } =
+    useNotification(); // Get functions from context (unreadCount now in AdminHeader)
   const [activeTab, setActiveTab] = useState("sent");
   const [sentNotifications, setSentNotifications] = useState([]);
   const [inboxNotifications, setInboxNotifications] = useState([]);
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
+  const [selectedNotification, setSelectedNotification] = useState(null); // For detail modal
 
   // Recipients data
   const [drivers, setDrivers] = useState([]);
@@ -288,6 +290,7 @@ const NotificationPage = () => {
   // Fetch sent and received notifications on mount
   useEffect(() => {
     fetchNotifications();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Fetch drivers and parents when modal opens
@@ -319,6 +322,7 @@ const NotificationPage = () => {
               ? n.recipientUsers[0].recipientUserName
               : `${n.recipientUsers.length} người nhận`
             : "Không xác định",
+        recipientList: n.recipientUsers || [], // Save full list for modal
         subject: n.title,
         message: n.message,
         timestamp: format(new Date(n.sendAt), "dd/MM/yyyy - hh:mm a"),
@@ -566,8 +570,43 @@ const NotificationPage = () => {
     }
   };
 
+  const handleNotificationClick = (notification) => {
+    setSelectedNotification(notification);
+  };
+
+  const handleMarkAsRead = async (notificationId) => {
+    try {
+      // Parse notification ID (format: "inbox_123")
+      const parts = notificationId.split("_");
+      if (parts[0] !== "inbox") return; // Only mark inbox notifications as read
+
+      const id = parseInt(parts[1]);
+      
+      // Call backend API GET endpoint which auto marks as read
+      await api.get(`/api/v1/notificaton/receive/${id}`);
+
+      // Update local state
+      setInboxNotifications((prev) =>
+        prev.map((n) =>
+          n.id === notificationId ? { ...n, isRead: true } : n
+        )
+      );
+
+      // Refresh unread count
+      refreshUnreadCount();
+    } catch (error) {
+      console.error("Failed to mark notification as read:", error);
+    }
+  };
+
   return (
     <>
+      <NotificationDetailModal
+        isOpen={!!selectedNotification}
+        onClose={() => setSelectedNotification(null)}
+        notification={selectedNotification}
+        onMarkAsRead={handleMarkAsRead}
+      />
       <CreateNotificationModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
@@ -583,23 +622,7 @@ const NotificationPage = () => {
         count={itemToDelete?.count || 0}
       />
       <main className="main-content-area">
-        <header className="page-header">
-          <div className="breadcrumbs">{t("notification.breadcrumb")}</div>
-          <div className="header-actions">
-            <div className="notification-bell-wrapper">
-              <FiBell size={24} className="notification-bell-icon" />
-              {unreadCount > 0 && (
-                <span className="notification-badge">{unreadCount}</span>
-              )}
-            </div>
-            <input
-              type="text"
-              placeholder={t("notification.searchPlaceholder")}
-              className="search-input"
-            />
-            <button className="user-button">{t("common.login")}</button>
-          </div>
-        </header>
+        <AdminHeader breadcrumbs={t("notification.breadcrumb")} />
         <div className="page-content notification-page">
           <div className="content-header notification-header">
             <h2>{t("notification.title")}</h2>
@@ -688,6 +711,8 @@ const NotificationPage = () => {
                     key={noti.id}
                     className={`notification-item ${
                       selectedIds.has(noti.id) ? "selected" : ""
+                    } ${
+                      activeTab === "inbox" && !noti.isRead ? "unread" : ""
                     }`}
                   >
                     <input
@@ -698,7 +723,7 @@ const NotificationPage = () => {
                     />
                     <div
                       className="notification-clickable-area"
-                      onClick={() => handleSelectItem(noti.id)}
+                      onClick={() => handleNotificationClick(noti)}
                     >
                       <div className="notification-content">
                         <span className="sender-recipient">

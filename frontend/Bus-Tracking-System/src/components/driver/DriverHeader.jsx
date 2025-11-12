@@ -16,8 +16,26 @@ const DriverHeader = ({
 }) => {
   const { t } = useTranslation();
 
+  const handleToggleSidebar = () => {
+    // Call global function exposed by Sidebar
+    if (window.toggleDriverSidebar) {
+      window.toggleDriverSidebar();
+    }
+  };
+
   return (
     <header className="driver-header">
+      {/* Hamburger button for mobile */}
+      <button 
+        className="hamburger-button"
+        onClick={handleToggleSidebar}
+        aria-label="Toggle menu"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      
       <div className="breadcrumbs">
         <span>{t("driverApp.header.page")}</span> /{" "}
         <span>{breadcrumb || t("driverApp.home.breadcrumb")}</span>

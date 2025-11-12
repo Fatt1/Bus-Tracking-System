@@ -243,3 +243,180 @@
   font-size: 1.2rem;
   border-radius: 8px;
 }
+
+/* ===== RESPONSIVE STYLES ===== */
+
+/* Tablet (768px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  /* Adjust for smaller sidebar */
+  .main-content {
+    margin-left: 70px;
+  }
+  
+  .main-header {
+    padding: 15px 20px;
+  }
+  
+  .search-bar input {
+    min-width: 180px;
+  }
+  
+  .routes-section {
+    padding: 15px 20px;
+  }
+  
+  .routes-slider {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+  }
+  
+  .route-card {
+    min-width: 160px;
+  }
+  
+  .route-card-top {
+    padding: 15px;
+  }
+  
+  .route-card-top h4 {
+    font-size: 1rem;
+  }
+  
+  .map-section {
+    padding: 20px;
+  }
+}
+
+/* Mobile (< 768px) */
+@media (max-width: 768px) {
+  /* Main content full width on mobile */
+  .main-content {
+    margin-left: 0;
+  }
+  
+  .main-content-top-wrapper {
+    padding-bottom: 20px;
+  }
+  
+  .main-header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 15px;
+    gap: 10px;
+  }
+  
+  .breadcrumbs {
+    font-size: 0.8rem;
+  }
+  
+  .header-actions {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .search-bar {
+    flex: 1;
+    min-width: 100%;
+  }
+  
+  .search-bar input {
+    width: 100%;
+    min-width: 100%;
+  }
+  
+  .login-button {
+    flex: 1;
+  }
+  
+  /* Routes section responsive */
+  .routes-section {
+    padding: 15px;
+  }
+  
+  .routes-slider-container {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .routes-slider {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    max-height: none;
+  }
+  
+  .arrow-button {
+    display: none; /* Hide arrows on mobile, show all routes stacked */
+  }
+  
+  .route-card {
+    min-width: 100%;
+  }
+  
+  .route-card-top {
+    padding: 15px;
+    gap: 10px;
+  }
+  
+  .route-card-top h4 {
+    font-size: 1rem;
+  }
+  
+  .route-card-bottom {
+    padding: 12px 15px;
+  }
+  
+  .route-card-bottom p {
+    font-size: 0.85rem;
+  }
+  
+  /* Map section */
+  .map-section {
+    padding: 15px;
+    min-height: 400px;
+  }
+  
+  .map-placeholder {
+    font-size: 1rem;
+  }
+}
+
+/* Very small mobile (< 360px) */
+@media (max-width: 360px) {
+  .main-header {
+    padding: 10px;
+  }
+  
+  .routes-section {
+    padding: 10px;
+  }
+  
+  .route-card-top {
+    padding: 12px;
+  }
+  
+  .route-card-bottom {
+    padding: 10px 12px;
+  }
+  
+  .map-section {
+    padding: 10px;
+    min-height: 300px;
+  }
+}
+
+/* Landscape mobile optimization */
+@media (max-width: 768px) and (orientation: landscape) {
+  .main-content-top-wrapper {
+    padding-bottom: 15px;
+  }
+  
+  .routes-slider {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .map-section {
+    min-height: 300px;
+  }
+}
+

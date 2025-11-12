@@ -1,0 +1,311 @@
+/* AdminHeader.css - Styles cho header chung của admin */
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: white;
+  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+/* Hamburger Button - Hidden on desktop, visible on mobile */
+.hamburger-button {
+  display: none;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 30px;
+  height: 24px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 10;
+  margin-right: 1rem;
+}
+
+.hamburger-button span {
+  width: 100%;
+  height: 3px;
+  background: #0a2e5d;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  transform-origin: center;
+}
+
+.hamburger-button:hover span {
+  background: #083153;
+}
+
+.hamburger-button:active span {
+  background: #062441;
+}
+
+.breadcrumbs {
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.breadcrumbs a {
+  color: #0a2e5d;
+  text-decoration: none;
+}
+
+.breadcrumbs a:hover {
+  text-decoration: underline;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.search-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 0.75rem;
+  color: #666;
+}
+
+.search-input,
+.search-bar input[type="text"] {
+  padding: 0.5rem 0.75rem 0.5rem 2.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  min-width: 200px;
+}
+
+.search-input:focus,
+.search-bar input[type="text"]:focus {
+  outline: none;
+  border-color: #0a2e5d;
+}
+
+.login-button,
+.user-button {
+  padding: 0.5rem 1.5rem;
+  background: #0a2e5d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background 0.3s ease;
+}
+
+.login-button:hover,
+.user-button:hover {
+  background: #083153;
+}
+
+.login-button:active,
+.user-button:active {
+  transform: translateY(1px);
+}
+
+/* Notification Bell Styles */
+.notification-bell-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+  min-width: 40px;
+  min-height: 40px;
+}
+
+.notification-bell-wrapper:hover {
+  background-color: #f5f5f5;
+}
+
+.notification-bell-icon {
+  color: #0a2e5d;
+  transition: color 0.3s ease;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.notification-bell-wrapper:hover .notification-bell-icon {
+  color: #083153;
+}
+
+.notification-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: #e74c3c;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: bold;
+  padding: 0.1rem 0.35rem;
+  border-radius: 10px;
+  min-width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  z-index: 2;
+  line-height: 1;
+}
+
+.notification-badge:empty {
+  display: none;
+}
+
+/* ===== RESPONSIVE STYLES ===== */
+
+/* Tablet (768px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .page-header {
+    padding: 1rem 1.5rem;
+  }
+  
+  .search-bar input[type="text"] {
+    min-width: 150px;
+  }
+  
+  .header-actions {
+    gap: 0.75rem;
+  }
+  
+  .login-button {
+    padding: 0.5rem 1rem;
+  }
+}
+
+/* Mobile (< 768px) */
+@media (max-width: 768px) {
+  .page-header {
+    padding: 0.75rem 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  /* Show hamburger button on mobile */
+  .hamburger-button {
+    display: flex !important;
+    order: 1;
+  }
+  
+  .breadcrumbs {
+    flex: 1;
+    font-size: 0.8rem;
+    order: 2;
+    width: 100%;
+    padding-left: 0; /* Remove indent */
+  }
+  
+  .header-actions {
+    gap: 0.5rem;
+    order: 3;
+    flex-wrap: nowrap;
+    margin-left: auto;
+  }
+  
+  /* Hide search bar on mobile, show search icon instead */
+  .search-bar input[type="text"] {
+    display: none;
+  }
+  
+  .search-bar {
+    width: 40px;
+    height: 40px;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .search-bar:hover {
+    background-color: #f5f5f5;
+  }
+  
+  .search-icon {
+    position: static;
+    color: #0a2e5d;
+    font-size: 1.1rem;
+  }
+  
+  .notification-bell-wrapper {
+    padding: 0.4rem;
+    min-width: 36px;
+    min-height: 36px;
+  }
+  
+  .notification-bell-icon {
+    font-size: 1.3rem;
+  }
+  
+  /* Make notification badge slightly smaller on mobile */
+  .notification-badge {
+    font-size: 0.6rem;
+    min-width: 14px;
+    height: 14px;
+    padding: 0.05rem 0.3rem;
+  }
+  
+  .login-button {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+  
+  /* Simplify language switcher on mobile */
+  :global(.language-switcher) {
+    font-size: 0.8rem;
+  }
+}
+
+/* Very small mobile (< 360px) */
+@media (max-width: 360px) {
+  .page-header {
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .header-actions {
+    gap: 0.25rem;
+  }
+  
+  .search-bar,
+  .notification-bell-wrapper {
+    min-width: 32px;
+    min-height: 32px;
+  }
+  
+  .login-button {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.75rem;
+  }
+  
+  .breadcrumbs {
+    font-size: 0.75rem;
+  }
+}
+
+/* Landscape mobile optimization */
+@media (max-width: 768px) and (orientation: landscape) {
+  .page-header {
+    padding: 0.5rem 1rem;
+  }
+  
+  .breadcrumbs {
+    font-size: 0.75rem;
+  }
+}
+

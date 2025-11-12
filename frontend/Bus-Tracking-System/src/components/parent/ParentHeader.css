@@ -12,6 +12,38 @@
   z-index: 50;
 }
 
+/* Hamburger Button - Hidden on desktop, visible on mobile */
+.parent-header .hamburger-button {
+  display: none;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 30px;
+  height: 24px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 10;
+  margin-right: 1rem;
+}
+
+.parent-header .hamburger-button span {
+  width: 100%;
+  height: 3px;
+  background: #2563eb;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  transform-origin: center;
+}
+
+.parent-header .hamburger-button:hover span {
+  background: #1d4ed8;
+}
+
+.parent-header .hamburger-button:active span {
+  background: #1e40af;
+}
+
 .parent-breadcrumbs {
   font-size: 0.875rem;
   color: #6b7280;
@@ -128,21 +160,127 @@
   border: 2px solid white;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
+/* ===== RESPONSIVE STYLES ===== */
+
+/* Tablet (768px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
   .parent-header {
-    flex-direction: column;
-    gap: 1rem;
-    padding: 1rem;
+    padding: 0.875rem 1.5rem;
   }
-
-  .parent-header-right {
-    width: 100%;
-    justify-content: space-between;
-  }
-
+  
   .parent-search-bar {
-    width: 100%;
-    max-width: 200px;
+    width: 180px;
+  }
+  
+  .parent-user-info span {
+    display: none; /* Hide name on tablet */
   }
 }
+
+/* Mobile (< 768px) */
+@media (max-width: 768px) {
+  .parent-header {
+    padding: 0.75rem 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  /* Show hamburger button on mobile */
+  .parent-header .hamburger-button {
+    display: flex !important;
+    order: 1;
+  }
+  
+  .parent-breadcrumbs {
+    order: 2;
+    flex: 1;
+    font-size: 0.8rem;
+    padding-left: 10px;
+  }
+  
+  .parent-header-right {
+    order: 3;
+    gap: 0.5rem;
+    margin-left: auto;
+    width: auto;
+  }
+  
+  /* Hide search bar on mobile */
+  .parent-search-bar {
+    display: none;
+  }
+  
+  .notification-bell-wrapper {
+    padding: 6px;
+    min-width: 36px;
+    min-height: 36px;
+  }
+  
+  .notification-bell-icon {
+    font-size: 1.2rem;
+  }
+  
+  .notification-badge {
+    width: 16px;
+    height: 16px;
+    font-size: 10px;
+  }
+  
+  .parent-user-info {
+    padding: 0.4rem 0.75rem;
+  }
+  
+  .parent-user-info span {
+    display: none;
+  }
+  
+  .parent-user-info .user-icon {
+    font-size: 1.1rem;
+  }
+  
+  .parent-logout-btn {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+  }
+}
+
+/* Very small mobile (< 360px) */
+@media (max-width: 360px) {
+  .parent-header {
+    padding: 0.6rem 0.75rem;
+  }
+  
+  .parent-breadcrumbs {
+    font-size: 0.75rem;
+  }
+  
+  .parent-header-right {
+    gap: 0.4rem;
+  }
+  
+  .notification-bell-wrapper {
+    min-width: 32px;
+    min-height: 32px;
+  }
+  
+  .parent-user-info {
+    padding: 0.3rem 0.6rem;
+  }
+  
+  .parent-logout-btn {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* Landscape mobile optimization */
+@media (max-width: 768px) and (orientation: landscape) {
+  .parent-header {
+    padding: 0.6rem 1rem;
+  }
+  
+  .parent-breadcrumbs {
+    font-size: 0.75rem;
+  }
+}
+

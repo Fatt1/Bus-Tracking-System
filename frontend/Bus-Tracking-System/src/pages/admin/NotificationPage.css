@@ -152,6 +152,22 @@
   background-color: #eaf2fa; /* Màu nền xanh nhạt khi được chọn */
 }
 
+/* Unread notification style - Blue border and light blue background */
+.notification-item.unread {
+  background-color: #e3f2fd; /* Light blue background for unread */
+  border-left: 4px solid #2196f3; /* Blue left border */
+}
+
+.notification-item.unread:hover {
+  background-color: #bbdefb; /* Darker blue on hover */
+}
+
+.notification-item.unread .sender-recipient,
+.notification-item.unread .subject {
+  font-weight: 600; /* Bold text for unread */
+  color: #0d47a1; /* Darker blue text */
+}
+
 .notification-item input[type="checkbox"] {
   width: 18px;
   height: 18px;
@@ -391,44 +407,8 @@
 
 /* Kế thừa từ MultiSelectDropdown.css */
 /* Bạn có thể tùy chỉnh thêm ở đây nếu cần */
-.multi-select-dropdown .dropdown-header {
-  /* Ví dụ: Chỉnh sửa border */
-  /* border: 1px solid var(--primary-blue, #0a2e5d); */
-}
+/* .multi-select-dropdown .dropdown-header {
+  border: 1px solid var(--primary-blue, #0a2e5d);
+} */
 
-/* Bell notification icon with badge */
-.notification-bell-wrapper {
-  position: relative;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px;
-  border-radius: 50%;
-  transition: background-color 0.2s;
-}
-
-.notification-bell-wrapper:hover {
-  background-color: #f0f0f0;
-}
-
-.notification-bell-icon {
-  color: #555;
-}
-
-.notification-badge {
-  position: absolute;
-  top: 0;
-  right: 0;
-  background-color: #e74c3c;
-  color: white;
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: bold;
-  border: 2px solid white;
-}
+/* REMOVED: Bell notification styles - now handled by AdminHeader.css */
