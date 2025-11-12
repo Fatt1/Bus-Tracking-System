@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import api from "../../utils/api"; // Import api instance với withCredentials
 import "./RouteListPage.css"; // CSS riêng cho trang này
 import "../LayoutTable.css"; // Tái sử dụng CSS layout bảng
+import AdminHeader from "../../components/admin/AdminHeader"; // Import AdminHeader
 import { FaMapMarkerAlt, FaPlus, FaTimes, FaSpinner } from "react-icons/fa"; // Thêm FaSpinner
 
 // --- COMPONENT MODAL HIỂN THỊ DANH SÁCH HỌC SINH (Đã cập nhật) ---
@@ -240,17 +241,7 @@ const RouteListPage = () => {
       />
 
       <main className="main-content-area">
-        <header className="page-header">
-          <div className="breadcrumbs">{t("route.breadcrumb")}</div>
-          <div className="header-actions">
-            <input
-              type="text"
-              placeholder={t("common.search")}
-              className="search-input"
-            />
-            <button className="user-button">{t("common.login")}</button>
-          </div>
-        </header>
+        <AdminHeader breadcrumbs={t("route.breadcrumb")} />
 
         <div className="page-content">
           <div className="content-header">

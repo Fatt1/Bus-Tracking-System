@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 // Bỏ Link vì không còn dùng card nữa
 import "./BusListPage.css"; // CSS riêng cho trang này
 import "../LayoutTable.css"; // Tái sử dụng CSS layout bảng chung
+import AdminHeader from "../../components/admin/AdminHeader"; // Import AdminHeader
 import {
   FaPlus,
   FaTimes,
@@ -493,17 +494,7 @@ const BusListPage = () => {
       />
 
       <main className="main-content-area">
-        <header className="page-header">
-          <div className="breadcrumbs">{t("bus.breadcrumb")}</div>
-          <div className="header-actions">
-            <input
-              type="text"
-              placeholder={t("common.search")}
-              className="search-input"
-            />
-            <button className="user-button">{t("common.login")}</button>
-          </div>
-        </header>
+        <AdminHeader breadcrumbs={t("bus.breadcrumb")} />
 
         <div className="page-content">
           <div className="content-header">

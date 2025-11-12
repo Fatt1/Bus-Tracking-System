@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import api from "../../utils/api"; // Import api instance với token support
 import "./DriverListPage.css";
 import "../LayoutTable.css";
+import AdminHeader from "../../components/admin/AdminHeader"; // Import AdminHeader
 import {
   FaPlus,
   FaPen,
@@ -713,17 +714,7 @@ const DriverListPage = () => {
         driverName={driverToDelete?.name || ""}
       />
       <main className="main-content-area">
-        <header className="page-header">
-          <div className="breadcrumbs">{t("driver.breadcrumb")}</div>
-          <div className="header-actions">
-            <input
-              type="text"
-              placeholder={t("common.search")}
-              className="search-input"
-            />
-            <button className="user-button">{t("common.login")}</button>
-          </div>
-        </header>
+        <AdminHeader breadcrumbs={t("driver.breadcrumb")} />
 
         <div className="page-content">
           <div className="content-header">
