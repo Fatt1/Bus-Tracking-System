@@ -31,8 +31,26 @@ const ParentHeader = ({
     navigate("/parent/notifications");
   };
 
+  const handleToggleSidebar = () => {
+    // Call global function exposed by Sidebar
+    if (window.toggleParentSidebar) {
+      window.toggleParentSidebar();
+    }
+  };
+
   return (
     <header className="parent-header">
+      {/* Hamburger button for mobile */}
+      <button 
+        className="hamburger-button"
+        onClick={handleToggleSidebar}
+        aria-label="Toggle menu"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      
       <div className="parent-breadcrumbs">{breadcrumbs}</div>
       <div className="parent-header-right">
         <div

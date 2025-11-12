@@ -5,7 +5,7 @@ import { getAuthRoles, clearAuth } from "../../utils/auth";
 import api from "../../utils/api";
 import LanguageSwitcher from "../LanguageSwitcher";
 import { useNotification } from "../../context/NotificationContext"; // Import notification context
-import { FaSearch } from "react-icons/fa";
+import { FaSearch, FaBars } from "react-icons/fa";
 import { FiBell } from "react-icons/fi"; // Import bell icon
 import "./AdminHeader.css";
 
@@ -32,8 +32,26 @@ const AdminHeader = ({ breadcrumbs, showSearch = true }) => {
     }
   };
 
+  const handleToggleSidebar = () => {
+    // Call global function exposed by Sidebar
+    if (window.toggleAdminSidebar) {
+      window.toggleAdminSidebar();
+    }
+  };
+
   return (
     <header className="page-header">
+      {/* Hamburger button for mobile */}
+      <button 
+        className="hamburger-button"
+        onClick={handleToggleSidebar}
+        aria-label="Toggle menu"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      
       <div className="breadcrumbs">{breadcrumbs}</div>
       <div className="header-actions">
         {showSearch && (

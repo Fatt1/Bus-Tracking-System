@@ -9,6 +9,27 @@
   padding: 20px 10px;
   flex-shrink: 0;
   height: 100vh; /* Đảm bảo sidebar luôn cao 100% */
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+/* Overlay backdrop for mobile sidebar */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar-overlay.active {
+  display: block;
+  opacity: 1;
 }
 
 .sidebar-header {
@@ -49,3 +70,82 @@
 .sidebar-nav li a.active {
   background-color: var(--active-blue-highlight);
 }
+
+/* ===== RESPONSIVE STYLES ===== */
+
+/* Tablet: Icon-only sidebar (768px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .sidebar {
+    width: 70px;
+    padding: 20px 5px;
+  }
+  
+  .sidebar-header h3 {
+    font-size: 1rem;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    margin: 0 auto;
+  }
+  
+  .sidebar-nav li a {
+    flex-direction: column;
+    padding: 12px 5px;
+    gap: 5px;
+    font-size: 0.75rem;
+    text-align: center;
+  }
+  
+  .sidebar-nav li a svg {
+    font-size: 1.25rem;
+  }
+}
+
+/* Mobile: Overlay sidebar (< 768px) */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    left: -260px; /* Hide off-screen by default */
+    top: 0;
+    bottom: 0;
+    width: 260px;
+    z-index: var(--z-sidebar-mobile, 1000);
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+    transition: left 0.3s ease;
+  }
+  
+  .sidebar.active {
+    left: 0; /* Slide in when active */
+  }
+  
+  .sidebar-header {
+    padding: 0 20px;
+    margin-bottom: 20px;
+  }
+  
+  .sidebar-header h3 {
+    font-size: 1.3rem;
+  }
+  
+  .sidebar-nav li a {
+    padding: 14px 20px;
+    font-size: 1rem;
+  }
+}
+
+/* Landscape mode optimization for mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+  .sidebar {
+    width: 220px;
+    left: -220px;
+  }
+  
+  .sidebar.active {
+    left: 0;
+  }
+  
+  .sidebar-nav {
+    overflow-y: auto;
+    max-height: calc(100vh - 100px);
+  }
+}
+

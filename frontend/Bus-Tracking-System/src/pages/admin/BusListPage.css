@@ -237,3 +237,127 @@
 .confirm-btn.delete-confirm-btn:hover {
   background-color: #c0392b;
 }
+
+/* ===== RESPONSIVE STYLES ===== */
+
+/* No data message for mobile */
+.no-data-message {
+  text-align: center;
+  padding: 2rem;
+  color: #999;
+  font-style: italic;
+}
+
+/* Tablet (768px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .table-container table {
+    font-size: 0.9rem;
+  }
+  
+  .table-container table th,
+  .table-container table td {
+    padding: 10px 8px;
+  }
+  
+  .action-btn-student {
+    width: 32px;
+    height: 32px;
+    padding: 6px;
+  }
+  
+  .modal-content {
+    max-width: 450px;
+  }
+}
+
+/* Mobile (< 768px) */
+@media (max-width: 768px) {
+  /* Hide table on mobile */
+  .table-container {
+    display: none;
+  }
+  
+  /* Show card list */
+  .mobile-card-list {
+    display: block;
+  }
+  
+  /* Modal full width */
+  .modal-overlay {
+    align-items: flex-end;
+  }
+  
+  .modal-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 85vh;
+    overflow-y: auto;
+    border-radius: 16px 16px 0 0;
+    animation: slideUpModal 0.3s ease-out;
+  }
+  
+  @keyframes slideUpModal {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+  
+  .modal-header h3 {
+    font-size: 1.3rem;
+  }
+  
+  .modal-header h4 {
+    font-size: 1rem;
+  }
+  
+  .bus-modal-form .form-group input,
+  .bus-modal-form .form-group select {
+    font-size: 1rem;
+    padding: 14px;
+  }
+  
+  .modal-submit-btn {
+    padding: 14px 20px;
+    font-size: 1rem;
+  }
+  
+  /* Confirm delete modal */
+  .modal-content.confirm-delete {
+    max-width: 100%;
+    padding: 20px;
+  }
+  
+  .confirm-text {
+    font-size: 0.95rem;
+  }
+  
+  .confirm-btn {
+    padding: 12px 20px;
+    flex: 1;
+  }
+}
+
+/* Very small mobile (< 360px) */
+@media (max-width: 360px) {
+  .mobile-card {
+    padding: 0.75rem;
+  }
+  
+  .mobile-card-title {
+    font-size: 1rem;
+  }
+  
+  .mobile-card-label,
+  .mobile-card-value {
+    font-size: 0.85rem;
+  }
+  
+  .action-btn-student {
+    width: 36px;
+    height: 36px;
+  }
+}
+

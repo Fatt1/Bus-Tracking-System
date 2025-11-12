@@ -167,6 +167,68 @@ const BusRow = ({ bus, onEdit, onDelete, onViewDetails }) => {
   );
 };
 
+// --- COMPONENT CARD CHO MOBILE VIEW ---
+const BusCard = ({ bus, onEdit, onDelete, onViewDetails }) => {
+  const { t } = useTranslation();
+  const getStatusClass = (status) => {
+    return Number(status) === 1 ? "status-active" : "status-maintenance";
+  };
+
+  return (
+    <div className="mobile-card">
+      <div className="mobile-card-header">
+        <div className="mobile-card-title">
+          {bus.busName || `BUS-${String(bus.id).padStart(3, "0")}`}
+        </div>
+        <span className={`status-badge ${getStatusClass(bus.status)}`}>
+          {Number(bus.status) === 1 ? t("bus.active") : t("bus.maintenance")}
+        </span>
+      </div>
+      <div className="mobile-card-body">
+        <div className="mobile-card-row">
+          <span className="mobile-card-label">{t("common.stt")}:</span>
+          <span className="mobile-card-value">{bus.id}</span>
+        </div>
+        <div className="mobile-card-row">
+          <span className="mobile-card-label">{t("bus.plateNumber")}:</span>
+          <span className="mobile-card-value">{bus.plateNumber || "N/A"}</span>
+        </div>
+        <div className="mobile-card-row">
+          <span className="mobile-card-label">{t("bus.driver")}:</span>
+          <span className="mobile-card-value">{bus.driverName || t("bus.notAssigned")}</span>
+        </div>
+        <div className="mobile-card-row">
+          <span className="mobile-card-label">{t("bus.route")}:</span>
+          <span className="mobile-card-value">{bus.routeName || t("bus.notAssigned")}</span>
+        </div>
+      </div>
+      <div className="mobile-card-actions">
+        <button
+          className="action-btn-student more-btn"
+          title={t("common.detail")}
+          onClick={() => onViewDetails(bus)}
+        >
+          <FaEllipsisH />
+        </button>
+        <button
+          className="action-btn-student delete-btn"
+          title={t("common.delete")}
+          onClick={() => onDelete(bus)}
+        >
+          <FaMinusCircle />
+        </button>
+        <button
+          className="action-btn-student edit-btn"
+          title={t("common.edit")}
+          onClick={() => onEdit(bus)}
+        >
+          <FaPen />
+        </button>
+      </div>
+    </div>
+  );
+};
+
 // --- COMPONENT PHÂN TRANG (GIỮ NGUYÊN) ---
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   if (totalPages <= 1) return null;
@@ -513,7 +575,7 @@ const BusListPage = () => {
             <div className="loading-message">{t("bus.loadingData")}</div>
           ) : (
             <>
-              {/* CONTAINER BẢNG */}
+              {/* CONTAINER BẢNG - Desktop & Tablet */}
               <div className="table-container">
                 <table>
                   <thead>
@@ -531,29 +593,44 @@ const BusListPage = () => {
                     {buses && buses.length > 0 ? (
                       buses.map((bus) => (
                         <BusRow
-                          key={bus.id} // Đảm bảo key là duy nhất
+                          key={bus.id}
                           bus={bus}
                           onEdit={handleEditBus}
-                          // Thay đổi hàm gọi khi nhấn nút xóa
                           onDelete={handleOpenDeleteConfirm}
                           onViewDetails={handleViewBusDetails}
                         />
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="7">
-                          {t("bus.noData")}
-                        </td>
+                        <td colSpan="7">{t("bus.noData")}</td>
                       </tr>
                     )}
                   </tbody>
                 </table>
               </div>
+
+              {/* CARD LIST - Mobile Only */}
+              <div className="mobile-card-list">
+                {buses && buses.length > 0 ? (
+                  buses.map((bus) => (
+                    <BusCard
+                      key={bus.id}
+                      bus={bus}
+                      onEdit={handleEditBus}
+                      onDelete={handleOpenDeleteConfirm}
+                      onViewDetails={handleViewBusDetails}
+                    />
+                  ))
+                ) : (
+                  <div className="no-data-message">{t("bus.noData")}</div>
+                )}
+              </div>
+
               {/* PHÂN TRANG */}
               <Pagination
                 currentPage={currentPage}
                 totalPages={totalPages}
-                onPageChange={setCurrentPage} // Truyền trực tiếp setCurrentPage
+                onPageChange={setCurrentPage}
               />
             </>
           )}
