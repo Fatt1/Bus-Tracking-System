@@ -4,7 +4,9 @@ import { useTranslation } from "react-i18next";
 import { getAuthRoles, clearAuth } from "../../utils/auth";
 import api from "../../utils/api";
 import LanguageSwitcher from "../LanguageSwitcher";
+import { useNotification } from "../../context/NotificationContext"; // Import notification context
 import { FaSearch } from "react-icons/fa";
+import { FiBell } from "react-icons/fi"; // Import bell icon
 import "./AdminHeader.css";
 
 /**
@@ -17,6 +19,7 @@ const AdminHeader = ({ breadcrumbs, showSearch = true }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const roles = getAuthRoles();
+  const { unreadCount } = useNotification(); // Get unread count from context
 
   const handleLogout = async () => {
     try {
@@ -39,6 +42,16 @@ const AdminHeader = ({ breadcrumbs, showSearch = true }) => {
             <input type="text" placeholder={t("common.search")} />
           </div>
         )}
+        <div 
+          className="notification-bell-wrapper" 
+          onClick={() => navigate("/notification")}
+          title={t("notification.title")}
+        >
+          <FiBell size={24} className="notification-bell-icon" />
+          {unreadCount > 0 && (
+            <span className="notification-badge">{unreadCount}</span>
+          )}
+        </div>
         <LanguageSwitcher />
         {roles && roles.length > 0 ? (
           <button className="login-button" onClick={handleLogout}>

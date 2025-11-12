@@ -79,3 +79,57 @@
 .user-button:active {
   transform: translateY(1px);
 }
+
+/* Notification Bell Styles */
+.notification-bell-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+  min-width: 40px;
+  min-height: 40px;
+}
+
+.notification-bell-wrapper:hover {
+  background-color: #f5f5f5;
+}
+
+.notification-bell-icon {
+  color: #0a2e5d;
+  transition: color 0.3s ease;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.notification-bell-wrapper:hover .notification-bell-icon {
+  color: #083153;
+}
+
+.notification-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: #e74c3c;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: bold;
+  padding: 0.1rem 0.35rem;
+  border-radius: 10px;
+  min-width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  z-index: 2;
+  line-height: 1;
+}
+
+.notification-badge:empty {
+  display: none;
+}

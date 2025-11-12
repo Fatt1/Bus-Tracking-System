@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import api from "../../utils/api";
 import "./NotificationPage.css"; // CSS riêng
 import "../LayoutTable.css"; // Tái sử dụng CSS chung nếu cần (cho modal confirm)
+import AdminHeader from "../../components/admin/AdminHeader"; // Import AdminHeader
 import MultiSelectDropdown from "../MultiSelectDropdown"; // <-- 1. IMPORT COMPONENT MỚI
 import {
   FaPaperPlane,
@@ -15,7 +16,6 @@ import {
   FaUserTie,
   FaUserFriends,
 } from "react-icons/fa";
-import { FiBell } from "react-icons/fi";
 import { format } from "date-fns"; // Để format thời gian
 import { getCurrentUserId } from "../../utils/auth"; // Import để lấy userId hiện tại
 import { useNotification } from "../../context/NotificationContext"; // Import notification context
@@ -270,8 +270,8 @@ const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, count }) => {
 // --- COMPONENT CHÍNH CỦA TRANG ---
 const NotificationPage = () => {
   const { t } = useTranslation();
-  const { unreadCount, refreshUnreadCount, markAsRecentlySent } =
-    useNotification(); // Get unread count from context
+  const { refreshUnreadCount, markAsRecentlySent } =
+    useNotification(); // Get functions from context (unreadCount now in AdminHeader)
   const [activeTab, setActiveTab] = useState("sent");
   const [sentNotifications, setSentNotifications] = useState([]);
   const [inboxNotifications, setInboxNotifications] = useState([]);
@@ -288,6 +288,7 @@ const NotificationPage = () => {
   // Fetch sent and received notifications on mount
   useEffect(() => {
     fetchNotifications();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Fetch drivers and parents when modal opens
@@ -583,23 +584,7 @@ const NotificationPage = () => {
         count={itemToDelete?.count || 0}
       />
       <main className="main-content-area">
-        <header className="page-header">
-          <div className="breadcrumbs">{t("notification.breadcrumb")}</div>
-          <div className="header-actions">
-            <div className="notification-bell-wrapper">
-              <FiBell size={24} className="notification-bell-icon" />
-              {unreadCount > 0 && (
-                <span className="notification-badge">{unreadCount}</span>
-              )}
-            </div>
-            <input
-              type="text"
-              placeholder={t("notification.searchPlaceholder")}
-              className="search-input"
-            />
-            <button className="user-button">{t("common.login")}</button>
-          </div>
-        </header>
+        <AdminHeader breadcrumbs={t("notification.breadcrumb")} />
         <div className="page-content notification-page">
           <div className="content-header notification-header">
             <h2>{t("notification.title")}</h2>

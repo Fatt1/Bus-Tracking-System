@@ -391,44 +391,8 @@
 
 /* Kế thừa từ MultiSelectDropdown.css */
 /* Bạn có thể tùy chỉnh thêm ở đây nếu cần */
-.multi-select-dropdown .dropdown-header {
-  /* Ví dụ: Chỉnh sửa border */
-  /* border: 1px solid var(--primary-blue, #0a2e5d); */
-}
+/* .multi-select-dropdown .dropdown-header {
+  border: 1px solid var(--primary-blue, #0a2e5d);
+} */
 
-/* Bell notification icon with badge */
-.notification-bell-wrapper {
-  position: relative;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px;
-  border-radius: 50%;
-  transition: background-color 0.2s;
-}
-
-.notification-bell-wrapper:hover {
-  background-color: #f0f0f0;
-}
-
-.notification-bell-icon {
-  color: #555;
-}
-
-.notification-badge {
-  position: absolute;
-  top: 0;
-  right: 0;
-  background-color: #e74c3c;
-  color: white;
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: bold;
-  border: 2px solid white;
-}
+/* REMOVED: Bell notification styles - now handled by AdminHeader.css */
