@@ -322,6 +322,7 @@ const NotificationPage = () => {
               ? n.recipientUsers[0].recipientUserName
               : `${n.recipientUsers.length} người nhận`
             : "Không xác định",
+        recipientList: n.recipientUsers || [], // Save full list for modal
         subject: n.title,
         message: n.message,
         timestamp: format(new Date(n.sendAt), "dd/MM/yyyy - hh:mm a"),

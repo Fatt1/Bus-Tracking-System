@@ -84,6 +84,123 @@
   word-wrap: break-word;
 }
 
+/* Recipient List Styles */
+.recipient-list-container {
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+
+.recipient-count-toggle {
+  padding: 12px 16px;
+  background: #e3f2fd;
+  border-radius: 6px;
+  border-left: 3px solid #2196f3;
+  color: #0d47a1;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.recipient-count-toggle:hover {
+  background: #bbdefb;
+  border-left-color: #1976d2;
+  transform: translateX(2px);
+}
+
+.recipient-count-toggle:active {
+  transform: translateX(2px) scale(0.98);
+}
+
+.toggle-icon {
+  font-size: 14px;
+  color: #1976d2;
+  transition: transform 0.2s ease;
+}
+
+.recipient-list-scrollable {
+  max-height: 200px;
+  overflow-y: auto;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+  padding: 8px;
+  margin-top: 12px;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+    margin-top: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 200px;
+    margin-top: 12px;
+  }
+}
+
+.recipient-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: white;
+  border-radius: 4px;
+  margin-bottom: 6px;
+  border-left: 3px solid #0a2e5d;
+  transition: all 0.2s ease;
+}
+
+.recipient-item:last-child {
+  margin-bottom: 0;
+}
+
+.recipient-item:hover {
+  background: #e8f4f8;
+  border-left-color: #2196f3;
+  transform: translateX(2px);
+}
+
+.recipient-number {
+  font-weight: 600;
+  color: #0a2e5d;
+  min-width: 24px;
+  font-size: 13px;
+}
+
+.recipient-name {
+  color: #333;
+  font-size: 14px;
+  flex: 1;
+}
+
+/* Scrollbar for recipient list */
+.recipient-list-scrollable::-webkit-scrollbar {
+  width: 6px;
+}
+
+.recipient-list-scrollable::-webkit-scrollbar-track {
+  background: #e0e0e0;
+  border-radius: 3px;
+}
+
+.recipient-list-scrollable::-webkit-scrollbar-thumb {
+  background: #0a2e5d;
+  border-radius: 3px;
+}
+
+.recipient-list-scrollable::-webkit-scrollbar-thumb:hover {
+  background: #083153;
+}
+
 .message-content {
   white-space: pre-wrap;
   min-height: 100px;
