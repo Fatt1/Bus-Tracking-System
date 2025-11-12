@@ -125,23 +125,7 @@ body {
   gap: 15px;
 }
 
-.report-incident-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background-color: #fef2f2; /* Nền đỏ nhạt */
-  color: var(--driver-red);
-  border: 1px solid #fecaca; /* Viền đỏ nhạt */
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.report-incident-btn:hover {
-  background-color: #feebeb;
-  border-color: #fca5a5;
-}
+/* Removed .report-incident-btn styles - now using DriverHeader.css */
 
 .driver-search-input {
   padding: 8px 12px;

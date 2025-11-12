@@ -55,6 +55,14 @@
   font-weight: 600;
 }
 
+/* Vietnamese flag active - Red background with yellow text */
+.lang-btn.active[title*="Tiếng Việt"],
+.lang-btn.active[title*="Vietnamese"] {
+  background: linear-gradient(135deg, #da251d 0%, #c41e3a 100%);
+  color: #ffd700;
+  box-shadow: 0 4px 12px rgba(218, 37, 29, 0.5);
+}
+
 .lang-btn.active .flag {
   filter: grayscale(0%) brightness(1.1);
 }

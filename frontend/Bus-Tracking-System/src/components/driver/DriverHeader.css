@@ -27,9 +27,9 @@
   background-color: #fef2f2;
   color: var(--driver-red);
   border: 1px solid #fecaca;
-  padding: 8px 12px;
+  padding: 18px 22px;
   border-radius: 6px;
-  font-weight: 500;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
 }
