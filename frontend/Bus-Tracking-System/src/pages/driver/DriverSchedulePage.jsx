@@ -117,6 +117,60 @@ const DriverSchedulePage = () => {
     return scheduleData.filter((s) => s.scheduleDate === dateString);
   };
 
+  // Mobile Day Card Component
+  const DayScheduleCard = ({ day }) => {
+    const schedulesForDay = getScheduleForDay(day);
+    const morningSchedule = schedulesForDay.find((s) => s.pickupTime);
+    const afternoonSchedule = schedulesForDay.find((s) => s.dropOffTime);
+
+    return (
+      <div className="day-schedule-card">
+        <div className="day-schedule-header">
+          <h4>
+            {format(day, "EEEE", {
+              locale: i18n.language === "vi" ? vi : enUS,
+            })}
+          </h4>
+          <span className="day-date">{format(day, "dd/MM/yyyy")}</span>
+        </div>
+        <div className="day-schedule-body">
+          {/* Morning trip */}
+          <div className={`trip-row ${morningSchedule ? "active" : "inactive"}`}>
+            <div className="trip-label trip-am-label">
+              {t("driverApp.schedule.dropOff")}
+            </div>
+            {morningSchedule ? (
+              <div className="trip-details">
+                <span className="trip-route">{morningSchedule.routeName}</span>
+                <time className="trip-time">
+                  {morningSchedule.pickupTime.substring(0, 5)}
+                </time>
+              </div>
+            ) : (
+              <span className="trip-empty">—</span>
+            )}
+          </div>
+          {/* Afternoon trip */}
+          <div className={`trip-row ${afternoonSchedule ? "active" : "inactive"}`}>
+            <div className="trip-label trip-pm-label">
+              {t("driverApp.schedule.pickUp")}
+            </div>
+            {afternoonSchedule ? (
+              <div className="trip-details">
+                <span className="trip-route">{afternoonSchedule.routeName}</span>
+                <time className="trip-time">
+                  {afternoonSchedule.dropOffTime.substring(0, 5)}
+                </time>
+              </div>
+            ) : (
+              <span className="trip-empty">—</span>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="driver-page-container">
       <ReportIncidentModal
@@ -175,92 +229,101 @@ const DriverSchedulePage = () => {
             </div>
           )}
 
-          {/* Bảng Lịch trình */}
+          {/* Bảng Lịch trình - Desktop */}
           {!isLoading && !error && (
-            <div className="schedule-table-container">
-              <table className="schedule-table-driver">
-                <thead>
-                  <tr>
-                    <th>{t("driverApp.schedule.trip")}</th>
-                    {daysInWeek.map((day) => (
-                      <th key={day.toISOString()}>
-                        {format(day, "EEEE", {
-                          locale: i18n.language === "vi" ? vi : enUS,
-                        })}{" "}
-                        {/* Thứ */}
-                        <div>{format(day, "dd/MM")}</div> {/* Ngày */}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {/* Hàng Chuyến đi (Sáng - pickupTime) */}
-                  <tr>
-                    <td className="trip-type-header">
-                      {t("driverApp.schedule.dropOff")}
-                    </td>
-                    {daysInWeek.map((day) => {
-                      const schedulesForDay = getScheduleForDay(day);
-                      // Lấy schedule có pickupTime (chuyến sáng)
-                      const morningSchedule = schedulesForDay.find(
-                        (s) => s.pickupTime
-                      );
-                      return (
-                        <td
-                          key={`${day.toISOString()}-morning`}
-                          className={`trip-cell ${
-                            morningSchedule ? "active" : "inactive"
-                          }`}
-                        >
-                          {morningSchedule ? (
-                            <div className="trip-info trip-am">
-                              <span>{morningSchedule.routeName}</span>
-                              <time>
-                                {morningSchedule.pickupTime.substring(0, 5)}
-                              </time>
-                            </div>
-                          ) : (
-                            "—"
-                          )}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                  {/* Hàng Chuyến về (Chiều - dropOffTime) */}
-                  <tr>
-                    <td className="trip-type-header">
-                      {t("driverApp.schedule.pickUp")}
-                    </td>
-                    {daysInWeek.map((day) => {
-                      const schedulesForDay = getScheduleForDay(day);
-                      // Lấy schedule có dropOffTime (chuyến chiều)
-                      const afternoonSchedule = schedulesForDay.find(
-                        (s) => s.dropOffTime
-                      );
-                      return (
-                        <td
-                          key={`${day.toISOString()}-afternoon`}
-                          className={`trip-cell ${
-                            afternoonSchedule ? "active" : "inactive"
-                          }`}
-                        >
-                          {afternoonSchedule ? (
-                            <div className="trip-info trip-pm">
-                              <span>{afternoonSchedule.routeName}</span>
-                              <time>
-                                {afternoonSchedule.dropOffTime.substring(0, 5)}
-                              </time>
-                            </div>
-                          ) : (
-                            "—"
-                          )}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+            <>
+              <div className="schedule-table-container">
+                <table className="schedule-table-driver">
+                  <thead>
+                    <tr>
+                      <th>{t("driverApp.schedule.trip")}</th>
+                      {daysInWeek.map((day) => (
+                        <th key={day.toISOString()}>
+                          {format(day, "EEEE", {
+                            locale: i18n.language === "vi" ? vi : enUS,
+                          })}{" "}
+                          {/* Thứ */}
+                          <div>{format(day, "dd/MM")}</div> {/* Ngày */}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {/* Hàng Chuyến đi (Sáng - pickupTime) */}
+                    <tr>
+                      <td className="trip-type-header">
+                        {t("driverApp.schedule.dropOff")}
+                      </td>
+                      {daysInWeek.map((day) => {
+                        const schedulesForDay = getScheduleForDay(day);
+                        // Lấy schedule có pickupTime (chuyến sáng)
+                        const morningSchedule = schedulesForDay.find(
+                          (s) => s.pickupTime
+                        );
+                        return (
+                          <td
+                            key={`${day.toISOString()}-morning`}
+                            className={`trip-cell ${
+                              morningSchedule ? "active" : "inactive"
+                            }`}
+                          >
+                            {morningSchedule ? (
+                              <div className="trip-info trip-am">
+                                <span>{morningSchedule.routeName}</span>
+                                <time>
+                                  {morningSchedule.pickupTime.substring(0, 5)}
+                                </time>
+                              </div>
+                            ) : (
+                              "—"
+                            )}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                    {/* Hàng Chuyến về (Chiều - dropOffTime) */}
+                    <tr>
+                      <td className="trip-type-header">
+                        {t("driverApp.schedule.pickUp")}
+                      </td>
+                      {daysInWeek.map((day) => {
+                        const schedulesForDay = getScheduleForDay(day);
+                        // Lấy schedule có dropOffTime (chuyến chiều)
+                        const afternoonSchedule = schedulesForDay.find(
+                          (s) => s.dropOffTime
+                        );
+                        return (
+                          <td
+                            key={`${day.toISOString()}-afternoon`}
+                            className={`trip-cell ${
+                              afternoonSchedule ? "active" : "inactive"
+                            }`}
+                          >
+                            {afternoonSchedule ? (
+                              <div className="trip-info trip-pm">
+                                <span>{afternoonSchedule.routeName}</span>
+                                <time>
+                                  {afternoonSchedule.dropOffTime.substring(0, 5)}
+                                </time>
+                              </div>
+                            ) : (
+                              "—"
+                            )}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Card View */}
+              <div className="schedule-mobile-list">
+                {daysInWeek.map((day) => (
+                  <DayScheduleCard key={day.toISOString()} day={day} />
+                ))}
+              </div>
+            </>
           )}
         </main>
       </div>
