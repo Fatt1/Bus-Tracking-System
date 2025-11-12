@@ -211,8 +211,8 @@ const DriverNotificationPage = () => {
       // Parse notification ID to get the actual ID
       const id = parseInt(notificationId);
       
-      // Call backend API to mark as read
-      await api.put(`/api/v1/notificaton/receive/${id}/mark-as-read`);
+      // Call backend API GET endpoint which auto marks as read
+      await api.get(`/api/v1/notificaton/receive/${id}`);
 
       // Update local state
       setInboxNotifications((prev) =>

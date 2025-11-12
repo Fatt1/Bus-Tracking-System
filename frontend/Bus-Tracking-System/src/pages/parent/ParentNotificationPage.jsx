@@ -90,8 +90,8 @@ const ParentNotificationPage = () => {
   // Handle mark as read for parent (simpler - just update local state)
   const handleMarkAsRead = async (notificationId) => {
     try {
-      // Call backend API to mark as read
-      await api.put(`/api/v1/notificaton/receive/${notificationId}/mark-as-read`);
+      // Call backend API GET endpoint which auto marks as read
+      await api.get(`/api/v1/notificaton/receive/${notificationId}`);
 
       // Update local state
       setNotifications((prev) =>

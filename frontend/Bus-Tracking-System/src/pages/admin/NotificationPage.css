@@ -152,6 +152,22 @@
   background-color: #eaf2fa; /* Màu nền xanh nhạt khi được chọn */
 }
 
+/* Unread notification style - Blue border and light blue background */
+.notification-item.unread {
+  background-color: #e3f2fd; /* Light blue background for unread */
+  border-left: 4px solid #2196f3; /* Blue left border */
+}
+
+.notification-item.unread:hover {
+  background-color: #bbdefb; /* Darker blue on hover */
+}
+
+.notification-item.unread .sender-recipient,
+.notification-item.unread .subject {
+  font-weight: 600; /* Bold text for unread */
+  color: #0d47a1; /* Darker blue text */
+}
+
 .notification-item input[type="checkbox"] {
   width: 18px;
   height: 18px;

@@ -582,8 +582,8 @@ const NotificationPage = () => {
 
       const id = parseInt(parts[1]);
       
-      // Call backend API to mark as read
-      await api.put(`/api/v1/notificaton/receive/${id}/mark-as-read`);
+      // Call backend API GET endpoint which auto marks as read
+      await api.get(`/api/v1/notificaton/receive/${id}`);
 
       // Update local state
       setInboxNotifications((prev) =>
@@ -711,6 +711,8 @@ const NotificationPage = () => {
                     key={noti.id}
                     className={`notification-item ${
                       selectedIds.has(noti.id) ? "selected" : ""
+                    } ${
+                      activeTab === "inbox" && !noti.isRead ? "unread" : ""
                     }`}
                   >
                     <input

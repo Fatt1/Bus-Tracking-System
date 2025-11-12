@@ -211,10 +211,21 @@
   border-bottom: none;
 }
 .notification-item.unread {
-  background-color: #e3f2fd; /* Màu xanh nhạt cho unread */
-  border-left: 4px solid var(--driver-accent-color);
+  background-color: #e3f2fd; /* Light blue background for unread */
+  border-left: 4px solid #2196f3; /* Blue left border */
   font-weight: 500;
 }
+
+.notification-item.unread:hover {
+  background-color: #bbdefb; /* Darker blue on hover */
+}
+
+.notification-item.unread .sender-recipient,
+.notification-item.unread .subject {
+  font-weight: 600; /* Bold text for unread */
+  color: #0d47a1; /* Darker blue text */
+}
+
 .notification-item:hover {
   background-color: var(--driver-gray-light);
 }
