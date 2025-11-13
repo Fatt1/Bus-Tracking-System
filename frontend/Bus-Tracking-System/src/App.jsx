@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
 import axios from "axios";
 import React from "react";
+import { API_BASE_URL } from "./config/apiConfig";
 
 // Admin Pages
 import DashboardPage from "./pages/admin/DashboardPage";
@@ -57,7 +58,7 @@ function App() {
 
   const loadCart = async () => {
     const response = await axios.get(
-      "https://localhost:7229/api/v1/bus/dropdown"
+      `${API_BASE_URL}/bus/dropdown`
     );
     console.log(response);
   };

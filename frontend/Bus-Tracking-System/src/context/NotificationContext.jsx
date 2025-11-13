@@ -9,6 +9,7 @@ import React, {
 import * as signalR from "@microsoft/signalr";
 import { getAuthToken, getCurrentUserId } from "../utils/auth";
 import axios from "axios";
+import { API_BASE_URL, NOTIFICATION_HUB_URL } from "../config/apiConfig"; // THÊM: Import config
 
 const NotificationContext = createContext();
 
@@ -23,9 +24,12 @@ export const useNotification = () => {
 // Helper to create axios instance
 const createAPI = () =>
   axios.create({
-    baseURL: "https://localhost:7229/api/v1",
+    baseURL: API_BASE_URL,
     withCredentials: true,
-    headers: { "Content-Type": "application/json" },
+    headers: { 
+      "Content-Type": "application/json",
+      "ngrok-skip-browser-warning": "true"  // ✅ Bypass ngrok warning
+    },
   });
 
 export const NotificationProvider = ({ children }) => {
@@ -97,7 +101,7 @@ export const NotificationProvider = ({ children }) => {
     console.log("🔌 Setting up SignalR connection...");
 
     const connection = new signalR.HubConnectionBuilder()
-      .withUrl("https://localhost:7229/notificationHub", {
+      .withUrl(NOTIFICATION_HUB_URL, {
         accessTokenFactory: () => token,
       })
       .withAutomaticReconnect({
