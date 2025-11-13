@@ -54,6 +54,13 @@ const DashboardPage = () => {
   const routesPerPage = 5;
   const totalRoutes = allRoutes.length;
 
+  // Toggle sidebar function for hamburger button
+  const handleToggleSidebar = () => {
+    if (window.toggleAdminSidebar) {
+      window.toggleAdminSidebar();
+    }
+  };
+
   // Fetch tất cả routes khi component mount
   useEffect(() => {
     const getRoutes = async () => {
@@ -132,6 +139,17 @@ const DashboardPage = () => {
     <main className="main-content">
       <div className="main-content-top-wrapper">
         <header className="main-header">
+          {/* Hamburger button for mobile */}
+          <button 
+            className="hamburger-button"
+            onClick={handleToggleSidebar}
+            aria-label="Toggle menu"
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+          
           <div className="breadcrumbs">
             <span>{t("common.page")}</span> / <span>{t("common.home")}</span>
           </div>

@@ -171,3 +171,158 @@
   pointer-events: none;
   opacity: 0.6;
 }
+
+/* ===== MOBILE STUDENT LIST ===== */
+
+/* Hide mobile list on desktop */
+.driver-mobile-student-list {
+  display: none;
+}
+
+/* Mobile Student Cards */
+.driver-mobile-student-card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--driver-border-color);
+}
+
+.driver-mobile-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--driver-border-color);
+  margin-bottom: 12px;
+}
+
+.student-number {
+  background: var(--driver-primary-blue);
+  color: white;
+  font-weight: 700;
+  font-size: 1rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.student-main-info {
+  flex: 1;
+}
+
+.student-main-info h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--driver-text-primary);
+  font-weight: 700;
+}
+
+.student-class {
+  font-size: 0.85rem;
+  color: var(--driver-text-secondary);
+  background: #e3f2fd;
+  padding: 2px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-top: 4px;
+}
+
+.driver-mobile-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.info-row.status-row {
+  border-top: 1px solid var(--driver-border-color);
+  padding-top: 12px;
+  margin-top: 4px;
+}
+
+.info-label {
+  font-size: 0.85rem;
+  color: var(--driver-text-secondary);
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.info-value {
+  font-size: 0.9rem;
+  color: var(--driver-text-primary);
+  font-weight: 600;
+  text-align: right;
+}
+
+/* ===== RESPONSIVE STYLES ===== */
+
+/* Mobile (< 768px) */
+@media (max-width: 768px) {
+  /* Hide desktop table */
+  .student-table-container {
+    display: none !important;
+  }
+  
+  /* Show mobile card list */
+  .driver-mobile-student-list {
+    display: block;
+    padding: 0 15px;
+  }
+  
+  .student-attendance-page {
+    padding: 15px;
+  }
+  
+  .student-list-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+  }
+  
+  .date-picker-group {
+    justify-content: center;
+  }
+  
+  .student-list-tabs {
+    width: 100%;
+    justify-content: space-around;
+  }
+  
+  .student-list-tabs button {
+    flex: 1;
+    font-size: 0.9rem;
+    padding: 10px;
+  }
+  
+  .complete-trip-btn {
+    width: 100%;
+    font-size: 0.95rem;
+  }
+}
+
+/* Landscape mobile optimization */
+@media (max-width: 768px) and (orientation: landscape) {
+  .driver-mobile-student-card {
+    padding: 12px;
+  }
+  
+  .driver-mobile-card-header {
+    padding-bottom: 8px;
+  }
+  
+  .info-row {
+    padding: 6px 0;
+  }
+}

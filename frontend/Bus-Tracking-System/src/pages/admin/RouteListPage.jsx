@@ -4,7 +4,7 @@ import api from "../../utils/api"; // Import api instance với withCredentials
 import "./RouteListPage.css"; // CSS riêng cho trang này
 import "../LayoutTable.css"; // Tái sử dụng CSS layout bảng
 import AdminHeader from "../../components/admin/AdminHeader"; // Import AdminHeader
-import { FaMapMarkerAlt, FaPlus, FaTimes, FaSpinner } from "react-icons/fa"; // Thêm FaSpinner
+import { FaMapMarkerAlt, FaPlus, FaTimes, FaSpinner, FaEye } from "react-icons/fa"; // Thêm FaEye
 
 // --- COMPONENT MODAL HIỂN THỊ DANH SÁCH HỌC SINH (Đã cập nhật) ---
 const StudentListModal = ({
@@ -136,6 +136,53 @@ const RouteRow = ({ route, onViewStudents }) => {
   );
 };
 
+// --- MOBILE CARD COMPONENT ---
+const RouteCard = ({ route, onViewStudents }) => {
+  const { t } = useTranslation();
+
+  const formatStopPoints = (stopPoints) => {
+    if (!Array.isArray(stopPoints) || stopPoints.length === 0) {
+      return t("route.noStopPoints");
+    }
+    return stopPoints
+      .sort((a, b) => a.sequenceOrder - b.sequenceOrder)
+      .map((point) => point.pointName)
+      .join(" → ");
+  };
+
+  return (
+    <div className="mobile-card">
+      <div className="mobile-card-header">
+        <h3>{route.routeName}</h3>
+        <span className="mobile-card-id">#{route.id}</span>
+      </div>
+      <div className="mobile-card-body">
+        <div className="mobile-card-row">
+          <span className="mobile-card-label">{t("route.stopPoints")}:</span>
+          <span className="mobile-card-value">{formatStopPoints(route.stopPoints)}</span>
+        </div>
+        <div className="mobile-card-row">
+          <span className="mobile-card-label">{t("route.studentCount")}:</span>
+          <span className="mobile-card-value">{route.studentCounts ?? 0}</span>
+        </div>
+      </div>
+      <div className="mobile-card-actions">
+        {(route.studentCounts ?? 0) > 0 && (
+          <button
+            className="mobile-action-btn view-btn"
+            onClick={() => onViewStudents(route)}
+          >
+            <FaEye /> {t("route.viewList")}
+          </button>
+        )}
+        <button className="mobile-action-btn map-btn" title={t("route.viewMap")}>
+          <FaMapMarkerAlt /> {t("route.viewMap")}
+        </button>
+      </div>
+    </div>
+  );
+};
+
 // Component chính của trang (Đã cập nhật state và logic)
 const RouteListPage = () => {
   const { t } = useTranslation();
@@ -260,36 +307,54 @@ const RouteListPage = () => {
           {isLoading ? (
             <div className="loading-message">{t("route.loadingRoutes")}</div>
           ) : (
-            <div className="table-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>{t("common.stt")}</th>
-                    <th>{t("route.routeName")}</th>
-                    <th>{t("route.stopPoints")}</th>
-                    <th>{t("route.studentCount")}</th>
-                    <th>{t("route.map")}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {routes.length > 0 ? (
-                    routes.map((route) => (
-                      <RouteRow
-                        key={route.id}
-                        route={route}
-                        onViewStudents={handleViewStudents}
-                      />
-                    ))
-                  ) : (
+            <>
+              {/* Desktop Table View */}
+              <div className="table-container">
+                <table>
+                  <thead>
                     <tr>
-                      <td colSpan="5" style={{ textAlign: "center" }}>
-                        {t("route.noData")}
-                      </td>
+                      <th>{t("common.stt")}</th>
+                      <th>{t("route.routeName")}</th>
+                      <th>{t("route.stopPoints")}</th>
+                      <th>{t("route.studentCount")}</th>
+                      <th>{t("route.map")}</th>
                     </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {routes.length > 0 ? (
+                      routes.map((route) => (
+                        <RouteRow
+                          key={route.id}
+                          route={route}
+                          onViewStudents={handleViewStudents}
+                        />
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="5" style={{ textAlign: "center" }}>
+                          {t("route.noData")}
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Card View */}
+              <div className="mobile-card-list">
+                {routes.length > 0 ? (
+                  routes.map((route) => (
+                    <RouteCard
+                      key={route.id}
+                      route={route}
+                      onViewStudents={handleViewStudents}
+                    />
+                  ))
+                ) : (
+                  <div className="no-data-message">{t("route.noData")}</div>
+                )}
+              </div>
+            </>
           )}
           {/* Không cần Pagination nữa */}
         </div>

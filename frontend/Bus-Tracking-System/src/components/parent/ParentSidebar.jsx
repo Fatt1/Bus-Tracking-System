@@ -47,7 +47,7 @@ const ParentSidebar = () => {
     <>
       {/* Overlay for mobile */}
       <div 
-        className={`sidebar-overlay ${isOpen ? 'active' : ''}`}
+        className={`parent-sidebar-overlay ${isOpen ? 'active' : ''}`}
         onClick={() => setIsOpen(false)}
       />
       

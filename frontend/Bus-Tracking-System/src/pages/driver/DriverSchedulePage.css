@@ -227,3 +227,161 @@
 .trip-info.trip-pm span {
   color: #b45309;
 }
+
+/* ===== MOBILE SCHEDULE VIEW ===== */
+
+/* Hide mobile list on desktop */
+.schedule-mobile-list {
+  display: none;
+}
+
+/* Mobile Day Schedule Cards */
+.day-schedule-card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--driver-border-color);
+}
+
+.day-schedule-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--driver-border-color);
+  margin-bottom: 12px;
+}
+
+.day-schedule-header h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--driver-primary-blue);
+  font-weight: 700;
+}
+
+.day-date {
+  font-size: 0.9rem;
+  color: var(--driver-text-secondary);
+  font-weight: 500;
+}
+
+.day-schedule-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.trip-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+}
+
+.trip-row.active {
+  background-color: #e8f5e9;
+  border: 1px solid #a5d6a7;
+}
+
+.trip-row.inactive {
+  background-color: #f5f5f5;
+  border: 1px dashed #ccc;
+}
+
+.trip-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 4px;
+  min-width: 80px;
+  text-align: center;
+}
+
+.trip-am-label {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.trip-pm-label {
+  background-color: #fff3e0;
+  color: #f57c00;
+}
+
+.trip-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: right;
+}
+
+.trip-route {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--driver-text-primary);
+}
+
+.trip-time {
+  font-size: 0.9rem;
+  color: var(--driver-text-secondary);
+}
+
+.trip-empty {
+  color: #999;
+  font-size: 1.2rem;
+}
+
+/* ===== RESPONSIVE STYLES ===== */
+
+/* Mobile (< 768px) */
+@media (max-width: 768px) {
+  /* Hide desktop table view */
+  .schedule-table-container {
+    display: none !important;
+  }
+  
+  /* Show mobile card view */
+  .schedule-mobile-list {
+    display: block;
+    padding: 0 15px;
+  }
+  
+  .week-selector {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .week-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+  
+  .week-number,
+  .month-year {
+    font-size: 0.9rem;
+  }
+  
+  .arrow-btn {
+    padding: 8px;
+    min-width: 40px;
+  }
+}
+
+/* Landscape mobile optimization */
+@media (max-width: 768px) and (orientation: landscape) {
+  .day-schedule-card {
+    padding: 12px;
+  }
+  
+  .day-schedule-header h4 {
+    font-size: 1rem;
+  }
+  
+  .trip-row {
+    padding: 10px;
+  }
+}

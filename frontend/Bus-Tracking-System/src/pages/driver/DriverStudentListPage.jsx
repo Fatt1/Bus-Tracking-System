@@ -139,6 +139,46 @@ const CustomStatusDropdown = ({
   );
 };
 
+// --- MOBILE STUDENT CARD COMPONENT ---
+const StudentCard = ({ student, index, statusOptions, onStatusChange, disabled }) => {
+  const { t } = useTranslation();
+  
+  return (
+    <div className="driver-mobile-student-card">
+      <div className="driver-mobile-card-header">
+        <div className="student-number">#{index + 1}</div>
+        <div className="student-main-info">
+          <h4>{student.name}</h4>
+          <span className="student-class">{student.class}</span>
+        </div>
+      </div>
+      <div className="driver-mobile-card-body">
+        <div className="info-row">
+          <span className="info-label">{t("driverApp.students.pickupPoint")}:</span>
+          <span className="info-value">{student.pickupPoint}</span>
+        </div>
+        <div className="info-row">
+          <span className="info-label">{t("driverApp.students.parent")}:</span>
+          <span className="info-value">{student.parentName}</span>
+        </div>
+        <div className="info-row">
+          <span className="info-label">{t("driverApp.students.parentPhone")}:</span>
+          <span className="info-value">{student.parentPhone}</span>
+        </div>
+        <div className="info-row status-row">
+          <span className="info-label">{t("driverApp.students.status")}:</span>
+          <CustomStatusDropdown
+            options={statusOptions}
+            selectedValue={student.status}
+            onChange={(newStatus) => onStatusChange(student.id, newStatus)}
+            disabled={disabled}
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // --- COMPONENT CHÍNH TRANG ĐIỂM DANH ---
 const DriverStudentListPage = () => {
   const { t } = useTranslation();
@@ -519,7 +559,7 @@ const DriverStudentListPage = () => {
                   </button>
                 </div>
 
-                {/* Bảng danh sách học sinh */}
+                {/* Bảng danh sách học sinh - Desktop */}
                 <div className="student-table-container">
                   <table className="student-attendance-table">
                     <thead>
@@ -560,6 +600,24 @@ const DriverStudentListPage = () => {
                       ))}
                     </tbody>
                   </table>
+                </div>
+
+                {/* Mobile Card List */}
+                <div className="driver-mobile-student-list">
+                  {currentStudentList.map((student, index) => (
+                    <StudentCard
+                      key={student.id}
+                      student={student}
+                      index={index}
+                      statusOptions={
+                        activeTab === "pickup"
+                          ? statusOptionsForPickup
+                          : statusOptionsForReturn
+                      }
+                      onStatusChange={handleStatusChange}
+                      disabled={!isTabEditable(activeTab)}
+                    />
+                  ))}
                 </div>
               </>
             )}

@@ -608,6 +608,60 @@ const StudentRow = ({ student, onEdit, onDelete, onView }) => (
   </tr>
 );
 
+// --- MOBILE CARD COMPONENT ---
+const StudentCard = ({ student, onEdit, onDelete, onView }) => {
+  const { t } = useTranslation();
+  return (
+    <div className="mobile-card">
+      <div className="mobile-card-header">
+        <h3>{student.fullName || "N/A"}</h3>
+        <span className="mobile-card-id">#{student.id}</span>
+      </div>
+      <div className="mobile-card-body">
+        <div className="mobile-card-row">
+          <span className="mobile-card-label">{t("student.class")}:</span>
+          <span className="mobile-card-value">{student.class || "N/A"}</span>
+        </div>
+        <div className="mobile-card-row">
+          <span className="mobile-card-label">{t("common.address")}:</span>
+          <span className="mobile-card-value">{student.address || "N/A"}</span>
+        </div>
+        <div className="mobile-card-row">
+          <span className="mobile-card-label">{t("student.parentName")}:</span>
+          <span className="mobile-card-value">{student.parentName || "N/A"}</span>
+        </div>
+        <div className="mobile-card-row">
+          <span className="mobile-card-label">{t("student.parentPhone")}:</span>
+          <span className="mobile-card-value">{student.parentPhoneNumber || "N/A"}</span>
+        </div>
+      </div>
+      <div className="mobile-card-actions">
+        <button
+          className="mobile-action-btn view-btn"
+          onClick={() => onView(student)}
+          title={t("student.viewDetail")}
+        >
+          <FaEllipsisH /> {t("common.view")}
+        </button>
+        <button
+          className="mobile-action-btn edit-btn"
+          onClick={() => onEdit(student)}
+          title={t("common.edit")}
+        >
+          <FaPen /> {t("common.edit")}
+        </button>
+        <button
+          className="mobile-action-btn delete-btn"
+          onClick={() => onDelete(student)}
+          title={t("common.delete")}
+        >
+          <FaMinusCircle /> {t("common.delete")}
+        </button>
+      </div>
+    </div>
+  );
+};
+
 // --- COMPONENT PHÂN TRANG (Tái sử dụng) ---
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   // ... Giữ nguyên ...
@@ -842,6 +896,7 @@ const StudentListPage = () => {
             <div className="loading-message">{t("common.loading")}</div>
           ) : (
             <>
+              {/* Desktop Table View */}
               <div className="table-container">
                 <table>
                   <thead>
@@ -876,6 +931,24 @@ const StudentListPage = () => {
                   </tbody>
                 </table>
               </div>
+
+              {/* Mobile Card View */}
+              <div className="mobile-card-list">
+                {students.length > 0 ? (
+                  students.map((student) => (
+                    <StudentCard
+                      key={student.id}
+                      student={student}
+                      onEdit={handleOpenEditModal}
+                      onDelete={handleOpenDeleteConfirm}
+                      onView={handleOpenViewModal}
+                    />
+                  ))
+                ) : (
+                  <div className="no-data-message">{t("student.noData")}</div>
+                )}
+              </div>
+
               <Pagination
                 currentPage={currentPage}
                 totalPages={totalPages}

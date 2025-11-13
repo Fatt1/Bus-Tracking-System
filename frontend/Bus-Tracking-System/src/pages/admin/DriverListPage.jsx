@@ -478,6 +478,87 @@ const DriverRow = ({ driver, onView, onEdit, onDelete }) => {
   );
 };
 
+// --- MOBILE CARD COMPONENT ---
+const DriverCard = ({ driver, onView, onEdit, onDelete }) => {
+  const { t } = useTranslation();
+  
+  const getStatusText = (status) => {
+    switch (status) {
+      case 1:
+        return t("driver.statusWorking");
+      case 2:
+        return t("driver.statusAbsent");
+      case 3:
+        return t("driver.statusSuspended");
+      default:
+        return t("driver.statusUnknown");
+    }
+  };
+
+  const getStatusClass = (status) => {
+    switch (status) {
+      case 1:
+        return "status-working";
+      case 2:
+        return "status-absent";
+      case 3:
+        return "status-suspended";
+      default:
+        return "";
+    }
+  };
+
+  return (
+    <div className="mobile-card">
+      <div className="mobile-card-header">
+        <h3>{driver.fullName || "N/A"}</h3>
+        <span className="mobile-card-id">#{driver.id}</span>
+      </div>
+      <div className="mobile-card-body">
+        <div className="mobile-card-row">
+          <span className="mobile-card-label">{t("common.phone")}:</span>
+          <span className="mobile-card-value">{driver.phoneNumber || "N/A"}</span>
+        </div>
+        <div className="mobile-card-row">
+          <span className="mobile-card-label">{t("common.status")}:</span>
+          <span className={`mobile-card-value ${getStatusClass(driver.status)}`}>
+            {getStatusText(driver.status)}
+          </span>
+        </div>
+        <div className="mobile-card-row">
+          <span className="mobile-card-label">{t("driver.route")}:</span>
+          <span className="mobile-card-value">
+            {driver.assignmentRouteName || t("driver.notAssigned")}
+          </span>
+        </div>
+      </div>
+      <div className="mobile-card-actions">
+        <button
+          className="mobile-action-btn view-btn"
+          onClick={() => onView(driver.id)}
+          title={t("driver.viewInfo")}
+        >
+          <FaFileAlt /> {t("common.view")}
+        </button>
+        <button
+          className="mobile-action-btn edit-btn"
+          onClick={() => onEdit(driver.id)}
+          title={t("common.edit")}
+        >
+          <FaPen /> {t("common.edit")}
+        </button>
+        <button
+          className="mobile-action-btn delete-btn"
+          onClick={() => onDelete({ id: driver.id, name: driver.fullName })}
+          title={t("common.delete")}
+        >
+          <FaMinusCircle /> {t("common.delete")}
+        </button>
+      </div>
+    </div>
+  );
+};
+
 // --- COMPONENT PHÂN TRANG (GIỮ NGUYÊN) ---
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   // ... Giữ nguyên ...
@@ -733,6 +814,7 @@ const DriverListPage = () => {
             <div className="loading-message">{t("driver.loadingInfo")}</div>
           ) : (
             <>
+              {/* Desktop Table View */}
               <div className="table-container">
                 <table>
                   <thead>
@@ -767,6 +849,24 @@ const DriverListPage = () => {
                   </tbody>
                 </table>
               </div>
+
+              {/* Mobile Card View */}
+              <div className="mobile-card-list">
+                {drivers.length > 0 ? (
+                  drivers.map((driver) => (
+                    <DriverCard
+                      key={driver.id}
+                      driver={driver}
+                      onView={handleOpenViewModal}
+                      onEdit={handleOpenEditModal}
+                      onDelete={handleOpenDeleteConfirm}
+                    />
+                  ))
+                ) : (
+                  <div className="no-data-message">{t("driver.noData")}</div>
+                )}
+              </div>
+
               <Pagination
                 currentPage={currentPage}
                 totalPages={totalPages}
