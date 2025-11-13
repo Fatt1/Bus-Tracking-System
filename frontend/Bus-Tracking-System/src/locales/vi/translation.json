@@ -218,7 +218,10 @@
     "loadingData": "Đang tải dữ liệu...",
     "noData": "Không có dữ liệu.",
     "loadingSchedules": "Đang tải lịch trình...",
-    "noSchedules": "Không có lịch trình."
+    "noSchedules": "Không có lịch trình.",
+    "checkingStatus": "Đang kiểm tra...",
+    "cannotDeleteCompleted": "Không thể xóa lịch trình đã hoàn thành. Lịch trình này đã có lịch sử chuyến đi cho cả hai chiều.",
+    "error": "Lỗi"
   },
   "scheduleHistory": {
     "title": "Lịch sử chuyến đi",

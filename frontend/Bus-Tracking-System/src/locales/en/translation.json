@@ -211,7 +211,10 @@
     "saturday": "Saturday",
     "sunday": "Sunday",
     "loadingSchedules": "Loading schedules...",
-    "noSchedules": "No schedules."
+    "noSchedules": "No schedules.",
+    "checkingStatus": "Checking status...",
+    "cannotDeleteCompleted": "Cannot delete completed schedule. This schedule has trip history for both directions.",
+    "error": "Error"
   },
   "scheduleHistory": {
     "title": "Trip History",

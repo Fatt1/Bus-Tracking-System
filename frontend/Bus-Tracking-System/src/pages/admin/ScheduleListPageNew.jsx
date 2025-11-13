@@ -32,6 +32,7 @@ import { vi, enUS } from "date-fns/locale"; // Import Vietnamese and English loc
 // --- Import api instance từ utils ---
 import api from "../../utils/api";
 import AdminHeader from "../../components/admin/AdminHeader"; // Import AdminHeader
+import ConfirmModal from "../../components/driver/ConfirmModal"; // ✅ THÊM MODAL
 
 // --- COMPONENT MODAL XEM/XÓA/CHỈNH SỬA LỊCH TRÌNH ---
 const ScheduleDetailModal = ({
@@ -44,6 +45,58 @@ const ScheduleDetailModal = ({
   onViewHistory, // Thêm prop này
 }) => {
   const { t } = useTranslation();
+  const [actualStatus, setActualStatus] = useState(null); // Status thực tế từ API
+  const [isCheckingStatus, setIsCheckingStatus] = useState(false);
+
+  // Kiểm tra status thực tế khi modal mở
+  useEffect(() => {
+    if (!isOpen || !schedule?.id) {
+      setActualStatus(null);
+      return;
+    }
+
+    const checkActualStatus = async () => {
+      setIsCheckingStatus(true);
+      try {
+        // Gọi API kiểm tra cả 2 chuyến
+        const [outboundRes, inboundRes] = await Promise.all([
+          api.get(`/api/v1/schedule/${schedule.id}/cheking-history`, {
+            params: { direction: 1 }, // Outbound (đưa đi)
+          }),
+          api.get(`/api/v1/schedule/${schedule.id}/cheking-history`, {
+            params: { direction: 2 }, // Inbound (đón về)
+          }),
+        ]);
+
+        const hasOutbound =
+          outboundRes.data?.studentCheckingHistories?.length > 0;
+        const hasInbound =
+          inboundRes.data?.studentCheckingHistories?.length > 0;
+
+        console.log("📊 Status Check:", {
+          scheduleId: schedule.id,
+          hasOutbound,
+          hasInbound,
+          outboundCount: outboundRes.data?.studentCheckingHistories?.length,
+          inboundCount: inboundRes.data?.studentCheckingHistories?.length,
+        });
+
+        // Nếu có đủ cả 2 chuyến thì status = Completed (2)
+        if (hasOutbound && hasInbound) {
+          setActualStatus(2); // Completed
+        } else {
+          setActualStatus(schedule.status); // Giữ nguyên status gốc
+        }
+      } catch (err) {
+        console.error("❌ Error checking status:", err);
+        setActualStatus(schedule.status); // Fallback về status gốc
+      } finally {
+        setIsCheckingStatus(false);
+      }
+    };
+
+    checkActualStatus();
+  }, [isOpen, schedule]);
 
   if (!isOpen || !schedule) return null;
 
@@ -69,6 +122,10 @@ const ScheduleDetailModal = ({
     today.setHours(0, 0, 0, 0); // Reset giờ để so sánh chỉ ngày
     return scheduleDate <= today;
   };
+
+  // Sử dụng actualStatus nếu đã check, nếu không dùng status gốc
+  const displayStatus = actualStatus !== null ? actualStatus : schedule.status;
+  const isCompleted = displayStatus === 2;
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -108,7 +165,14 @@ const ScheduleDetailModal = ({
         </p>
         <p>
           <strong>{t("common.status")}:</strong>{" "}
-          {getStatusText(schedule.status)}
+          {isCheckingStatus ? (
+            <span>
+              <FaSpinner className="spinner" style={{ fontSize: "0.9rem" }} />{" "}
+              {t("schedule.checkingStatus")}
+            </span>
+          ) : (
+            getStatusText(displayStatus)
+          )}
         </p>
         <div className="modal-actions">
           {/* Nút Xem lịch sử - Chỉ hiển thị khi ngày <= hôm nay */}
@@ -136,8 +200,27 @@ const ScheduleDetailModal = ({
           </button>
           <button
             className="delete-schedule-btn"
-            onClick={() => onDelete(schedule.id)}
-            disabled={!schedule.id}
+            onClick={() => {
+              // Kiểm tra nếu đã hoàn thành thì không cho xóa
+              if (isCompleted) {
+                // ✅ Thay alert bằng callback để component cha hiển thị modal
+                if (onDelete) {
+                  onDelete(null, true); // Pass flag isCompleted = true
+                }
+                return;
+              }
+              onDelete(schedule.id);
+            }}
+            disabled={!schedule.id || isCompleted}
+            title={
+              isCompleted
+                ? t("schedule.cannotDeleteCompleted")
+                : t("common.delete")
+            }
+            style={{
+              opacity: isCompleted ? 0.5 : 1,
+              cursor: isCompleted ? "not-allowed" : "pointer",
+            }}
           >
             <FaTrashAlt /> {t("common.delete")}
           </button>
@@ -530,6 +613,13 @@ const ScheduleListPageNew = () => {
   const [viewingSchedule, setViewingSchedule] = useState(null);
   const [editingSchedule, setEditingSchedule] = useState(null);
   const [deletingScheduleInfo, setDeletingScheduleInfo] = useState(null); // Lưu { id, routeName, date, time }
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    type: "alert",
+    title: "",
+    message: "",
+    onConfirm: () => {},
+  }); // State cho modal cảnh báo
   const [error, setError] = useState(null); // State báo lỗi
   const lastLocationKey = useRef(null); // Track location key để tránh process trùng
 
@@ -666,7 +756,22 @@ const ScheduleListPageNew = () => {
     setEditingSchedule(null);
   };
 
-  const handleDeleteRequest = (scheduleId) => {
+  const handleDeleteRequest = (scheduleId, isCompletedFlag) => {
+    // Nếu lịch trình đã hoàn thành, hiển thị cảnh báo
+    if (isCompletedFlag) {
+      console.log(`Cannot delete completed schedule ID: ${scheduleId}`);
+      setConfirmModal({
+        isOpen: true,
+        type: "alert",
+        title: t("schedule.error"),
+        message: t("schedule.cannotDeleteCompleted"),
+        onConfirm: () => {
+          setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+        },
+      });
+      return;
+    }
+
     const scheduleToDelete = schedules.find((s) => s.id === scheduleId);
     if (scheduleToDelete) {
       console.log(`Requesting delete for schedule ID: ${scheduleId}`);
@@ -809,6 +914,16 @@ const ScheduleListPageNew = () => {
         onClose={handleCloseModals}
         onConfirm={handleConfirmDelete} // Truyền hàm xác nhận xóa
         scheduleInfo={deletingScheduleInfo} // Truyền thông tin lịch trình cần xóa
+      />
+
+      {/* Modal cảnh báo không thể xóa */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal((prev) => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmModal.onConfirm}
+        type={confirmModal.type}
+        title={confirmModal.title}
+        message={confirmModal.message}
       />
 
       <main className="main-content-area schedule-calendar-page">
