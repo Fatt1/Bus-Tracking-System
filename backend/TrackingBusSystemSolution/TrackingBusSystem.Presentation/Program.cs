@@ -53,9 +53,6 @@ namespace TrackingBusSystem.Presentation
                 }
             }
 
-
-
-
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -63,12 +60,15 @@ namespace TrackingBusSystem.Presentation
                 app.UseSwaggerUI();
             }
 
-            app.UseHttpsRedirection();
+            // Chỉ redirect HTTPS khi Production, tắt trong Development
+            if (!app.Environment.IsDevelopment())
+            {
+                app.UseHttpsRedirection();
+            }
+
             app.UseCors();
             app.UseAuthentication();
             app.UseAuthorization();
-
-
             app.MapControllers();
             app.UseInfrastructureService();
             app.Run();
