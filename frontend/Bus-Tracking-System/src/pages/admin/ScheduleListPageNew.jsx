@@ -188,13 +188,29 @@ const ScheduleDetailModal = ({
           {/* Nút sửa và xóa chỉ hoạt động khi có ID */}
           <button
             className="delete-schedule-btn"
-            onClick={() => onEdit(schedule)}
-            disabled={!schedule.id}
+            onClick={() => {
+              // Kiểm tra nếu đã hoàn thành thì không cho sửa
+              if (isCompleted) {
+                // ✅ Hiển thị modal cảnh báo thông qua callback
+                if (onDelete) {
+                  onDelete(null, true); // Sử dụng lại callback với flag để hiển thị modal
+                }
+                return;
+              }
+              onEdit(schedule);
+            }}
+            disabled={!schedule.id || isCompleted}
             title={
-              schedule.status !== 0
+              isCompleted
+                ? t("schedule.cannotEditCompleted")
+                : schedule.status !== 0
                 ? t("schedule.editOnlyInactive")
                 : t("common.edit")
             }
+            style={{
+              opacity: isCompleted ? 0.5 : 1,
+              cursor: isCompleted ? "not-allowed" : "pointer",
+            }}
           >
             <FaPen /> {t("common.edit")}
           </button>
@@ -759,12 +775,12 @@ const ScheduleListPageNew = () => {
   const handleDeleteRequest = (scheduleId, isCompletedFlag) => {
     // Nếu lịch trình đã hoàn thành, hiển thị cảnh báo
     if (isCompletedFlag) {
-      console.log(`Cannot delete completed schedule ID: ${scheduleId}`);
+      console.log(`Cannot modify completed schedule ID: ${scheduleId}`);
       setConfirmModal({
         isOpen: true,
         type: "alert",
         title: t("schedule.error"),
-        message: t("schedule.cannotDeleteCompleted"),
+        message: t("schedule.cannotModifyCompleted"),
         onConfirm: () => {
           setConfirmModal((prev) => ({ ...prev, isOpen: false }));
         },

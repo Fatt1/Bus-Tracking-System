@@ -214,6 +214,8 @@
     "noSchedules": "No schedules.",
     "checkingStatus": "Checking status...",
     "cannotDeleteCompleted": "Cannot delete completed schedule. This schedule has trip history for both directions.",
+    "cannotEditCompleted": "Cannot edit completed schedule. This schedule has trip history for both directions.",
+    "cannotModifyCompleted": "Cannot edit or delete completed schedule. This schedule has trip history for both directions.",
     "error": "Error"
   },
   "scheduleHistory": {

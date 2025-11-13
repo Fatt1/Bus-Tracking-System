@@ -221,6 +221,8 @@
     "noSchedules": "Không có lịch trình.",
     "checkingStatus": "Đang kiểm tra...",
     "cannotDeleteCompleted": "Không thể xóa lịch trình đã hoàn thành. Lịch trình này đã có lịch sử chuyến đi cho cả hai chiều.",
+    "cannotEditCompleted": "Không thể chỉnh sửa lịch trình đã hoàn thành. Lịch trình này đã có lịch sử chuyến đi cho cả hai chiều.",
+    "cannotModifyCompleted": "Không thể chỉnh sửa hoặc xóa lịch trình đã hoàn thành. Lịch trình này đã có lịch sử chuyến đi cho cả hai chiều.",
     "error": "Lỗi"
   },
   "scheduleHistory": {
