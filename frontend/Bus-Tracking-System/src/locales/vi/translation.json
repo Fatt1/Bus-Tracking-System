@@ -379,13 +379,16 @@
       "loading": "Đang tải danh sách học sinh...",
       "error": "Không thể tải danh sách học sinh. Vui lòng thử lại!",
       "retry": "Thử lại",
+      "confirmTitle": "Xác nhận hoàn thành",
       "confirmComplete": "Bạn có chắc chắn muốn hoàn thành chuyến đưa đi không?",
       "confirmCompleteReturn": "Bạn có chắc chắn muốn hoàn thành chuyến đón về không?",
       "alreadyCompleted": "Chuyến đi này đã được hoàn thành rồi!",
       "updateAllStatus": "Vui lòng cập nhật trạng thái cho tất cả học sinh trước khi hoàn thành!",
       "completeSuccess": "Đã hoàn thành chuyến đi thành công!",
       "completeError": "Có lỗi xảy ra khi hoàn thành chuyến đi. Vui lòng thử lại!",
-      "noSchedule": "Không tìm thấy thông tin lịch trình!"
+      "noSchedule": "Không tìm thấy thông tin lịch trình!",
+      "warning": "Cảnh báo",
+      "success": "Thành công"
     },
     "notifications": {
       "title": "Thông báo",

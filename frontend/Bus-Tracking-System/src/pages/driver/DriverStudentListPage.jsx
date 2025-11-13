@@ -8,6 +8,7 @@ import "./DriverStudentListPage.css"; // Sẽ tạo ở bước 2
 // import "./CustomStatusDropdown.css"; // Sẽ tạo ở bước 3
 import "../../components/CustomStatusDropdown.css";
 import ReportIncidentModal from "../../components/driver/ReportIncidentModal";
+import ConfirmModal from "../../components/driver/ConfirmModal"; // ✅ THÊM MODAL
 import {
   getCurrentTripType,
   TRIP_TYPE,
@@ -194,6 +195,15 @@ const DriverStudentListPage = () => {
   const [currentDate] = useState(new Date()); // Lấy ngày hiện tại
   const [isIncidentModalOpen, setIsIncidentModalOpen] = useState(false); // Modal báo cáo
 
+  // ✅ THÊM STATE CHO CONFIRM MODAL
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    type: "confirm",
+    title: "",
+    message: "",
+    onConfirm: () => {},
+  });
+
   // Get status options with translations
   const statusOptions = getStatusOptions(t);
 
@@ -377,13 +387,27 @@ const DriverStudentListPage = () => {
 
     if (isAlreadyCompleted) {
       console.log("❌ Cannot complete: Trip already completed");
-      alert(t("driverApp.students.alreadyCompleted"));
+      // ✅ THAY ALERT BẰNG MODAL
+      setConfirmModal({
+        isOpen: true,
+        type: "alert",
+        title: t("driverApp.students.error"),
+        message: t("driverApp.students.alreadyCompleted"),
+        onConfirm: () => {},
+      });
       return;
     }
 
     if (!canComplete) {
       console.log("❌ Cannot complete: Some students not updated");
-      alert(t("driverApp.students.updateAllStatus"));
+      // ✅ THAY ALERT BẰNG MODAL
+      setConfirmModal({
+        isOpen: true,
+        type: "alert",
+        title: t("driverApp.students.warning"),
+        message: t("driverApp.students.updateAllStatus"),
+        onConfirm: () => {},
+      });
       return;
     }
 
@@ -392,12 +416,18 @@ const DriverStudentListPage = () => {
         ? t("driverApp.students.confirmComplete")
         : t("driverApp.students.confirmCompleteReturn");
 
-    const userConfirmed = window.confirm(confirmMessage);
-    if (!userConfirmed) {
-      console.log("❌ User cancelled");
-      return;
-    }
+    // ✅ THAY CONFIRM BẰNG MODAL
+    setConfirmModal({
+      isOpen: true,
+      type: "confirm",
+      title: t("driverApp.students.confirmTitle"),
+      message: confirmMessage,
+      onConfirm: () => executeCompleteTrip(),
+    });
+  };
 
+  // ✅ HÀM THỰC HIỆN HOÀN THÀNH (TÁCH RA KHỎI handleCompleteTrip)
+  const executeCompleteTrip = async () => {
     try {
       setIsCompletingTrip(true);
       const scheduleId = getCurrentScheduleId();
@@ -405,7 +435,13 @@ const DriverStudentListPage = () => {
 
       if (!scheduleId) {
         console.log("❌ No schedule ID found");
-        alert(t("driverApp.students.noSchedule"));
+        setConfirmModal({
+          isOpen: true,
+          type: "error",
+          title: t("driverApp.students.error"),
+          message: t("driverApp.students.noSchedule"),
+          onConfirm: () => {},
+        });
         return;
       }
 
@@ -439,15 +475,30 @@ const DriverStudentListPage = () => {
       }
 
       console.log("✅ Trip completed successfully!");
-      alert(t("driverApp.students.completeSuccess"));
-
-      // Navigate back to home page
-      console.log("🔄 Navigating to /driver/home");
-      window.location.href = "/driver/home";
+      
+      // ✅ THAY ALERT THÀNH CÔNG BẰNG MODAL
+      setConfirmModal({
+        isOpen: true,
+        type: "success",
+        title: t("driverApp.students.success"),
+        message: t("driverApp.students.completeSuccess"),
+        onConfirm: () => {
+          console.log("🔄 Navigating to /driver/home");
+          window.location.href = "/driver/home";
+        },
+      });
     } catch (err) {
       console.error("❌ Error completing trip:", err);
       console.error("Error details:", err.response?.data);
-      alert(t("driverApp.students.completeError"));
+      
+      // ✅ THAY ALERT LỖI BẰNG MODAL
+      setConfirmModal({
+        isOpen: true,
+        type: "error",
+        title: t("driverApp.students.error"),
+        message: t("driverApp.students.completeError"),
+        onConfirm: () => {},
+      });
     } finally {
       setIsCompletingTrip(false);
     }
@@ -455,6 +506,18 @@ const DriverStudentListPage = () => {
 
   return (
     <>
+      {/* Modal Xác nhận */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+        onConfirm={confirmModal.onConfirm}
+        type={confirmModal.type}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText={t("common.confirm")}
+        cancelText={t("common.cancel")}
+      />
+
       {/* Modal Báo cáo sự cố */}
       <ReportIncidentModal
         isOpen={isIncidentModalOpen}
