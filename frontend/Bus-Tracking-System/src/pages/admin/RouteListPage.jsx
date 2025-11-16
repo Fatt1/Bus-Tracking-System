@@ -4,7 +4,7 @@ import api from "../../utils/api"; // Import api instance với withCredentials
 import "./RouteListPage.css"; // CSS riêng cho trang này
 import "../LayoutTable.css"; // Tái sử dụng CSS layout bảng
 import AdminHeader from "../../components/admin/AdminHeader"; // Import AdminHeader
-import { FaMapMarkerAlt, FaPlus, FaTimes, FaSpinner, FaEye } from "react-icons/fa"; // Thêm FaEye
+import { FaPlus, FaTimes, FaSpinner, FaEye } from "react-icons/fa"; // Thêm FaEye
 
 // --- COMPONENT MODAL HIỂN THỊ DANH SÁCH HỌC SINH (Đã cập nhật) ---
 const StudentListModal = ({
@@ -126,12 +126,6 @@ const RouteRow = ({ route, onViewStudents }) => {
           </button>
         )}
       </td>
-      {/* Cột Bản đồ */}
-      <td className="cell-center">
-        <button className="map-btn" title={t("route.viewMap")}>
-          <FaMapMarkerAlt />
-        </button>
-      </td>
     </tr>
   );
 };
@@ -175,9 +169,6 @@ const RouteCard = ({ route, onViewStudents }) => {
             <FaEye /> {t("route.viewList")}
           </button>
         )}
-        <button className="mobile-action-btn map-btn" title={t("route.viewMap")}>
-          <FaMapMarkerAlt /> {t("route.viewMap")}
-        </button>
       </div>
     </div>
   );
@@ -317,7 +308,6 @@ const RouteListPage = () => {
                       <th>{t("route.routeName")}</th>
                       <th>{t("route.stopPoints")}</th>
                       <th>{t("route.studentCount")}</th>
-                      <th>{t("route.map")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -331,7 +321,7 @@ const RouteListPage = () => {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="5" style={{ textAlign: "center" }}>
+                        <td colSpan="4" style={{ textAlign: "center" }}>
                           {t("route.noData")}
                         </td>
                       </tr>
