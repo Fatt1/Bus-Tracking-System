@@ -2,7 +2,8 @@
 // Chỉ cần đổi BASE_URL ở đây khi deploy lên server thật
 
 // URL của backend API
-export const BASE_URL = "https://swearingly-pseudocubic-beth.ngrok-free.dev";
+// export const BASE_URL = "https://swearingly-pseudocubic-beth.ngrok-free.dev";
+export const BASE_URL = "https://localhost:7229";
 
 // URL của SignalR Hubs
 export const GEOLOCATION_HUB_URL = `${BASE_URL}/geolocationHub`;
