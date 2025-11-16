@@ -35,15 +35,17 @@ const ParentNotificationPage = () => {
         console.log("Notifications response:", response.data);
 
         // Map backend DTO to frontend format
-        const mappedNotifications = (response.data || []).map((notif) => ({
-          id: notif.receivedNotifcationId,
-          title: notif.title,
-          message: notif.message,
-          isRead: notif.isRead,
-          createdAt: notif.sendAt,
-          senderName: notif.senderUserName,
-          senderUserId: notif.senderUserId,
-        }));
+        const mappedNotifications = (response.data || [])
+          .map((notif) => ({
+            id: notif.receivedNotifcationId,
+            title: notif.title,
+            message: notif.message,
+            isRead: notif.isRead,
+            createdAt: notif.sendAt,
+            senderName: notif.senderUserName,
+            senderUserId: notif.senderUserId,
+          }))
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // ✅ Sort: newest first
 
         setNotifications(mappedNotifications);
       } catch (err) {

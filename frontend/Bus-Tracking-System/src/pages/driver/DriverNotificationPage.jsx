@@ -94,14 +94,22 @@ const DriverNotificationPage = () => {
           "/api/v1/notificaton/sent-notifications"
         );
         console.log("Sent notifications response:", response.data);
-        setSentNotifications(response.data || []);
+        // ✅ Sort by sendAt descending (newest first)
+        const sorted = (response.data || []).sort(
+          (a, b) => new Date(b.sendAt) - new Date(a.sendAt)
+        );
+        setSentNotifications(sorted);
       } else {
         // Fetch received notifications
         const response = await api.get(
           "/api/v1/notificaton/received-notifications"
         );
         console.log("Received notifications response:", response.data);
-        setInboxNotifications(response.data || []);
+        // ✅ Sort by sendAt descending (newest first)
+        const sorted = (response.data || []).sort(
+          (a, b) => new Date(b.sendAt) - new Date(a.sendAt)
+        );
+        setInboxNotifications(sorted);
       }
     } catch (err) {
       console.error("Lỗi khi tải thông báo:", err);

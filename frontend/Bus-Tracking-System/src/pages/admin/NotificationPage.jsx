@@ -313,31 +313,37 @@ const NotificationPage = () => {
 
       // Transform backend data to match UI structure
       // Backend sent: { sentNotificationId, title, message, sendAt, recipientUsers: [{recipientUserId, recipientUserName}] }
-      const sent = (sentRes.data || []).map((n) => ({
-        id: `sent_${n.sentNotificationId}`,
-        type: "sent",
-        recipient:
-          n.recipientUsers?.length > 0
-            ? n.recipientUsers.length === 1
-              ? n.recipientUsers[0].recipientUserName
-              : `${n.recipientUsers.length} người nhận`
-            : "Không xác định",
-        recipientList: n.recipientUsers || [], // Save full list for modal
-        subject: n.title,
-        message: n.message,
-        timestamp: format(new Date(n.sendAt), "dd/MM/yyyy - hh:mm a"),
-      }));
+      const sent = (sentRes.data || [])
+        .map((n) => ({
+          id: `sent_${n.sentNotificationId}`,
+          type: "sent",
+          recipient:
+            n.recipientUsers?.length > 0
+              ? n.recipientUsers.length === 1
+                ? n.recipientUsers[0].recipientUserName
+                : `${n.recipientUsers.length} người nhận`
+              : "Không xác định",
+          recipientList: n.recipientUsers || [],
+          subject: n.title,
+          message: n.message,
+          timestamp: format(new Date(n.sendAt), "dd/MM/yyyy - hh:mm a"),
+          sendAt: n.sendAt, // Keep original for sorting
+        }))
+        .sort((a, b) => new Date(b.sendAt) - new Date(a.sendAt)); // ✅ Sort: newest first
 
       // Backend received: { receivedNotifcationId (typo in backend), title, message, sendAt, isRead, senderUserId, senderUserName }
-      const received = (receivedRes.data || []).map((n) => ({
-        id: `inbox_${n.receivedNotifcationId}`, // Note: typo in backend property name
-        type: "inbox",
-        sender: n.senderUserName || "Unknown",
-        subject: n.title,
-        message: n.message,
-        timestamp: format(new Date(n.sendAt), "dd/MM/yyyy - hh:mm a"),
-        isRead: n.isRead,
-      }));
+      const received = (receivedRes.data || [])
+        .map((n) => ({
+          id: `inbox_${n.receivedNotifcationId}`,
+          type: "inbox",
+          sender: n.senderUserName || "Unknown",
+          subject: n.title,
+          message: n.message,
+          timestamp: format(new Date(n.sendAt), "dd/MM/yyyy - hh:mm a"),
+          isRead: n.isRead,
+          sendAt: n.sendAt, // Keep original for sorting
+        }))
+        .sort((a, b) => new Date(b.sendAt) - new Date(a.sendAt)); // ✅ Sort: newest first
 
       console.log("Transformed sent notifications:", sent);
       console.log("Transformed received notifications:", received);
