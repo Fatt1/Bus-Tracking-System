@@ -9,6 +9,7 @@ import React, {
 import * as signalR from "@microsoft/signalr";
 import { getAuthToken, getCurrentUserId } from "../utils/auth";
 import axios from "axios";
+import { API_BASE_URL, NOTIFICATION_HUB_URL } from "../config/apiConfig"; // THÊM: Import config
 
 const NotificationContext = createContext();
 
@@ -23,9 +24,12 @@ export const useNotification = () => {
 // Helper to create axios instance
 const createAPI = () =>
   axios.create({
-    baseURL: "https://localhost:7229/api/v1",
+    baseURL: API_BASE_URL,
     withCredentials: true,
-    headers: { "Content-Type": "application/json" },
+    headers: { 
+      "Content-Type": "application/json",
+      "ngrok-skip-browser-warning": "true"  // ✅ Bypass ngrok warning
+    },
   });
 
 export const NotificationProvider = ({ children }) => {
@@ -97,7 +101,7 @@ export const NotificationProvider = ({ children }) => {
     console.log("🔌 Setting up SignalR connection...");
 
     const connection = new signalR.HubConnectionBuilder()
-      .withUrl("https://localhost:7229/notificationHub", {
+      .withUrl(NOTIFICATION_HUB_URL, {
         accessTokenFactory: () => token,
       })
       .withAutomaticReconnect({
@@ -111,8 +115,16 @@ export const NotificationProvider = ({ children }) => {
 
     // Listen for notifications
     connection.on("ReceiveNotification", (notification) => {
-      console.log("📨 Received notification via SignalR:", notification);
-      console.log("🔍 Recently sent notifications:", recentlySentRef.current);
+      console.log("╔════════════════════════════════════════════════════════════╗");
+      console.log("║          🔔 RECEIVED NOTIFICATION FROM BACKEND            ║");
+      console.log("╚════════════════════════════════════════════════════════════╝");
+      console.log("📩 Full notification object:", notification);
+      console.log("📌 Title:", notification.Title || notification.title);
+      console.log("📝 Message:", notification.Message || notification.message);
+      console.log("🏷️ Type:", notification.NotificationType || notification.notificationType);
+      console.log("👤 Current User ID:", getCurrentUserId());
+      console.log("🔍 Recently sent by me:", recentlySentRef.current);
+      console.log("════════════════════════════════════════════════════════════");
 
       const title = notification.Title || notification.title || "Thông báo mới";
       const message = notification.Message || notification.message || "";
@@ -120,7 +132,6 @@ export const NotificationProvider = ({ children }) => {
       const currentUserId = getCurrentUserId();
 
       console.log("🔑 Notification key:", notificationKey);
-      console.log("👤 Current User ID:", currentUserId);
 
       // Clean up old entries (older than 3 seconds)
       const now = Date.now();
@@ -189,18 +200,18 @@ export const NotificationProvider = ({ children }) => {
       .start()
       .then(() => {
         const userId = getCurrentUserId();
-        console.log(
-          "✅ SignalR connected successfully! Connection ID:",
-          connection.connectionId
-        );
-        console.log("📍 Current User ID:", userId);
-        console.log(
-          "🔑 JWT Token (first 50 chars):",
-          getAuthToken()?.substring(0, 50) + "..."
-        );
-        console.log(
-          "⚠️ IMPORTANT: Backend will send notifications to this userId. Make sure it matches!"
-        );
+        const userRole = sessionStorage.getItem("userRole") || "Unknown";
+        console.log("╔════════════════════════════════════════════════════════════╗");
+        console.log("║          ✅ SignalR CONNECTED SUCCESSFULLY!               ║");
+        console.log("╚════════════════════════════════════════════════════════════╝");
+        console.log("📍 User Role:", userRole);
+        console.log("📍 User ID:", userId);
+        console.log("🔌 Connection ID:", connection.connectionId);
+        console.log("🔑 JWT Token (first 50 chars):", getAuthToken()?.substring(0, 50) + "...");
+        console.log("🎯 Hub URL:", NOTIFICATION_HUB_URL);
+        console.log("⚠️ IMPORTANT: Backend will send notifications to userId:", userId);
+        console.log("📡 Listening for 'ReceiveNotification' events...");
+        console.log("════════════════════════════════════════════════════════════");
         setIsSignalRConnected(true);
         connectionRef.current = connection;
         // Fetch initial unread count

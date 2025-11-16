@@ -211,7 +211,12 @@
     "saturday": "Saturday",
     "sunday": "Sunday",
     "loadingSchedules": "Loading schedules...",
-    "noSchedules": "No schedules."
+    "noSchedules": "No schedules.",
+    "checkingStatus": "Checking status...",
+    "cannotDeleteCompleted": "Cannot delete completed schedule. This schedule has trip history for both directions.",
+    "cannotEditCompleted": "Cannot edit completed schedule. This schedule has trip history for both directions.",
+    "cannotModifyCompleted": "Cannot edit or delete completed schedule. This schedule has trip history for both directions.",
+    "error": "Error"
   },
   "scheduleHistory": {
     "title": "Trip History",
@@ -371,13 +376,16 @@
       "loading": "Loading student list...",
       "error": "Unable to load student list. Please try again!",
       "retry": "Retry",
+      "confirmTitle": "Confirm Completion",
       "confirmComplete": "Are you sure you want to complete the drop-off trip?",
       "confirmCompleteReturn": "Are you sure you want to complete the pick-up trip?",
       "alreadyCompleted": "This trip has already been completed!",
       "updateAllStatus": "Please update status for all students before completing!",
       "completeSuccess": "Trip completed successfully!",
       "completeError": "An error occurred while completing the trip. Please try again!",
-      "noSchedule": "Schedule information not found!"
+      "noSchedule": "Schedule information not found!",
+      "warning": "Warning",
+      "success": "Success"
     },
     "notifications": {
       "title": "Notifications",

@@ -17,13 +17,15 @@ const ReportIncidentModal = ({ isOpen, onClose }) => {
   const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [adminUsers, setAdminUsers] = useState([]);
+  const [parentUsers, setParentUsers] = useState([]); // ✅ THÊM: State cho phụ huynh
   const [loadingAdmins, setLoadingAdmins] = useState(false);
   const { markAsRecentlySent } = useNotification(); // Get function to mark notification
 
-  // Fetch admin users khi modal mở
+  // Fetch admin users và parent users khi modal mở
   useEffect(() => {
     if (isOpen) {
       fetchAdminUsers();
+      fetchParentUsers(); // ✅ THÊM: Fetch phụ huynh
     }
   }, [isOpen]);
 
@@ -39,6 +41,28 @@ const ReportIncidentModal = ({ isOpen, onClose }) => {
       setAdminUsers([]);
     } finally {
       setLoadingAdmins(false);
+    }
+  };
+
+  // ✅ THÊM: Fetch phụ huynh của học sinh trên chuyến xe hôm nay
+  const fetchParentUsers = async () => {
+    console.log("=== Fetching parent users (students on today's trip) ===");
+    try {
+      const response = await api.get("/api/v1/driver/pickup-student-today");
+      console.log("Students on trip response:", response.data);
+      
+      // Extract unique parent userIds
+      const parentUserIds = [...new Set(
+        response.data
+          .filter(student => student.userId) // Chỉ lấy học sinh có userId (parent)
+          .map(student => student.userId)
+      )];
+      
+      console.log("Unique parent userIds:", parentUserIds);
+      setParentUsers(parentUserIds);
+    } catch (err) {
+      console.error("Lỗi khi tải danh sách phụ huynh:", err);
+      setParentUsers([]);
     }
   };
 
@@ -69,9 +93,9 @@ const ReportIncidentModal = ({ isOpen, onClose }) => {
     const message = messageMap[option] || option;
 
     try {
-      // Lấy tất cả userId của admin
+      // ✅ SỬA: Lấy cả admin và phụ huynh
       let adminUserIds = adminUsers.map((admin) => admin.userId);
-
+      
       // Loại trừ chính bản thân (nếu current user là admin)
       const currentUserId = getCurrentUserId();
       if (currentUserId) {
@@ -79,11 +103,22 @@ const ReportIncidentModal = ({ isOpen, onClose }) => {
         adminUserIds = adminUserIds.filter(
           (id) => String(id).trim() !== senderIdStr
         );
-        console.log("Filtered admin IDs (excluding sender):", adminUserIds);
       }
+      
+      // ✅ THÊM: Kết hợp admin + phụ huynh
+      const allRecipientIds = [...adminUserIds, ...parentUsers];
+      
+      console.log("╔════════════════════════════════════════════════════════════╗");
+      console.log("║          📤 SENDING INCIDENT REPORT                       ║");
+      console.log("╚════════════════════════════════════════════════════════════╝");
+      console.log("👥 Admin users:", adminUserIds.length);
+      console.log("👨‍👩‍👧‍👦 Parent users:", parentUsers.length);
+      console.log("📊 Total recipients:", allRecipientIds.length);
+      console.log("📋 Full recipient list:", allRecipientIds);
+      console.log("════════════════════════════════════════════════════════════");
 
       const payload = {
-        toUserIds: adminUserIds,
+        toUserIds: allRecipientIds, // ✅ SỬA: Gửi cho cả admin và phụ huynh
         title: t("driverApp.incident.title"),
         message: message,
         notificationType: option === "medical" ? 2 : 1, // 2 = Warning (y tế), 1 = Info (các loại khác)

@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { decodeJwt, extractRoles, setAuthInfo } from "../utils/auth";
 import { useTranslation } from "react-i18next"; // Import i18n
 import LanguageSwitcher from "../components/LanguageSwitcher"; // Import Language Switcher
+import { BASE_URL } from "../config/apiConfig"; // THÊM: Import config
 
 const LoginPage = () => {
   const { t } = useTranslation(); // i18n hook
@@ -26,9 +27,12 @@ const LoginPage = () => {
     try {
       // Cấu hình axios: baseURL và gửi cookie
       const api = axios.create({
-        baseURL: "https://localhost:7229",
+        baseURL: BASE_URL,
         withCredentials: true,
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true"  // ✅ Bypass ngrok warning
+        },
       });
 
       // Backend dùng UserName/Password (không phải email)

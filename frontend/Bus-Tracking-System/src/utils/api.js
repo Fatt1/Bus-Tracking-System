@@ -1,10 +1,14 @@
 import axios from "axios";
 import { getAuthToken } from "./auth";
+import { BASE_URL } from "../config/apiConfig";
 
 // Axios instance với withCredentials để gửi JWT cookie
 const api = axios.create({
-  baseURL: "https://localhost:7229",
+  baseURL: BASE_URL,
   withCredentials: true,
+  headers: {
+    'ngrok-skip-browser-warning': 'true',  // ✅ Bypass ngrok warning page
+  }
 });
 
 // Interceptor để tự động thêm token từ sessionStorage vào header

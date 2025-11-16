@@ -160,7 +160,7 @@ const TripHistoryPage = () => {
     <main className="main-content-area">
       <header className="page-header">
         <div className="breadcrumbs">
-          <Link to="/schedule-trips" className="back-link">
+          <Link to="/schedule" className="back-link">
             <FaAngleLeft /> {t("scheduleHistory.backToList")}
           </Link>
           / <span>{t("scheduleHistory.tripHistory")}</span>

@@ -6,6 +6,7 @@
 import * as signalR from "@microsoft/signalr";
 import { getRouteCoordinates } from "./routeCoordinatesHelper";
 import { getAuthToken } from "./auth"; // THÊM: Import để lấy token
+import { GEOLOCATION_HUB_URL } from "../config/apiConfig"; // THÊM: Import config
 
 const STORAGE_KEYS = {
   SIM_STATE: "busSimState", // { busId, route, startedAt, lastIndex, tripType, coordinates }
@@ -223,13 +224,12 @@ class BusSimulationManager {
       this.hubConnection.stop();
       this.hubConnection = null;
     }
-    const HUB_URL = "https://localhost:7229/geolocationHub";
     const token = getAuthToken(); // LẤY TOKEN
     
     console.log("🔌 [BusSimManager] Connecting to SignalR with token:", !!token);
     
     this.hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl(HUB_URL, {
+      .withUrl(GEOLOCATION_HUB_URL, {
         accessTokenFactory: () => token || "", // GỬI TOKEN
       })
       .withAutomaticReconnect()

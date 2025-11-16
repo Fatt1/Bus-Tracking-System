@@ -6,6 +6,7 @@ import L from "leaflet";
 import "leaflet-routing-machine";
 import * as signalR from "@microsoft/signalr";
 import { getAuthToken } from "../utils/auth"; // THÊM: Import để lấy token
+import { GEOLOCATION_HUB_URL } from "../config/apiConfig"; // THÊM: Import config
 
 // --- Fix lỗi icon marker ---
 import iconUrl from "leaflet/dist/images/marker-icon.png";
@@ -169,7 +170,6 @@ const SignalRHandler = ({
 
   // Effect 1: Quản lý kết nối và Lắng nghe (Receiver)
   useEffect(() => {
-    const HUB_URL = "https://localhost:7229/geolocationHub";
     const token = getAuthToken(); // LẤY TOKEN
     
     console.log("🔌 [MapComponent] Setting up SignalR connection...");
@@ -178,7 +178,7 @@ const SignalRHandler = ({
     console.log("   - Has token:", !!token);
 
     const hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl(HUB_URL, {
+      .withUrl(GEOLOCATION_HUB_URL, {
         accessTokenFactory: () => token || "", // GỬI TOKEN ĐỂ AUTHENTICATE
       })
       .withAutomaticReconnect()
