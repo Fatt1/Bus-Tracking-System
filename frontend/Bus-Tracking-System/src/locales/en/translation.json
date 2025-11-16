@@ -14,15 +14,17 @@
     "loading": "Loading...",
     "noData": "No data",
     "page": "Page",
+    "home": "Home",
     "stt": "No.",
     "detail": "Detail",
     "action": "Action",
     "male": "Male",
     "female": "Female",
     "name": "Name",
-    "phone": "Phone Number",
+    "phone": "Phone",
     "address": "Address",
-    "status": "Status"
+    "status": "Status",
+    "retry": "Retry"
   },
   "login": {
     "title": "Login",

@@ -151,7 +151,7 @@ const DashboardPage = () => {
           </button>
           
           <div className="breadcrumbs">
-            <span>{t("common.page")}</span> / <span>{t("common.home")}</span>
+            <span>{t("common.page")}</span> / <span>{t("admin.sidebar.dashboard")}</span>
           </div>
           <div className="header-actions">
             <div className="search-bar">
