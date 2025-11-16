@@ -334,7 +334,8 @@
       "email": "Email",
       "address": "Address",
       "cancel": "Cancel",
-      "confirm": "Confirm"
+      "confirm": "Confirm",
+      "loadError": "Unable to load profile. Please try again!"
     },
     "schedule": {
       "title": "Work Schedule",

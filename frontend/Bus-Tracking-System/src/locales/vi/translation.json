@@ -342,7 +342,8 @@
       "email": "Email",
       "address": "Địa chỉ",
       "cancel": "Hủy",
-      "confirm": "Xác nhận"
+      "confirm": "Xác nhận",
+      "loadError": "Không thể tải thông tin cá nhân. Vui lòng thử lại!"
     },
     "schedule": {
       "title": "Lịch trình làm việc",
