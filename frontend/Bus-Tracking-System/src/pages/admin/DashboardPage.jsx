@@ -5,11 +5,11 @@ import { getAuthRoles, clearAuth } from "../../utils/auth";
 import "./DashboardPage.css"; // Sẽ cập nhật file này ở bước 3
 import {
   FaBus,
-  FaSearch,
   FaChevronLeft,
   FaChevronRight,
   FaPlayCircle,
 } from "react-icons/fa"; // Thêm FaPlayCircle
+import { FiLogOut } from "react-icons/fi"; // Import logout icon
 import MapComponent from "../../components/MapComponent"; // Đảm bảo đường dẫn đúng
 import { useTranslation } from "react-i18next"; // Import i18n hook
 import LanguageSwitcher from "../../components/LanguageSwitcher"; // Import Language Switcher
@@ -154,14 +154,11 @@ const DashboardPage = () => {
             <span>{t("common.page")}</span> / <span>{t("admin.sidebar.dashboard")}</span>
           </div>
           <div className="header-actions">
-            <div className="search-bar">
-              <FaSearch className="search-icon" />
-              <input type="text" placeholder={t("common.search")} />
-            </div>
             <LanguageSwitcher />
             {roles && roles.length > 0 ? (
               <button className="login-button" onClick={handleLogout}>
-                {t("common.logout")}
+                <FiLogOut className="logout-icon" />
+                <span className="logout-text">{t("common.logout")}</span>
               </button>
             ) : (
               <button

@@ -5,17 +5,17 @@ import { getAuthRoles, clearAuth } from "../../utils/auth";
 import api from "../../utils/api";
 import LanguageSwitcher from "../LanguageSwitcher";
 import { useNotification } from "../../context/NotificationContext"; // Import notification context
-import { FaSearch, FaBars } from "react-icons/fa";
+import { FaBars } from "react-icons/fa";
 import { FiBell } from "react-icons/fi"; // Import bell icon
+import { FiLogOut } from "react-icons/fi"; // Import logout icon
 import "./AdminHeader.css";
 
 /**
  * AdminHeader - Header component chung cho tất cả các trang admin
  * Props:
  * - breadcrumbs: Nội dung breadcrumbs (string hoặc JSX)
- * - showSearch: Hiển thị search bar hay không (default: true)
  */
-const AdminHeader = ({ breadcrumbs, showSearch = true }) => {
+const AdminHeader = ({ breadcrumbs }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const roles = getAuthRoles();
@@ -54,12 +54,6 @@ const AdminHeader = ({ breadcrumbs, showSearch = true }) => {
       
       <div className="breadcrumbs">{breadcrumbs}</div>
       <div className="header-actions">
-        {showSearch && (
-          <div className="search-bar">
-            <FaSearch className="search-icon" />
-            <input type="text" placeholder={t("common.search")} />
-          </div>
-        )}
         <div 
           className="notification-bell-wrapper" 
           onClick={() => navigate("/notification")}
@@ -73,7 +67,8 @@ const AdminHeader = ({ breadcrumbs, showSearch = true }) => {
         <LanguageSwitcher />
         {roles && roles.length > 0 ? (
           <button className="login-button" onClick={handleLogout}>
-            {t("common.logout")}
+            <FiLogOut className="logout-icon" />
+            <span className="logout-text">{t("common.logout")}</span>
           </button>
         ) : (
           <button className="login-button" onClick={() => navigate("/login")}>

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../../utils/api";
 import { clearAuth } from "../../utils/auth";
 import { FiUser, FiBell } from "react-icons/fi";
+import { FiLogOut } from "react-icons/fi"; // Import logout icon
 import { useNotification } from "../../context/NotificationContext";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "../LanguageSwitcher";
@@ -73,7 +74,8 @@ const ParentHeader = ({
           <span>{parentName}</span>
         </div>
         <button className="parent-logout-btn" onClick={handleLogout}>
-          {t("common.logout")}
+          <FiLogOut className="logout-icon" />
+          <span className="logout-text">{t("common.logout")}</span>
         </button>
       </div>
     </header>

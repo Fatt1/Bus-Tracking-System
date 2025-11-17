@@ -214,8 +214,9 @@
   
   .driver-header-actions {
     order: 3;
-    gap: 8px;
+    gap: 0.25rem;
     margin-left: auto;
+    flex-shrink: 0;
   }
   
   /* Report incident button - icon only */
@@ -273,9 +274,30 @@
   
   /* Logout button */
   .driver-logout-btn {
-    padding: 8px 12px;
-    font-size: 0.85rem;
+    padding: 0.3rem;
+    font-size: 0.75rem;
     white-space: nowrap;
+    flex-shrink: 0;
+    min-height: 30px;
+    min-width: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Show only icon on mobile */
+  .driver-logout-btn .logout-text {
+    display: none;
+  }
+
+  .driver-logout-btn .logout-icon {
+    font-size: 1rem;
+    display: block;
+  }
+
+  .driver-logout-btn .logout-icon {
+    font-size: 1rem;
+    display: block;
   }
 }
 
