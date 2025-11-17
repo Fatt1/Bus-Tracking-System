@@ -14,15 +14,18 @@
     "loading": "Loading...",
     "noData": "No data",
     "page": "Page",
+    "home": "Home",
     "stt": "No.",
     "detail": "Detail",
     "action": "Action",
     "male": "Male",
     "female": "Female",
     "name": "Name",
-    "phone": "Phone Number",
+    "phone": "Phone",
     "address": "Address",
-    "status": "Status"
+    "status": "Status",
+    "retry": "Retry",
+    "view": "View"
   },
   "login": {
     "title": "Login",
@@ -235,7 +238,10 @@
     "noStudents": "No students for this trip.",
     "loadingStudents": "Loading students...",
     "departureTime": "Departure Time",
-    "returnTime": "Return Time"
+    "returnTime": "Return Time",
+    "driver": "Driver",
+    "bus": "Bus",
+    "type": "Trip Type"
   },
   "notification": {
     "title": "Notification List",

@@ -14,6 +14,7 @@
     "loading": "Đang tải...",
     "noData": "Không có dữ liệu",
     "page": "Trang",
+    "home": "Trang chủ",
     "stt": "STT",
     "detail": "Chi tiết",
     "action": "Thao tác",
@@ -22,7 +23,9 @@
     "name": "Tên",
     "phone": "Số điện thoại",
     "address": "Địa chỉ",
-    "status": "Trạng thái"
+    "status": "Trạng thái",
+    "retry": "Thử lại",
+    "view": "Xem"
   },
   "login": {
     "title": "Đăng nhập",
@@ -242,7 +245,10 @@
     "noStudents": "Không có học sinh cho chuyến này.",
     "loadingStudents": "Đang tải danh sách học sinh...",
     "departureTime": "Giờ đi",
-    "returnTime": "Giờ về"
+    "returnTime": "Giờ về",
+    "driver": "Tài xế",
+    "bus": "Xe buýt",
+    "type": "Loại chuyến"
   },
   "notification": {
     "title": "Danh sách thông báo",

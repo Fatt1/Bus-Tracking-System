@@ -122,3 +122,88 @@
   text-align: center;
   font-size: 1.2rem;
 }
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .bus-detail-card {
+    flex-direction: column;
+    padding: 20px;
+    gap: 20px;
+  }
+
+  .bus-detail-image {
+    width: 100%;
+    height: auto;
+    max-height: 250px;
+  }
+
+  .bus-detail-info h3 {
+    font-size: 1.4rem;
+    margin-bottom: 15px;
+  }
+
+  .bus-detail-info p {
+    font-size: 1rem;
+    margin-bottom: 10px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .route-info-banner {
+    flex-direction: column;
+    text-align: center;
+    padding: 15px 20px;
+    gap: 10px;
+  }
+
+  .route-bus-icon {
+    font-size: 2rem;
+  }
+
+  .route-info-text h4 {
+    font-size: 1.1rem;
+  }
+
+  .route-info-text p {
+    font-size: 0.95rem;
+  }
+
+  .map-container-detail {
+    min-height: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .detail-page-content {
+    gap: 20px;
+  }
+
+  .bus-detail-card {
+    padding: 15px;
+    gap: 15px;
+  }
+
+  .bus-detail-info h3 {
+    font-size: 1.2rem;
+  }
+
+  .bus-detail-info p {
+    font-size: 0.9rem;
+  }
+
+  .route-info-banner {
+    padding: 12px 15px;
+  }
+
+  .route-bus-icon {
+    font-size: 1.8rem;
+  }
+
+  .route-info-text h4 {
+    font-size: 1rem;
+  }
+
+  .route-info-text p {
+    font-size: 0.85rem;
+  }
+}

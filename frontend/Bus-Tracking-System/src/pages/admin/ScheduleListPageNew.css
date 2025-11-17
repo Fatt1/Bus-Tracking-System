@@ -80,27 +80,39 @@
   width: calc(
     (100% - 200px) / 7
   ); /* Chiều rộng cột ngày (Trừ cột tuyến đường) */
+  vertical-align: middle;
+  padding: 12px 8px;
 }
 .day-header-cell div:first-child {
   font-size: 0.9em;
   text-transform: capitalize; /* Viết hoa chữ đầu */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .day-header-cell div:last-child {
   font-size: 1.1em;
   font-weight: bold;
+  white-space: nowrap;
 }
 
 .route-header-cell,
 .route-name-cell {
   width: 200px; /* Chiều rộng cố định cột tuyến đường */
-  text-align: left;
+  text-align: center; /* Căn giữa */
   font-weight: bold;
   background-color: #f8f9fa; /* Màu nền khác */
   vertical-align: middle;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  line-height: 1.4;
+  padding: 15px 10px !important; /* Padding đều để căn giữa */
 }
 .route-name-cell {
   font-weight: 500;
   color: #333;
+  font-size: 0.95rem;
 }
 
 /* Ô lịch */
@@ -330,39 +342,50 @@
 }
 
 .day-header-cell {
-  padding: 10px 5px; /* Padding cho header */
+  padding: 15px 8px !important; /* Padding đều trên dưới */
   text-align: center;
   font-weight: 500;
   width: calc((100% - 220px) / 7); /* Điều chỉnh chiều rộng */
+  vertical-align: middle;
 }
 .day-header-cell div:first-child {
   font-size: 0.9em;
   text-transform: capitalize;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 3px; /* Khoảng cách giữa thứ và ngày */
 }
 .day-header-cell div:last-child {
   font-size: 1.2em; /* To hơn */
   font-weight: bold;
+  white-space: nowrap;
 }
 
 .route-header-cell,
 .route-name-cell {
   width: 220px; /* Tăng chiều rộng cột tuyến */
-  text-align: left;
+  text-align: center; /* Căn giữa */
   font-weight: bold;
   background-color: #f8f9fa;
   vertical-align: middle;
-  padding: 15px; /* Padding cho cột tuyến */
+  padding: 15px 10px !important; /* Padding đều để căn giữa */
+  word-wrap: break-word; /* Cho phép xuống dòng */
+  overflow-wrap: break-word;
+  white-space: normal; /* Cho phép text wrap */
+  line-height: 1.4;
 }
 .route-name-cell {
   font-weight: 500;
   color: #333;
+  font-size: 0.95rem;
 }
 
 /* Ô lịch */
 .calendar-cell {
   cursor: pointer;
   transition: background-color 0.2s;
-  padding: 8px; /* Padding bên trong ô */
+  padding: 6px; /* Giảm padding để schedule item rộng hơn */
 }
 
 .calendar-cell.empty-cell:hover {
@@ -370,6 +393,7 @@
 }
 .calendar-cell.has-schedule {
   background-color: #f9f9f9; /* Nền xám nhẹ cho ô có lịch */
+  padding: 0; /* Bỏ padding để schedule item chiếm full */
 }
 .calendar-cell.has-schedule:hover {
   background-color: #f1f3f5;
@@ -380,32 +404,42 @@
   background-color: #d6eaff; /* Màu nền xanh nhạt hơn */
   border: 1px solid #91d5ff;
   border-left: 4px solid #1890ff; /* Màu xanh dương accent */
-  border-radius: 4px;
-  padding: 8px 10px; /* Tăng padding */
+  border-radius: 0; /* Bỏ bo góc để fit với ô */
+  padding: 10px 12px; /* Tăng padding */
   font-size: 0.85rem; /* Tăng nhẹ font */
-  margin-bottom: 5px;
+  margin: 0; /* Bỏ margin */
+  height: 100%; /* Chiếm full chiều cao ô */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
   cursor: pointer;
-  transition: box-shadow 0.2s, border-color 0.2s;
+  transition: box-shadow 0.2s, border-color 0.2s, background-color 0.2s;
 }
 .schedule-item:hover {
   border-color: #40a9ff;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  background-color: #c2e0ff;
 }
 
 .schedule-time {
   font-weight: bold;
   color: #333;
   display: block; /* Xuống dòng */
-  margin-bottom: 3px;
+  margin-bottom: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .schedule-driver,
 .schedule-bus {
   color: #555;
   font-size: 0.8rem; /* Tăng nhẹ */
   display: block; /* Xuống dòng */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
 }
 
 /* --- Modal Xem/Xóa --- */

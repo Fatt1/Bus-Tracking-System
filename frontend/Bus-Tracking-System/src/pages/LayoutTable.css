@@ -298,15 +298,46 @@ tbody tr:hover {
   }
   
   .page-header {
-    padding: 15px;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
+    padding: 0.75rem 1rem;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .page-header .breadcrumbs {
+    order: 2;
+    flex: 1;
+    min-width: 0;
+    font-size: 0.75rem;
   }
   
   .page-header .header-actions {
-    width: 100%;
-    justify-content: flex-end;
+    order: 3;
+    width: auto;
+    gap: 0.25rem;
+    flex-wrap: nowrap;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  /* Make all header action items smaller */
+  .page-header .search-bar {
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+  }
+
+  .page-header .notification-bell-wrapper {
+    min-width: 30px;
+    min-height: 30px;
+    padding: 0.3rem;
+  }
+
+  .page-header .login-button {
+    padding: 0.3rem 0.4rem;
+    font-size: 0.65rem;
+    min-height: 30px;
   }
   
   .page-content {

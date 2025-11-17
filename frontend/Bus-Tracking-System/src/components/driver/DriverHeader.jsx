@@ -1,6 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { FaBell, FaExclamationTriangle } from "react-icons/fa";
+import { FiLogOut } from "react-icons/fi"; // Import logout icon
 import LanguageSwitcher from "../LanguageSwitcher";
 import "./DriverHeader.css";
 
@@ -95,7 +96,8 @@ const DriverHeader = ({
         )}
         {onLogout && (
           <button className="driver-logout-btn" onClick={onLogout}>
-            {t("driverApp.header.logout")}
+            <FiLogOut className="logout-icon" />
+            <span className="logout-text">{t("driverApp.header.logout")}</span>
           </button>
         )}
       </div>
