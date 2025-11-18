@@ -44,7 +44,7 @@ const AddBusModal = ({ isOpen, onClose, onSave }) => {
           <FaTimes />
         </button>
         <div className="modal-header">
-          <h3>Smart Bú</h3>
+          <h3>Smart Bus</h3>
           <h4>{t("bus.addBus")}</h4>
         </div>
         <form onSubmit={handleSubmit} className="modal-form bus-modal-form">
@@ -302,7 +302,7 @@ const EditBusModal = ({ isOpen, onClose, onSave, bus }) => {
           <FaTimes />
         </button>
         <div className="modal-header">
-          <h3>Smart Bú</h3>
+          <h3>Smart Bus</h3>
           <h4>{t("bus.editBus")}</h4>
         </div>
         <form onSubmit={handleSubmit} className="modal-form bus-modal-form">

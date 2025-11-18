@@ -59,7 +59,7 @@ export function SideBar() {
       
       <aside className={`sidebar ${isOpen ? 'active' : ''}`}>
         <div className="sidebar-header">
-          <h3>Smart Bú</h3>
+          <h3>Smart Bus</h3>
         </div>
         <nav className="sidebar-nav">
           <ul>
