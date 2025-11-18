@@ -79,7 +79,7 @@
 
 /* Div mới chứa cả Header và Routes */
 .main-content-top-wrapper {
-  background: url("../../assets/N2 1.png") no-repeat center center;
+  background: url("https://res.cloudinary.com/dn7wftowk/image/upload/v1763446896/N2_1_smwmkv.png") no-repeat center center;
   background-size: cover;
   padding-bottom: 30px; /* Thêm padding dưới */
 }

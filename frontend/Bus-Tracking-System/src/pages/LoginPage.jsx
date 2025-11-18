@@ -79,7 +79,7 @@ const LoginPage = () => {
         <div className="login-card">
           <div className="login-card-left">
             <img
-              src="/src/assets/Blakpink-Jisoo-Vogue-France-00 1.png"
+              src="https://res.cloudinary.com/dn7wftowk/image/upload/v1763446901/Blakpink-Jisoo-Vogue-France-00_1_ovtql4.png"
               alt="Bus Illustration"
               className="login-illustration"
             />
