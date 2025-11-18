@@ -72,7 +72,7 @@ const LoginPage = () => {
   return (
     <div className="login-page-container">
       <div className="login-header">
-        <h3>36 36 BUS BUS</h3>
+        <h3>Hành Chình Kỳ Dịu</h3>
         <LanguageSwitcher />
       </div>
       <div className="login-card-wrapper">

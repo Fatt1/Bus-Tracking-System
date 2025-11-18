@@ -28,7 +28,7 @@ const StudentListModal = ({
           <FaTimes />
         </button>
         <div className="modal-header">
-          {/* <h3>36 36 BUS BUS</h3> */} {/* Bỏ bớt nếu muốn giống hình */}
+          {/* <h3>Hành Chình Kỳ Dịu</h3> */} {/* Bỏ bớt nếu muốn giống hình */}
           <h4>
             {t("route.studentList")}: {routeName}
           </h4>
