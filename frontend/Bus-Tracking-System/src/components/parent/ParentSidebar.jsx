@@ -53,7 +53,7 @@ const ParentSidebar = () => {
       
       <aside className={`parent-sidebar ${isOpen ? 'active' : ''}`}>
         <div className="parent-sidebar-header">
-          <h3>Hành Chình Kỳ Dịu</h3>
+          <h3>Smart Bú</h3>
         </div>
         <nav className="parent-sidebar-nav">
           <ul>

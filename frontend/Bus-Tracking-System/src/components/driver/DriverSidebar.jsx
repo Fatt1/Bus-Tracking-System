@@ -53,7 +53,7 @@ const DriverSidebar = () => {
       
       <aside className={`driver-sidebar ${isOpen ? 'active' : ''}`}>
         <div className="driver-sidebar-header">
-          <h3>Hành Chình Kỳ Dịu</h3>
+          <h3>Smart Bú</h3>
         </div>
         <nav className="driver-sidebar-nav">
           <ul>

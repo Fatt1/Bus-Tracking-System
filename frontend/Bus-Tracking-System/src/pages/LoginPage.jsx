@@ -72,7 +72,7 @@ const LoginPage = () => {
   return (
     <div className="login-page-container">
       <div className="login-header">
-        <h3>Hành Chình Kỳ Dịu</h3>
+        <h3>Smart Bú</h3>
         <LanguageSwitcher />
       </div>
       <div className="login-card-wrapper">
@@ -129,7 +129,7 @@ const LoginPage = () => {
                 </div>
               </div>
 
-              <button type="submit" className="login-button" disabled={loading}>
+              <button type="submit"  className="login-button" disabled={loading}>
                 {loading
                   ? t("common.loading")
                   : t("login.loginButton").toUpperCase()}
