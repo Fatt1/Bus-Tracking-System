@@ -72,14 +72,14 @@ const LoginPage = () => {
   return (
     <div className="login-page-container">
       <div className="login-header">
-        <h3>36 36 BUS BUS</h3>
+        <h3>Smart Bus</h3>
         <LanguageSwitcher />
       </div>
       <div className="login-card-wrapper">
         <div className="login-card">
           <div className="login-card-left">
             <img
-              src="/src/assets/Blakpink-Jisoo-Vogue-France-00 1.png"
+              src="https://res.cloudinary.com/dn7wftowk/image/upload/v1763446901/Blakpink-Jisoo-Vogue-France-00_1_ovtql4.png"
               alt="Bus Illustration"
               className="login-illustration"
             />
@@ -129,7 +129,7 @@ const LoginPage = () => {
                 </div>
               </div>
 
-              <button type="submit" className="login-button" disabled={loading}>
+              <button type="submit"  className="login-button" disabled={loading}>
                 {loading
                   ? t("common.loading")
                   : t("login.loginButton").toUpperCase()}

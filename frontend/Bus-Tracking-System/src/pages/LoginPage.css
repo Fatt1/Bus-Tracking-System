@@ -19,7 +19,7 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: url("../assets/R 1.png") no-repeat center center;
+  background: url("https://res.cloudinary.com/dn7wftowk/image/upload/v1763446897/R_1_h5jf1m.png") no-repeat center center;
   background-size: cover;
   color: var(--text-color);
   position: relative;
@@ -213,6 +213,9 @@
   transition: all 0.3s ease;
   letter-spacing: 1px;
   margin-top: 10px;
+  text-align: center;
+  justify-content: center;
+  display: flex;
 }
 
 .login-button:hover {

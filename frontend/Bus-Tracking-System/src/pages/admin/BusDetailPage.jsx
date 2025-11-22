@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import api from "../../utils/api";
 import "./BusDetailPage.css";
-import busImg from "../../assets/bus.png";
+const busImg = "https://res.cloudinary.com/dn7wftowk/image/upload/v1763446896/bus_i3tfj9.png";
 import { FaBus, FaAngleLeft } from "react-icons/fa";
 import MapComponent from "../../components/MapComponent";
 import AdminHeader from "../../components/admin/AdminHeader"; // Import AdminHeader
