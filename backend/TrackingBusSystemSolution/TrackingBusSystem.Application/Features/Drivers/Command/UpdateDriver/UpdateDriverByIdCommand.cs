@@ -1,4 +1,6 @@
-﻿using TrackingBusSystem.Application.Abstractions.CQRS.Command;
+﻿using Microsoft.EntityFrameworkCore;
+using TrackingBusSystem.Application.Abstractions.Common.Interfaces;
+using TrackingBusSystem.Application.Abstractions.CQRS.Command;
 using TrackingBusSystem.Domain.Entities;
 using TrackingBusSystem.Domain.Interfaces;
 using TrackingBusSystem.Shared;
@@ -23,11 +25,14 @@ namespace TrackingBusSystem.Application.Features.Drivers.Command.UpdateDriver
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IDriverRepository _driverRepository;
+        private readonly IApplicationDbContext _dbContext;
 
-        public UpdateDriverByIdCommandHandler(IUnitOfWork unitOfWork, IDriverRepository driverRepository)
+        public UpdateDriverByIdCommandHandler(IUnitOfWork unitOfWork, IDriverRepository driverRepository, IApplicationDbContext dbContext)
         {
             _unitOfWork = unitOfWork;
             _driverRepository = driverRepository;
+            _dbContext = dbContext;
+
         }
 
         public async Task<Result> Handle(UpdateDriverByIdCommand request, CancellationToken cancellationToken)
@@ -37,6 +42,15 @@ namespace TrackingBusSystem.Application.Features.Drivers.Command.UpdateDriver
             {
                 return Result.Failure(DriverErrors.DriverNotFound(request.Id));
             }
+
+            var userWithPhoneNumber = await _dbContext.AppUsers.FirstOrDefaultAsync(u => u.PhoneNumber == request.PhoneNumber && u.Id != driver.UserId, cancellationToken);
+
+            if (userWithPhoneNumber != null)
+            {
+                return Result.Failure(DriverErrors.PhoneNumberAlreadyInUse(request.PhoneNumber));
+            }
+
+
             driver.User.FirstName = request.FirstName;
             driver.User.LastName = request.LastName;
             driver.User.PhoneNumber = request.PhoneNumber;

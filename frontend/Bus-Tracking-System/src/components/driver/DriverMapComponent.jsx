@@ -32,8 +32,9 @@ const redIcon = L.icon({
 
 // --- Icon xe buýt ---
 const busIcon = L.icon({
-  iconUrl: "/src/assets/bus.png",
-  iconSize: [38, 38],
+  iconUrl:
+    "https://res.cloudinary.com/dvhziiejv/image/upload/v1763824318/bus-removebg-preview_sawcc4.png",
+  iconSize: [50, 50],
   iconAnchor: [19, 19],
   popupAnchor: [0, -20],
 });
@@ -49,10 +50,10 @@ const BusMarkerListener = ({ busId }) => {
 
   useEffect(() => {
     const token = getAuthToken(); // LẤY TOKEN
-    
+
     console.log("🚌 [DriverMap] Setting up SignalR for busId:", busId);
     console.log("   - Has token:", !!token);
-    
+
     const hubConnection = new signalR.HubConnectionBuilder()
       .withUrl(GEOLOCATION_HUB_URL, {
         accessTokenFactory: () => token || "", // GỬI TOKEN

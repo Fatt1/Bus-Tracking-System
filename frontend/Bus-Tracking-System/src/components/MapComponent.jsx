@@ -26,7 +26,8 @@ L.Marker.prototype.options.icon = DefaultIcon;
 
 // --- Icon xe buýt ---
 const busIcon = L.icon({
-  iconUrl: "/src/assets/bus.png",
+  iconUrl:
+    "https://res.cloudinary.com/dvhziiejv/image/upload/v1763824318/bus-removebg-preview_sawcc4.png",
   iconSize: [38, 38],
   iconAnchor: [19, 19],
   popupAnchor: [0, -20],
@@ -171,7 +172,7 @@ const SignalRHandler = ({
   // Effect 1: Quản lý kết nối và Lắng nghe (Receiver)
   useEffect(() => {
     const token = getAuthToken(); // LẤY TOKEN
-    
+
     console.log("🔌 [MapComponent] Setting up SignalR connection...");
     console.log("   - listenOnly:", listenOnly);
     console.log("   - specificBusId:", specificBusId);
@@ -186,7 +187,7 @@ const SignalRHandler = ({
       .build();
 
     hubConnectionRef.current = hubConnection;
-    
+
     // Store markers locally for cleanup
     const localMarkers = busMarkersRef.current;
 
@@ -200,19 +201,33 @@ const SignalRHandler = ({
 
       if (lat === undefined || lng === undefined || busId === undefined) return;
 
-      console.log(`📍 [MapComponent] Received location for Bus ${busId}:`, { 
-        lat, lng, routeId, routeName, selectedRouteId: selectedRoute?.id 
+      console.log(`📍 [MapComponent] Received location for Bus ${busId}:`, {
+        lat,
+        lng,
+        routeId,
+        routeName,
+        selectedRouteId: selectedRoute?.id,
       });
 
       // Filter 1: Nếu là Parent với specificBusId, chỉ xử lý bus đó
       if (listenOnly && specificBusId && busId !== specificBusId) {
-        console.log(`   ⏭️ Skipping Bus ${busId} (only listening to Bus ${specificBusId})`);
+        console.log(
+          `   ⏭️ Skipping Bus ${busId} (only listening to Bus ${specificBusId})`
+        );
         return;
       }
 
       // Filter 2: Nếu là Admin và đã chọn route, chỉ hiển thị bus của route đó
-      if (listenOnly && !specificBusId && selectedRoute && routeId && routeId !== selectedRoute.id) {
-        console.log(`   ⏭️ Skipping Bus ${busId} (Route ${routeId} != Selected Route ${selectedRoute.id})`);
+      if (
+        listenOnly &&
+        !specificBusId &&
+        selectedRoute &&
+        routeId &&
+        routeId !== selectedRoute.id
+      ) {
+        console.log(
+          `   ⏭️ Skipping Bus ${busId} (Route ${routeId} != Selected Route ${selectedRoute.id})`
+        );
         return;
       }
 
@@ -235,16 +250,23 @@ const SignalRHandler = ({
       .start()
       .then(() => {
         console.log("✅ [MapComponent] SignalR connected successfully!");
-        
+
         // Nếu là listenOnly và có specificBusId → join Bus group (cho Parent)
         // Nếu không → join Admin group (cho Admin dashboard)
         if (listenOnly && specificBusId) {
-          console.log(`🚌 [MapComponent] Joining Bus-${specificBusId} group for Parent...`);
+          console.log(
+            `🚌 [MapComponent] Joining Bus-${specificBusId} group for Parent...`
+          );
           hubConnection
             .invoke("JoinBusGroup", specificBusId)
-            .then(() => console.log(`✅ [MapComponent] Joined Bus-${specificBusId} group`))
+            .then(() =>
+              console.log(`✅ [MapComponent] Joined Bus-${specificBusId} group`)
+            )
             .catch((err) =>
-              console.error(`❌ [MapComponent] Error joining Bus-${specificBusId}:`, err)
+              console.error(
+                `❌ [MapComponent] Error joining Bus-${specificBusId}:`,
+                err
+              )
             );
         } else {
           console.log("👨‍💼 [MapComponent] Joining admin-group...");
@@ -265,7 +287,7 @@ const SignalRHandler = ({
       console.log("🔌 [MapComponent] Disconnecting SignalR...");
       // Use local variable for cleanup
       const connectionToStop = hubConnectionRef.current;
-      
+
       if (connectionToStop) {
         connectionToStop.stop();
       }

@@ -25,31 +25,36 @@ namespace TrackingBusSystem.Application.Features.Drivers.Command.CompleteTrip
         }
         public async Task<Result> Handle(CompleteTripCommand request, CancellationToken cancellationToken)
         {
-            Console.WriteLine("=== CompleteTripCommandHandler ===");
-            Console.WriteLine($"📥 Received {request.StudentsDTOs.Count} students");
-            
-            foreach (var dto in request.StudentsDTOs)
-            {
-                Console.WriteLine($"  - Student {dto.StudentId}, Schedule {dto.ScheduleId}, Status {dto.CheckingStatus}, Type {dto.Type}, StopPoint {dto.StopPointId}");
-            }
-            
+
+
             var studentCheckingHistores = _mapper.Map<List<StudentCheckingHistory>>(request.StudentsDTOs);
-            Console.WriteLine($"✅ Mapped to {studentCheckingHistores.Count} StudentCheckingHistory entities");
-            
+
             try
             {
+                var schedule = await _scheduleRepository.GetByIdAsync(request.StudentsDTOs.First().ScheduleId, cancellationToken);
+
+                if (schedule == null)
+                {
+                    return Result.Failure(new Error("NotFound", "Schedule not found"));
+                }
+
+                if (schedule.Status == Shared.Constants.ScheduleStatus.InActive)
+                {
+                    schedule.Status = Shared.Constants.ScheduleStatus.Active;
+                }
+
+
+                await _unitOfWork.BeginTransactionAsync(cancellationToken);
                 await _scheduleRepository.AddRangeAsyncStudentCheckingHistory(studentCheckingHistores);
-                Console.WriteLine("✅ Added to repository");
-                
+
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
-                Console.WriteLine("✅ SaveChanges completed successfully");
-                
+                await _unitOfWork.CommitTransactionAsync(cancellationToken);
+
                 return Result.Success();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Error saving: {ex.Message}");
-                Console.WriteLine($"❌ Stack trace: {ex.StackTrace}");
+
                 return Result.Failure(new Error("SqlException.CantAdd", ex.Message));
             }
 

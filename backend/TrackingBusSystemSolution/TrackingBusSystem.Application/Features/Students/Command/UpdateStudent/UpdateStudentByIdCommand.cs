@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
+using TrackingBusSystem.Application.Abstractions.Common.Interfaces;
 using TrackingBusSystem.Application.Abstractions.CQRS.Command;
 using TrackingBusSystem.Domain.Entities;
 using TrackingBusSystem.Domain.Interfaces;
@@ -37,9 +39,11 @@ namespace TrackingBusSystem.Application.Features.Students.Command.UpdateStudent
     {
         private readonly IStudentRepository _studentRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IApplicationDbContext _dbContext;
 
-        public UpdateStudentByIdCommandHandler(IStudentRepository studentRepository, IUnitOfWork unitOfWork)
+        public UpdateStudentByIdCommandHandler(IStudentRepository studentRepository, IUnitOfWork unitOfWork, IApplicationDbContext dbContext)
         {
+            _dbContext = dbContext;
             _studentRepository = studentRepository;
             _unitOfWork = unitOfWork;
         }
@@ -51,6 +55,16 @@ namespace TrackingBusSystem.Application.Features.Students.Command.UpdateStudent
             {
                 return Result<UpdateStudentByIdCommand>.Failure(StudentErrors.StudentNotFound(request.Id));
             }
+
+            var existPhoneNumber = await _dbContext.AppUsers
+                .AnyAsync(u => u.PhoneNumber == request.ParentPhoneNumber && u.Id != student.UserId, cancellationToken);
+
+            if (existPhoneNumber)
+            {
+                return Result.Failure(new Error("User.PhoneHasAlreadyUsed", "Phonenumber has already used"));
+            }
+
+
             student.Address = request.Address;
             student.Class = request.Class;
             student.ParentName = request.ParentName;

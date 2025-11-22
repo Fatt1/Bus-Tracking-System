@@ -32,7 +32,6 @@ namespace TrackingBusSystem.Domain.Entities
     }
 
 
-
     public static class ScheduleErrors
     {
         public static Error DuplicateAssignment => new Error("Schedule.DuplicateAssignment", "This route and driver assignment already exists in the schedule.");

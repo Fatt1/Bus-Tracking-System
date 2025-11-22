@@ -20,15 +20,16 @@ namespace TrackingBusSystem.Application.Features.Students.Query.GetAllStudent
         }
         public Task<Result<PagedList<GetAllStudentDTO>>> Handle(GetAllStudentQuery request, CancellationToken cancellationToken)
         {
-            var query = _dbContext.Students.Select(s => new GetAllStudentDTO
-            {
-                Id = s.Id,
-                FullName = s.User.LastName + " " + s.User.FirstName,
-                Class = s.Class,
-                Address = s.Address,
-                ParentName = s.ParentName,
-                ParentPhoneNumber = s.User.PhoneNumber!
-            }).AsQueryable();
+            var query = _dbContext.Students.OrderBy(s => s.User.LastName)
+                .Select(s => new GetAllStudentDTO
+                {
+                    Id = s.Id,
+                    FullName = s.User.FirstName + " " + s.User.LastName,
+                    Class = s.Class,
+                    Address = s.Address,
+                    ParentName = s.ParentName,
+                    ParentPhoneNumber = s.User.PhoneNumber!
+                }).AsQueryable();
             var pagedStudents = PagedList<GetAllStudentDTO>.ToPagedList(query, request.PageNumber, request.PageSize);
             return Task.FromResult(Result<PagedList<GetAllStudentDTO>>.Success(pagedStudents));
         }

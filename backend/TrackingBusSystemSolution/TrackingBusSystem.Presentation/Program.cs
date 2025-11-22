@@ -27,7 +27,7 @@ namespace TrackingBusSystem.Presentation
                 options.AddDefaultPolicy(config =>
                 {
                     config
-                    .WithOrigins("http://127.0.0.1:5500")
+                    .WithOrigins("http://127.0.0.1:5500", "https://bus-tracking-system-neon.vercel.app")
                     .WithOrigins("http://localhost:5173")
                     .AllowAnyHeader()
                     .AllowAnyMethod()
