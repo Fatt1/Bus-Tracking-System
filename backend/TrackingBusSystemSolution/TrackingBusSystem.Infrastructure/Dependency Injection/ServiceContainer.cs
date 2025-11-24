@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using TrackingBusSystem.Application.Abstractions.Common.Interfaces;
+using TrackingBusSystem.Application.Services.Interfaces;
 using TrackingBusSystem.Domain.Entities;
 using TrackingBusSystem.Domain.Interfaces;
 using TrackingBusSystem.Infrastructure.Data;
@@ -51,6 +52,9 @@ namespace TrackingBusSystem.Infrastructure.Dependency_Injection
             services.AddScoped<IBusRepository, BusRepository>();
             services.AddScoped<IStudentRepository, StudentRepository>();
             services.AddScoped<INotificationService, NotificationService>();
+            // Đăng ký Interface và Class thực thi
+            services.AddScoped<IBusTrackingService, BusTrackingService>();
+
             services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
             services.AddDataProtection();
 
