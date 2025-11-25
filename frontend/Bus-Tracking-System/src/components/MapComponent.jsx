@@ -51,12 +51,16 @@ const SignalRHandler = ({
   onAnimationFinished,
   listenOnly = false, // NEW: Chỉ lắng nghe, không gửi (dùng cho BusDetailPage)
   specificBusId = null, // NEW: Lắng nghe xe cụ thể (dùng cho BusDetailPage)
+  onTripTypeDetected = null, // NEW: Callback để thông báo tripType detected
 }) => {
   const map = useMap();
   const busMarkersRef = useRef(new Map());
   const hubConnectionRef = useRef(null);
   const animationIntervalRef = useRef(null);
   const currentBusIdRef = useRef(null); // Lưu busId hiện tại
+  const previousPositionRef = useRef(null); // ✅ NEW: Lưu vị trí trước đó để tính hướng
+  const detectedTripTypeRef = useRef(null); // ✅ NEW: Lưu tripType đã detect
+  const directionConfidenceRef = useRef({ pickup: 0, dropoff: 0 }); // ✅ NEW: Accumulated confidence để chống noise
 
   // --- Hàm gửi (bắt đầu giả lập) ---
   const startSimulationSender = (route) => {
@@ -233,6 +237,123 @@ const SignalRHandler = ({
 
       const markers = busMarkersRef.current;
 
+      // ✅ NEW: Detect tripType dựa trên hướng di chuyển
+      if (listenOnly && selectedRoute?.stopPoints?.length >= 2) {
+        const sortedPoints = [...selectedRoute.stopPoints].sort(
+          (a, b) => a.sequenceOrder - b.sequenceOrder
+        );
+        const firstStop = sortedPoints[0];
+        const lastStop = sortedPoints[sortedPoints.length - 1];
+        
+        // Tính khoảng cách đến điểm đầu và điểm cuối
+        const distToFirst = Math.sqrt(
+          Math.pow(lat - firstStop.latitude, 2) + 
+          Math.pow(lng - firstStop.longitude, 2)
+        );
+        const distToLast = Math.sqrt(
+          Math.pow(lat - lastStop.latitude, 2) + 
+          Math.pow(lng - lastStop.longitude, 2)
+        );
+        
+        // Nếu có vị trí trước đó, xác định hướng
+        if (previousPositionRef.current) {
+          const prevLat = previousPositionRef.current.lat;
+          const prevLng = previousPositionRef.current.lng;
+          
+          // Tính khoảng cách từ vị trí trước đến 2 điểm
+          const prevDistToFirst = Math.sqrt(
+            Math.pow(prevLat - firstStop.latitude, 2) + 
+            Math.pow(prevLng - firstStop.longitude, 2)
+          );
+          const prevDistToLast = Math.sqrt(
+            Math.pow(prevLat - lastStop.latitude, 2) + 
+            Math.pow(prevLng - lastStop.longitude, 2)
+          );
+          
+          // ✅ LOGIC MỚI: Tính delta (thay đổi khoảng cách)
+          const deltaToFirst = distToFirst - prevDistToFirst; // Âm = đang tiến gần first
+          const deltaToLast = distToLast - prevDistToLast;   // Âm = đang tiến gần last
+          
+          // ✅ Accumulated confidence để chống GPS noise
+          // Nếu đang tiến gần last nhiều hơn → tăng pickup confidence
+          if (deltaToLast < deltaToFirst && deltaToLast < -0.00003) {
+            directionConfidenceRef.current.pickup += 1;
+            directionConfidenceRef.current.dropoff = Math.max(0, directionConfidenceRef.current.dropoff - 0.5);
+          }
+          // Nếu đang tiến gần first nhiều hơn → tăng dropoff confidence
+          else if (deltaToFirst < deltaToLast && deltaToFirst < -0.00003) {
+            directionConfidenceRef.current.dropoff += 1;
+            directionConfidenceRef.current.pickup = Math.max(0, directionConfidenceRef.current.pickup - 0.5);
+          }
+          
+          // Chỉ thay đổi tripType khi confidence đủ cao (>= 3 ticks liên tiếp)
+          const confidence = directionConfidenceRef.current;
+          let newTripType = detectedTripTypeRef.current;
+          
+          if (confidence.pickup >= 3 && detectedTripTypeRef.current !== 'pickup') {
+            newTripType = 'pickup';
+            console.log("📊 [MapComponent] Movement analysis (PICKUP confirmed):");
+            console.log("   - Delta to first:", deltaToFirst.toFixed(7), "(moving away)");
+            console.log("   - Delta to last:", deltaToLast.toFixed(7), "(moving closer)");
+            console.log("   - Confidence pickup:", confidence.pickup, "/ dropoff:", confidence.dropoff);
+            console.log("   → Direction: PICKUP (first → last)");
+          } else if (confidence.dropoff >= 3 && detectedTripTypeRef.current !== 'dropoff') {
+            newTripType = 'dropoff';
+            console.log("📊 [MapComponent] Movement analysis (DROPOFF confirmed):");
+            console.log("   - Delta to first:", deltaToFirst.toFixed(7), "(moving closer)");
+            console.log("   - Delta to last:", deltaToLast.toFixed(7), "(moving away)");
+            console.log("   - Confidence pickup:", confidence.pickup, "/ dropoff:", confidence.dropoff);
+            console.log("   → Direction: DROPOFF (last → first)");
+          }
+          
+          // Nếu tripType thay đổi, reset confidence và thông báo
+          if (newTripType && newTripType !== detectedTripTypeRef.current) {
+            console.log("🔄 [MapComponent] TRIP TYPE DETECTED CHANGED!");
+            console.log("   - Old:", detectedTripTypeRef.current);
+            console.log("   - New:", newTripType);
+            console.log("   - Current dist to first:", distToFirst.toFixed(6));
+            console.log("   - Current dist to last:", distToLast.toFixed(6));
+            
+            // Reset confidence khi đổi
+            directionConfidenceRef.current = { pickup: 0, dropoff: 0 };
+            detectedTripTypeRef.current = newTripType;
+            
+            // Gọi callback nếu có
+            if (onTripTypeDetected) {
+              onTripTypeDetected(newTripType);
+            }
+          }
+        } else {
+          // ✅ Lần đầu tiên: detect dựa trên vị trí gần điểm nào hơn
+          // Nếu gần first → đang bắt đầu pickup
+          // Nếu gần last → đang bắt đầu dropoff (hoặc kết thúc pickup)
+          const initialTripType = distToFirst < distToLast ? 'pickup' : 'dropoff';
+          console.log("🎯 [MapComponent] Initial tripType detection:", initialTripType);
+          console.log("   - Dist to first:", distToFirst.toFixed(6));
+          console.log("   - Dist to last:", distToLast.toFixed(6));
+          console.log("   - Logic: xe gần", distToFirst < distToLast ? "first (pickup)" : "last (dropoff)");
+          detectedTripTypeRef.current = initialTripType;
+          
+          if (onTripTypeDetected) {
+            onTripTypeDetected(initialTripType);
+          }
+        }
+        
+        // ✅ Edge case: Xe đến rất gần điểm cuối (< 50m ~ 0.0005 độ)
+        // Reset confidence để sẵn sàng detect chuyến ngược lại
+        const ARRIVAL_THRESHOLD = 0.0005;
+        if (distToLast < ARRIVAL_THRESHOLD && detectedTripTypeRef.current === 'pickup') {
+          console.log("🏁 [MapComponent] Bus arrived at last stop, ready for dropoff trip");
+          directionConfidenceRef.current = { pickup: 0, dropoff: 0 };
+        } else if (distToFirst < ARRIVAL_THRESHOLD && detectedTripTypeRef.current === 'dropoff') {
+          console.log("🏁 [MapComponent] Bus arrived at first stop, ready for pickup trip");
+          directionConfidenceRef.current = { pickup: 0, dropoff: 0 };
+        }
+        
+        // Lưu vị trí hiện tại cho lần sau
+        previousPositionRef.current = { lat, lng };
+      }
+
       if (markers.has(busId)) {
         // Cập nhật vị trí marker đã tồn tại
         markers.get(busId).setLatLng([lat, lng]);
@@ -293,8 +414,13 @@ const SignalRHandler = ({
       }
       localMarkers.forEach((marker) => map.removeLayer(marker));
       localMarkers.clear();
+      
+      // ✅ Reset detection refs
+      previousPositionRef.current = null;
+      detectedTripTypeRef.current = null;
+      directionConfidenceRef.current = { pickup: 0, dropoff: 0 };
     };
-  }, [map, listenOnly, specificBusId, selectedRoute]); // Thêm selectedRoute vào dependencies
+  }, [map, listenOnly, specificBusId, selectedRoute, onTripTypeDetected]); // Thêm selectedRoute vào dependencies
 
   // Effect 2: Xử lý Gửi (Sender/Simulator) - CHỈ DÙNG TRONG DASHBOARD
   useEffect(() => {
@@ -374,7 +500,7 @@ const SignalRHandler = ({
 };
 
 // --- COMPONENT VẼ ĐƯỜNG ĐI VÀ ĐIỂM DỪNG (Tĩnh) ---
-const SelectedRouteLayer = ({ selectedRoute }) => {
+const SelectedRouteLayer = ({ selectedRoute, tripType }) => {
   const map = useMap();
   const routingControlRef = useRef(null);
   const stopMarkersRef = useRef([]);
@@ -393,6 +519,12 @@ const SelectedRouteLayer = ({ selectedRoute }) => {
       const sortedPoints = [...selectedRoute.stopPoints].sort(
         (a, b) => a.sequenceOrder - b.sequenceOrder
       );
+
+      // ✅ Nếu là chuyến về (dropoff), đảo ngược thứ tự để vẽ đường ngược lại
+      if (tripType === 'dropoff') {
+        sortedPoints.reverse();
+      }
+
       const waypoints = sortedPoints.map((p) =>
         L.latLng(p.latitude, p.longitude)
       );
@@ -413,8 +545,9 @@ const SelectedRouteLayer = ({ selectedRoute }) => {
 
         sortedPoints.forEach((point, index) => {
           const position = L.latLng(point.latitude, point.longitude);
-          const markerIcon =
-            index === sortedPoints.length - 1 ? redIcon : DefaultIcon;
+          // Điểm cuối cùng trong mảng sau khi đảo/không đảo sẽ là điểm đích
+          const isDestination = index === sortedPoints.length - 1;
+          const markerIcon = isDestination ? redIcon : DefaultIcon;
           const stopMarker = L.marker(position, { icon: markerIcon })
             .bindPopup(`<b>${point.pointName}</b><br>Trạm dừng số ${index + 1}`)
             .addTo(map);
@@ -443,7 +576,7 @@ const SelectedRouteLayer = ({ selectedRoute }) => {
       stopMarkersRef.current.forEach((marker) => map.removeLayer(marker));
       stopMarkersRef.current = [];
     };
-  }, [selectedRoute, map]);
+  }, [selectedRoute, map, tripType]);
 
   return null;
 };
@@ -455,13 +588,17 @@ const MapComponent = ({
   onAnimationFinished = () => {},
   listenOnly = false, // NEW: Chỉ lắng nghe realtime (không giả lập)
   specificBusId = null, // NEW: Lắng nghe xe cụ thể
+  tripType = 'pickup', // NEW: 'pickup' hoặc 'dropoff' - mặc định là pickup
+  onTripTypeDetected = null, // NEW: Callback khi detect được tripType từ hướng di chuyển
 }) => {
   const initialPosition = [10.7769, 106.6954];
   console.log(
     "MapComponent rendering với selectedRoute:",
     selectedRoute,
     "listenOnly:",
-    listenOnly
+    listenOnly,
+    "tripType:",
+    tripType
   );
 
   return (
@@ -475,7 +612,7 @@ const MapComponent = ({
         attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
       />
       {/* Component này vẽ đường đi tĩnh */}
-      <SelectedRouteLayer selectedRoute={selectedRoute} />
+      <SelectedRouteLayer selectedRoute={selectedRoute} tripType={tripType} />
 
       {/* Component này xử lý SignalR (Gửi và Nhận) */}
       <SignalRHandler
@@ -484,6 +621,7 @@ const MapComponent = ({
         onAnimationFinished={onAnimationFinished}
         listenOnly={listenOnly}
         specificBusId={specificBusId}
+        onTripTypeDetected={onTripTypeDetected}
       />
     </MapContainer>
   );

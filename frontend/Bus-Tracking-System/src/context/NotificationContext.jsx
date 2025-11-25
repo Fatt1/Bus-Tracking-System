@@ -39,6 +39,7 @@ export const NotificationProvider = ({ children }) => {
   const connectionRef = useRef(null);
   const reconnectTimeoutRef = useRef(null);
   const recentlySentRef = useRef([]); // Track recently sent notifications with timestamp [{key, timestamp}]
+  const recentlyReceivedRef = useRef([]); // ✅ NEW: Track recently received to prevent duplicates [{key, timestamp}]
 
   // Fetch unread count from backend
   const fetchUnreadCount = useCallback(async () => {
@@ -124,6 +125,7 @@ export const NotificationProvider = ({ children }) => {
       console.log("🏷️ Type:", notification.NotificationType || notification.notificationType);
       console.log("👤 Current User ID:", getCurrentUserId());
       console.log("🔍 Recently sent by me:", recentlySentRef.current);
+      console.log("🔍 Recently received:", recentlyReceivedRef.current);
       console.log("════════════════════════════════════════════════════════════");
 
       const title = notification.Title || notification.title || "Thông báo mới";
@@ -138,8 +140,24 @@ export const NotificationProvider = ({ children }) => {
       recentlySentRef.current = recentlySentRef.current.filter(
         (item) => now - item.timestamp < 3000
       );
+      recentlyReceivedRef.current = recentlyReceivedRef.current.filter(
+        (item) => now - item.timestamp < 2000 // ✅ Shorter window for received (2 seconds)
+      );
 
-      // Check if THIS USER recently sent this exact notification (within last 3 seconds)
+      // ✅ FIRST: Check if we already received this exact notification recently (prevent backend duplicates)
+      const isRecentlyReceived = recentlyReceivedRef.current.some(
+        (item) => item.key === notificationKey
+      );
+
+      if (isRecentlyReceived) {
+        console.log(
+          "🚫 DUPLICATE DETECTED - Already received this notification within 2 seconds:",
+          notificationKey
+        );
+        return; // Skip completely, don't even increment unread count
+      }
+
+      // ✅ SECOND: Check if THIS USER recently sent this exact notification (within last 3 seconds)
       const isRecentlySentByMe = recentlySentRef.current.some(
         (item) => item.key === notificationKey && item.userId === currentUserId
       );
@@ -154,7 +172,14 @@ export const NotificationProvider = ({ children }) => {
         return;
       }
 
+      // ✅ Mark this notification as received to prevent duplicates
+      recentlyReceivedRef.current.push({
+        key: notificationKey,
+        timestamp: now,
+      });
+
       console.log("✅ Showing toast for notification");
+      console.log("📝 Updated recently received list:", recentlyReceivedRef.current);
 
       // Add toast popup
       addToast({

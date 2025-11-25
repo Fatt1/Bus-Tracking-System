@@ -82,13 +82,15 @@
   margin-right: 10px;
   width: 16px;
   height: 16px;
-  cursor: pointer;
+  cursor: pointer !important;
+  accent-color: var(--primary-blue, #0a2e5d);
 }
 
 .dropdown-list-item label {
   flex-grow: 1;
-  cursor: pointer;
+  cursor: pointer !important;
   margin: 0; /* Ghi đè margin mặc định */
+  user-select: none; /* Ngăn chọn text khi click */
 }
 
 .dropdown-list-item.select-all {

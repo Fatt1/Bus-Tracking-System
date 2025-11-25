@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import api from "../../utils/api"; // Import api instance với token support
 import { clearAuth, getFullName } from "../../utils/auth";
 import { useNotification } from "../../context/NotificationContext";
+import { useToastContext } from "../../components/ToastProvider";
 import ReportIncidentModal from "../../components/driver/ReportIncidentModal";
 import NotificationDetailModal from "../../components/NotificationDetailModal";
 import DriverSidebar from "../../components/driver/DriverSidebar";
@@ -16,6 +17,7 @@ import {
   FaTimes,
   FaSpinner,
   FaSearch,
+  FaExclamationTriangle,
 } from "react-icons/fa";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
@@ -61,6 +63,7 @@ const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, count }) => {
 // --- COMPONENT CHÍNH TRANG THÔNG BÁO ---
 const DriverNotificationPage = () => {
   const { t } = useTranslation();
+  const toast = useToastContext();
   const { unreadCount, refreshUnreadCount } = useNotification();
   const [activeTab, setActiveTab] = useState("inbox"); // 'sent' hoặc 'inbox' (Bắt đầu bằng Thư đến)
   const [sentNotifications, setSentNotifications] = useState([]);
@@ -170,35 +173,47 @@ const DriverNotificationPage = () => {
     }
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (!itemToDelete) return;
-    let idsToDelete;
-    if (itemToDelete.id) {
-      idsToDelete = [itemToDelete.id];
-    } else {
-      idsToDelete = Array.from(selectedIds);
-    }
+    
+    try {
+      let idsToDelete;
+      if (itemToDelete.id) {
+        idsToDelete = [itemToDelete.id];
+      } else {
+        idsToDelete = Array.from(selectedIds);
+      }
 
-    console.log(`Deleting notifications with IDs:`, idsToDelete);
-    // Cập nhật state (tạm thời)
-    if (activeTab === "sent") {
-      setSentNotifications((prev) =>
-        prev.filter((n) => !idsToDelete.includes(n.id))
-      );
-    } else {
-      setInboxNotifications((prev) =>
-        prev.filter((n) => !idsToDelete.includes(n.id))
-      );
-    }
+      console.log(`Deleting notifications with IDs:`, idsToDelete);
 
-    setSelectedIds(new Set());
-    setItemToDelete(null);
-    alert(
-      t("driverApp.notifications.deleteSuccess").replace(
-        "{count}",
-        itemToDelete.count
-      )
-    );
+      // Call API to delete notifications
+      const deletePromises = idsToDelete.map(async (id) => {
+        if (activeTab === "sent") {
+          return api.delete(`/api/v1/notificaton/sent/${id}`);
+        } else {
+          return api.delete(`/api/v1/notificaton/receive/${id}`);
+        }
+      });
+
+      await Promise.all(deletePromises);
+      console.log("✅ Notifications deleted successfully");
+
+      // Refresh notifications after deletion
+      await fetchNotifications();
+
+      setSelectedIds(new Set());
+      setItemToDelete(null);
+      toast.success(
+        t("driverApp.notifications.deleteSuccess").replace(
+          "{count}",
+          itemToDelete.count
+        )
+      );
+    } catch (error) {
+      console.error("Failed to delete notifications:", error);
+      toast.error("Không thể xóa thông báo. Vui lòng thử lại.");
+      setItemToDelete(null);
+    }
   };
 
   const changeTab = (tabName) => {
