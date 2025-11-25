@@ -425,7 +425,7 @@
       "technical": "Technical Issue (Breakdown, flat tire)",
       "traffic": "Traffic Incident (Traffic jam, minor accident)",
       "medical": "Medical Emergency (Student is sick)",
-      "other": "Other",
+      "other": "Running Late Notification",
       "loading": "Loading...",
       "sending": "Sending report...",
       "loadingAdmins": "Loading admin list, please wait...",
