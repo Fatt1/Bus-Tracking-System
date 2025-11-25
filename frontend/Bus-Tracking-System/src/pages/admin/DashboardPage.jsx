@@ -156,7 +156,7 @@ const DashboardPage = () => {
           <div className="header-actions">
             <LanguageSwitcher />
             {roles && roles.length > 0 ? (
-              <button className="login-button" onClick={handleLogout}>
+              <button className="login-button logout-button" onClick={handleLogout}>
                 <FiLogOut className="logout-icon" />
                 <span className="logout-text">{t("common.logout")}</span>
               </button>
