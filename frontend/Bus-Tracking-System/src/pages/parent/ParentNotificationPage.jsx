@@ -4,6 +4,7 @@ import { getFullName } from "../../utils/auth";
 import ParentSidebar from "../../components/parent/ParentSidebar";
 import ParentHeader from "../../components/parent/ParentHeader";
 import NotificationDetailModal from "../../components/NotificationDetailModal";
+import { useToastContext } from "../../components/ToastProvider";
 import { FiClock, FiUser } from "react-icons/fi";
 import { FaSpinner, FaBell, FaTrashAlt, FaExclamationTriangle } from "react-icons/fa";
 import { format } from "date-fns";
@@ -49,6 +50,7 @@ const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, count }) => {
 
 const ParentNotificationPage = () => {
   const { t, i18n } = useTranslation();
+  const toast = useToastContext();
   const [notifications, setNotifications] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -210,10 +212,10 @@ const ParentNotificationPage = () => {
       setNotifications(mappedNotifications);
       setSelectedIds(new Set());
       setItemToDelete(null);
-      alert(`Đã xóa ${itemToDelete.count} thông báo thành công!`);
+      toast.success(`Đã xóa ${itemToDelete.count} thông báo thành công!`);
     } catch (error) {
       console.error("Failed to delete notifications:", error);
-      alert("Không thể xóa thông báo. Vui lòng thử lại.");
+      toast.error("Không thể xóa thông báo. Vui lòng thử lại.");
       setItemToDelete(null);
     }
   };

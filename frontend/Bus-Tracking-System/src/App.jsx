@@ -32,6 +32,7 @@ import LoginPage from "./pages/LoginPage";
 import Layout from "./components/Layout";
 import RequireRole from "./components/RequireRole";
 import BusSimulationManager from "./utils/BusSimulationManager";
+import { ToastProvider } from "./components/ToastProvider";
 
 function App() {
   // Resume BusSimulationManager FE khi app mount (reload/mở lại tab)
@@ -66,9 +67,10 @@ function App() {
     loadCart();
   }, []);
   return (
-    <Routes>
-      {/* Route không có Sidebar Admin (ví dụ Login, Trang tài xế) */}
-      <Route path="/login" element={<LoginPage />} />
+    <ToastProvider>
+      <Routes>
+        {/* Route không có Sidebar Admin (ví dụ Login, Trang tài xế) */}
+        <Route path="/login" element={<LoginPage />} />
 
       {/* 2. TRANG TÀI XẾ - CHỈ DÀNH CHO ROLE Driver */}
       <Route
@@ -153,6 +155,7 @@ function App() {
         <Route path="notification" element={<NotificationPage />} />
       </Route>
     </Routes>
+    </ToastProvider>
   );
 }
 

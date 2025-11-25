@@ -426,7 +426,7 @@
       "loading": "Đang tải thông báo...",
       "error": "Không thể tải thông báo. Vui lòng thử lại.",
       "retry": "Thử lại",
-      "deleteSuccess": "Đã xóa {count} thông báo (mock data)!"
+      "deleteSuccess": "Đã xóa {count} thông báo !"
     },
     "incident": {
       "title": "Báo cáo sự cố",

@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import api from "../../utils/api"; // Import api instance với token support
 import { getCurrentUserId } from "../../utils/auth"; // Import để lấy current user ID
 import { useNotification } from "../../context/NotificationContext"; // Import để mark as recently sent
+import { useToastContext } from "../ToastProvider";
 import {
   FaWrench,
   FaCarCrash,
@@ -15,6 +16,7 @@ import "./ReportIncidentModal.css";
 
 const ReportIncidentModal = ({ isOpen, onClose }) => {
   const { t } = useTranslation();
+  const toast = useToastContext();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [adminUsers, setAdminUsers] = useState([]);
   const [parentUsers, setParentUsers] = useState([]); // ✅ THÊM: State cho phụ huynh
@@ -71,12 +73,12 @@ const ReportIncidentModal = ({ isOpen, onClose }) => {
     console.log("Option selected:", option);
 
     if (loadingAdmins) {
-      alert(t("driverApp.incident.loadingAdmins"));
+      toast.warning(t("driverApp.incident.loadingAdmins"));
       return;
     }
 
     if (adminUsers.length === 0) {
-      alert(t("driverApp.incident.noAdmins"));
+      toast.error(t("driverApp.incident.noAdmins"));
       return;
     }
 
@@ -134,13 +136,13 @@ const ReportIncidentModal = ({ isOpen, onClose }) => {
       markAsRecentlySent(t("driverApp.incident.title"), message);
 
       console.log("Report sent successfully!");
-      alert(t("driverApp.incident.success"));
+      toast.success(t("driverApp.incident.success"));
       onClose();
     } catch (err) {
       console.error("Lỗi khi gửi báo cáo:", err);
-      alert(
+      toast.error(
         t("driverApp.incident.error") +
-          "\n" +
+          ": " +
           (err.response?.data?.message || err.message)
       );
     } finally {

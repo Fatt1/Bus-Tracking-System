@@ -418,7 +418,7 @@
       "loading": "Loading notifications...",
       "error": "Unable to load notifications. Please try again.",
       "retry": "Retry",
-      "deleteSuccess": "Deleted {count} notifications (mock data)!"
+      "deleteSuccess": "Deleted {count} notifications !"
     },
     "incident": {
       "title": "Report Incident",

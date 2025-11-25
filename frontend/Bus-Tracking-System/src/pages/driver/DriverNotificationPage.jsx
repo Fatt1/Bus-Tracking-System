@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import api from "../../utils/api"; // Import api instance với token support
 import { clearAuth, getFullName } from "../../utils/auth";
 import { useNotification } from "../../context/NotificationContext";
+import { useToastContext } from "../../components/ToastProvider";
 import ReportIncidentModal from "../../components/driver/ReportIncidentModal";
 import NotificationDetailModal from "../../components/NotificationDetailModal";
 import DriverSidebar from "../../components/driver/DriverSidebar";
@@ -62,6 +63,7 @@ const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, count }) => {
 // --- COMPONENT CHÍNH TRANG THÔNG BÁO ---
 const DriverNotificationPage = () => {
   const { t } = useTranslation();
+  const toast = useToastContext();
   const { unreadCount, refreshUnreadCount } = useNotification();
   const [activeTab, setActiveTab] = useState("inbox"); // 'sent' hoặc 'inbox' (Bắt đầu bằng Thư đến)
   const [sentNotifications, setSentNotifications] = useState([]);
@@ -201,7 +203,7 @@ const DriverNotificationPage = () => {
 
       setSelectedIds(new Set());
       setItemToDelete(null);
-      alert(
+      toast.success(
         t("driverApp.notifications.deleteSuccess").replace(
           "{count}",
           itemToDelete.count
@@ -209,7 +211,7 @@ const DriverNotificationPage = () => {
       );
     } catch (error) {
       console.error("Failed to delete notifications:", error);
-      alert("Không thể xóa thông báo. Vui lòng thử lại.");
+      toast.error("Không thể xóa thông báo. Vui lòng thử lại.");
       setItemToDelete(null);
     }
   };
