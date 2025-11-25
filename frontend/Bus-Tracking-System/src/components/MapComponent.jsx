@@ -374,7 +374,7 @@ const SignalRHandler = ({
 };
 
 // --- COMPONENT VẼ ĐƯỜNG ĐI VÀ ĐIỂM DỪNG (Tĩnh) ---
-const SelectedRouteLayer = ({ selectedRoute }) => {
+const SelectedRouteLayer = ({ selectedRoute, tripType }) => {
   const map = useMap();
   const routingControlRef = useRef(null);
   const stopMarkersRef = useRef([]);
@@ -393,6 +393,12 @@ const SelectedRouteLayer = ({ selectedRoute }) => {
       const sortedPoints = [...selectedRoute.stopPoints].sort(
         (a, b) => a.sequenceOrder - b.sequenceOrder
       );
+
+      // ✅ Nếu là chuyến về (dropoff), đảo ngược thứ tự để vẽ đường ngược lại
+      if (tripType === 'dropoff') {
+        sortedPoints.reverse();
+      }
+
       const waypoints = sortedPoints.map((p) =>
         L.latLng(p.latitude, p.longitude)
       );
@@ -413,8 +419,9 @@ const SelectedRouteLayer = ({ selectedRoute }) => {
 
         sortedPoints.forEach((point, index) => {
           const position = L.latLng(point.latitude, point.longitude);
-          const markerIcon =
-            index === sortedPoints.length - 1 ? redIcon : DefaultIcon;
+          // Điểm cuối cùng trong mảng sau khi đảo/không đảo sẽ là điểm đích
+          const isDestination = index === sortedPoints.length - 1;
+          const markerIcon = isDestination ? redIcon : DefaultIcon;
           const stopMarker = L.marker(position, { icon: markerIcon })
             .bindPopup(`<b>${point.pointName}</b><br>Trạm dừng số ${index + 1}`)
             .addTo(map);
@@ -443,7 +450,7 @@ const SelectedRouteLayer = ({ selectedRoute }) => {
       stopMarkersRef.current.forEach((marker) => map.removeLayer(marker));
       stopMarkersRef.current = [];
     };
-  }, [selectedRoute, map]);
+  }, [selectedRoute, map, tripType]);
 
   return null;
 };
@@ -455,13 +462,16 @@ const MapComponent = ({
   onAnimationFinished = () => {},
   listenOnly = false, // NEW: Chỉ lắng nghe realtime (không giả lập)
   specificBusId = null, // NEW: Lắng nghe xe cụ thể
+  tripType = 'pickup', // NEW: 'pickup' hoặc 'dropoff' - mặc định là pickup
 }) => {
   const initialPosition = [10.7769, 106.6954];
   console.log(
     "MapComponent rendering với selectedRoute:",
     selectedRoute,
     "listenOnly:",
-    listenOnly
+    listenOnly,
+    "tripType:",
+    tripType
   );
 
   return (
@@ -475,7 +485,7 @@ const MapComponent = ({
         attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
       />
       {/* Component này vẽ đường đi tĩnh */}
-      <SelectedRouteLayer selectedRoute={selectedRoute} />
+      <SelectedRouteLayer selectedRoute={selectedRoute} tripType={tripType} />
 
       {/* Component này xử lý SignalR (Gửi và Nhận) */}
       <SignalRHandler

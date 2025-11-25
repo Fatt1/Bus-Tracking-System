@@ -46,6 +46,7 @@ const ParentTrackingMapPage = () => {
             console.log("   - Bus Name:", data.busName);
             console.log("   - Route:", data.routeDTO.routeName);
             console.log("   - Stop Points:", data.routeDTO.stopPoints.length);
+            console.log("   - Trip Type:", data.tripType); // Log tripType from API
 
             setBusLocationData(data);
           }
@@ -117,6 +118,7 @@ const ParentTrackingMapPage = () => {
                 selectedRoute={busLocationData.routeDTO}
                 listenOnly={true}
                 specificBusId={busLocationData.busId}
+                tripType={busLocationData.tripType === 2 ? 'dropoff' : 'pickup'}
               />
             </div>
           )}

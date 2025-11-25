@@ -5,11 +5,47 @@ import ParentSidebar from "../../components/parent/ParentSidebar";
 import ParentHeader from "../../components/parent/ParentHeader";
 import NotificationDetailModal from "../../components/NotificationDetailModal";
 import { FiClock, FiUser } from "react-icons/fi";
-import { FaSpinner, FaBell } from "react-icons/fa";
+import { FaSpinner, FaBell, FaTrashAlt, FaExclamationTriangle } from "react-icons/fa";
 import { format } from "date-fns";
 import { vi, enUS } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
 import "./ParentNotificationPage.css";
+
+// --- COMPONENT MODAL XÁC NHẬN XÓA ---
+const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, count }) => {
+  const { t } = useTranslation();
+  if (!isOpen) return null;
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div
+        className="modal-content confirm-delete"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="modal-header">
+          <FaExclamationTriangle size={40} color="#e74c3c" />
+          <h4>{t("notification.confirmDelete")}</h4>
+        </div>
+        <p className="confirm-text">
+          {count === 1
+            ? t("notification.thisNotification")
+            : t("notification.selectedNotifications", { count })}{" "}
+          {t("notification.cannotUndo")}
+        </p>
+        <div className="confirm-actions">
+          <button className="confirm-btn cancel-btn" onClick={onClose}>
+            {t("common.cancel")}
+          </button>
+          <button
+            className="confirm-btn delete-confirm-btn"
+            onClick={onConfirm}
+          >
+            {t("common.delete")}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const ParentNotificationPage = () => {
   const { t, i18n } = useTranslation();
@@ -19,6 +55,8 @@ const ParentNotificationPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("all"); // 'all' or 'unread'
   const [selectedNotification, setSelectedNotification] = useState(null); // For detail modal
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const [itemToDelete, setItemToDelete] = useState(null);
 
   // Get parent name from sessionStorage
   const parentName = getFullName() || t("parent.home.parent");
@@ -106,9 +144,96 @@ const ParentNotificationPage = () => {
     }
   };
 
+  // Handle select notification for deletion
+  const handleSelectItem = (id) => {
+    setSelectedIds((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) newSet.delete(id);
+      else newSet.add(id);
+      return newSet;
+    });
+  };
+
+  const handleSelectAll = (event) => {
+    const isChecked = event.target.checked;
+    if (isChecked) {
+      setSelectedIds(new Set(filteredNotifications.map((n) => n.id)));
+    } else {
+      setSelectedIds(new Set());
+    }
+  };
+
+  // Handle delete request
+  const handleDeleteRequest = (id = null) => {
+    if (id) {
+      setItemToDelete({ id, count: 1 });
+    } else if (selectedIds.size > 0) {
+      setItemToDelete({ id: null, count: selectedIds.size });
+    }
+  };
+
+  // Handle confirm delete
+  const handleConfirmDelete = async () => {
+    if (!itemToDelete) return;
+
+    try {
+      let idsToDelete = itemToDelete.id
+        ? [itemToDelete.id]
+        : Array.from(selectedIds);
+
+      console.log(`Deleting notifications with IDs:`, idsToDelete);
+
+      // Call API to delete notifications
+      const deletePromises = idsToDelete.map(async (id) => {
+        return api.delete(`/api/v1/notificaton/receive/${id}`);
+      });
+
+      await Promise.all(deletePromises);
+      console.log("✅ Notifications deleted successfully");
+
+      // Refresh notifications after deletion
+      const response = await api.get(
+        "/api/v1/notificaton/received-notifications"
+      );
+      const mappedNotifications = (response.data || [])
+        .map((notif) => ({
+          id: notif.receivedNotifcationId,
+          title: notif.title,
+          message: notif.message,
+          isRead: notif.isRead,
+          createdAt: notif.sendAt,
+          senderName: notif.senderUserName,
+          senderUserId: notif.senderUserId,
+        }))
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+      setNotifications(mappedNotifications);
+      setSelectedIds(new Set());
+      setItemToDelete(null);
+      alert(`Đã xóa ${itemToDelete.count} thông báo thành công!`);
+    } catch (error) {
+      console.error("Failed to delete notifications:", error);
+      alert("Không thể xóa thông báo. Vui lòng thử lại.");
+      setItemToDelete(null);
+    }
+  };
+
+  const isAllSelected =
+    filteredNotifications.length > 0 &&
+    selectedIds.size === filteredNotifications.length &&
+    filteredNotifications.every((n) => selectedIds.has(n.id));
+
   return (
     <div className="parent-notification-page-container">
       <ParentSidebar />
+
+      {/* Modal xác nhận xóa */}
+      <ConfirmDeleteModal
+        isOpen={!!itemToDelete}
+        onClose={() => setItemToDelete(null)}
+        onConfirm={handleConfirmDelete}
+        count={itemToDelete?.count || 0}
+      />
 
       {/* Modal chi tiết thông báo */}
       <NotificationDetailModal
@@ -131,7 +256,7 @@ const ParentNotificationPage = () => {
             </h2>
           </div>
 
-          {/* Search Bar */}
+          {/* Search Bar and Actions */}
           <div className="notification-filter-bar">
             <input
               type="text"
@@ -140,6 +265,15 @@ const ParentNotificationPage = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
+            {selectedIds.size > 0 && (
+              <button
+                onClick={() => handleDeleteRequest(null)}
+                className="delete-selected-btn"
+                title={`Xóa ${selectedIds.size} thông báo`}
+              >
+                <FaTrashAlt /> Xóa ({selectedIds.size})
+              </button>
+            )}
           </div>
 
           {/* Tabs */}
@@ -179,6 +313,13 @@ const ParentNotificationPage = () => {
             ) : (
               <>
                 <div className="notification-list-header">
+                  <input
+                    type="checkbox"
+                    checked={isAllSelected}
+                    onChange={handleSelectAll}
+                    disabled={filteredNotifications.length === 0}
+                    style={{ marginRight: "10px" }}
+                  />
                   <span className="header-content">
                     {t("parent.notifications.headerContent")}
                   </span>
@@ -188,6 +329,7 @@ const ParentNotificationPage = () => {
                   <span className="header-time">
                     {t("parent.notifications.headerTime")}
                   </span>
+                  <span className="header-actions">Thao tác</span>
                 </div>
 
                 <div className="notification-list-body">
@@ -209,11 +351,22 @@ const ParentNotificationPage = () => {
                         key={notif.id}
                         className={`notification-list-item ${
                           !notif.isRead ? "unread" : ""
+                        } ${
+                          selectedIds.has(notif.id) ? "selected" : ""
                         }`}
-                        onClick={() => handleNotificationClick(notificationForModal)}
-                        style={{ cursor: "pointer" }}
                       >
-                        <div className="notification-item-content">
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.has(notif.id)}
+                          onChange={() => handleSelectItem(notif.id)}
+                          onClick={(e) => e.stopPropagation()}
+                          style={{ marginRight: "10px" }}
+                        />
+                        <div 
+                          className="notification-item-content"
+                          onClick={() => handleNotificationClick(notificationForModal)}
+                          style={{ cursor: "pointer", flex: 1 }}
+                        >
                           <p className="notification-text">
                             {notif.message || t("parent.notifications.noContent")}
                           </p>
@@ -232,6 +385,16 @@ const ParentNotificationPage = () => {
                           <FiClock />
                           <span>{formatDateTime(notif.createdAt)}</span>
                         </div>
+                        <button
+                          className="delete-single-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteRequest(notif.id);
+                          }}
+                          title="Xóa thông báo này"
+                        >
+                          <FaTrashAlt />
+                        </button>
                       </div>
                     );
                   })}
