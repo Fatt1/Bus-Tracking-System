@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import api from "../../utils/api"; // Import api instance với token support
+import { clearAuth, getFullName } from "../../utils/auth"; // Import auth utilities
 import DriverSidebar from "../../components/driver/DriverSidebar";
 import DriverHeader from "../../components/driver/DriverHeader";
 import "./DriverHomePage.css"; // Tái sử dụng layout chung
@@ -183,6 +185,8 @@ const StudentCard = ({ student, index, statusOptions, onStatusChange, disabled }
 // --- COMPONENT CHÍNH TRANG ĐIỂM DANH ---
 const DriverStudentListPage = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const fullName = getFullName() || "Tài xế";
   const [activeTab, setActiveTab] = useState("pickup"); // 'pickup' hoặc 'return'
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -530,6 +534,19 @@ const DriverStudentListPage = () => {
           <DriverHeader
             onReportIncident={() => setIsIncidentModalOpen(true)}
             breadcrumb={t("driverApp.students.breadcrumb")}
+            driverName={fullName}
+            onLogout={async () => {
+              try {
+                await api.post("/api/v1/auth/logout");
+              } catch {
+                // ignore
+              } finally {
+                clearAuth();
+                navigate("/login", { replace: true });
+              }
+            }}
+            unreadCount={0}
+            onNotificationClick={() => navigate("/driver/notifications")}
           />
 
           <main className="driver-main-content student-attendance-page">

@@ -3,6 +3,24 @@
 .report-incident-modal {
   min-width: 500px;
   max-width: 600px;
+  width: 90%;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .report-incident-modal {
+    min-width: unset;
+    width: 95%;
+    max-width: 500px;
+  }
+}
+
+@media (max-width: 480px) {
+  .report-incident-modal {
+    width: 95%;
+    max-width: 100%;
+    padding: 20px;
+  }
 }
 
 .modal-title {
@@ -128,4 +146,60 @@
 .driver-modal-close-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .driver-modal-content {
+    padding: 20px;
+    max-width: 95%;
+  }
+
+  .modal-title {
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+  }
+
+  .incident-option {
+    padding: 15px;
+    gap: 15px;
+    font-size: 0.95rem;
+  }
+
+  .incident-option svg {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .driver-modal-content {
+    padding: 15px;
+    border-radius: 8px;
+  }
+
+  .modal-title {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+  }
+
+  .incident-options-list {
+    gap: 12px;
+    padding: 5px;
+  }
+
+  .incident-option {
+    padding: 12px 15px;
+    gap: 12px;
+    font-size: 0.9rem;
+  }
+
+  .incident-option svg {
+    font-size: 18px;
+  }
+
+  .driver-modal-close-btn {
+    top: 10px;
+    right: 10px;
+    font-size: 1.3rem;
+  }
 }
