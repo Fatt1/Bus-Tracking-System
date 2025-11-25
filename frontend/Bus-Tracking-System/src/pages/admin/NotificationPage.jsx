@@ -197,17 +197,6 @@ const CreateNotificationModal = ({
             )}
           </div>
 
-          <div className="form-group send-to-self">
-            <label>
-              <input
-                type="checkbox"
-                checked={sendToSelf}
-                onChange={(e) => setSendToSelf(e.target.checked)}
-              />{" "}
-              {t("notification.sendToSelf")}
-            </label>
-          </div>
-
           <div className="form-actions modal-actions notification-actions">
             <button
               type="button"
@@ -243,13 +232,9 @@ const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, count }) => {
           <h4>{t("notification.confirmDelete")}</h4>
         </div>
         <p className="confirm-text">
-          {t("notification.deleteMessage", {
-            count: count,
-            item:
-              count === 1
-                ? t("notification.thisNotification")
-                : t("notification.selectedNotifications", { count }),
-          })}{" "}
+          {count === 1
+            ? t("notification.thisNotification")
+            : t("notification.selectedNotifications", { count })}{" "}
           {t("notification.cannotUndo")}
         </p>
         <div className="confirm-actions">

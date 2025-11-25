@@ -481,9 +481,7 @@ const BusListPage = () => {
       // API DELETE thường trả về 200 OK hoặc 204 No Content khi thành công
       if (response.status === 200 || response.status === 204) {
         alert(
-          `${t("bus.deleteSuccess")} ${busToDelete.busName || busToDelete.id} ${
-            t("bus.addSuccess").split("!")[0]
-          }!`
+          `${t("bus.deleteSuccess")} ${busToDelete.busName || busToDelete.id} thành công!`
         );
         // Sau khi xóa thành công, fetch lại dữ liệu cho trang hiện tại
         // Hoặc xử lý logic chuyển trang nếu trang hiện tại rỗng
