@@ -30,7 +30,7 @@ namespace TrackingBusSystem.Infrastructure.Hubs
         public async Task SendLocation(int busId, double lat, double lng, string tripType)
         {
             // Gọi service để xử lý logic
-            var resultDto = await _busTrackingService.ProcessLocationUpdateAsync(busId, lat, lng);
+            var resultDto = await _busTrackingService.ProcessLocationUpdateAsync(busId, lat, lng, tripType);
 
             // Nếu có dữ liệu trả về thì gửi broadcast
             if (resultDto != null)
