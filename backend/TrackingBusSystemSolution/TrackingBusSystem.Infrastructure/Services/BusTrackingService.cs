@@ -37,7 +37,7 @@ namespace TrackingBusSystem.Infrastructure.Services
             _logger = logger;
         }
 
-        public async Task<BusLastLocationDTO?> ProcessLocationUpdateAsync(int busId, double lat, double lng)
+        public async Task<BusLastLocationDTO?> ProcessLocationUpdateAsync(int busId, double lat, double lng, string tripType)
         {
             // 1. Lưu vị trí vào DB (dùng MediatR như cũ)
             await _mediator.Send(new BusLocationUpdateCommand { BusId = busId, Latitude = lat, Longitude = lng });
@@ -54,7 +54,7 @@ namespace TrackingBusSystem.Infrastructure.Services
             _ = Task.Run(() => CheckAndNotifyParentsAsync(busId, lat, lng));
 
             // 4. Trả về dữ liệu để Hub gửi đi
-            return new BusLastLocationDTO(lat, lng, busId, schedule?.RouteId, schedule?.RouteName);
+            return new BusLastLocationDTO(lat, lng, busId, schedule?.RouteId, schedule?.RouteName, tripType);
         }
 
         private async Task CheckAndNotifyParentsAsync(int busId, double busLat, double busLng)

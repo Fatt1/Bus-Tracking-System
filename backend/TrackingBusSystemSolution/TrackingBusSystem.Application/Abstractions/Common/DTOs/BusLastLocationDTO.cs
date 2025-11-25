@@ -5,6 +5,7 @@
             double Lng,
             int BusId,
             int? RouteId,
-            string? RouteName
+            string? RouteName,
+            string? TripType
         );
 }

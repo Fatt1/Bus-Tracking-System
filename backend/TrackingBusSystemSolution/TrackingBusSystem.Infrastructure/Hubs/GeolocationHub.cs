@@ -27,7 +27,7 @@ namespace TrackingBusSystem.Infrastructure.Hubs
             await Groups.AddToGroupAsync(Context.ConnectionId, "admin-group");
         }
 
-        public async Task SendLocation(int busId, double lat, double lng)
+        public async Task SendLocation(int busId, double lat, double lng, string tripType)
         {
             // Gọi service để xử lý logic
             var resultDto = await _busTrackingService.ProcessLocationUpdateAsync(busId, lat, lng);

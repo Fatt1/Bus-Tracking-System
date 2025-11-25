@@ -1,9 +1,9 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
-using TrackingBusSystem.Application.Abstractions.Common.Interfaces;
 using TrackingBusSystem.Application.Features.Buses.Command;
 using TrackingBusSystem.Domain.Entities;
 using TrackingBusSystem.Infrastructure.Data;
@@ -48,7 +48,7 @@ namespace TrackingBusSystem.PerformanceTests
                 .Setup(m => m.Send(It.IsAny<BusLocationUpdateCommand>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Result.Success()); // Hoặc Returns(Task.CompletedTask) tùy phiên bản MediatR
 
-            var mockNoti = new Mock<INotificationService>();
+            var mockServiceScopeFactory = new Mock<IServiceScopeFactory>();
             var mockLogger = new Mock<ILogger<BusTrackingService>>();
             var realCache = new MemoryCache(new MemoryCacheOptions());
 
@@ -63,13 +63,13 @@ namespace TrackingBusSystem.PerformanceTests
                 {
                     using var localContext = new AppDbContext(dbOptions);
                     var localService = new BusTrackingService(
-                        mockMediator.Object, localContext, mockNoti.Object, realCache, mockLogger.Object
+                        mockServiceScopeFactory.Object, mockMediator.Object, localContext, realCache, mockLogger.Object
                     );
 
                     double lat = 10.762 + (i * 0.0001);
                     double lng = 106.660 + (i * 0.0001);
 
-                    await localService.ProcessLocationUpdateAsync(busId, lat, lng);
+                    await localService.ProcessLocationUpdateAsync(busId, lat, lng, "Go");
                 }));
             }
 
