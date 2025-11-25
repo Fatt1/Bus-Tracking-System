@@ -265,7 +265,7 @@ class BusSimulationManager {
         this.hubConnection.state === signalR.HubConnectionState.Connected
       ) {
         this.hubConnection
-          .invoke("SendLocation", this.state.busId, pos.lat, pos.lng)
+          .invoke("SendLocation", this.state.busId, pos.lat, pos.lng, this.state.tripType || "pickup")
           .catch((err) =>
             console.error("BusSimManager SendLocation error:", err)
           );
